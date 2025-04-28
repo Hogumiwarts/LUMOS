@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "LUMOS"
 include(":app")
- 
+include(":domain")
+include(":data")
