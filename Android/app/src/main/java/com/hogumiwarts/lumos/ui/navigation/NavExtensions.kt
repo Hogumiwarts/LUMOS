@@ -7,7 +7,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
  * 화면 순서를 고려한 네비게이션 확장 함수
  *
  * @param route 이동할 화면의 경로
- * @param routes 화면 순서 목록 (왼쪽에서 오른쪽으로 나열된 순서)
+ * @param routes 화면 순서 목록 (좌에서 우로 나열된 순서)
  */
 fun NavController.navigateWithSlideDirection(route: String, routes: List<String>) {
     val currentRoute = currentDestination?.route ?: return
@@ -32,8 +32,6 @@ fun NavController.navigateWithSlideDirection(route: String, routes: List<String>
     }
 
     // 애니메이션 방향을 적용한 네비게이션
-    // 이 함수에서는 실제 애니메이션이 적용되지 않고, NavGraph에서 정의된 애니메이션이 사용됨
-    // 여기서는 적절한 네비게이션 명령만 수행
     navigate(route) {
         launchSingleTop = true
         restoreState = true
@@ -41,4 +39,24 @@ fun NavController.navigateWithSlideDirection(route: String, routes: List<String>
             saveState = true
         }
     }
+}
+
+/**
+ * 두 화면 사이의 방향 관계 확인 (UI 배치 순서 기준)
+ *
+ * @param from 출발 화면 경로
+ * @param to 도착 화면 경로
+ * @param screenOrder 화면 순서 목록
+ * @return true면 왼쪽에서 오른쪽, false면 오른쪽에서 왼쪽
+ */
+fun getNavigationDirection(from: String?, to: String?, screenOrder: List<String>): Boolean {
+    if (from == null || to == null) return true
+
+    val fromIndex = screenOrder.indexOf(from)
+    val toIndex = screenOrder.indexOf(to)
+
+    if (fromIndex == -1 || toIndex == -1) return true
+
+    // 바텀 네비게이션에서 왼쪽(인덱스가 작은)에서 오른쪽(인덱스가 큰)으로 이동하는지 여부
+    return fromIndex < toIndex
 }

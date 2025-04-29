@@ -16,8 +16,9 @@ fun BottomNavigation(
     modifier: Modifier = Modifier
 ) {
     val items = listOf(
+        BottomNavItem.Info,
         BottomNavItem.Home,
-        BottomNavItem.Settings
+        BottomNavItem.Settings,
     )
 
     // 화면 순서 정의 (왼쪽에서 오른쪽 순서로)
