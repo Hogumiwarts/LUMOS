@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -50,15 +53,63 @@ android {
 }
 
 dependencies {
+    // 하위 모듈
+    implementation(project(":domain"))
+    implementation(project(":data"))
 
+    // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Compose BOM + UI
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.compose.material)  // Material 1.x (옵션)
+    debugImplementation(libs.androidx.ui.tooling)
+
+    // Navigation
+    implementation(libs.navigation.compose)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+
+    // 이미지 로딩
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
+
+    // Paging
+    implementation(libs.paging)
+    implementation(libs.paging.compose)
+
+    // Lottie
+    implementation(libs.lottie)
+    implementation(libs.lottie.compose)
+
+    // Logging
+    implementation(libs.timber)
+
+    // DataStore
+    implementation(libs.datastore.preferences)
+
+    // Serialization
+    implementation(libs.kotlin.serialization)
+
+    // Coroutines
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+
+    // Material / AppCompat (필요 시)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+
+    // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
