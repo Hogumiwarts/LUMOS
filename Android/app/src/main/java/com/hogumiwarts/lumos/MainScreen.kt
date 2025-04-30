@@ -1,11 +1,13 @@
 package com.hogumiwarts.lumos
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -31,13 +33,17 @@ fun MainScreen() {
 
                 },
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(72.dp)
                     .offset(y = 52.dp),
                 shape = CircleShape,
-                containerColor = Color.White
+                containerColor = Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 4.dp
+                )
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_main_button),  // 중앙 로고
+                Image(
+                    painter = painterResource(R.drawable.ic_main),  // 중앙 로고
                     contentDescription = null,
                     modifier = Modifier.size(48.dp)
                 )
