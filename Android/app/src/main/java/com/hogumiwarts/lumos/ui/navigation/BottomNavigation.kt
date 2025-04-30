@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.hogumiwarts.lumos.R
 
 @Composable
 fun BottomNavigation(
@@ -48,10 +49,25 @@ fun BottomNavigation(
             if (item == null) {
                 Spacer(Modifier.weight(1f, fill = true))
             } else {
+                val selected = currentRoute == item.route
+
+                val iconResId = if (selected) {
+                    // 선택된 상태: _off를 _on으로 변경
+                    when (item) {
+                        BottomNavItem.Home -> R.drawable.ic_home_on
+                        BottomNavItem.Info -> R.drawable.ic_device_on
+                        BottomNavItem.Routine -> R.drawable.ic_routine_on
+                        BottomNavItem.Settings -> R.drawable.ic_menu_on
+                    }
+                } else {
+                    // 선택되지 않은 상태: 기본 아이콘 사용
+                    item.icon
+                }
+
                 NavigationBarItem(
                     icon = {
                         Image(
-                            painter = painterResource(id = item.icon),
+                            painter = painterResource(id = iconResId),
                             contentDescription = item.title,
                             modifier = Modifier.size(28.dp)
                         )
@@ -65,11 +81,11 @@ fun BottomNavigation(
                         }
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF3F51B5),    // 선택된 아이콘 색상
-                        selectedTextColor = Color(0xFF3F51B5),    // 선택된 텍스트 색상
+                        selectedIconColor = Color(0xFF111322),    // 선택된 아이콘 색상
+                        selectedTextColor = Color(0xFF111322),    // 선택된 텍스트 색상
                         indicatorColor = Color.Transparent,       // 선택 표시자를 투명하게 설정하여 제거
-                        unselectedIconColor = Color.Gray,         // 선택되지 않은 아이콘 색상
-                        unselectedTextColor = Color.Gray          // 선택되지 않은 텍스트 색상
+                        unselectedIconColor = Color(0xFF61646B),         // 선택되지 않은 아이콘 색상
+                        unselectedTextColor = Color(0xFF61646B)          // 선택되지 않은 텍스트 색상
                     )
                 )
             }
