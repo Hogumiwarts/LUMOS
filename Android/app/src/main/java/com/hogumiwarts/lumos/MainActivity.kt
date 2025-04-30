@@ -36,22 +36,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun MainScreen() {
-    val navController = rememberNavController()
-
-    Scaffold(
-        bottomBar = {
-            BottomNavigation(navController = navController)
-        }
-    ) { innerPadding ->
-        NavGraph(
-            navController = navController,
-            modifier = Modifier.padding(innerPadding)
-        )
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable

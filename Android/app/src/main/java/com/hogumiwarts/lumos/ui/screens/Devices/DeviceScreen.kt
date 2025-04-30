@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Info
+package com.hogumiwarts.lumos.ui.screens.Devices
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
