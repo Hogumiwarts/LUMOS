@@ -1,7 +1,9 @@
 package com.hogumiwarts.lumos.ui.navigation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -13,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -46,7 +49,13 @@ fun BottomNavigation(
                 Spacer(Modifier.weight(1f, fill = true))
             } else {
                 NavigationBarItem(
-                    icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
+                    icon = {
+                        Image(
+                            painter = painterResource(id = item.icon),
+                            contentDescription = item.title,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    },
                     label = { Text(text = item.title) },
                     selected = currentRoute == item.route,
                     onClick = {

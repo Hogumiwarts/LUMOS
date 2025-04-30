@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
-import com.hogumiwarts.lumos.ui.screens.Info.InfoScreen
+import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.RoutineScreen
 
 @Composable
