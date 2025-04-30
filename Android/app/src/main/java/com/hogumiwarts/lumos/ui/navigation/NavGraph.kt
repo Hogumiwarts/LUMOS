@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Info.InfoScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.RoutineScreen
 
 @Composable
 fun NavGraph(
@@ -18,8 +19,9 @@ fun NavGraph(
 ) {
     // 화면 순서 정의 (바텀 네비게이션 순서와 일치)
     val screens = listOf(
-        BottomNavItem.Info,
         BottomNavItem.Home,
+        BottomNavItem.Info,
+        BottomNavItem.Routine,
         BottomNavItem.Settings,
     )
 
@@ -44,13 +46,13 @@ fun NavGraph(
                         // 오른쪽에서 들어옴
                         slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(200)
+                            animationSpec = tween(300)
                         )
                     } else {
                         // 왼쪽에서 들어옴
                         slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(200)
+                            animationSpec = tween(300)
                         )
                     }
                 },
@@ -63,13 +65,13 @@ fun NavGraph(
                         // 왼쪽으로 나감
                         slideOutOfContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(200)
+                            animationSpec = tween(300)
                         )
                     } else {
                         // 오른쪽으로 나감
                         slideOutOfContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(200)
+                            animationSpec = tween(300)
                         )
                     }
                 }
@@ -77,8 +79,12 @@ fun NavGraph(
                 // 각 화면에 맞는 Composable 함수 호출
                 when (item) {
                     BottomNavItem.Home -> HomeScreen()
-                    BottomNavItem.Settings -> SettingScreen()
+
                     BottomNavItem.Info -> InfoScreen()
+
+                    BottomNavItem.Routine -> RoutineScreen()
+
+                    BottomNavItem.Settings -> SettingScreen()
                 }
             }
         }

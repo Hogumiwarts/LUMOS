@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -27,5 +28,11 @@ sealed class BottomNavItem(
         route = "info",
         title = "정보",
         icon = Icons.Default.Info
+    )
+
+    object Routine : BottomNavItem(
+        route = "routine",
+        title = "나의 루틴",
+        icon = Icons.Default.Lock
     )
 }
