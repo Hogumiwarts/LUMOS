@@ -10,7 +10,7 @@ const smartRoutes = require('./app/routes/smart.routes');
 const authRoutes = require('./app/routes/auth.routes');
 const deviceRoutes = require('./app/routes/device.routes');
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/smart/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(express.json());
 

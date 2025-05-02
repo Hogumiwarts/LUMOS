@@ -38,3 +38,4 @@ exports.executeDeviceCommand = async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 };
+
