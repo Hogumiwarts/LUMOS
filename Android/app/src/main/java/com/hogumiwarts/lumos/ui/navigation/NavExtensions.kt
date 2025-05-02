@@ -9,7 +9,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
  * @param route 이동할 화면의 경로
  * @param routes 화면 순서 목록 (좌에서 우로 나열된 순서)
  */
-fun NavController.navigateWithSlideDirection(route: String, routes: List<String>) {
+fun NavController.navigateWithSlideDirection(route: String, routes: List<String?>) {
     val currentRoute = currentDestination?.route ?: return
 
     // 이미 같은 화면이면 무시

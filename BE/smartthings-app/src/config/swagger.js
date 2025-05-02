@@ -6,13 +6,13 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: '[LUMOS] REST API Docs',
+      title: '[LUMOS] REST API',
       version: '1.0.0',
       description: 'SSAFY 자율 프로젝트 LUMOS API 문서',
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: '/',
       },
     ],
   },
