@@ -13,15 +13,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hogumiwarts.lumos.ui.Common.CommonTopBar
 
 @Composable
-fun ControlScreen() {
+fun ControlScreen(navController: NavController) {
     Scaffold(
         topBar = {
             CommonTopBar(
-                barTitle = "기기 이름 들어가요",
-                onBackClick = { /*TODO*/ },
+                barTitle = "기기 이름",
+                onBackClick = {
+                    navController.popBackStack()
+                },
                 isAddBtnVisible = false,
                 onAddClick = {})
         }

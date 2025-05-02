@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
@@ -148,7 +149,7 @@ fun NavGraph(
                 )
             },
         ) {
-            ControlScreen()
+            ControlScreen(navController = navController)
         }
 
 
