@@ -5,23 +5,9 @@ spring:
   config:
     import: "optional:configserver:"
 
-  cloud:
-    gateway:
-      routes:
-        - id: gesture-sensor-service
-          uri: http://gesture-sensor-service:8080
-          predicates:
-            - Path=/gesture/**    # prefix로 구분
-          filters:
-            - StripPrefix=1
-        - id: smartthings-service
-          uri: http://smartthings-service:3000
-          predicates:
-            - Path=/smart/**
-
-springdoc:
-  swagger-ui:
-    urls[0]:
-      name: gesture-sensor-service
-      url: /gesture/v3/api-docs
-    use-root-path: true
+  webflux:
+    base-path: /
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"

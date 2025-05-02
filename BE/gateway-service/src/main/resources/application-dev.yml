@@ -1,0 +1,24 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: gesture-sensor
+          uri: http://localhost:8081
+          predicates:
+            - Path=/gesture/**
+          filters:
+            - StripPrefix=1
+        - id: smartthings-service
+          uri: http://localhost:3000
+          predicates:
+            - Path=/smart/**
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    urls[0]:
+      name: gesture-sensor-service
+      url: http://localhost:8081/v3/api-docs
+    use-root-path: true
