@@ -1,4 +1,4 @@
-package com.example.wearable.presentation.theme
+package com.hogumiwarts.lumos.presentation.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme

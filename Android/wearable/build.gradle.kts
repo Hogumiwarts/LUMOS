@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wearable"
+    namespace = "com.hogumiwarts.lumos"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.wearable"
+        applicationId = "com.hogumiwarts.lumos"
         minSdk = 30
         targetSdk = 34
         versionCode = 1

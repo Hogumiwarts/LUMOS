@@ -1,4 +1,4 @@
-package com.example.wearable.presentation.ui.navigation
+package com.hogumiwarts.lumos.presentation.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
