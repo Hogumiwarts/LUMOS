@@ -1,4 +1,4 @@
-package com.example.myapplication.presentation
+package com.example.myapplication.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -41,7 +41,9 @@ fun GestureScreen(navController: NavController) {
                         else -> 1
                     }
                     Button(
-                        onClick = { navController.navigate("gesture_test/${name}") },
+                        onClick = { navController.navigate("gesture_test/${name}"){
+                            popUpTo("gesture_screen")
+                        } },
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f),

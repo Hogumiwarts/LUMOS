@@ -1,4 +1,4 @@
-package com.example.myapplication.presentation
+package com.example.myapplication.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,9 @@ fun GestureTest(navController: NavController, activity: MainActivity, index: Str
     // Lottie 애니메이션 리소스 로드
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animation_time))
     val lottieAnimatable = rememberLottieAnimatable()
+
+    val context = LocalContext.current
+
 
     // 화면 상태 관리: "start", "animating", "end"
     var uiState by remember { mutableStateOf("start") }
@@ -104,7 +108,9 @@ fun GestureTest(navController: NavController, activity: MainActivity, index: Str
                     },
                     onNext = {
                         activity.saveAndSendIMUData("$index")
-                        navController.navigate("gesture_screen")
+                        navController.navigate("gesture_screen"){
+                            popUpTo("gesture_screen")
+                        }
                     },
                     scope = scope,
                     lottieAnimatable = lottieAnimatable
@@ -156,7 +162,7 @@ fun EndScreen(
     onNext: () -> Unit,
     scope: CoroutineScope,
     lottieAnimatable: LottieAnimatable,
-    activity:MainActivity
+    activity: MainActivity
 ) {
     if (!isTestFinished) {
         // 테스트 중 화면

@@ -1,4 +1,4 @@
-package com.example.myapplication.presentation.theme
+package com.example.myapplication.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme
