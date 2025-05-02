@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
@@ -62,9 +63,15 @@ fun NavGraph(
                 exitTransition = {
                     val toRoute = targetState.destination.route
 
-                    // ControlScreen으로 이동할 때는 현재 화면 애니메이션 없음
+                    // ControlScreen으로 이동할 때
+                    // 현재 화면이 위로 올라가는 애니메이션
                     if (toRoute == "controlScreen") {
-                        ExitTransition.None
+
+                        slideOutOfContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                            animationSpec = tween(200)
+                        )
+
                     } else {
                         val fromRoute = initialState.destination.route
 
@@ -85,9 +92,14 @@ fun NavGraph(
                 popEnterTransition = {
                     val fromRoute = initialState.destination.route
 
-                    // ControlScreen에서 돌아올 때 애니메이션 없음
+                    // ControlScreen에서 돌아올 때
                     if (fromRoute == "controlScreen") {
-                        EnterTransition.None
+
+                        slideIntoContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                            animationSpec = tween(200)
+                        )
+
                     } else {
                         val toRoute = targetState.destination.route
 
@@ -120,6 +132,7 @@ fun NavGraph(
 
         composable(
             route = "controlScreen",
+            // ControlScreen 진입 시 - 아래에서 위로 올라옴
             enterTransition = {
                 // 아래에서 위로 올라오는 애니메이션
                 slideIntoContainer(
@@ -127,15 +140,16 @@ fun NavGraph(
                     animationSpec = tween(200)
                 )
             },
+            // ControlScreen 이탈 시
             exitTransition = {
                 // 위에서 아래로 내려가는 애니메이션
                 slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
                     animationSpec = tween(200)
                 )
-            }
+            },
         ) {
-            ControlScreen()
+            ControlScreen(navController = navController)
         }
 
 
