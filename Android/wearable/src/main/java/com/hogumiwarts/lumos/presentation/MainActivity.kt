@@ -4,29 +4,17 @@
  * changes to the libraries and their usages.
  */
 
-package com.example.wearable.presentation
+package com.hogumiwarts.lumos.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import com.example.wearable.R
-import com.example.wearable.presentation.theme.LUMOSTheme
-import com.example.wearable.presentation.ui.screens.devices.DevicesScreen
+import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
