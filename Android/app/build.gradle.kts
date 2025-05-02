@@ -110,6 +110,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // UWB
+    implementation("androidx.core.uwb:uwb:1.0.0-alpha10")
+
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
