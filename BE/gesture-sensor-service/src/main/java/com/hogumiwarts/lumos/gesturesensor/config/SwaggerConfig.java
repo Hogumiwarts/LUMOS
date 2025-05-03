@@ -39,7 +39,7 @@ public class SwaggerConfig {
 	@Profile("prod")  // 운영 환경
 	public OpenAPI gatewayApi() {
 		return new OpenAPI()
-			.addServersItem(new Server().url("/gesture"))
+			.addServersItem(new Server().url("/"))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
 			.components(new Components().addSecuritySchemes("Bearer Authentication", createApiKeyScheme()))
 			.info(apiInfo());

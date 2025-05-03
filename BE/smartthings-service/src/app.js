@@ -10,7 +10,7 @@ const smartRoutes = require('./app/routes/smart.routes');
 const authRoutes = require('./app/routes/auth.routes');
 const deviceRoutes = require('./app/routes/device.routes');
 
-app.use("/smart/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/smart/v3/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(express.json());
 
@@ -26,5 +26,5 @@ app.use('/smart/devices', deviceRoutes);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);
-  console.log('✅ Swagger docs at http://localhost:3000/smart/api-docs/');
+  console.log('✅ Swagger docs at http://localhost:3000/smart/v3/api-docs/');
 });
