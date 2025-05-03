@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
-import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbComplexChannel
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbDevice
@@ -14,10 +13,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.math.atan2
 
 class UwbRangingManager(private val context: Context) {
-    private val TAG = "UwbRangingManager"
+    companion object {
+        private const val TAG = "UwbRangingManager"
+    }
+
     private lateinit var uwbManager: UwbManager
     private var uwbSessionScope: UwbControllerSessionScope? = null
     private var rangingJob: Job? = null
@@ -25,6 +26,14 @@ class UwbRangingManager(private val context: Context) {
 
     private var _isRanging = false
     val isRanging: Boolean get() = _isRanging
+
+    // 멀티 태그 OOB 파라미터 목록
+    private data class TagInfo(
+        val address: String,
+        val channel: UwbComplexChannel,
+        val sessionKey: ByteArray
+    )
+    private val tagInfos = mutableListOf<TagInfo>()
 
     // UWB 지원 확인
     fun isUwbSupported(): Boolean {
@@ -37,28 +46,45 @@ class UwbRangingManager(private val context: Context) {
             Log.e(TAG, "UWB is not supported on this device")
             return
         }
-
         uwbManager = UwbManager.createInstance(context)
     }
 
-    // SmartTag2의 UWB 주소와 채널 정보 (실제로는 SmartThings API에서 가져와야 함)
-    private fun getSmartTagInfo(): Pair<String, UwbComplexChannel> {
-        // 예시 값 - 실제로는 SmartThings API에서 가져와야 함
-        // UwbAddress는 String 형태로 전달 (MAC 주소 형식)
-        return Pair(
-            "01:02:03:04:05:06", // String 형식의 주소
-            UwbComplexChannel(
-                channel = 9,
-                preambleIndex = 10
-            )
-        )
+    /*
+     * BLE GATT를 통해 읽은 OOB 파라미터를 설정
+     * @param address: UWB 대상 디바이스 주소
+     * @param complexChannel: UWB 채널/프리앰블 정보
+     * @param sessionKeyInfo: 8바이트 STATIC STS 세션 키
+     */
+    fun addOobParameter(
+        address: String,
+        complexChannel: UwbComplexChannel,
+        sessionKeyInfo: ByteArray
+    ) {
+        if (sessionKeyInfo.size != 8) {
+            Log.e(TAG, "Invalid sessionKeyInfo length: ${sessionKeyInfo.size}")
+            return
+        }
+        tagInfos.add(TagInfo(address, complexChannel, sessionKeyInfo))
     }
 
-    // 레인징 시작
+
+    /*
+     * 멀티캐스트 레인징 시작
+     * 모든 태그에 대해 한 세션에서 거리/방위각을 측정하고 콜백으로 전달
+     */
     suspend fun startRanging(
-        onDistanceUpdate: (Float, Float) -> Unit,
-        onError: (String) -> Unit
+        onDistanceUpdate: (address: String, distance: Float, azimuth: Float) -> Unit,
+        onError: (message: String) -> Unit
     ) {
+        // OOB 파라미터 유효성 검증
+        if (tagInfos.isEmpty()) {
+            onError("레이징할 태그 정보가 없습니다.")
+            return
+        }
+        // 채널과 키는 동일해야 함 (동일 프로필 가정)
+        val channel = tagInfos[0].channel
+        val sessionKey = tagInfos[0].sessionKey
+
         try {
             // 이미 레인징 중이면 중지
             if (_isRanging) {
@@ -68,21 +94,19 @@ class UwbRangingManager(private val context: Context) {
             // UWB 컨트롤러 세션 스코프 가져오기
             uwbSessionScope = uwbManager.controllerSessionScope()
 
-            // 스마트태그 정보 가져오기
-            val tagInfo = getSmartTagInfo()
 
-            // UWB 디바이스 생성
-            val peerDevice = UwbDevice.createForAddress(tagInfo.first)
+            // UwbDevice 리스트 생성
+            val peerDeviceList = tagInfos.map { UwbDevice.createForAddress(it.address) }
 
             // 레인징 파라미터 설정
-            val rangingParameters = RangingParameters(
-                uwbConfigType = 1,
+            val rangingParams = RangingParameters(
+                uwbConfigType = RangingParameters.CONFIG_MULTICAST_DS_TWR,
                 sessionId = 0,  // 세션 ID
                 subSessionId = 0,  // 서브 세션 ID
-                sessionKeyInfo = null,  // 세션 암호화 키 (불필요시 null)
+                sessionKeyInfo = sessionKey,  // 세션 암호화 키 (불필요시 null)
                 subSessionKeyInfo = null,  // 서브 세션 암호화 키 (불필요시 null)
-                complexChannel = tagInfo.second,  // UWB 채널 정보
-                peerDevices = listOf(peerDevice),  // 타겟 디바이스 목록
+                complexChannel = channel,  // UWB 채널 정보
+                peerDevices = peerDeviceList,  // 타겟 디바이스 목록
                 updateRateType = RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,  // 업데이트 속도
                 uwbRangeDataNtfConfig = null,  // 통지 설정 (기본값 사용)
                 slotDurationMillis = RangingParameters.RANGING_SLOT_DURATION_2_MILLIS,  // 슬롯 지속 시간
@@ -91,47 +115,29 @@ class UwbRangingManager(private val context: Context) {
 
 
             // 세션 준비 및 레인징 결과 Flow 수집
+            // Ranging 결과 수집
             rangingJob = coroutineScope.launch {
-                uwbSessionScope?.let { scope ->
-                    scope.prepareSession(rangingParameters).collect { result ->
-                        when (result) {
-                            is RangingResult.RangingResultPosition -> {
-                                try {
-                                    // position 객체의 구조 로깅
-                                    Log.d(TAG, "Position: ${result.position}")
-
-                                    // RangingMeasurement 객체를 Float로 변환
-                                    // 거리 정보가 있는 경우
-                                    val distanceObj = result.position.distance
-                                    val distance = distanceObj?.value ?: 0f
-
-                                    // 각도 계산
-                                    // position에서 azimuth(방위각) 값을 직접 사용
-                                    val azimuth = result.position.azimuth?.value ?: 0f
-
-                                    // 콜백으로 값 전달
-                                    onDistanceUpdate(distance, azimuth)
-                                } catch (e: Exception) {
-                                    Log.e(TAG, "Error processing position data: ${e.message}")
-                                    e.printStackTrace()
-                                    onError("데이터 처리 오류: ${e.message}")
-                                }
-                            }
-                            is RangingResult.RangingResultPeerDisconnected -> {
-                                // 피어 연결 해제 처리
-                                val errorMsg = "피어 연결 해제: ${result.device.address}"
-                                Log.e(TAG, errorMsg)
-                                onError(errorMsg)
-                            }
-                            is RangingResult.RangingResultInitialized -> {
-                                // 초기화 완료 처리
-                                Log.d(TAG, "레인징 초기화 완료: ${result.device.address}")
-                            }
+                uwbSessionScope?.prepareSession(rangingParams)?.collect { result ->
+                    when (result) {
+                        is RangingResult.RangingResultPosition -> {
+                            // 거리 및 방위각 추출
+                            val addr = result.device.address
+                            val dist = result.position.distance?.value ?: 0f
+                            val az  = result.position.azimuth?.value  ?: 0f
+                            onDistanceUpdate(addr.toString(), dist, az)
+                        }
+                        is RangingResult.RangingResultPeerDisconnected -> {
+                            onError("Peer disconnected: ${result.device.address}")
+                        }
+                        is RangingResult.RangingResultInitialized -> {
+                            Log.d(TAG, "Ranging initialized for ${result.device.address}")
+                        }
+                        else -> {
+                            // 기타 결과 무시
                         }
                     }
                 }
             }
-
             _isRanging = true
 
         } catch (e: Exception) {
@@ -148,5 +154,11 @@ class UwbRangingManager(private val context: Context) {
         rangingJob = null
         uwbSessionScope = null
         _isRanging = false
+    }
+
+    // 기존 정보 초기화 (예: 태그 재스캔 전)
+    fun clearTagInfos() {
+        stopRanging()
+        tagInfos.clear()
     }
 }
