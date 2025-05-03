@@ -13,7 +13,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.wearable.presentation.ui.screens.devices.DevicesScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 
 class MainActivity : ComponentActivity() {
