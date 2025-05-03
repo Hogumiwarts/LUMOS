@@ -14,12 +14,3 @@ spring:
             - Path=/smart/**
           filters:
             - StripPrefix=1
-
-springdoc:
-  swagger-ui:
-    use-root-path: true
-    urls:
-      - name: gesture-sensor-service
-        url: /gesture/v3/api-docs
-      - name: smartthings-service
-        url: /smart/v3/api-docs

@@ -5,9 +5,6 @@ spring:
   jackson:
     time-zone: ${TZ}
 
-  profiles:
-    active: prod
-
   config:
     import: "optional:configserver:"
 
@@ -17,3 +14,13 @@ spring:
       allowed-origins: "*"
       allowed-methods: "*"
       allowed-headers: "*"
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    disable-swagger-default-url: true
+    urls:
+      - name: gesture-sensor-service
+        url: /gesture/v3/api-docs
+      - name: smartthings-service
+        url: /smart/v3/api-docs/

@@ -1,5 +1,7 @@
 package com.hogumiwarts.lumos.gesturesensor.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,8 +23,9 @@ public class SensorDataController implements SensorDataApiSpec {
 	private final GestureSensorDataService sensorDataService;
 
 	@PostMapping
-	public ResponseEntity<Void> saveSensorData(@RequestBody SensorDataRequest request) throws JsonProcessingException {
+	public ResponseEntity<Map<String, String>> saveSensorData(@RequestBody SensorDataRequest request) throws
+		JsonProcessingException {
 		sensorDataService.saveSensorData(request);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(Map.of("status", "success"));
 	}
 }
