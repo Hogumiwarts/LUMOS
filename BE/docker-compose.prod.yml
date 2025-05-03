@@ -36,7 +36,7 @@ services:
     # ports:
     #   - "3000:3000"  # 외부(호스트) → 내부(컨테이너) 포트 바인딩
     env_file:
-      - ./smartthings-app/.env
+      - ./smartthings-service/.env
     networks:
       - app-network
 
