@@ -12,6 +12,8 @@ spring:
           uri: http://localhost:3000
           predicates:
             - Path=/smart/**
+          filters:
+            - StripPrefix=1
 
 server:
   port: 8080
@@ -21,4 +23,7 @@ springdoc:
     urls[0]:
       name: gesture-sensor-service
       url: http://localhost:8081/v3/api-docs
+    urls[1]:
+      name: smartthings-service
+      url: http://localhost:3000/v3/api-docs
     use-root-path: true

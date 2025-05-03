@@ -3,7 +3,7 @@ spring:
     gateway:
       routes:
         - id: gesture-sensor-service
-          uri: http://gesture-sensor-service:8080
+          uri: http://gesture-sensor-service:8081
           predicates:
             - Path=/gesture/**    # prefix로 구분
           filters:
@@ -12,10 +12,15 @@ spring:
           uri: http://smartthings-service:3000
           predicates:
             - Path=/smart/**
+          filters:
+            - StripPrefix=1
 
 springdoc:
   swagger-ui:
     urls[0]:
       name: gesture-sensor-service
       url: /gesture/v3/api-docs
+    urls[1]:
+      name: smartthings-service
+      url: /smart/v3/api-docs
     use-root-path: true
