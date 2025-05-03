@@ -27,7 +27,7 @@ services:
     networks:
       - app-network
 
-    # SmartThings 서버
+  # SmartThings 서버
   smartthings-service:
     image: itsanisland/lumos-smartthings-service:latest
     container_name: lumos-smartthings-service
@@ -73,7 +73,7 @@ services:
     ports:
       - "3001:3000"
     env_file:
-      - ./grafana/.env.grafana
+      - .env
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
