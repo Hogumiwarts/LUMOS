@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.gesturesensor.dto.SensorDataRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,7 @@ public interface SensorDataApiSpec {
 		@ApiResponse(responseCode = "400", description = "유효하지 않은 입력 형식입니다.", content = @Content()),
 		@ApiResponse(responseCode = "500", description = "서버 내부 오류 발생", content = @Content())
 	})
-	ResponseEntity<Map<String, String>> saveSensorData(@Valid @RequestBody SensorDataRequest request) throws
+	ResponseEntity<CommonResponse<Map<String, Boolean>>> saveSensorData(
+		@Valid @RequestBody SensorDataRequest request) throws
 		JsonProcessingException;
 }

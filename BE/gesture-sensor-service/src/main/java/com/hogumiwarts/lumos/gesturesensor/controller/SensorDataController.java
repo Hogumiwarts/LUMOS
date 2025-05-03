@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.gesturesensor.docs.SensorDataApiSpec;
 import com.hogumiwarts.lumos.gesturesensor.dto.SensorDataRequest;
 import com.hogumiwarts.lumos.gesturesensor.service.GestureSensorDataService;
@@ -23,9 +24,10 @@ public class SensorDataController implements SensorDataApiSpec {
 	private final GestureSensorDataService sensorDataService;
 
 	@PostMapping
-	public ResponseEntity<Map<String, String>> saveSensorData(@RequestBody SensorDataRequest request) throws
+	public ResponseEntity<CommonResponse<Map<String, Boolean>>> saveSensorData(
+		@RequestBody SensorDataRequest request) throws
 		JsonProcessingException {
 		sensorDataService.saveSensorData(request);
-		return ResponseEntity.ok(Map.of("status", "success"));
+		return ResponseEntity.ok(CommonResponse.ok("데이터가 성공적으로 저장되었습니다.", Map.of("success", true)));
 	}
 }
