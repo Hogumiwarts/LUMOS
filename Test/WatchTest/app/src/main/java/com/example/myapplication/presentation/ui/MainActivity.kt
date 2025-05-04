@@ -192,7 +192,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             ))
 
             a.onSuccess {
-                Toast.makeText(this@MainActivity, "전송이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+
+                Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
             }.onFailure {
                 Toast.makeText(this@MainActivity, "전송이 실패하였습니다.", Toast.LENGTH_SHORT).show()
             }
