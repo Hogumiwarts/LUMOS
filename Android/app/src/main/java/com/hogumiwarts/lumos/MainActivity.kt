@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import com.hogumiwarts.lumos.utils.UwbRangingManager
+import com.hogumiwarts.lumos.utils.uwb.GattConnector
 import com.hogumiwarts.lumos.utils.uwb.BleScanner
 import kotlinx.coroutines.launch
 
@@ -34,9 +39,12 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private lateinit var uwbRangingManager: UwbRangingManager
     private lateinit var bleScanner: BleScanner
+    private lateinit var gattConnector: GattConnector
 
     // 발견된 SmartTag2 기기 목록
     private val discoveredTags = mutableListOf<BluetoothDevice>()
+    // OOB 파라미터를 획득한 태그 목록
+    private val configuredTags = mutableListOf<String>()
 
     // 여러 권한을 한 번에 요청하는 런처
     private val requestMultiplePermissionsLauncher = registerForActivityResult(
@@ -84,6 +92,7 @@ class MainActivity : ComponentActivity() {
         // UWB, BLE 매니저 초기화
         uwbRangingManager = UwbRangingManager(this)
         bleScanner = BleScanner(this)
+        gattConnector = GattConnector(this, uwbRangingManager)
 
         // 권한 확인 및 요청
         checkAndRequestPermissions()
@@ -121,8 +130,84 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Toast.makeText(this@MainActivity, "태그 발견: $deviceName", Toast.LENGTH_SHORT).show()
+
+                    // 태그를 발견하면 GATT 연결 시도 및 OOB 파라미터 획득
+                    connectToTagAndRetrieveOobParameters(device)
                 }
             }
+        }
+    }
+
+    // 태그에 연결하고 OOB 파라미터 획득
+    private fun connectToTagAndRetrieveOobParameters(device: BluetoothDevice) {
+        lifecycleScope.launch {
+            // 스캔 중지 (연결 중에는 스캔을 중지하는 것이 좋음)
+            bleScanner.stopScan()
+
+            Toast.makeText(this@MainActivity, "태그에 연결 중...", Toast.LENGTH_SHORT).show()
+
+            // GATT 연결 및 OOB 파라미터 획득
+            val success = gattConnector.connectAndRetrieveOobParameters(device)
+
+            if (success) {
+                // 연결 성공 및 OOB 파라미터 획득 성공
+                val deviceAddress = device.address
+                configuredTags.add(deviceAddress)
+
+                Toast.makeText(
+                    this@MainActivity,
+                    "태그 설정 완료: $deviceAddress (${configuredTags.size}/${discoveredTags.size})",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // 모든 태그가 설정되었으면 레인징 시작
+                if (configuredTags.size == discoveredTags.size && configuredTags.isNotEmpty()) {
+                    startUwbRanging()
+                }
+            } else {
+                // 연결 실패 또는 OOB 파라미터 획득 실패
+                Toast.makeText(
+                    this@MainActivity,
+                    "태그 설정 실패. 다시 시도해 주세요.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            // 스캔 재시작 (다른 태그를 찾기 위해)
+            startBleScan()
+        }
+    }
+
+    // UWB 레인징 시작
+    private fun startUwbRanging() {
+        lifecycleScope.launch {
+            uwbRangingManager.startRanging(
+                onDistanceUpdate = { address, distance, azimuth ->
+                    // 거리 및 방위각 업데이트 처리
+                    Log.d("MainActivity", "Distance update - Address: $address, Distance: $distance m, Azimuth: $azimuth°")
+
+                    // UI 업데이트 또는 다른 처리를 수행할 수 있음
+                    // 예: 가장 가까운 태그 또는 특정 방향에 있는 태그 식별
+
+                    // Toast로 거리 정보 표시 (실제 앱에서는 UI 업데이트로 대체)
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "태그 $address - 거리: ${String.format("%.2f", distance)}m, 방위각: ${String.format("%.1f", azimuth)}°",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onError = { message ->
+                    // 오류 처리
+                    Log.e("MainActivity", "UWB ranging error: $message")
+
+                    // 오류 메시지 표시
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "UWB 오류: $message", Toast.LENGTH_LONG).show()
+                    }
+                }
+            )
         }
     }
 
@@ -208,8 +293,6 @@ class MainActivity : ComponentActivity() {
             bleScanner.stopScan()
         }
     }
-
-
 
 }
 

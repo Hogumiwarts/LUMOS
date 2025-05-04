@@ -1,17 +1,18 @@
 package com.hogumiwarts.lumos.utils
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbComplexChannel
+import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbDevice
 import androidx.core.uwb.UwbManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class UwbRangingManager(private val context: Context) {
@@ -20,7 +21,7 @@ class UwbRangingManager(private val context: Context) {
     }
 
     private lateinit var uwbManager: UwbManager
-    private var uwbSessionScope: UwbControllerSessionScope? = null
+    private var controllerSession: UwbControllerSessionScope? = null
     private var rangingJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -39,6 +40,8 @@ class UwbRangingManager(private val context: Context) {
     fun isUwbSupported(): Boolean {
         return context.packageManager.hasSystemFeature("android.hardware.uwb")
     }
+//    val packageManager: PackageManager = context.packageManager
+//    val deviceSupportsUwb = packageManager.hasSystemFeature("android.hardware.uwb")
 
     // 초기화
     fun initialize() {
@@ -81,18 +84,13 @@ class UwbRangingManager(private val context: Context) {
             onError("레이징할 태그 정보가 없습니다.")
             return
         }
-        // 채널과 키는 동일해야 함 (동일 프로필 가정)
-        val channel = tagInfos[0].channel
-        val sessionKey = tagInfos[0].sessionKey
+
+        // 이미 레인징 중이면 중지
+        if (_isRanging) stopRanging()
 
         try {
-            // 이미 레인징 중이면 중지
-            if (_isRanging) {
-                stopRanging()
-            }
-
             // UWB 컨트롤러 세션 스코프 가져오기
-            uwbSessionScope = uwbManager.controllerSessionScope()
+            controllerSession = uwbManager.controllerSessionScope()
 
 
             // UwbDevice 리스트 생성
@@ -103,21 +101,20 @@ class UwbRangingManager(private val context: Context) {
                 uwbConfigType = RangingParameters.CONFIG_MULTICAST_DS_TWR,
                 sessionId = 0,  // 세션 ID
                 subSessionId = 0,  // 서브 세션 ID
-                sessionKeyInfo = sessionKey,  // 세션 암호화 키 (불필요시 null)
+                sessionKeyInfo = tagInfos[0].sessionKey,  // 세션 암호화 키 (불필요시 null)
                 subSessionKeyInfo = null,  // 서브 세션 암호화 키 (불필요시 null)
-                complexChannel = channel,  // UWB 채널 정보
+                complexChannel = tagInfos[0].channel,  // UWB 채널 정보
                 peerDevices = peerDeviceList,  // 타겟 디바이스 목록
-                updateRateType = RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,  // 업데이트 속도
-                uwbRangeDataNtfConfig = null,  // 통지 설정 (기본값 사용)
-                slotDurationMillis = RangingParameters.RANGING_SLOT_DURATION_2_MILLIS,  // 슬롯 지속 시간
-                isAoaDisabled = false  // AoA(Angle of Arrival) 비활성화 여부
+                updateRateType = RangingParameters.RANGING_UPDATE_RATE_FREQUENT,  // 업데이트 속도
             )
 
 
             // 세션 준비 및 레인징 결과 Flow 수집
             // Ranging 결과 수집
+
+
             rangingJob = coroutineScope.launch {
-                uwbSessionScope?.prepareSession(rangingParams)?.collect { result ->
+                controllerSession?.prepareSession(rangingParams)?.collect { result ->
                     when (result) {
                         is RangingResult.RangingResultPosition -> {
                             // 거리 및 방위각 추출
@@ -152,7 +149,7 @@ class UwbRangingManager(private val context: Context) {
     fun stopRanging() {
         rangingJob?.cancel()
         rangingJob = null
-        uwbSessionScope = null
+        controllerSession = null
         _isRanging = false
     }
 
