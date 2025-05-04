@@ -49,11 +49,14 @@ android {
         }
     }
 }
-
 dependencies {
-
+    // Wearable Services
     implementation(libs.play.services.wearable)
+
+    // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
+
+    // General Compose dependencies
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.compose.material)
@@ -61,10 +64,22 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    // Material Icons (Extended)
+    implementation("androidx.compose.material:material-icons-extended")
+
+// Compose for Wear OS
+    implementation("androidx.wear.compose:compose-material:1.4.0")
+    implementation("androidx.wear.compose:compose-foundation:1.4.0")
+    implementation("androidx.compose.ui:ui-tooling:1.4.0") // Wear용 프리뷰 포함
+
+// Horologist (Google의 Wear OS 보조 라이브러리)
+    implementation("com.google.android.horologist:horologist-composables:0.6.20")
+    implementation("com.google.android.horologist:horologist-compose-layout:0.6.20")
+    implementation("com.google.android.horologist:horologist-compose-material:0.6.20")
+
+// JDK 8+ desugaring
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
+
 
     // Navigation
     implementation(libs.navigation.compose)
@@ -72,4 +87,12 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+    // Android Test
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Debug
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
