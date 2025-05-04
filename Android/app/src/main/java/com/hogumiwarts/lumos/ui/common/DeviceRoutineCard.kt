@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -94,25 +95,21 @@ fun DeviceRoutineCard(
             Column {
                 Text(
                     text = cardTitle,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontFamily = nanum_square_neo,
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight(800),
-                        color = Color(0xFF111322),
-                        letterSpacing = 0.4.sp,
+                        fontFamily = nanum_square_neo,
+                        color = colorResource(id = R.color.black_primary)
                     )
+
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = cardSubtitle,
-                    style = TextStyle(
-                        fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFA1A1A1),
-                        letterSpacing = 0.4.sp,
+                        color = colorResource(id = R.color.gray_light)
                     )
                 )
             }
@@ -145,7 +142,7 @@ fun DeviceRoutineCardPreview() {
                     modifier = Modifier.size(58.dp, 96.dp)
                 )
             },
-            borderStyle = BorderStroke(1.dp, if (isOn) Color(0xFF4B5BA9) else Color.LightGray),
+            borderStyle = BorderStroke(1.dp, if (isOn) colorResource(id = R.color.point_color) else Color.LightGray),
             isOn = isOn,
             onToggle = { isOn = !isOn },
             endPadding = 7.dp
