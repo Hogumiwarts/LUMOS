@@ -54,9 +54,8 @@ fun BedLightSwitch(
         Spacer(modifier = Modifier.weight(1f))
 
         // 🟠 내부에서 별도 토글 상태 선언 → 외부 isChecked와 동기화되지 않음 (주의 필요)
-        var isOn by remember { mutableStateOf(false) }
-        AnimatedToggleButton(isOn = isOn) {
-            isOn = it
+        AnimatedToggleButton(isOn = isChecked) {
+            onCheckedChange(it)
         }
 
         Spacer(modifier = Modifier.weight(1f))
