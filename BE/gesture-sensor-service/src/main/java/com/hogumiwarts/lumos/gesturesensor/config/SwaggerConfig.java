@@ -35,7 +35,7 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	public OpenAPI openApi() {
+	public OpenAPI openzApi() {
 		return new OpenAPI()
 			.addServersItem(new Server().url("/gesture"))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))

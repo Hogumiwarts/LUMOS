@@ -28,6 +28,8 @@ bootJar {
 }
 
 dependencies {
+    implementation(project(":common-lib"))
+
     // Web API (REST Controller)
     implementation 'org.springframework.boot:spring-boot-starter-web'
 

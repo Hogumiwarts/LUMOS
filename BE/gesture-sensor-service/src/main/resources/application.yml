@@ -5,9 +5,6 @@ spring:
   jackson:
     time-zone: ${TZ}
 
-  profiles:
-    active: prod
-
   messages:
     basename: ValidationMessages
     encoding: UTF-8
@@ -47,7 +44,6 @@ jwt:
 
 springdoc:
   api-docs:
-    version: openapi_3_1
     enabled: true
     path: /v3/api-docs
   enable-spring-security: true

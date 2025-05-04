@@ -1,0 +1,80 @@
+services:
+
+  # Spring Cloud Gateway
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: lumos-gateway-service
+    ports:
+      - "80:8080"  # 외부 80 → 내부 Spring 포트
+    depends_on:
+      - gesture-sensor-service
+    networks:
+      - app-network
+
+  # 제스처 센서 서비스 (Spring Boot)
+  gesture-sensor-service:
+    build:
+      context: ./gesture-sensor-service
+    container_name: lumos-gesture-sensor-service
+    expose:
+      - "8080"  # 내부 통신용
+    env_file:
+      - ./gesture-sensor-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+    # SmartThings 서버
+  smartthings-service:
+    build:
+      context: ./smartthings-service
+    container_name: lumos-smartthings-service
+    expose:
+      - "3000"
+    # ports:
+    #   - "3000:3000"  # 외부(호스트) → 내부(컨테이너) 포트 바인딩
+    env_file:
+      - ./smartthings-service/.env
+    networks:
+      - app-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: lumos-postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lumos-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  grafana_data:
+
+networks:
+  app-network:
+
