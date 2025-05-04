@@ -1,17 +1,16 @@
-package com.example.myapplication.presentation
+package com.example.myapplication.presentation.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.core.content.FileProvider
+import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,15 +28,23 @@ import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
-import com.example.myapplication.presentation.theme.MyApplicationTheme
+import com.example.myapplication.data.model.GestureData
+import com.example.myapplication.data.model.ImuRequest
+import com.example.myapplication.presentation.viewmodel.TestViewModel
+import com.example.myapplication.theme.MyApplicationTheme
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.wearable.Wearable
-import java.io.File
-import kotlin.math.log
+import dagger.hilt.android.AndroidEntryPoint
+import android.provider.Settings
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
 
 // MainActivity.kt
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager // 개객 선언 SensorManager
     private var accelerometer: Sensor? = null // Accelerometer Sensor
@@ -45,12 +52,14 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private var gyroscope: Sensor? = null // Gyroscope Sensor
 
     private var isMeasuring by mutableStateOf(false) // 측정 상태 저장 (Compose UI용)
-    private val imuDataList = mutableListOf<String>() // IMU 데이터 저장 리스트
+    private val imuDataList = mutableListOf<GestureData>() // IMU 데이터 저장 리스트
 
     private var tempLINEARAccel: FloatArray?=null// 임시 저장용 가속도 데이터
     private var tempAccel: FloatArray?=null// 임시 저장용 가속도 데이터
     private var tempGyro: FloatArray?=null// 임시 저장용 자이로 데이터
     private var lastTimestamp: Long = 0 // 마지막 데이터 수집 시간
+
+    private val testViewModel: TestViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +96,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             composable("gesture_test/{index}") { backStackEntry ->
                 val index = backStackEntry.arguments?.getString("index") ?: "1"
                 GestureTest(navController, activity,index)
+
             }
         }
     }
@@ -145,7 +155,16 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                 val (gx, gy, gz) = tempGyro!!
                 val (lax, lay, laz) = tempLINEARAccel!!
 
-                imuDataList.add("$lastTimestamp,$lax, $lay, $laz,$ax,$ay,$az,$gx,$gy,$gz") // CSV 형식으로 저장
+                imuDataList.add(
+                    GestureData(
+                        timestamp = lastTimestamp.toLong(),
+                        accX = ax,
+                        accY = ay,
+                        accZ = az,
+                        gryoX = gx,
+                        gryoY = gy,
+                        gryoZ = gz
+                    ))
             }
 
 
@@ -157,28 +176,52 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     // IMU 데이터 저장 및 스마트폰으로 전송
+    @SuppressLint("HardwareIds")
     fun saveAndSendIMUData(name:String) {
-        val nodeClient = Wearable.getNodeClient(this)
 
-        nodeClient.connectedNodes.addOnSuccessListener { nodes ->
-            for (node in nodes) {
-                val csvHeader = "timestamp,li_acc_x,li_acc_y,li_acc_z,acc_x,acc_y,acc_z,gryo_x,gryo_y,gryo_z\n"
-                val csvBody = imuDataList.joinToString("\n")
-                val csvData = (csvHeader + csvBody).toByteArray()
+        val androidId = Settings.Secure.getString(
+            this.contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
 
-                Wearable.getMessageClient(this).sendMessage(
-                    node.id,
-                    "imu_data$name",
-                    csvData
-                ).addOnSuccessListener {
-                    Log.d("IMU", "\ud83d\udc49 데이터 전송 성공 to ${node.displayName}")
-                }.addOnFailureListener { e ->
-                    Log.e("IMU", "\ud83d\udc49 데이터 전송 실패 to ${node.displayName}", e)
-                }
+        lifecycleScope.launch{
+            val a = testViewModel.postTest(ImuRequest(
+                gestureId = name.toLong(),
+                watchDeviceId = androidId,
+                data= imuDataList
+            ))
+
+            a.onSuccess {
+
+                Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+            }.onFailure {
+                Toast.makeText(this@MainActivity, "전송이 실패하였습니다.", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener { e ->
-            Log.e("IMU", "\ud83d\udc49 연결된 노드 가져오기 실패", e)
         }
+
+
+        // 모바일을 통해서 메일 전송
+//        val nodeClient = Wearable.getNodeClient(this)
+//
+//        nodeClient.connectedNodes.addOnSuccessListener { nodes ->
+//            for (node in nodes) {
+//                val csvHeader = "timestamp,li_acc_x,li_acc_y,li_acc_z,acc_x,acc_y,acc_z,gryo_x,gryo_y,gryo_z\n"
+//                val csvBody = imuDataList.joinToString("\n")
+//                val csvData = (csvHeader + csvBody).toByteArray()
+//
+//                Wearable.getMessageClient(this).sendMessage(
+//                    node.id,
+//                    "imu_data$name",
+//                    csvData
+//                ).addOnSuccessListener {
+//                    Log.d("IMU", "\ud83d\udc49 데이터 전송 성공 to ${node.displayName}")
+//                }.addOnFailureListener { e ->
+//                    Log.e("IMU", "\ud83d\udc49 데이터 전송 실패 to ${node.displayName}", e)
+//                }
+//            }
+//        }.addOnFailureListener { e ->
+//            Log.e("IMU", "\ud83d\udc49 연결된 노드 가져오기 실패", e)
+//        }
     }
 }
 

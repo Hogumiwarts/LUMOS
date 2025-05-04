@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
+import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
