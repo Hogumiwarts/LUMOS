@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "제스처 센서 데이터", description = "워치에서 수집한 센서 데이터를 저장하는 API입니다.")
+@Tag(name = "제스처 센서 데이터", description = "워치 센서 데이터 수집 API")
 public interface SensorDataApiSpec {
 
 	@Operation(summary = "센서 데이터 저장", description = """
@@ -26,7 +26,7 @@ public interface SensorDataApiSpec {
 		""")
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "센서 데이터 저장 성공", content = @Content()),
-		@ApiResponse(responseCode = "400", description = "유효하지 않은 입력 형식입니다.", content = @Content()),
+		@ApiResponse(responseCode = "400", description = "유효하지 않은 입력 형식", content = @Content()),
 		@ApiResponse(responseCode = "500", description = "서버 내부 오류 발생", content = @Content())
 	})
 	ResponseEntity<CommonResponse<Map<String, Boolean>>> saveSensorData(

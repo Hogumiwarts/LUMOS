@@ -2,6 +2,18 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+        - id: member-service
+          uri: http://member-service:8080
+          predicates:
+            - Path=/member/**
+          filters:
+            - StripPrefix=1
         - id: gesture-sensor-service
           uri: http://gesture-sensor-service:8080
           predicates:
