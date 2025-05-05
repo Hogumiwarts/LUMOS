@@ -26,7 +26,7 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "디바이스 목록 조회 성공"),})
     @GetMapping
-    ResponseEntity<List<DeviceResponse>> getAllDeviceByMember(
+    ResponseEntity<?> getAllDeviceByMember(
             @Parameter(description = "회원 ID", required = true)
             @RequestParam Long memberId
     );

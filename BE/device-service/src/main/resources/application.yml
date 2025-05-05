@@ -5,9 +5,6 @@ spring:
   jackson:
     time-zone: ${TZ}
 
-  profiles:
-    active: prod
-
   messages:
     basename: ValidationMessages
     encoding: UTF-8

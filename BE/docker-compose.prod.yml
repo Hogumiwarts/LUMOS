@@ -23,11 +23,7 @@ services:
     expose:
       - "8080"  # 내부 통신용
     env_file:
-      - .env
       - ./gesture-sensor-service/.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=postgres
     depends_on:
       - postgres
     networks:
@@ -41,9 +37,6 @@ services:
       - "8080"
     env_file:
       - .env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=postgres
     depends_on:
       - postgres
     networks:
@@ -56,11 +49,20 @@ services:
     expose:
       - "8080"
     env_file:
-      - .env
       - ./member-service/.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+  # 기기 서비스
+  device-service:
+    image: itsanisland/lumos-device-service:latest
+    container_name: lumos-device-service
+    expose:
+      - "8080"
+    env_file:
+      - ./device-service/.env
     depends_on:
       - postgres
     networks:
