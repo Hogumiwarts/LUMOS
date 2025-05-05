@@ -11,7 +11,7 @@ const { getAuthUrl, oauthCallback } = require('../controllers/auth.controller');
 
 /**
  * @swagger
- * /smart/oauth/url:
+ * /oauth/url:
  *   get:
  *     summary: SmartThings OAuth 인증 URL 요청
  *     description: 클라이언트가 SmartThings 로그인 창으로 이동할 수 있도록 OAuth 인증 URL을 반환합니다.
@@ -34,7 +34,7 @@ router.get('/url', getAuthUrl);
 
 /**
  * @swagger
- * /smart/oauth/callback:
+ * /oauth/callback:
  *   get:
  *     summary: SmartThings OAuth 인증 완료 콜백
  *     description: SmartThings 로그인 후 리디렉션된 요청을 처리하고, Authorization Code를 이용해 토큰을 발급받습니다.

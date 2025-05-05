@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.hogumiwarts.lumos.ui.Common.CommonTopBar
+import com.hogumiwarts.lumos.ui.common.CommonTopBar
 
 @Composable
 fun ControlScreen(navController: NavController) {

@@ -33,10 +33,10 @@ function injectDefaultValue(pathKey, method, paramName, defaultValue) {
 }
 
 // default 값 주입
-injectDefaultValue('/smart/devices', 'get', 'installedappid', process.env.DEFAULT_INSTALLED_APP_ID);
-injectDefaultValue('/smart/devices/{deviceId}/status', 'get', 'installedappid', process.env.DEFAULT_INSTALLED_APP_ID);
-injectDefaultValue('/smart/devices/{deviceId}/status', 'get', 'deviceId', process.env.DEFAULT_DEVICE_ID);
-injectDefaultValue('/smart/devices/{deviceId}/command', 'post', 'installedappid', process.env.DEFAULT_INSTALLED_APP_ID);
-injectDefaultValue('/smart/devices/{deviceId}/command', 'post', 'deviceId', process.env.DEFAULT_DEVICE_ID);
+injectDefaultValue('/devices', 'get', 'installedappid', process.env.DEFAULT_INSTALLED_APP_ID);
+injectDefaultValue('/devices/{deviceId}/status', 'get', 'installedappid', process.env.DEFAULT_INSTALLED_APP_ID);
+injectDefaultValue('/devices/{deviceId}/status', 'get', 'deviceId', process.env.DEFAULT_DEVICE_ID);
+injectDefaultValue('/devices/{deviceId}/command', 'post', 'installedappid', process.env.DEFAULT_INSTALLED_APP_ID);
+injectDefaultValue('/devices/{deviceId}/command', 'post', 'deviceId', process.env.DEFAULT_DEVICE_ID);
 
 module.exports = swaggerSpec;

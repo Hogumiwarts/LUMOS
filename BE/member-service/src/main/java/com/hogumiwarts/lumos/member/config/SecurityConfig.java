@@ -20,24 +20,4 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 		return http.build();
 	}
-
-	// @Bean
-	// public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	// 	http
-	// 		.csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
-	// 		.authorizeHttpRequests(auth -> auth
-	// 			.requestMatchers(
-	// 				"/gesture/v3/api-docs/**",       // API 문서 JSON
-	// 				"/gesture/swagger-ui/**",        // Swagger 리소스들
-	// 				"/gesture/swagger-ui.html",      // Swagger 진입점
-	// 				"/v3/api-docs/**",               // 혹시 내부적으로 이 경로로도 쓰일 수 있으니 함께 허용
-	// 				"/swagger-ui/**",                // fallback 대비
-	// 				"/swagger-ui.html",
-	// 				"/gesture/api/sensor"
-	// 			).permitAll()
-	// 			.anyRequest().authenticated()
-	// 		);
-	//
-	// 	return http.build();
-	// }
 }

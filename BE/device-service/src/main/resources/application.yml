@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: device-service
+
+  jackson:
+    time-zone: ${TZ}
+
+  profiles:
+    active: prod
+
+  messages:
+    basename: ValidationMessages
+    encoding: UTF-8
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: false
+        jdbc:
+          time_zone: ${TZ}
+    show-sql: true
+
+  sql:
+    init:
+      mode: always  # 또는 embedded
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  encoding:
+    charset: UTF-8
+    enabled: true
+    force: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 86400000
+  refresh-token-expiration: 604800000
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  enable-spring-security: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
