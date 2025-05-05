@@ -15,6 +15,7 @@ exports.getDevices = async (req, res) => {
 };
 
 exports.getDeviceStatus = async (req, res) => {
+  console.log("📥 GET /devices/{deviceId}/status 요청 도착!");
   const { deviceId } = req.params;
   const installedAppId = req.headers.installedappid;
 
@@ -28,9 +29,12 @@ exports.getDeviceStatus = async (req, res) => {
 };
 
 exports.executeDeviceCommand = async (req, res) => {
+  console.log("📥 GET /devices/{deviceId}/command 요청 도착!");
   const { deviceId } = req.params;
   const installedAppId = req.headers.installedappid;
   const { commands } = req.body; // [{component, capability, command, arguments}]
+
+  console.log("commands:", commands);
 
   try {
     const ctx = await smartApp.withContext(installedAppId);

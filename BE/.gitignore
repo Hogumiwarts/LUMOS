@@ -510,7 +510,7 @@ gradle-app.setting
 *.hprof
 
 # SmartThings
-smartthings-app/data/*.json
+smartthings-service/data/*.json
 
 # DB
 postgres/

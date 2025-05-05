@@ -18,10 +18,6 @@ public class SecurityConfig extends AbstractSecurityConfig {
 
 	@Override
 	protected String[] getPermitAllPaths() {
-		return new String[]{
-			"/api/signup",
-			"/api/login",
-			"/api/refresh"
-		};
+		return new String[]{};
 	}
 }

@@ -3,6 +3,8 @@ package com.hogumiwarts.lumos.device.controller;
 import com.hogumiwarts.lumos.device.docs.DeviceApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.service.DeviceService;
+import com.hogumiwarts.lumos.dto.CommonResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,15 +23,15 @@ public class DeviceController implements DeviceApiSpec {
 
 	// TODO : 공통응답 적용
 	@Override
-	public ResponseEntity<List<DeviceResponse>> getAllDeviceByMember(Long memberId) {
+	public ResponseEntity<CommonResponse<List<DeviceResponse>>> getAllDeviceByMember(Long memberId) {
 		List<DeviceResponse> devices = deviceService.getAllDeviceByMember(memberId);
-		return ResponseEntity.ok(devices);
+		return ResponseEntity.ok(CommonResponse.ok(devices));
 	}
 
 	// TODO : 공통응답 적용, Error 처리, 응답결과가 0인 경우, 새로운 DB 항목 발견시, 추가 Node.js 요청으로 제어 목록 받아오기
 	@Override
 	public ResponseEntity<List<NewDiscoveredDeviceResponse>> getSmartThingsDevices(Long memberId) {
-		String installedAppId = "11237955-08ec-418f-a2cd-8c7ca1a0919e"; // 테스트용 하드코딩
+		String installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"; // 테스트용 하드코딩
 		List<NewDiscoveredDeviceResponse> result = deviceService.getSmartThingsDevices(memberId, installedAppId);
 		return ResponseEntity.ok(result);
 	}
