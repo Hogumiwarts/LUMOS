@@ -7,8 +7,13 @@ services:
     container_name: lumos-gateway-service
     ports:
       - "80:8080"  # 외부 80 → 내부 Spring 포트
+    env_file:
+      - .env
     depends_on:
       - gesture-sensor-service
+      - auth-service
+      - member-service
+      - smartthings-service
     networks:
       - app-network
 
@@ -20,16 +25,55 @@ services:
     expose:
       - "8080"  # 내부 통신용
     env_file:
+      - .env
       - ./gesture-sensor-service/.env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_HOST=postgres
     depends_on:
       - postgres
+      - redis
     networks:
       - app-network
   
-    # SmartThings 서버
+  # 인증 서비스
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: lumos-auth-service
+    expose:
+      - "8080"
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 회원 서비스
+  member-service:
+    build:
+      context: ./member-service
+    container_name: lumos-member-service
+    expose:
+      - "8080"
+    env_file:
+      - .env
+      - ./member-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # SmartThings 서버
   smartthings-service:
     build:
       context: ./smartthings-service
@@ -56,6 +100,33 @@ services:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - app-network
+  
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: lumos-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      - app-network
+  
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: lumos-redisinsight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight-data:/data
+    depends_on:
+      - redis
+    networks:
+      - app-network
 
   # Grafana
   grafana:
@@ -74,6 +145,9 @@ services:
 volumes:
   postgres_data:
   grafana_data:
+  redis_data:
+    driver: local
+  redis-insight-data:
 
 networks:
   app-network:
