@@ -1,0 +1,170 @@
+services:
+
+  # Spring Cloud Gateway
+  gateway-service:
+    image: itsanisland/lumos-gateway-service:latest
+    container_name: lumos-gateway-service
+    expose:
+      - "8080"
+    env_file:
+      - .env
+    depends_on:
+      - gesture-sensor-service
+      - auth-service
+      - member-service
+      - smartthings-service
+    networks:
+      - app-network
+
+  # 제스처 센서 서비스
+  gesture-sensor-service:
+    image: itsanisland/lumos-gesture-sensor-service:latest
+    container_name: lumos-gesture-sensor-service
+    expose:
+      - "8080"  # 내부 통신용
+    env_file:
+      - .env
+      - ./gesture-sensor-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+  # 인증 서비스
+  auth-service:
+    image: itsanisland/lumos-auth-service:latest
+    container_name: lumos-auth-service
+    expose:
+      - "8080"
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+  # 회원 서비스
+  member-service:
+    image: itsanisland/lumos-member-service:latest
+    container_name: lumos-member-service
+    expose:
+      - "8080"
+    env_file:
+      - .env
+      - ./member-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  # SmartThings 서비스
+  smartthings-service:
+    image: itsanisland/lumos-smartthings-service:latest
+    container_name: lumos-smartthings-service
+    expose:
+      - "3000"
+    env_file:
+      - ./smartthings-service/.env
+    networks:
+      - app-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: lumos-postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+  
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: lumos-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      - app-network
+  
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: lumos-redis-insight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight-data:/data
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lumos-grafana
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+  
+  # NginX
+  nginx:
+    image: nginx:latest
+    container_name: lumos-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - gateway-service
+      - grafana
+      - certbot
+    networks:
+      - app-network
+
+# Certbot
+  certbot:
+    image: certbot/certbot
+    container_name: lumos-certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  postgres_data:
+  grafana_data:
+  redis_data:
+    driver: local
+  redis-insight-data:
+
+networks:
+  app-network:

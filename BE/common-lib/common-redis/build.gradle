@@ -1,0 +1,38 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.hogumiwarts.lumos'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    springBootVersion = '3.2.5'
+    lombokVersion = '1.18.30'
+}
+
+dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    compileOnly 'org.projectlombok:lombok:$lombokVersion'
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
