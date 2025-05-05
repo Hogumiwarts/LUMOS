@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: '/',
+        url: '/smart',
       },
     ],
   },

@@ -21,13 +21,13 @@ app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpecDev));
 app.use(express.json());
 
 // OAuth 관련 API
-app.use('/smart/oauth', authRoutes);
+app.use('/oauth', authRoutes);
 
 // 디바이스 관련 API
-app.use('/smart/devices', deviceRoutes);
+app.use('/devices', deviceRoutes);
 
 // SmartApp 관련 API
-app.use('/smart', smartRoutes);
+app.use('/', smartRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

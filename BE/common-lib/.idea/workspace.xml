@@ -4,97 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9cdf3355-f0e4-4631-bdc1-e78eaaedfbd1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/client/MemberClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/config/SwaggerConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/controller/AuthController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/docs/AuthApiSpec.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/CreateMemberRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/LoginRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/LoginResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/MemberResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/SignupRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/SignupResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/SuccessResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/TokenRefreshRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/dto/TokenRefreshResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/com/hogumiwarts/lumos/auth/service/AuthService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/resources/ValidationMessages.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/resources/application-dev.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/resources/application-prod.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/resources/application.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-redis/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-redis/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-redis/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-redis/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-redis/src/main/java/com/hogumiwarts/lumos/redis/RedisTokenService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/src/main/java/com/hogumiwarts/lumos/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/src/main/java/com/hogumiwarts/lumos/jwt/CustomAuthenticationEntryPoint.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/src/main/java/com/hogumiwarts/lumos/jwt/JwtAuthenticationFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common-security/src/main/java/com/hogumiwarts/lumos/jwt/JwtTokenProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/config/SwaggerConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/controller/MemberController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/dto/CreateUserRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/dto/MemberResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/entity/Member.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/repository/MemberRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/java/com/hogumiwarts/lumos/member/service/MemberService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/resources/application-dev.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/resources/application-prod.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../member-service/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hogumiwarts/lumos/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hogumiwarts/lumos/dto/CommonResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hogumiwarts/lumos/dto/ErrorResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hogumiwarts/lumos/exception/CustomException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hogumiwarts/lumos/exception/ErrorCode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker-compose.dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker-compose.prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.prod.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gateway-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../gateway-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gateway-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../gateway-service/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gateway-service/src/main/resources/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../gateway-service/src/main/resources/application-prod.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gateway-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../gateway-service/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/src/main/java/com/hogumiwarts/lumos/gesturesensor/GestureSensorServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/src/main/java/com/hogumiwarts/lumos/gesturesensor/GestureSensorServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/src/main/java/com/hogumiwarts/lumos/gesturesensor/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/src/main/java/com/hogumiwarts/lumos/gesturesensor/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/src/main/java/com/hogumiwarts/lumos/gesturesensor/docs/SensorDataApiSpec.java" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/src/main/java/com/hogumiwarts/lumos/gesturesensor/docs/SensorDataApiSpec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gesture-sensor-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../gesture-sensor-service/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../redis/redis.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../redis/redis.conf" afterDir="false" />
-    </list>
+    <list default="true" id="b3bdc0c6-2255-4f50-8460-11050487e191" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="ExternalProjectsData">
-    <projectState path="$PROJECT_DIR$/common-core">
-      <ProjectState />
-    </projectState>
-    <projectState path="$PROJECT_DIR$/common-redis">
-      <ProjectState />
-    </projectState>
-    <projectState path="$PROJECT_DIR$/common-security">
-      <ProjectState />
-    </projectState>
   </component>
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
@@ -108,63 +22,12 @@
       </state>
     </system>
   </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
-  </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
-  <component name="ProjectId" id="2weBkbnI7edBeORGSexb0zBw3DM" />
-  <component name="ProjectViewState">
-    <option name="flattenModules" value="true" />
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "S12P31D103-22",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/SSAFY/PJT/S12P31D103/BE/common-lib/common-redis/src/main/java/com/hogumiwarts/lumos",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "com.poratu.idea.plugins.tomcat.setting.TomcatServersConfigurable",
-    "vue.rearranger.settings.migration": "true"
+    "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\SSAFY\PJT\S12P31D103\BE\common-lib\common-redis\src\main\java\com\hogumiwarts\lumos" />
-    </key>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.117" />
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.117" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="9cdf3355-f0e4-4631-bdc1-e78eaaedfbd1" name="Changes" comment="" />
-      <created>1746392302596</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1746392302596</updated>
-      <workItem from="1746392303665" duration="7817000" />
-    </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
   </component>
 </project>

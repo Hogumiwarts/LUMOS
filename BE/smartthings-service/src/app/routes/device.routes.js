@@ -16,7 +16,7 @@ const {
 
 /**
  * @swagger
- * /smart/devices:
+ * /devices:
  *   get:
  *     summary: 디바이스 목록 조회
  *     tags: [Device]
@@ -46,7 +46,7 @@ router.get('/', getDevices);
 
 /**
  * @swagger
- * /smart/devices/{deviceId}/status:
+ * /devices/{deviceId}/status:
  *   get:
  *     summary: 특정 디바이스 상태 조회
  *     tags: [Device]
@@ -80,7 +80,7 @@ router.get('/:deviceId/status', getDeviceStatus);
 
 /**
  * @swagger
- * /smart/devices/{deviceId}/command:
+ * /devices/{deviceId}/command:
  *   post:
  *     summary: 특정 디바이스 명령 실행
  *     tags: [Device]
@@ -145,7 +145,7 @@ router.post('/:deviceId/command', executeDeviceCommand);
 
 /**
  * @swagger
- * /smart/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/commands:
+ * /devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/commands:
  *   get:
  *     summary: 특정 디바이스의 capability가 지원하는 command 목록 조회
  *     tags: [Device]

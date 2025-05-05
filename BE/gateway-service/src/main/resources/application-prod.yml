@@ -14,6 +14,12 @@ spring:
             - Path=/member/**
           filters:
             - StripPrefix=1
+        - id: device-service
+          uri: http://device-service:8080
+          predicates:
+            - Path=/device/**
+          filters:
+            - StripPrefix=1
         - id: gesture-sensor-service
           uri: http://gesture-sensor-service:8080
           predicates:

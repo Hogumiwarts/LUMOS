@@ -1,6 +1,7 @@
 const smartApp = require('../../config/smartapp');
 
 exports.getDevices = async (req, res) => {
+  console.log("📥 GET /devices 요청 도착!");
   const installedAppId = req.headers.installedappid;
 
   try {
@@ -8,6 +9,7 @@ exports.getDevices = async (req, res) => {
     const devices = await ctx.api.devices.list();
     res.send({ success: true, devices });
   } catch (error) {
+    console.error("❌ SmartThings API Error:", error);
     res.status(500).send({ success: false, message: error.message });
   }
 };
