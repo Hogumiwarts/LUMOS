@@ -38,6 +38,9 @@ fun RoutineScreen(
     onBackClick: () -> Unit = {},
     onAddClick: () -> Unit = {}
 ) {
+    // TODO: ViewModel에서 루틴 데이터를 받아오는 구조로 변경 예정
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
