@@ -24,6 +24,7 @@ import com.hogumiwarts.lumos.R
 fun AnimatedToggleButton(
     isOn: Boolean,
     onToggle: (Boolean) -> Unit,
+    modifier: Modifier
 ) {
     // Lottie 애니메이션 로딩
     val composition by rememberLottieComposition(
@@ -52,16 +53,15 @@ fun AnimatedToggleButton(
 
     // 터치 가능한 애니메이션 박스
     Box(
-        modifier = Modifier
-            .width(168.dp)
-            .height(80.dp)
+        modifier = modifier
             .clickable(
                 indication = null, // 기본 ripple 제거
                 interactionSource = remember { MutableInteractionSource() }
             ) {
                 onToggle(!isOn) // 토글 상태 변경
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
+        
     ) {
         // 실제 애니메이션 그리기
         LottieAnimation(
