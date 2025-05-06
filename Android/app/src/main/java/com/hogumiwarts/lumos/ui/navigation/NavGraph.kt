@@ -15,6 +15,7 @@ import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.RoutineScreen
+import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 
 @Composable
 fun NavGraph(
@@ -34,9 +35,19 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = BottomNavItem.Home.route,
+        //startDestination = BottomNavItem.Home.route,
+        startDestination = "welcome",
         modifier = modifier
     ) {
+
+        // 시작 화면
+        composable("welcome") {
+            WelcomeScreen(
+                onStartClick = { navController.navigate("signup") },
+                onLoginClick = { navController.navigate("login") }
+            )
+        }
+
         // 각 화면에 대한 composable 설정
         screens.forEach { item ->
             composable(
@@ -46,7 +57,12 @@ fun NavGraph(
                     val toRoute = targetState.destination.route
 
                     // 현재 화면이 왼쪽, 새 화면이 오른쪽일 때 (왼→오 이동)
-                    if (fromRoute != null && toRoute != null && getNavigationDirection(fromRoute, toRoute, screenOrder)) {
+                    if (fromRoute != null && toRoute != null && getNavigationDirection(
+                            fromRoute,
+                            toRoute,
+                            screenOrder
+                        )
+                    ) {
                         // 오른쪽에서 들어옴
                         slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -75,7 +91,12 @@ fun NavGraph(
                     } else {
                         val fromRoute = initialState.destination.route
 
-                        if (fromRoute != null && toRoute != null && getNavigationDirection(fromRoute, toRoute, screenOrder)) {
+                        if (fromRoute != null && toRoute != null && getNavigationDirection(
+                                fromRoute,
+                                toRoute,
+                                screenOrder
+                            )
+                        ) {
                             slideOutOfContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
                                 animationSpec = tween(300)
@@ -103,7 +124,12 @@ fun NavGraph(
                     } else {
                         val toRoute = targetState.destination.route
 
-                        if (fromRoute != null && toRoute != null && getNavigationDirection(fromRoute, toRoute, screenOrder)) {
+                        if (fromRoute != null && toRoute != null && getNavigationDirection(
+                                fromRoute,
+                                toRoute,
+                                screenOrder
+                            )
+                        ) {
                             slideIntoContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
                                 animationSpec = tween(300)
