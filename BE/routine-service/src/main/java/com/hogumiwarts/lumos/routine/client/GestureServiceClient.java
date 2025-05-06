@@ -1,0 +1,18 @@
+package com.hogumiwarts.lumos.routine.client;
+
+import com.hogumiwarts.lumos.routine.dto.GestureInfo;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@FeignClient(name = "gesture-service", url = "${gesture.service.url}")
+public interface GestureServiceClient {
+
+    @GetMapping("/api/gesture/{memberGestureId}")
+    GestureInfo getGestureInfo(
+            @PathVariable("memberGestureId") Long memberGestureId,
+            @RequestParam("memberId") Long memberId
+    );
+}
+

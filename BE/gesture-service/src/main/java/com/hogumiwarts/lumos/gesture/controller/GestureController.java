@@ -5,10 +5,7 @@ import com.hogumiwarts.lumos.gesture.dto.GestureResponse;
 import com.hogumiwarts.lumos.gesture.service.GestureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,4 +21,12 @@ public class GestureController implements GestureApiSpec {
         List<GestureResponse> gestures = gestureService.getGestures(memberId);
         return ResponseEntity.ok(gestures);
     }
+
+    @GetMapping("/{gestureId}")
+    public ResponseEntity<GestureResponse> getGestureInfo(@RequestParam Long memberId,
+                                                          @PathVariable Long gestureId) {
+        GestureResponse response = gestureService.getGestureInfo(memberId, gestureId);
+        return ResponseEntity.ok(response);
+    }
+
 }

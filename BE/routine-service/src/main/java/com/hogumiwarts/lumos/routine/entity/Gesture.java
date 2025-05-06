@@ -1,12 +1,15 @@
-package com.hogumiwarts.lumos.gesture.entity;
+package com.hogumiwarts.lumos.routine.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
+@Table(name = "gesture")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,8 +19,8 @@ public class Gesture {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "gesture_id")
-    private Long gestureId;
+    @Column(name = "member_gesture_id")
+    private Long memberGestureId;
 
     @Column(name = "gesture_name")
     private String gestureName;
@@ -29,9 +32,8 @@ public class Gesture {
     private String description;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
 }

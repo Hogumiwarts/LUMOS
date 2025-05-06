@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -24,5 +25,16 @@ public interface GestureApiSpec {
     ResponseEntity<List<GestureResponse>> getGestures(
             @Parameter(description = "회원 ID", example = "1")
             @RequestParam Long memberId
+    );
+
+    @Operation(summary = "단일 제스처 조회", description = "제스처 ID로 제스처 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "제스처 정보 반환 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    ResponseEntity<GestureResponse> getGestureInfo(
+            @Parameter(description = "회원 ID", example = "1") @RequestParam Long memberId,
+            @Parameter(description = "제스처 ID", example = "1") @PathVariable Long gestureId
     );
 }
