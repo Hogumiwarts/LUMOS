@@ -1,6 +1,7 @@
 // 필요한 컴포즈 및 리소스 관련 import
 package com.hogumiwarts.lumos.presentation.ui.screens.devices
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -31,6 +32,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.lazy.items
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
@@ -38,7 +41,7 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.ItemType
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
-
+import com.hogumiwarts.lumos.data.DevicesData
 
 
 // 기기 정보를 담는 데이터 클래스 (기기명, 상태, 아이콘)
@@ -49,7 +52,7 @@ data class DeviceItem(val name: String, val status: Boolean, val icon: ImageVect
 // 메인 화면 컴포저블
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
-fun DevicesScreen() {
+fun DevicesScreen(navController: NavHostController) {
 
     val listState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
@@ -60,15 +63,51 @@ fun DevicesScreen() {
 
     // 추후 ViewModel 또는 실제 데이터 연동으로 교체 예정
     val devices = listOf(
-        DeviceItem("게임방 무드등", true, Icons.Default.Home),
-        DeviceItem("무드 플레이어", false, Icons.Default.Home),
-        DeviceItem("거실 공기청정기", true, Icons.Default.Home),
-        DeviceItem("홈카메라", true, Icons.Default.Home),
-        DeviceItem("거실 공기청정기", false, Icons.Default.Home)
+        DevicesData(
+            tagNumber = 1001L,
+            deviceId = 1L,
+            installedAppId = "app.led.room",
+            deviceImg = "icon_home", // or actual URL if using image loading
+            deviceName = "게임방 무드등",
+            activated = true
+        ),
+        DevicesData(
+            tagNumber = 1002L,
+            deviceId = 2L,
+            installedAppId = "app.mood.player",
+            deviceImg = "icon_home",
+            deviceName = "무드 플레이어",
+            activated = false
+        ),
+        DevicesData(
+            tagNumber = 1003L,
+            deviceId = 3L,
+            installedAppId = "app.air.living",
+            deviceImg = "icon_home",
+            deviceName = "거실 공기청정기123123123213213213213123123213213",
+            activated = true
+        ),
+        DevicesData(
+            tagNumber = 1004L,
+            deviceId = 4L,
+            installedAppId = "app.home.camera",
+            deviceImg = "icon_home",
+            deviceName = "홈카메라",
+            activated = true
+        ),
+        DevicesData(
+            tagNumber = 1005L,
+            deviceId = 5L,
+            installedAppId = "app.air.living2",
+            deviceImg = "icon_home",
+            deviceName = "거실 공기청정기",
+            activated = false
+        )
     )
 
+
     // 활성화 여부에 따라 리스트 분리
-    val (activatedDevices, deactivatedDevices) = devices.partition { it.status }
+    val (activatedDevices, deactivatedDevices) = devices.partition { it.activated }
 
     ScreenScaffold(
         scrollState = listState,
@@ -104,7 +143,7 @@ fun DevicesScreen() {
 
                 // 활성화된 기기 리스트 렌더링
                 items(activatedDevices) {
-                    DeviceCard(it)
+                    DeviceCard(it,navController)
                 }
 
                 // 비활성화 영역 구분선
@@ -114,7 +153,7 @@ fun DevicesScreen() {
 
                 // 비활성화된 기기 리스트 렌더링
                 items(deactivatedDevices) {
-                    DeviceCard(it)
+                    DeviceCard(it,navController)
                 }
 
                 // 마지막 여백
@@ -141,13 +180,25 @@ val gradientBrush = Brush.linearGradient(
 
 // 각 기기를 표시하는 카드 UI
 @Composable
-fun DeviceCard(device: DeviceItem) {
+fun DeviceCard(device: DevicesData,navController: NavHostController) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = Color(0x33FFFFFF), // 반투명 흰색 배경
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 6.dp),
+            .padding(bottom = 6.dp)
+            .clickable {
+                // 클릭 이벤트 처리
+                when(device.deviceId.toInt()){
+
+                    1->{
+                        navController.navigate("light/${device.tagNumber}") {
+                        popUpTo("splash") { inclusive = true }
+                    }}
+                    2->{}
+                    else->{}
+                }
+            },
         border = BorderStroke(1.dp, gradientBrush) // 그라디언트 테두리
     ) {
         Row(
@@ -164,23 +215,25 @@ fun DeviceCard(device: DeviceItem) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // 기기 이름과 상태 텍스트
-                Column {
+                Column (modifier = Modifier.weight(1f)){
                     Text(
-                        text = device.name,
+                        text = device.deviceName,
                         fontSize = 13.sp,
                         color = Color.White,
-                        fontWeight = FontWeight.ExtraBold
+                        fontWeight = FontWeight.ExtraBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.padding(2.dp))
                     Text(
-                        text = if (device.status) "켜짐" else "꺼짐",
+                        text = if (device.activated) "켜짐" else "꺼짐",
                         fontSize = 11.sp,
                         color = Color.LightGray
                     )
                 }
 
                 // 우측 끝 설정 아이콘
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "설정",
@@ -229,6 +282,6 @@ fun WearIconButton(onClick: () -> Unit) {
 @Composable
 fun DefaultPreview() {
     LUMOSTheme {
-        DevicesScreen()
+//        DevicesScreen()
     }
 }

@@ -72,6 +72,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DefaultPreview() {
     LUMOSTheme{
-        DevicesScreen()
+//        DevicesScreen()
     }
 }
