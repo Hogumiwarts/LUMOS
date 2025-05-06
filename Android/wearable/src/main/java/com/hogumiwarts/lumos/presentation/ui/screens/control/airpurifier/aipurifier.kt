@@ -52,6 +52,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.wear.compose.material.Icon
 import com.hogumiwarts.lumos.presentation.ui.common.OnOffSwitch
+import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSetting
+import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSwitch
 
 
 // 메인 화면 전환을 위한 상위 컴포저블
@@ -69,7 +71,7 @@ fun Aipurifier() {
     Box(modifier = Modifier.fillMaxSize()) {
         // 무드 플레이어 화면
         Box(modifier = Modifier.offset()) {
-            AipurifierScreen(
+            AipurifierSwitch(
                 volumePercent = 40,
                 isOn = true,
                 onToggle = {},
@@ -80,251 +82,12 @@ fun Aipurifier() {
         // 음악 플레이어 화면
         if (showNext || nextOffsetY < 300.dp) {
             Box(modifier = Modifier.offset(x = nextOffsetY)) {
-                AipurifierSetting(onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
+                AipurifierSetting(onSwipeDown = { showNext = false })
             }
         }
     }
 }
 
-
-@Composable
-fun AipurifierSetting(onSwipeDown: () -> Unit) {
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF111322))
-            .pointerInput(Unit) {
-                var totalDrag = 0f
-                detectVerticalDragGestures(
-                    onDragEnd = {
-                        if (totalDrag > 50f) {
-                            onSwipeDown() // 아래로 스와이프 시 화면 복귀
-                        }
-                        totalDrag = 0f
-                    },
-                    onVerticalDrag = { _, dragAmount ->
-                        totalDrag += dragAmount
-                    }
-                )
-            },
-    ) {
-        val (title, player, more) = createRefs()
-
-        // 노래 제목 및 아티스트
-        Column(
-            modifier = Modifier.constrainAs(title) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(player.top)
-            },
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "팬속도", fontSize = 16.sp, color = Color.White)
-        }
-
-        // 볼륨 및 스위치 토글
-        Box(
-            modifier = Modifier
-                .width(180.dp)
-                .height(70.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .constrainAs(player) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                },
-            contentAlignment = Alignment.CenterStart
-        ) {
-        FanSpeedSelector()
-        }
-        // 하단 안내 텍스트
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color(0x10FFFFFF),
-            modifier = Modifier.constrainAs(more) {
-                top.linkTo(player.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }
-        ) {
-            Text(
-                text = "적용하기",
-                color = Color.White,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                style = TextStyle(fontSize = 14.sp)
-            )
-        }
-    }
-}
-@Composable
-fun FanSpeedSelector() {
-    val options = listOf("Low", "Auto", "High")
-    var selectedIndex by remember { mutableStateOf(1) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .pointerInput(Unit) {
-                var totalDrag = 0f
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        if (totalDrag < -50f) {
-                            selectedIndex = (selectedIndex + 1) % options.size
-                        } else if (totalDrag > 50f) {
-                            selectedIndex = (selectedIndex - 1 + options.size) % options.size
-                        }
-                        totalDrag = 0f
-                    },
-                    onHorizontalDrag =  { _, dragAmount ->
-                        totalDrag += dragAmount
-                    }
-                )
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            // 왼쪽
-            Text(
-                text = options[(selectedIndex - 1 + options.size) % options.size],
-                fontSize = 18.sp,
-                color = Color.Gray.copy(alpha = 0.4f),
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
-
-            // 가운데
-            Text(
-                text = options[selectedIndex],
-                fontSize = 28.sp,
-                color = Color.White,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
-
-            // 오른쪽
-            Text(
-                text = options[(selectedIndex + 1) % options.size],
-                fontSize = 18.sp,
-                color = Color.Gray.copy(alpha = 0.4f),
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-
-
-// 무드 플레이어 화면 (첫 번째 화면)
-@Composable
-fun AipurifierScreen(
-    volumePercent: Int = 40,
-    isOn: Boolean = true,
-    onToggle: (Boolean) -> Unit,
-    onSwipeUp: () -> Unit
-) {
-    val switchState = remember { mutableStateOf(isOn) }
-
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.animation_down)
-    )
-
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF111322))
-    ) {
-        val (title, toggle, arrow) = createRefs()
-
-        // 제목
-        Text(
-            text = "교육장 공기 당담",
-            color = Color.White,
-            fontSize = 18.sp,
-            modifier = Modifier.constrainAs(title) {
-                top.linkTo(parent.top, margin = 18.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(toggle.top)
-            }
-        )
-
-        // 볼륨 및 스위치 토글
-        Box(
-            modifier = Modifier
-                .width(180.dp)
-                .height(70.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .background(Color(0x10FFFFFF))
-                .clickable {
-                    // 클릭 시 동작
-                    onSwipeUp()
-                }
-                .constrainAs(toggle) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                },
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "펜속도  $volumePercent%",
-                        color = Color.White,
-                        fontSize = 12.sp
-                    )
-                    Text(
-                        text = "미세먼지 매우 좋음",
-                        color = Color.White,
-                        fontSize = 12.sp
-                    )
-                }
-
-                OnOffSwitch(
-                    checked = switchState.value,
-                    onCheckedChange = {
-                        switchState.value = it
-                        onToggle(it)
-                    }
-                )
-            }
-        }
-
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color(0x10FFFFFF),
-            modifier = Modifier.constrainAs(arrow) {
-                top.linkTo(toggle.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }
-        ) {
-            Text(
-                text = "폰에서 세부 제어",
-                color = Color.White,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                style = TextStyle(fontSize = 14.sp)
-            )
-        }
-    }
-}
 
 
 
