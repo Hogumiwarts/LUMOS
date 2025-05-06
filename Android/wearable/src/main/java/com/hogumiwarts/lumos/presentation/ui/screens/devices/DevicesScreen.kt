@@ -32,6 +32,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.lazy.items
@@ -113,7 +115,7 @@ fun DevicesScreen(navController: NavHostController) {
         scrollState = listState,
     ) {
 // 배경 이미지와 전체 레이아웃 박스
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.clip(CircleShape).fillMaxSize()) {
             Image(
                 painter = painterResource(id = R.drawable.device_background),
                 contentDescription = null,
@@ -187,7 +189,9 @@ fun DeviceCard(device: DevicesData,navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 6.dp)
+            .clip(RoundedCornerShape(20.dp))
             .clickable {
+
                 // 클릭 이벤트 처리
                 when(device.deviceId.toInt()){
 
@@ -202,6 +206,10 @@ fun DeviceCard(device: DevicesData,navController: NavHostController) {
                     3 ->{
                         navController.navigate("minibig/${device.tagNumber}") {
                             popUpTo("splash") { inclusive = true }}
+                    }
+                    5->{
+                        navController.navigate("airPurifier/${device.tagNumber}") {
+                           }
                     }
 
                     else->{}

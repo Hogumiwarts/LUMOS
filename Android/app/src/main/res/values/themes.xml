@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.LUMOS" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.LUMOS" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 상태바 글씨 밝기 (true = 검정 텍스트 / false = 흰 텍스트) -->
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- 상태바 투명 처리 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!-- 네비게이션 바 투명 처리 -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>

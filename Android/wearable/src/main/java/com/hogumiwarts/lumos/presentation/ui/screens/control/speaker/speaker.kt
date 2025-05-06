@@ -40,6 +40,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.wear.compose.material.Icon
 
@@ -70,6 +72,12 @@ fun MoodPlayerScreen(tagNumber: Long) {
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
+
+        Image(
+            painter = painterResource(id = R.drawable.device_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
         // 무드 플레이어 화면
         Box(modifier = Modifier.offset(y = currentOffsetY)) {
             MoodPlayerSwitch(

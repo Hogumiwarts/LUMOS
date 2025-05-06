@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,6 +42,7 @@ fun MainScreen() {
     // 네비게이션 바를 표시할 화면인지 확인
     val isNavOn = currentDestination?.route in mainScreens
 
+    @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
     Scaffold(
         bottomBar = {
             if (isNavOn) {
@@ -77,7 +79,7 @@ fun MainScreen() {
     ) { innerPadding ->
         NavGraph(
             navController = navController,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

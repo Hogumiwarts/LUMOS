@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.minibig
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.wear.compose.material.Text
+import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 
@@ -38,8 +41,13 @@ fun BedLightSwitch(
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111322))
     )  {
+
+        Image(
+            painter = painterResource(id = R.drawable.device_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
         val (title, toggle, arrow) = createRefs()
         // 상단 텍스트
         Text(
