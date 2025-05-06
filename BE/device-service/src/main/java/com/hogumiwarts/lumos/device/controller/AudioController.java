@@ -5,6 +5,8 @@ import com.hogumiwarts.lumos.device.docs.DeviceApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.service.AudioService;
 import com.hogumiwarts.lumos.device.service.DeviceService;
+import com.hogumiwarts.lumos.dto.CommonResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +25,9 @@ public class AudioController implements AudioApiSpec {
 
 	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
-	public ResponseEntity<?> updateAudioPower(Long deviceId, PowerControlRequest request) {
+	public ResponseEntity<CommonResponse<DeviceStatusResponse>> updateAudioPower(Long deviceId, PowerControlRequest request) {
 		DeviceStatusResponse response = deviceService.executeCommand(deviceId, request);
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
 	// TODO : 공통응답 적용, Request, Response 구조, Error 처리

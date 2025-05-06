@@ -2,6 +2,24 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+        - id: member-service
+          uri: http://member-service:8080
+          predicates:
+            - Path=/member/**
+          filters:
+            - StripPrefix=1
+        - id: device-service
+          uri: http://device-service:8080
+          predicates:
+            - Path=/device/**
+          filters:
+            - StripPrefix=1
         - id: gesture-sensor-service
           uri: http://gesture-sensor-service:8080
           predicates:
@@ -12,10 +30,5 @@ spring:
           uri: http://smartthings-service:3000
           predicates:
             - Path=/smart/**
-
-springdoc:
-  swagger-ui:
-    urls[0]:
-      name: gesture-sensor-service
-      url: /gesture/v3/api-docs
-    use-root-path: true
+          filters:
+            - StripPrefix=1

@@ -1,15 +1,9 @@
-#spring.application.name=device-service
-
-
 spring:
   application:
     name: device-service
 
   jackson:
     time-zone: ${TZ}
-
-  profiles:
-    active: prod
 
   messages:
     basename: ValidationMessages

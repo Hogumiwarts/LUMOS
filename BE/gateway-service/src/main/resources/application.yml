@@ -2,6 +2,9 @@ spring:
   application:
     name: gateway-service
 
+  jackson:
+    time-zone: ${TZ}
+
   config:
     import: "optional:configserver:"
 
@@ -11,3 +14,24 @@ spring:
       allowed-origins: "*"
       allowed-methods: "*"
       allowed-headers: "*"
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    disable-swagger-default-url: true
+    urls:
+      - name: auth-service
+        url: /auth/v3/api-docs
+      - name: device-service
+        url: /device/v3/api-docs
+      - name: gesture-sensor-service
+        url: /gesture/v3/api-docs
+      - name: smartthings-service
+        url: /smart/v3/api-docs/

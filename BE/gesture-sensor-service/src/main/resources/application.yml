@@ -5,9 +5,6 @@ spring:
   jackson:
     time-zone: ${TZ}
 
-  profiles:
-    active: prod
-
   messages:
     basename: ValidationMessages
     encoding: UTF-8
@@ -35,10 +32,11 @@ spring:
       matching-strategy: ant_path_matcher
 
 server:
-  encoding:
-    charset: UTF-8
-    enabled: true
-    force: true
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 jwt:
   secret: ${JWT_SECRET}

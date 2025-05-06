@@ -2,9 +2,13 @@ package com.hogumiwarts.lumos.device.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -18,6 +22,8 @@ import java.util.Map;
 public class Device {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "device_id")
 	private Long deviceId;
 
 	private String installedAppId;
@@ -35,7 +41,9 @@ public class Device {
 	@JdbcTypeCode(SqlTypes.JSON)
 	private Map<String, Object> control;
 
-	private LocalDateTime createdAt;
+	@CreationTimestamp
+	private Timestamp createdAt;
 
-	private LocalDateTime updatedAt;
+	@UpdateTimestamp
+	private Timestamp updatedAt;
 }

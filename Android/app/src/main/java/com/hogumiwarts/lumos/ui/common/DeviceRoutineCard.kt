@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -52,7 +54,8 @@ fun DeviceRoutineCard(
     showToggle: Boolean,
     cardTitle: String,
     cardSubtitle: String,
-    cardIcon: @Composable (() -> Unit)? = null,
+    cardIcon: @Composable (DpSize) -> Unit = {},
+    iconSize: DpSize = DpSize(58.dp, 96.dp),
     borderStyle: BorderStroke = BorderStroke(1.dp, Color.LightGray),
     isOn: Boolean,
     onToggle: (() -> Unit)? = null,
@@ -60,9 +63,14 @@ fun DeviceRoutineCard(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(16.dp),
+                spotColor = Color(0x33000000),
+                ambientColor = Color(0x33000000)
+            )
+            .background(Color.White, shape = RoundedCornerShape(16.dp))
             .border(border = borderStyle, shape = RoundedCornerShape(16.dp))
-            .background(Color.White)
     ) {
 
         cardIcon?.let {
@@ -71,10 +79,11 @@ fun DeviceRoutineCard(
                     .align(Alignment.TopEnd)
                     // endPadding을 입력 받아서 아이콘마다 여백 지정
                     .padding(end = endPadding)
-                    .size(width = 58.dp, height = 96.dp),
+                    .size(iconSize),
                 contentAlignment = Alignment.TopEnd
             ) {
-                it()
+                cardIcon(iconSize)
+
             }
         }
 
@@ -90,12 +99,14 @@ fun DeviceRoutineCard(
                     isOn = isOn,
                     onToggle = { onToggle?.invoke() }
                 )
+            } else {
+                Spacer(modifier = Modifier.height(24.dp)) // 토글 없을 때도 상단 자리 확보를 위해 추가함
             }
 
             Column {
                 Text(
                     text = cardTitle,
-                    style = MaterialTheme.typography.titleMedium.copy(
+                    style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight(800),
                         fontFamily = nanum_square_neo,
                         color = colorResource(id = R.color.black_primary)
@@ -103,7 +114,7 @@ fun DeviceRoutineCard(
 
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(1.dp))
 
                 Text(
                     text = cardSubtitle,
@@ -142,7 +153,10 @@ fun DeviceRoutineCardPreview() {
                     modifier = Modifier.size(58.dp, 96.dp)
                 )
             },
-            borderStyle = BorderStroke(1.dp, if (isOn) colorResource(id = R.color.point_color) else Color.LightGray),
+            borderStyle = BorderStroke(
+                1.dp,
+                if (isOn) colorResource(id = R.color.point_color) else Color.LightGray
+            ),
             isOn = isOn,
             onToggle = { isOn = !isOn },
             endPadding = 7.dp

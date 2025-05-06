@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.Text
 
-// ON/OFF 스위치 구현
 @Composable
 fun OnOffSwitch(
     checked: Boolean,
