@@ -22,7 +22,14 @@ class BleScanner(private val context: Context) {
     companion object {
         private const val TAG = "BLEScanner"
         // SmartTag2의 디바이스 이름 패턴 (필요에 따라 수정)
-        private const val SMARTTAG2_NAME_PREFIX = "SmartTag2"
+        private val SMARTTAG2_NAME_FILTERS = listOf(
+            "Galaxy SmartTag2",
+            "SmartTag2",
+            "Smart Tag2",
+            "Smart Tag",
+            "SmartTag",
+            "Galaxy SmartTag"
+        )
     }
 
     private val bluetoothManager: BluetoothManager? = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
@@ -54,11 +61,21 @@ class BleScanner(private val context: Context) {
                 null
             }
 
-            // SmartTag2 디바이스인지 확인
-            if (deviceName != null && deviceName.contains(SMARTTAG2_NAME_PREFIX)) {
+            // SmartTag2 디바이스인지 확인 (이름 패턴 확장)
+            if (deviceName != null && SMARTTAG2_NAME_FILTERS.any { deviceName.contains(it, ignoreCase = true) }) {
                 Log.d(TAG, "Found SmartTag2: $deviceName, Address: ${device.address}")
                 // 채널로 디바이스 전송
                 scanResultsChannel.trySend(device)
+            } else {
+                // 서비스 UUID로도 검사 (이름이 없거나 다른 이름일 경우)
+                val scanRecord = result.scanRecord
+                if (scanRecord != null) {
+                    val serviceUuids = scanRecord.serviceUuids
+                    if (serviceUuids != null && serviceUuids.any { it.uuid.toString() == "eedd5e73-6aa8-4673-8219-398a489da87c" }) {
+                        Log.d(TAG, "Found SmartTag2 by service UUID: ${device.address}")
+                        scanResultsChannel.trySend(device)
+                    }
+                }
             }
         }
 
