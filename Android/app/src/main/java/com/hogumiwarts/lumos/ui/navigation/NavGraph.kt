@@ -1,15 +1,16 @@
 package com.hogumiwarts.lumos.ui.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
@@ -33,10 +34,15 @@ fun NavGraph(
     // 화면 경로만 추출
     val screenOrder = screens.map { it.route }
 
+    val viewModel: AuthViewModel = hiltViewModel()
+    val isLoggedIn by viewModel.isLoggin.collectAsState()
+
+    val startDestination = if (isLoggedIn) "home" else "welcome"
+
     NavHost(
         navController = navController,
         //startDestination = BottomNavItem.Home.route,
-        startDestination = "welcome",
+        startDestination = startDestination,
         modifier = modifier
     ) {
 
