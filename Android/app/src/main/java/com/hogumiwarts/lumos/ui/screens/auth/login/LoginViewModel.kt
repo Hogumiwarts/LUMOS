@@ -2,6 +2,8 @@ package com.hogumiwarts.lumos.ui.screens.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.domain.model.LoginResult
+import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -10,10 +12,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state
@@ -39,6 +43,8 @@ class LoginViewModel @Inject constructor(
 
             is LoginIntent.togglePasswordVisibility -> _state.update { it.copy(passwordVisible = !it.passwordVisible) }
             is LoginIntent.submitLogin -> validateAndLogin()
+
+
         }
     }
 
@@ -46,14 +52,51 @@ class LoginViewModel @Inject constructor(
         val id = _state.value.id
         val pw = _state.value.pw
 
+        // 1차 유효성 검사
         when {
-            !id.contains("@") -> _state.update { it.copy(idErrorMessage = "아이디는 이메일 주소 형태로 입력해 주세요.") }
-            id != "ssafy@ssafy.com" -> _state.update { it.copy(idErrorMessage = "등록되지 않은 아이디입니다.") }
-            pw != "1234" -> _state.update { it.copy(pwErrorMessage = "비밀번호가 일치하지 않습니다.") }
-            else -> {
-                viewModelScope.launch {
+            !id.contains("@") -> {
+                _state.update { it.copy(idErrorMessage = "아이디는 이메일 주소 형태로 입력해 주세요.") }
+                return
+            }
+
+            pw.isBlank() -> {
+                _state.update { it.copy(pwErrorMessage = "비밀번호를 입력해 주세요.") }
+                return
+            }
+
+            id.isBlank() -> {
+                _state.update { it.copy(pwErrorMessage = "아이디를 입력해 주세요.") }
+                return
+            }
+        }
+
+        // api 호출
+        viewModelScope.launch {
+            when (val result = authRepository.login(id, pw)) {
+                is LoginResult.Success -> {
+                    //todo: 이후에 토큰 저장 등 처리
+                    Timber.tag("Login").i(
+                        """
+                        ✅ 로그인 성공
+                        ├─ ID       : ${result.memberId}
+                        ├─ Email    : ${result.email}
+                        ├─ Name     : ${result.name}
+                        ├─ Access   : ${result.accessToken}
+                        └─ Refresh  : ${result.refreshToken}
+                        """.trimIndent()
+                    )
+
                     _effect.send(LoginEffect.ShowWelcomeToast)
                     _effect.send(LoginEffect.NavigateToHome)
+                }
+
+                is LoginResult.Error -> {
+                    // 에러 메시지에 따라 상태 갱신
+                    if (result.message.contains("비밀번호")) {
+                        _state.update { it.copy(pwErrorMessage = result.message) }
+                    } else {
+                        _state.update { it.copy(idErrorMessage = result.message) }
+                    }
                 }
             }
         }

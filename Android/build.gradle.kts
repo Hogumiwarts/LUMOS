@@ -8,3 +8,9 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kotlin.kapt) apply false
 }
+
+// rootProject/build.gradle.kts (또는 settings.gradle.kts)
+val localProperties = java.util.Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+extra["AUTH_BASE_URL"] = localProperties["AUTH_BASE_URL"] as String
