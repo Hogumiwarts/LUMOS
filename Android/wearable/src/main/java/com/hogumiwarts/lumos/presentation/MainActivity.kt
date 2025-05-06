@@ -22,11 +22,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
+import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 
@@ -51,7 +53,8 @@ class MainActivity : ComponentActivity() {
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                     )
-                    MoodPlayerScreen()
+                    val navController = rememberNavController()
+                    NavGraph(navController)
                 }
             }
 
