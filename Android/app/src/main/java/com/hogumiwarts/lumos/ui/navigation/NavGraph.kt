@@ -193,21 +193,10 @@ fun NavGraph(
             val context = LocalContext.current
 
             LoginScreen(
-                onLoginClick = { id, pw ->
-                    // 임시로 아이디/비번 하드코딩
-                    // todo: api 연결시 수정하기
-                    //val success = loginApi.login(id, pw).isSuccessful
-                    val success = id == "ssafy@ssafy.com" && pw == "1234"
-
-                    // 로그인 처리 후 메인으로 이동
-                    if (success) {
-                        Toast.makeText(context, "LUMOS에 오신 걸 환영해요!", Toast.LENGTH_SHORT).show()
-                        navController.navigate("home")
-                    } else {
-                        Toast.makeText(context, "아이디 또는 비밀번호를 확인해주세요.", Toast.LENGTH_SHORT).show()
+                onLoginSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true } // 뒤로가기로 돌아가지 않게
                     }
-
-                    success
                 }
             )
         }

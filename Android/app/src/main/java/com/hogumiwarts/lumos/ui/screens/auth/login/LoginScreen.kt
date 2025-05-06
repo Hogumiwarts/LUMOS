@@ -24,6 +24,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,25 +48,37 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.auth.components.GradientButton
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Boolean
-) {
-    var id by remember { mutableStateOf("") }
-    var pw by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    viewModel: LoginViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel(),
 
+    onLoginSuccess: () -> Unit
+) {
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    // 오류 메시지 상태
-    var idErrorMessage by remember { mutableStateOf<String?>(null) }
-    var pwErrorMessage by remember { mutableStateOf<String?>(null) }
-
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                LoginEffect.NavigateToHome -> {
+                    onLoginSuccess()
+                    authViewModel.logIn()
+                }
+                LoginEffect.ShowWelcomeToast ->
+                    Toast.makeText(context, "LUMOS에 오신 걸 환영해요!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -77,7 +91,7 @@ fun LoginScreen(
         contentAlignment = Alignment.Center
     ) {
         // 배경 이미지
-        androidx.compose.foundation.Image(
+        Image(
             painter = painterResource(id = R.drawable.bg_login_space),
             contentDescription = null,
             modifier = Modifier
@@ -121,12 +135,11 @@ fun LoginScreen(
             // 로그인 영역
             // ID 입력
             OutlinedTextField(
-                value = id,
+                value = state.id,
                 onValueChange = {
-                    id = it
-                    idErrorMessage = null // 입력 중이면 오류 초기화
+                    viewModel.handleIntent(LoginIntent.inputId(it))
                 },
-                isError = idErrorMessage != null,
+                isError = state.idErrorMessage != null,
                 placeholder = {
                     Text(
                         "ID",
@@ -141,7 +154,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(56.dp)
                     .then(
-                        if (idErrorMessage != null) Modifier
+                        if (state.idErrorMessage != null) Modifier
                             .border(1.5.dp, Color(0xFFF26D6D), shape = MaterialTheme.shapes.medium)
                         else Modifier
                     ),
@@ -159,7 +172,7 @@ fun LoginScreen(
                 )
             )
 
-            idErrorMessage?.let {
+            state.idErrorMessage?.let {
                 Text(
                     text = it,
                     color = Color(0xFFF26D6D),
@@ -175,12 +188,11 @@ fun LoginScreen(
 
             // PW 입력
             OutlinedTextField(
-                value = pw,
+                value = state.pw,
                 onValueChange = {
-                    pw = it
-                    pwErrorMessage = null // 입력 중일 때는 오류 초기화
+                    viewModel.handleIntent(LoginIntent.inputPw(it))
                 },
-                isError = pwErrorMessage != null,
+                isError = state.pwErrorMessage != null,
                 placeholder = {
                     Text(
                         "PW",
@@ -195,21 +207,23 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(56.dp)
                     .then(
-                        if (pwErrorMessage != null) Modifier
+                        if (state.pwErrorMessage != null) Modifier
                             .border(1.5.dp, Color(0xFFF26D6D), shape = MaterialTheme.shapes.medium)
                         else Modifier
                     ),
                 singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = {
+                        viewModel.handleIntent(LoginIntent.togglePasswordVisibility)
+                    }) {
                         val iconRes =
-                            if (passwordVisible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
-                        androidx.compose.foundation.Image(
+                            if (state.passwordVisible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
+                        Image(
                             painter = painterResource(id = iconRes),
                             modifier = Modifier.size(20.dp),
-                            contentDescription = if (passwordVisible) "비밀번호 숨기기" else "비밀번호 보기"
+                            contentDescription = if (state.passwordVisible) "비밀번호 숨기기" else "비밀번호 보기"
                         )
                     }
                 },
@@ -227,7 +241,7 @@ fun LoginScreen(
                 )
             )
 
-            pwErrorMessage?.let {
+            state.pwErrorMessage?.let {
                 Text(
                     text = it,
                     color = Color(0xFFF26D6D),
@@ -242,22 +256,7 @@ fun LoginScreen(
 
             // 로그인 버튼
             GradientButton(
-                onClick = {
-                    idErrorMessage = null
-                    pwErrorMessage = null
-
-                    // 오류에 따른 처리
-                    // todo: api 연결 시 하드코딩 영역 수정할 것!
-                    if (!id.contains("@")) {
-                        idErrorMessage = "아이디는 이메일 주소 형태로 입력해 주세요."
-                    } else if (id != "ssafy@ssafy.com") {
-                        idErrorMessage = "등록되지 않은 아이디입니다."
-                    } else if (pw != "1234") {
-                        pwErrorMessage = "비밀번호가 일치하지 않습니다."
-                    } else {
-                        onLoginClick(id, pw)
-                    }
-                },
+                onClick = { viewModel.handleIntent(LoginIntent.submitLogin) },
                 inputText = "로그인"
             )
 
@@ -265,18 +264,4 @@ fun LoginScreen(
 
         }
     }
-}
-
-@Composable
-@androidx.compose.ui.tooling.preview.Preview(
-    showBackground = true,
-    showSystemUi = true,
-    name = "LoginScreen Preview",
-    widthDp = 360,
-    heightDp = 800
-)
-fun LoginScreenPreview() {
-    LoginScreen(
-        onLoginClick = { _, _ -> true }
-    )
 }
