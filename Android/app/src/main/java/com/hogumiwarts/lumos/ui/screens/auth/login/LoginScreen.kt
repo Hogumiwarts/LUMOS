@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.auth.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -50,12 +52,13 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> }
+    onLoginClick: (String, String) -> Boolean
 ) {
     var id by remember { mutableStateOf("") }
     var pw by remember { mutableStateOf("") }
-
     var passwordVisible by remember {mutableStateOf(false)}
+
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -122,6 +125,7 @@ fun LoginScreen(
                 shape = MaterialTheme.shapes.medium,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     focusedBorderColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
                 )
@@ -145,7 +149,7 @@ fun LoginScreen(
                         val iconRes = if(passwordVisible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
                         androidx.compose.foundation.Image(
                             painter = painterResource(id = iconRes),
-                            modifier = Modifier.size(26.dp),
+                            modifier = Modifier.size(20.dp),
                             contentDescription = if(passwordVisible) "비밀번호 숨기기" else "비밀번호 보기"
                         )
                     }
@@ -153,6 +157,7 @@ fun LoginScreen(
                 shape = MaterialTheme.shapes.medium,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     cursorColor = Color.White,
                     focusedBorderColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
@@ -164,7 +169,9 @@ fun LoginScreen(
 
             // 로그인 버튼
             GradientButton(
-                onClick = { onLoginClick(id, pw) },
+                onClick = {
+                    val success = onLoginClick(id, pw) // 로그인 성공 여부
+                },
                 inputText = "로그인"
             )
 
@@ -184,6 +191,6 @@ fun LoginScreen(
 )
 fun LoginScreenPreview() {
     LoginScreen(
-        onLoginClick = { _, _ -> }
+        onLoginClick = { _, _ -> true}
     )
 }

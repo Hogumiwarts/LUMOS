@@ -1,15 +1,18 @@
 package com.hogumiwarts.lumos.ui.navigation
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hogumiwarts.lumos.MainScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
@@ -185,13 +188,26 @@ fun NavGraph(
             ControlScreen(navController = navController)
         }
 
-
         // Auth
         composable("login") {
+            val context = LocalContext.current
+
             LoginScreen(
                 onLoginClick = { id, pw ->
+                    // 임시로 아이디/비번 하드코딩
+                    // todo: api 연결시 수정하기
+                    //val success = loginApi.login(id, pw).isSuccessful
+                    val success = id == "test" && pw == "1234"
+
                     // 로그인 처리 후 메인으로 이동
-                    navController.navigate("main")
+                    if (success) {
+                        Toast.makeText(context, "LUMOS에 오신 걸 환영해요!", Toast.LENGTH_SHORT).show()
+                        navController.navigate("home")
+                    } else {
+                        Toast.makeText(context, "아이디 또는 비밀번호를 확인해주세요.", Toast.LENGTH_SHORT).show()
+                    }
+
+                    success
                 }
             )
         }
