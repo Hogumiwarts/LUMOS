@@ -2,7 +2,6 @@ package com.hogumiwarts.lumos.gesturesensor.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -36,20 +35,9 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	@Profile("prod")  // 운영 환경
-	public OpenAPI gatewayApi() {
+	public OpenAPI openApi() {
 		return new OpenAPI()
 			.addServersItem(new Server().url("/gesture"))
-			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-			.components(new Components().addSecuritySchemes("Bearer Authentication", createApiKeyScheme()))
-			.info(apiInfo());
-	}
-
-	@Bean
-	@Profile("dev")  // 로컬 개발 환경
-	public OpenAPI localApi() {
-		return new OpenAPI()
-			.addServersItem(new Server().url("http://localhost:8081"))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
 			.components(new Components().addSecuritySchemes("Bearer Authentication", createApiKeyScheme()))
 			.info(apiInfo());

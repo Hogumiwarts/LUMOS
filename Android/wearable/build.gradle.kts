@@ -89,4 +89,6 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     implementation(libs.lottie.compose.v666)
+
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 }
