@@ -16,6 +16,7 @@ import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.RoutineScreen
+import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 
 @Composable
@@ -183,6 +184,18 @@ fun NavGraph(
         ) {
             ControlScreen(navController = navController)
         }
+
+
+        // Auth
+        composable("login") {
+            LoginScreen(
+                onLoginClick = { id, pw ->
+                    // 로그인 처리 후 메인으로 이동
+                    navController.navigate("main")
+                }
+            )
+        }
+        //composable("RegisterScreen") { RegisterScreen(navController) }
 
 
     }
