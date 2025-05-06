@@ -1,7 +1,7 @@
 package com.hogumiwarts.lumos.device.docs;
 
-import com.hogumiwarts.lumos.device.dto.DeviceResponse;
 import com.hogumiwarts.lumos.device.dto.DeviceStatusResponse;
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +26,7 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "디바이스 목록 조회 성공"),})
     @GetMapping
-    ResponseEntity<?> getAllDeviceByMember(
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember(
             @Parameter(description = "회원 ID", required = true)
             @RequestParam Long memberId
     );
@@ -44,7 +44,7 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "기기 탐색 성공"),})
     @GetMapping("/discover")
-    ResponseEntity<?> getSmartThingsDevices(
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(
             @Parameter(description = "회원 ID", required = true)
             @RequestParam Long memberId
     );
@@ -64,7 +64,7 @@ public interface DeviceApiSpec {
             }
     )
     @GetMapping("/{tagNumber}/status")
-    ResponseEntity<?> getDeviceStatusByTagNumber(
+    ResponseEntity<CommonResponse<Object>> getDeviceStatusByTagNumber(
             @Parameter(description = "스마트 태그 번호", required = true)
             @PathVariable("tagNumber") int tagNumber,
             @Parameter(description = "회원 ID", required = true)
