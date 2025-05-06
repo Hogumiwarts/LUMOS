@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.ui.screens.auth.login
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,9 +57,14 @@ fun LoginScreen(
 ) {
     var id by remember { mutableStateOf("") }
     var pw by remember { mutableStateOf("") }
-    var passwordVisible by remember {mutableStateOf(false)}
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+
+    // 오류 메시지 상태
+    var idErrorMessage by remember { mutableStateOf<String?>(null) }
+    var pwErrorMessage by remember { mutableStateOf<String?>(null) }
+
 
     Box(
         modifier = Modifier
@@ -116,14 +122,36 @@ fun LoginScreen(
             // ID 입력
             OutlinedTextField(
                 value = id,
-                onValueChange = { id = it },
-                placeholder = { Text("ID", color = Color(0xFFA1A1A1)) },
+                onValueChange = {
+                    id = it
+                    idErrorMessage = null // 입력 중이면 오류 초기화
+                },
+                isError = idErrorMessage != null,
+                placeholder = {
+                    Text(
+                        "ID",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFA1A1A1)
+                        )
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(56.dp)
+                    .then(
+                        if (idErrorMessage != null) Modifier
+                            .border(1.5.dp, Color(0xFFF26D6D), shape = MaterialTheme.shapes.medium)
+                        else Modifier
+                    ),
                 singleLine = true,
                 shape = MaterialTheme.shapes.medium,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
+                    errorBorderColor = Color.Transparent,      // 중복 방지
+                    errorCursorColor = Color(0xFFF26D6D),
+                    errorTextColor = Color(0xFFF26D6D),
+
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
                     focusedBorderColor = Color.White,
@@ -131,31 +159,66 @@ fun LoginScreen(
                 )
             )
 
+            idErrorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color(0xFFF26D6D),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(top = 4.dp)
+                )
+            }
+
+
             Spacer(modifier = Modifier.height(18.dp))
 
             // PW 입력
             OutlinedTextField(
                 value = pw,
-                onValueChange = { pw = it },
-                placeholder = { Text("PW", color = Color(0xFFA1A1A1)) },
+                onValueChange = {
+                    pw = it
+                    pwErrorMessage = null // 입력 중일 때는 오류 초기화
+                },
+                isError = pwErrorMessage != null,
+                placeholder = {
+                    Text(
+                        "PW",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFA1A1A1)
+                        )
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(56.dp)
+                    .then(
+                        if (pwErrorMessage != null) Modifier
+                            .border(1.5.dp, Color(0xFFF26D6D), shape = MaterialTheme.shapes.medium)
+                        else Modifier
+                    ),
                 singleLine = true,
-                visualTransformation = if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    IconButton(onClick = {passwordVisible = !passwordVisible}){
-                        val iconRes = if(passwordVisible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        val iconRes =
+                            if (passwordVisible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
                         androidx.compose.foundation.Image(
                             painter = painterResource(id = iconRes),
                             modifier = Modifier.size(20.dp),
-                            contentDescription = if(passwordVisible) "비밀번호 숨기기" else "비밀번호 보기"
+                            contentDescription = if (passwordVisible) "비밀번호 숨기기" else "비밀번호 보기"
                         )
                     }
                 },
                 shape = MaterialTheme.shapes.medium,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
+                    errorBorderColor = Color.Transparent,      // 중복 방지
+                    errorCursorColor = Color(0xFFF26D6D),
+                    errorTextColor = Color(0xFFF26D6D),
+
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
                     cursorColor = Color.White,
@@ -164,13 +227,36 @@ fun LoginScreen(
                 )
             )
 
+            pwErrorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color(0xFFF26D6D),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(52.dp))
 
             // 로그인 버튼
             GradientButton(
                 onClick = {
-                    val success = onLoginClick(id, pw) // 로그인 성공 여부
+                    idErrorMessage = null
+                    pwErrorMessage = null
+
+                    // 오류에 따른 처리
+                    // todo: api 연결 시 하드코딩 영역 수정할 것!
+                    if (!id.contains("@")) {
+                        idErrorMessage = "아이디는 이메일 주소 형태로 입력해 주세요."
+                    } else if (id != "ssafy@ssafy.com") {
+                        idErrorMessage = "등록되지 않은 아이디입니다."
+                    } else if (pw != "1234") {
+                        pwErrorMessage = "비밀번호가 일치하지 않습니다."
+                    } else {
+                        onLoginClick(id, pw)
+                    }
                 },
                 inputText = "로그인"
             )
@@ -191,6 +277,6 @@ fun LoginScreen(
 )
 fun LoginScreenPreview() {
     LoginScreen(
-        onLoginClick = { _, _ -> true}
+        onLoginClick = { _, _ -> true }
     )
 }

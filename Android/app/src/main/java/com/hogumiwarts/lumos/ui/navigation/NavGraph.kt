@@ -197,7 +197,7 @@ fun NavGraph(
                     // 임시로 아이디/비번 하드코딩
                     // todo: api 연결시 수정하기
                     //val success = loginApi.login(id, pw).isSuccessful
-                    val success = id == "test" && pw == "1234"
+                    val success = id == "ssafy@ssafy.com" && pw == "1234"
 
                     // 로그인 처리 후 메인으로 이동
                     if (success) {
