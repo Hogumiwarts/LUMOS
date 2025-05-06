@@ -21,7 +21,7 @@ import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 
 // 🟢 최상위 Composable - 스크린 전체를 구성
 @Composable
-fun MinibigScreen() {
+fun MinibigScreen(tagNumber: Long) {
     var isOn by remember { mutableStateOf(false) } // 전체 스위치 상태
     BedLightSwitch(
         isChecked = isOn,
@@ -96,6 +96,6 @@ fun BedLightSwitch(
 @Composable
 fun DefaultPreview() {
     LUMOSTheme {
-        MinibigScreen()
+        MinibigScreen(1L)
     }
 }

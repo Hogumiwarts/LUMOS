@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.wear.compose.material.Text
 import com.hogumiwarts.lumos.presentation.ui.screens.SplashScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 
 @Composable
@@ -31,6 +33,27 @@ fun NavGraph(
 
             if (tagNumber != null) {
                 LightScreen(tagNumber = tagNumber)
+            } else {
+                // 예외 처리: tagNumber가 null인 경우
+                Text("Invalid tag number")
+            }
+        }
+        composable("minibig/{tagNumber}") {
+            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+
+            if (tagNumber != null) {
+                MinibigScreen(tagNumber = tagNumber)
+            } else {
+                // 예외 처리: tagNumber가 null인 경우
+                Text("Invalid tag number")
+            }
+        }
+
+        composable("speaker/{tagNumber}") {
+            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+
+            if (tagNumber != null) {
+                MoodPlayerScreen(tagNumber = tagNumber)
             } else {
                 // 예외 처리: tagNumber가 null인 경우
                 Text("Invalid tag number")

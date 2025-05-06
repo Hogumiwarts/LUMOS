@@ -84,7 +84,7 @@ fun DevicesScreen(navController: NavHostController) {
             deviceId = 3L,
             installedAppId = "app.air.living",
             deviceImg = "icon_home",
-            deviceName = "거실 공기청정기123123123213213213213123123213213",
+            deviceName = "게임방 무드등",
             activated = true
         ),
         DevicesData(
@@ -195,7 +195,15 @@ fun DeviceCard(device: DevicesData,navController: NavHostController) {
                         navController.navigate("light/${device.tagNumber}") {
                         popUpTo("splash") { inclusive = true }
                     }}
-                    2->{}
+                    2->{
+                        navController.navigate("speaker/${device.tagNumber}") {
+                            popUpTo("splash") { inclusive = true }}
+                    }
+                    3 ->{
+                        navController.navigate("minibig/${device.tagNumber}") {
+                            popUpTo("splash") { inclusive = true }}
+                    }
+
                     else->{}
                 }
             },
