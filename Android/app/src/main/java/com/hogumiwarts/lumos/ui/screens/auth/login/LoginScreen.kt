@@ -1,17 +1,22 @@
 package com.hogumiwarts.lumos.ui.screens.auth.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -34,6 +39,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +55,8 @@ fun LoginScreen(
     var id by remember { mutableStateOf("") }
     var pw by remember { mutableStateOf("") }
 
+    var passwordVisible by remember {mutableStateOf(false)}
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +69,7 @@ fun LoginScreen(
     ) {
         // 배경 이미지
         androidx.compose.foundation.Image(
-            painter = painterResource(id = R.drawable.bg_onboarding_space),
+            painter = painterResource(id = R.drawable.bg_login_space),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -99,17 +107,17 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             // 로그인 영역
             // ID 입력
             OutlinedTextField(
                 value = id,
                 onValueChange = { id = it },
-                placeholder = { Text("ID", color = Color(0xFF606060)) },
+                placeholder = { Text("ID", color = Color(0xFFA1A1A1)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(50.dp),
                 singleLine = true,
                 shape = MaterialTheme.shapes.medium,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -119,19 +127,29 @@ fun LoginScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             // PW 입력
             OutlinedTextField(
                 value = pw,
                 onValueChange = { pw = it },
-                placeholder = { Text("PW", color = Color.Gray) },
+                placeholder = { Text("PW", color = Color(0xFFA1A1A1)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(50.dp),
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = {passwordVisible = !passwordVisible}){
+                        val iconRes = if(passwordVisible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
+                        androidx.compose.foundation.Image(
+                            painter = painterResource(id = iconRes),
+                            modifier = Modifier.size(26.dp),
+                            contentDescription = if(passwordVisible) "비밀번호 숨기기" else "비밀번호 보기"
+                        )
+                    }
+                },
                 shape = MaterialTheme.shapes.medium,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedTextColor = Color.White,
@@ -141,7 +159,8 @@ fun LoginScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.height(52.dp))
 
             // 로그인 버튼
             GradientButton(
