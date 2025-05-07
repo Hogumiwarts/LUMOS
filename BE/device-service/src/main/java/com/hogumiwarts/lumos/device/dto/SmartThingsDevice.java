@@ -12,6 +12,5 @@ public class SmartThingsDevice {
     private String label;
     private String name;
     private String deviceModel;
-    private String manufacturerName;
-    private String type;
+    private String deviceManufacturerCode;
 }

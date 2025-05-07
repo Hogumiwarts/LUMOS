@@ -38,6 +38,12 @@ public class Device {
 
 	private String deviceName;
 
+	private String deviceManufacturer;
+
+	private String deviceModel;
+
+	private String deviceType;
+
 	@JdbcTypeCode(SqlTypes.JSON)
 	private Map<String, Object> control;
 
