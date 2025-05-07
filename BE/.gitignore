@@ -8,7 +8,7 @@
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml
-.idea/**/usage.statistics.xml
+.idea/**/usage.statistics.xml`
 .idea/**/dictionaries
 .idea/**/shelf
 
@@ -512,7 +512,7 @@ gradle-app.setting
 # SmartThings
 smartthings-service/data/*.json
 
-# DB
+# Postgres
 postgres/
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,intellij+iml,intellij+all,windows,macos,gradle,node,visualstudiocode,netbeans

@@ -25,6 +25,8 @@ coroutines  = "1.9.0"
 
 # Hilt
 hilt = "2.48"
+hiltNavigationCompose = "1.1.0"
+
 
 # 이미지 로딩
 coil = "2.6.0"
@@ -95,6 +97,7 @@ moshi-kotlin          = { group = "com.squareup.moshi", name = "moshi-kotlin", v
 # 의존성 주입
 hilt-android          = { group = "com.google.dagger", name = "hilt-android",      version.ref = "hilt" }
 hilt-compiler         = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
 # 이미지 로딩
 coil                  = { group = "io.coil-kt", name = "coil", version.ref = "coil" }

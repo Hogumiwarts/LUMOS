@@ -14,6 +14,7 @@ import com.hogumiwarts.lumos.dto.ErrorResponse;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

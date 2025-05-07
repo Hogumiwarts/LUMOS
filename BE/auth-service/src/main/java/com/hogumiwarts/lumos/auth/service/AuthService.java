@@ -17,6 +17,7 @@ import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.jwt.JwtTokenProvider;
 import com.hogumiwarts.lumos.redis.RedisTokenService;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -115,6 +116,10 @@ public class AuthService {
 
 		// FeignClient 통해 Member 정보 조회
 		MemberResponse member = memberClient.getMember(memberId);
+
+		if (member == null) {
+			throw new CustomException(ErrorCode.MEMBER_ID_NOT_FOUND);
+		}
 
 		String storedToken = redisTokenService.getRefreshToken(member.getEmail())
 			.orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_USER));
