@@ -512,7 +512,11 @@ gradle-app.setting
 # SmartThings
 smartthings-service/data/*.json
 
-# Postgres
+# DB
 postgres/
+
+# IntelliJ IDEA
+.idea/
+*.iml
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,intellij+iml,intellij+all,windows,macos,gradle,node,visualstudiocode,netbeans

@@ -24,7 +24,7 @@ import com.hogumiwarts.lumos.R
 fun AnimatedToggleButton(
     isOn: Boolean,
     onToggle: (Boolean) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     // Lottie 애니메이션 로딩
     val composition by rememberLottieComposition(

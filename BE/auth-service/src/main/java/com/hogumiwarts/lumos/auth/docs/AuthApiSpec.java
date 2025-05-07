@@ -95,7 +95,8 @@ public interface AuthApiSpec {
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "토큰이 성공적으로 재발급되었습니다."),
 		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
-		@ApiResponse(responseCode = "401", description = "만료된 Refresh Token입니다.", content = @Content)
+		@ApiResponse(responseCode = "401", description = "만료된 Refresh Token입니다.", content = @Content),
+		@ApiResponse(responseCode = "401", description = "잘못된 JWT 서명입니다.", content = @Content)
 	})
 	ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request);
 }

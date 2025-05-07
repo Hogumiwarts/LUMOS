@@ -26,10 +26,7 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "디바이스 목록 조회 성공"),})
     @GetMapping
-    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember(
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam Long memberId
-    );
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember();
 
     @Operation(
             summary = "SmartThings 기기 탐색(동기화)",

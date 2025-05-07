@@ -30,18 +30,17 @@ fun Aipurifier() {
     Box(modifier = Modifier.fillMaxSize()) {
         // 무드 플레이어 화면
         Box(modifier = Modifier.offset()) {
-            AipurifierSwitch(
-                volumePercent = 40,
-                isOn = true,
-                onToggle = {},
-                onSwipeUp = { showNext = true }
-            )
+//            AipurifierSwitch(
+//                volumePercent = 40,
+//                isOn = true,
+//                onSwipeUp = { showNext = true }
+//            )
         }
 
         // 음악 플레이어 화면
         if (showNext || nextOffsetY < 300.dp) {
             Box(modifier = Modifier.offset(x = nextOffsetY)) {
-                AipurifierSetting(onSwipeDown = { showNext = false })
+//                AipurifierSetting(onSwipeDown = { showNext = false })
             }
         }
     }
