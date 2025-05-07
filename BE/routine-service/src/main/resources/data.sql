@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS member_gesture;
+DROP TABLE IF EXISTS gesture;
+DROP TABLE IF EXISTS member;
+DROP TABLE IF EXISTS device;
+DROP TABLE IF EXISTS routine;
 
 CREATE TABLE IF NOT EXISTS member (
                                       member_id BIGSERIAL PRIMARY KEY,
@@ -41,9 +46,19 @@ CREATE TABLE IF NOT EXISTS routine (
         updated_at TIMESTAMP
 );
 
+
+CREATE TABLE IF NOT EXISTS member_gesture (
+                                              member_gesture_id BIGSERIAL PRIMARY KEY,
+                                              member_id BIGINT REFERENCES member(member_id),
+    gesture_id BIGINT REFERENCES gesture(gesture_id),
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP
+    );
+
 INSERT INTO member (email, password, name, created_at, updated_at) VALUES
                                                                        ('user1@example.com', 'encrypted_pw_1', '홍길동', now(), now()),
-                                                                       ('user2@example.com', 'encrypted_pw_2', '김영희', now(), now());
+                                                                       ('user2@example.com', 'encrypted_pw_2', '김영희', now(), now()),
+                                                                       ('user2@example.com', 'encrypted_pw_3', '김철수', now(), now());
 
 INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES
    ('핑거스냅', 'https://cdn.example.com/img/gesture_snap.png', '손가락을 튕깁니다.', now(), now()),
@@ -58,3 +73,8 @@ INSERT INTO device (member_id, installed_app_id, control_id, tag_number, device_
 INSERT INTO routine (member_id, member_gesture_id, routine_icon, control, created_at, updated_at) VALUES
                                                                                                       (1, 1, 101, '[{"deviceId": 1, "control": {"on": true}}, {"deviceId": 2, "control": {"on": false}}]'::json, now(), now()),
                                                                                                       (2, 2, 102, '[{"deviceId": 3, "control": {"power": "auto"}}]'::json, now(), now());
+INSERT INTO member_gesture (member_id, gesture_id, created_at, updated_at) VALUES
+                                                                               (1, 1, now(), now()),
+                                                                               (1, 2, now(), now()),
+                                                                               (2, 2, now(), now()),
+                                                                               (3, 2, now(), now());

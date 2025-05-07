@@ -1,19 +1,20 @@
 package com.hogumiwarts.lumos.routine.client;
 
+import com.hogumiwarts.lumos.dto.CommonResponse;
+import com.hogumiwarts.lumos.routine.dto.DeviceResponse;
 import com.hogumiwarts.lumos.routine.dto.GestureInfo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "gesture-service", url = "${gesture.service.url}")
-public interface GestureServiceClient {
+import java.util.List;
 
-    @GetMapping("/api/gesture/{gestureId}")
-    GestureInfo getGestureInfo(
-            @PathVariable("gestureId") Long gestureId,
-            @RequestParam("memberId") Long memberId
-    );
+@FeignClient(name = "device-service", url = "${device.service.url}")
+public interface DeviceServiceClient {
+
+    @GetMapping("/api/devices")
+    CommonResponse<List<DeviceResponse>> getAllDeviceByMember(@RequestParam("memberId") Long memberId);
 }
 
 

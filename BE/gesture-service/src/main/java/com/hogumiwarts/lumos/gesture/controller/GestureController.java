@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.gesture.controller;
 
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.gesture.docs.GestureApiSpec;
 import com.hogumiwarts.lumos.gesture.dto.GestureResponse;
 import com.hogumiwarts.lumos.gesture.service.GestureService;
@@ -17,16 +18,16 @@ public class GestureController implements GestureApiSpec {
     private final GestureService gestureService;
 
     @GetMapping
-    public ResponseEntity<List<GestureResponse>> getGestures(@RequestParam Long memberId) {
+    public ResponseEntity<CommonResponse<List<GestureResponse>>> getGestures(@RequestParam Long memberId) {
         List<GestureResponse> gestures = gestureService.getGestures(memberId);
-        return ResponseEntity.ok(gestures);
+        return ResponseEntity.ok(CommonResponse.ok(gestures));
     }
 
     @GetMapping("/{gestureId}")
-    public ResponseEntity<GestureResponse> getGestureInfo(@RequestParam Long memberId,
-                                                          @PathVariable Long gestureId) {
+    public ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(@RequestParam Long memberId,
+                                                                          @PathVariable Long gestureId) {
         GestureResponse response = gestureService.getGestureInfo(memberId, gestureId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
 }

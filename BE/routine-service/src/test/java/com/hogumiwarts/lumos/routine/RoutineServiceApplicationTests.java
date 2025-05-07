@@ -1,10 +1,10 @@
-package com.hogumiwarts.lumos.gateway;
+package com.hogumiwarts.lumos.routine;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GatewayServiceApplicationTests {
+class RoutineServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

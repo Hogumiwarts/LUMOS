@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GestureResponse {
 
-    @Schema(description = "제스처 ID (각 제스처 종류별 식별자)", example = "1")
-    private Long gestureId;
+    @Schema(description = "제스처 ID", example = "1")
+    private Long memberGestureId;
 
     @Schema(description = "제스처 이름", example = "핑거스냅")
     private String gestureName;

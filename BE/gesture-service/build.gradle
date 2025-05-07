@@ -24,6 +24,11 @@ repositories {
 }
 
 dependencies {
+
+    implementation(project(":common-core"))
+    implementation(project(":common-security"))
+    implementation(project(":common-redis"))
+
     // Web API (REST Controller)
     implementation 'org.springframework.boot:spring-boot-starter-web'
 

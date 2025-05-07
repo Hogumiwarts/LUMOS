@@ -29,6 +29,9 @@ public class Routine {
 	@Column(name = "member_gesture_id")
 	private Long memberGestureId;
 
+	@Column(name = "routine_name")
+	private String routineName;
+
 	@Column(name = "routine_icon")
 	private Integer routineIcon;
 

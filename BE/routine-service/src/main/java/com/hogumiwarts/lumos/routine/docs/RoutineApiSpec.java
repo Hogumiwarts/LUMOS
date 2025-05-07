@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.routine.docs;
 
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.routine.dto.RoutineRequest;
 import com.hogumiwarts.lumos.routine.dto.RoutineResponse;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,16 +21,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "루틴 정보 조회", description = "루틴 정보 조회 API입니다.")
 public interface RoutineApiSpec {
 
-	@Operation(summary = "루틴 정보 조회", description = """
-        💡 지정된 memberId와 routineId로 루틴 정보를 조회합니다.
-        """)
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "요청 성공"),
-			@ApiResponse(responseCode = "400", description = "유효하지 않은 요청입니다."),
-			@ApiResponse(responseCode = "500", description = "서버 오류 발생")
-	})
-	ResponseEntity<RoutineResponse> getRoutineDevices(
-			@RequestParam Long memberId,
-			@PathVariable Long routineId
-	);
+    @Operation(summary = "루틴 정보 조회", description = """
+            💡 routineId로 루틴 정보를 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공"),
+            @ApiResponse(responseCode = "400", description = "유효하지 않은 요청입니다."),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생")
+    })
+    ResponseEntity<CommonResponse<RoutineResponse>> getRoutineDevices(
+            @RequestParam Long memberId,
+            @PathVariable Long routineId
+    );
 }

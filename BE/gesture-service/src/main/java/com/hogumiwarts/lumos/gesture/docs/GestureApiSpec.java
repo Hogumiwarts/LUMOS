@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.gesture.docs;
 
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.gesture.dto.GestureResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,8 +22,7 @@ public interface GestureApiSpec {
             @ApiResponse(responseCode = "400", description = "유효하지 않은 입력 형식입니다."),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
-
-    ResponseEntity<List<GestureResponse>> getGestures(
+    ResponseEntity<CommonResponse<List<GestureResponse>>> getGestures(
             @Parameter(description = "회원 ID", example = "1")
             @RequestParam Long memberId
     );
@@ -33,7 +33,7 @@ public interface GestureApiSpec {
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    ResponseEntity<GestureResponse> getGestureInfo(
+    ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(
             @Parameter(description = "회원 ID", example = "1") @RequestParam Long memberId,
             @Parameter(description = "제스처 ID", example = "1") @PathVariable Long gestureId
     );

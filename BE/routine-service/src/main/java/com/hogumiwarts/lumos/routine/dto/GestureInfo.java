@@ -13,5 +13,5 @@ public class GestureInfo {
     private String gestureName;
 
     @Schema(description = "제스처 이미지 URL", example = "https://cdn.example.com/img/gesture_snap.png")
-    private String imageUrl;
+    private String gestureImg;
 }

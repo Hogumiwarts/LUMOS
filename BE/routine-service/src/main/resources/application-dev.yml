@@ -8,6 +8,15 @@ spring:
 server:
   port: 8084
 
+# Node.js 서비스 정의
+node:
+  api:
+    base-url: http://localhost:3000
+
 gesture:
   service:
     url: http://localhost:8083
+
+device:
+  service:
+    url: http://localhost:8082
