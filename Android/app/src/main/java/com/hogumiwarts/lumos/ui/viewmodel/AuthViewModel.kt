@@ -19,23 +19,23 @@ class AuthViewModel @Inject constructor(
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggin: StateFlow<Boolean> = _isLoggedIn
+
+    val _isLogginIn = MutableStateFlow<Boolean?>(true)
+    val isLoggedIn: StateFlow<Boolean?> = _isLogginIn
 
 
-    init{
+    init {
         viewModelScope.launch {
-            tokenDataStore.accessTokenFlow.first().let{
-                _isLoggedIn.value = it.isNotEmpty()
-            }
+            val token = tokenDataStore.getAccessToken().first()
+            _isLogginIn.value = token.isNotEmpty()
         }
     }
 
     fun logIn() {
-        _isLoggedIn.value = true
+        _isLogginIn.value = true
     }
 
     fun logOut() {
-        _isLoggedIn.value = false
+        _isLogginIn.value = false
     }
 }

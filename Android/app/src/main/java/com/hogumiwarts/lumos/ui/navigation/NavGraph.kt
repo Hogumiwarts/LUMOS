@@ -39,9 +39,13 @@ fun NavGraph(
     val screenOrder = screens.map { it.route }
 
     val viewModel: AuthViewModel = hiltViewModel()
-    val isLoggedIn by viewModel.isLoggin.collectAsState()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    val startDestination = if (isLoggedIn) "home" else "welcome"
+    if(isLoggedIn == null){
+        // todo: 로딩 중 화면 띄우기
+    }
+
+    val startDestination = if (isLoggedIn == true) "home" else "welcome"
 
     NavHost(
         navController = navController,
