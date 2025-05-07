@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -24,37 +25,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.wear.compose.material.Text
+import com.hogumiwarts.lumos.R
 
 @Composable
-fun AipurifierSetting(onSwipeDown: () -> Unit) {
+fun AipurifierSetting() {
+
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111322))
-            .pointerInput(Unit) {
-                var totalDrag = 0f
-                detectVerticalDragGestures(
-                    onDragEnd = {
-                        if (totalDrag > 50f) {
-                            onSwipeDown() // 아래로 스와이프 시 화면 복귀
-                        }
-                        totalDrag = 0f
-                    },
-                    onVerticalDrag = { _, dragAmount ->
-                        totalDrag += dragAmount
-                    }
-                )
-            },
-    ) {
-        val (title, player, more) = createRefs()
 
+    ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.device_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
+
+        val (title, player, more) = createRefs()
         // 노래 제목 및 아티스트
+
         Column(
             modifier = Modifier.constrainAs(title) {
                 top.linkTo(parent.top)

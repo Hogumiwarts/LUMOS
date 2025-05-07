@@ -4,7 +4,9 @@ import com.hogumiwarts.lumos.device.docs.DeviceApiSpec;
 import com.hogumiwarts.lumos.device.docs.SwitchApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.service.DeviceService;
+import com.hogumiwarts.lumos.device.service.ExternalDeviceService;
 import com.hogumiwarts.lumos.device.service.SwitchService;
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,21 +20,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SwitchController implements SwitchApiSpec {
 
-	private final DeviceService deviceService;
 	private final SwitchService switchService;
 
-	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
-	public ResponseEntity<?> updateSwitchPower(Long deviceId, PowerControlRequest request) {
-		DeviceStatusResponse response = deviceService.executeCommand(deviceId, request);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<CommonResponse<SuccessResponse>> updateSwitchPower(Long deviceId, PowerControlRequest request) {
+		switchService.updateSwitchPower(deviceId, request);
+		return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
 	}
 
-	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
-	public ResponseEntity<?> getSwitchStatus(Long deviceId, Long memberId) {
-		DeviceStatusResponse response = switchService.getSwitchStatus(deviceId, memberId);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<CommonResponse<SwitchDetailResponse>> getSwitchStatus(Long deviceId, Long memberId) {
+		SwitchDetailResponse response = switchService.getSwitchStatus(deviceId, memberId);
+		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
 }

@@ -91,4 +91,7 @@ dependencies {
     implementation(libs.lottie.compose.v666)
 
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.33.2-alpha")
+
 }

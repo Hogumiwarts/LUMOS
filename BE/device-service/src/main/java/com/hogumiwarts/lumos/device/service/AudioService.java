@@ -1,16 +1,10 @@
 package com.hogumiwarts.lumos.device.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
-import com.hogumiwarts.lumos.device.entity.Device;
-import com.hogumiwarts.lumos.device.repository.DeviceRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,13 +12,21 @@ public class AudioService {
 
 	private final ExternalDeviceService externalDeviceService;
 
-	public DeviceStatusResponse getAudioStatus(Long deviceId, Long memberId) {
+	public JsonNode getAudioStatus(Long deviceId, Long memberId) {
 		return externalDeviceService.fetchDeviceStatus(deviceId);
 	}
 
-	public VolumeControlResponse updateAudioVolume(Long deviceId, VolumeControlRequest request) {
-		return externalDeviceService.executeCommand(deviceId, request, VolumeControlResponse.class);
+	// buildAudioVolumeCommand
+	public void updateAudioVolume(Long deviceId, VolumeControlRequest request) {
+		CommandRequest command = DeviceCommandUtil.buildAudioVolumeCommand(request.getVolume());
+		externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 	}
+
+	public void updateAudioPlayback(Long deviceId, PowerControlRequest request) {
+		CommandRequest command = DeviceCommandUtil.buildAudioPlayBackCommand(request.getActivated());
+		externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
+	}
+
 
 
 }

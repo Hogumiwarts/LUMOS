@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DeviceStatusResponse {
-    private int tagNumber;
+    private Integer tagNumber;
     private Long deviceId;
+    private String installedAppId;
     private String deviceImg;
     private String deviceName;
     private boolean activated;

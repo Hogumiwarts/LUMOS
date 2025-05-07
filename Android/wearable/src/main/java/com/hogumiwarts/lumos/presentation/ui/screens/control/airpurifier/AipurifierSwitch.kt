@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,10 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Text
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -32,22 +35,22 @@ import com.hogumiwarts.lumos.presentation.ui.common.OnOffSwitch
 
 @Composable
 fun AipurifierSwitch(
-    volumePercent: Int = 40,
-    isOn: Boolean = true,
-    onToggle: (Boolean) -> Unit,
-    onSwipeUp: () -> Unit
+    tagNumber: Long,
+    navController: NavHostController
 ) {
-    val switchState = remember { mutableStateOf(isOn) }
+    val switchState = remember { mutableStateOf(false) }
 
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.animation_down)
-    )
 
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111322))
     ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.device_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
         val (title, toggle, arrow) = createRefs()
 
         // 제목
@@ -72,7 +75,9 @@ fun AipurifierSwitch(
                 .background(Color(0x10FFFFFF))
                 .clickable {
                     // 클릭 시 동작
-                    onSwipeUp()
+                    navController.navigate("AipurifierSetting") {
+
+                    }
                 }
                 .constrainAs(toggle) {
                     top.linkTo(parent.top)
@@ -91,7 +96,7 @@ fun AipurifierSwitch(
             ) {
                 Column {
                     Text(
-                        text = "펜속도  $volumePercent%",
+                        text = "펜속도  40%",
                         color = Color.White,
                         fontSize = 12.sp
                     )
@@ -106,7 +111,7 @@ fun AipurifierSwitch(
                     checked = switchState.value,
                     onCheckedChange = {
                         switchState.value = it
-                        onToggle(it)
+//                        onToggle(it)
                     }
                 )
             }
