@@ -251,6 +251,74 @@ fun SignupScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            // PW 입력
+            OutlinedTextField(
+                value = state.pw2,
+                onValueChange = {
+                    viewModel.handleIntent(SignupIntent.inputPw2(it))
+                },
+                isError = state.pw2ErrorMessage != null,
+                placeholder = {
+                    Text(
+                        "PW 확인",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFA1A1A1)
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .then(
+                        if (state.pw2ErrorMessage != null) Modifier
+                            .border(1.5.dp, Color(0xFFF26D6D), shape = MaterialTheme.shapes.medium)
+                        else Modifier
+                    ),
+                singleLine = true,
+                visualTransformation = if (state.password2Visible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = {
+                        viewModel.handleIntent(SignupIntent.togglePassword2Visibility)
+                    }) {
+                        val iconRes =
+                            if (state.password2Visible) R.drawable.ic_eye_on else R.drawable.ic_eye_off
+                        Image(
+                            painter = painterResource(id = iconRes),
+                            modifier = Modifier.size(20.dp),
+                            contentDescription = if (state.password2Visible) "비밀번호 숨기기" else "비밀번호 보기"
+                        )
+                    }
+                },
+                shape = MaterialTheme.shapes.medium,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    errorBorderColor = Color.Transparent,      // 중복 방지
+                    errorCursorColor = Color(0xFFF26D6D),
+                    errorTextColor = Color(0xFFF26D6D),
+
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.Gray,
+                )
+            )
+
+            state.pw2ErrorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color(0xFFF26D6D),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
             // 이름 입력
             OutlinedTextField(
                 value = state.name,

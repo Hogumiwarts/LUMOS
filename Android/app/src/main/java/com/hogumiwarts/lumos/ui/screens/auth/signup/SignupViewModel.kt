@@ -49,8 +49,17 @@ class SignupViewModel @Inject constructor(
                 )
             }
 
+            is SignupIntent.inputPw2 -> _state.update{
+                it.copy(
+                    pw2 = intent.pw2,
+                    pw2ErrorMessage = null
+                )
+            }
+
             is SignupIntent.submitSignup -> validateAndSignup(context)
             is SignupIntent.togglePasswordVisibility -> _state.update { it.copy(passwordVisible = !it.passwordVisible) }
+            is SignupIntent.togglePassword2Visibility -> _state.update { it.copy(password2Visible = !it.password2Visible) }
+
         }
     }
 
@@ -58,6 +67,7 @@ class SignupViewModel @Inject constructor(
         val id = _state.value.id
         val pw = _state.value.pw
         val name = _state.value.name
+        val pw2 = _state.value.pw2
 
         // 1차 유효성 검사
         when {
@@ -66,20 +76,31 @@ class SignupViewModel @Inject constructor(
                 return
             }
 
+            id.isBlank() -> {
+                _state.update { it.copy(idErrorMessage = "아이디를 입력해 주세요.") }
+                return
+            }
+
             pw.isBlank() -> {
                 _state.update { it.copy(pwErrorMessage = "비밀번호를 입력해 주세요.") }
                 return
             }
 
-            id.isBlank() -> {
-                _state.update { it.copy(pwErrorMessage = "아이디를 입력해 주세요.") }
+            pw2.isBlank() -> {
+                _state.update { it.copy(pw2ErrorMessage = "비밀번호를 입력해 주세요.") }
+                return
+            }
+
+            pw != pw2 -> {
+                _state.update { it.copy(pw2ErrorMessage = "비밀번호가 서로 일치하지 않습니다.") }
                 return
             }
 
             name.isBlank() -> {
-                _state.update { it.copy(pwErrorMessage = "이름을 입력해 주세요.") }
+                _state.update { it.copy(nameErrorMessage = "이름을 입력해 주세요.") }
                 return
             }
+
         }
 
         //todo: api 호출
