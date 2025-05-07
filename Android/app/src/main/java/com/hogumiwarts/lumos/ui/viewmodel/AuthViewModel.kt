@@ -19,10 +19,11 @@ class AuthViewModel @Inject constructor(
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
-
     val _isLogginIn = MutableStateFlow<Boolean?>(true)
     val isLoggedIn: StateFlow<Boolean?> = _isLogginIn
 
+    val _isSignup = MutableStateFlow<Boolean?>(null)
+    val isSignup: StateFlow<Boolean?> = _isSignup
 
     init {
         viewModelScope.launch {
@@ -31,11 +32,23 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    // 로그인
     fun logIn() {
         _isLogginIn.value = true
     }
 
+    // 로그아웃
     fun logOut() {
         _isLogginIn.value = false
+    }
+
+    // 회원가입
+    fun signUp(){
+        _isSignup.value = true
+    }
+
+    // 회원탈퇴
+    fun signOut(){
+        _isSignup.value = false
     }
 }
