@@ -42,9 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.viewmodel.AuthIntent
 import com.hogumiwarts.lumos.ui.screens.auth.components.GradientButton
-import com.hogumiwarts.lumos.ui.screens.auth.login.LoginEffect
-import com.hogumiwarts.lumos.ui.screens.auth.login.LoginIntent
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 
@@ -70,7 +69,10 @@ fun SignupScreen(
                 // 회원가입 성공하면 login 페이지로 이동
                 SignupEffect.NavigateToLogin -> {
                     onSignupSuccess()
-                    authViewModel.signUp()
+                }
+
+                SignupEffect.SignupCompleted -> {
+                    authViewModel.handleIntent(AuthIntent.SignUp)
                 }
             }
         }

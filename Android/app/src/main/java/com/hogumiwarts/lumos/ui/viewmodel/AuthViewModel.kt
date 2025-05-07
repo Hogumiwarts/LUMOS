@@ -43,8 +43,10 @@ class AuthViewModel @Inject constructor(
     }
 
     // 회원가입
-    fun signUp(){
-        _isSignup.value = true
+    fun handleIntent(intent: AuthIntent) {
+        when (intent) {
+            is AuthIntent.SignUp -> _isLogginIn.value = true
+        }
     }
 
     // 회원탈퇴

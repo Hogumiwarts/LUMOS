@@ -2,6 +2,7 @@ package com.hogumiwarts.lumos.ui.screens.auth.signup
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.lumos.datastore.TokenDataStore
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginIntent
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,7 +51,7 @@ class SignupViewModel @Inject constructor(
                 )
             }
 
-            is SignupIntent.inputPw2 -> _state.update{
+            is SignupIntent.inputPw2 -> _state.update {
                 it.copy(
                     pw2 = intent.pw2,
                     pw2ErrorMessage = null
@@ -104,5 +106,20 @@ class SignupViewModel @Inject constructor(
         }
 
         //todo: api 호출
+
+        viewModelScope.launch {
+            try {
+                //todo: api 호출
+
+                // 가입 성공 시 이펙트 전송
+                _effect.send(SignupEffect.SignupCompleted)
+                _effect.send(SignupEffect.ShowSignupSuccessToast)
+                _effect.send(SignupEffect.NavigateToLogin)
+            } catch (e: Exception) {
+                _state.update { it.copy(pwErrorMessage = "회원가입 중 오류가 발생했어요.") }
+            }
+        }
     }
 }
+
+
