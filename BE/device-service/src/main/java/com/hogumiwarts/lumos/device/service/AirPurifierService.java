@@ -11,17 +11,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class SwitchService {
+public class AirPurifierService {
 
 	private final DeviceRepository deviceRepository;
 	private final ExternalDeviceService externalDeviceService;
 
-	public void updateSwitchPower(Long deviceId, PowerControlRequest request) {
-		CommandRequest command = DeviceCommandUtil.buildSwitchPowerCommand(request.getActivated());
+	public void updateAirPurifierPower(Long deviceId, PowerControlRequest request) {
+		CommandRequest command = DeviceCommandUtil.buildAirPurifierPowerCommand(request.getActivated());
 		externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 	}
 
-	public SwitchDetailResponse getSwitchStatus(Long deviceId, Long memberId) {
+	public SwitchDetailResponse getAirPurifierStatus(Long deviceId, Long memberId) {
 		// 1. DB에서 디바이스 조회
 		Device device = (Device) deviceRepository.findByDeviceIdAndMemberId(deviceId, memberId)
 				.orElseThrow(() -> new EntityNotFoundException("기기를 찾을 수 없습니다."));
@@ -52,11 +52,12 @@ public class SwitchService {
 				.deviceName(device.getDeviceName())
 				.manufacturerCode(device.getDeviceManufacturer())
 				.deviceModel(device.getDeviceModel())
-				.deviceType(device.getDeviceType())
 				.activated("on".equalsIgnoreCase(switchValue))
 //				.switchTimestamp(switchTimestamp)
 //				.batteryLevel(batteryLevel)
 				.build();
 	}
+
+
 
 }

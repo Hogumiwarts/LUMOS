@@ -42,5 +42,17 @@ public class DeviceCommandUtil {
         ));
     }
 
+    // ============================== AirPurifier : SSAFY 공기청정기 ==============================
+    public static CommandRequest buildAirPurifierPowerCommand(Boolean activated) {
+        return new CommandRequest(List.of(
+                new CommandRequest.Command(
+                        "main",
+                        "switch",
+                        activated != null && activated ? "on" : "off",
+                        List.of()
+                )
+        ));
+    }
+
     // 필요한 경우 LIGHT도 추가
 }
