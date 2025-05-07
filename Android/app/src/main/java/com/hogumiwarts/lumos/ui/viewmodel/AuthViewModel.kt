@@ -1,26 +1,41 @@
 package com.hogumiwarts.lumos.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.lumos.datastore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // 전체 로그인 여부 관리
 @HiltViewModel
-class AuthViewModel @Inject constructor() : ViewModel() {
+class AuthViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val tokenDataStore: TokenDataStore
+) : ViewModel() {
 
-    // 임시 로그인 상태
-    // todo: 실제 로그인 구현 시 변경할 것!
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggin: StateFlow<Boolean> = _isLoggedIn
 
-    // 임시로 로그인 상태 바꾸는 함수 만들어 둠
-    fun logIn(){
-        _isLoggedIn.value = true
+    val _isLogginIn = MutableStateFlow<Boolean?>(true)
+    val isLoggedIn: StateFlow<Boolean?> = _isLogginIn
+
+
+    init {
+        viewModelScope.launch {
+            val token = tokenDataStore.getAccessToken().first()
+            _isLogginIn.value = token.isNotEmpty()
+        }
     }
 
-    fun logOut(){
-        _isLoggedIn.value = false
+    fun logIn() {
+        _isLogginIn.value = true
+    }
+
+    fun logOut() {
+        _isLogginIn.value = false
     }
 }
