@@ -44,6 +44,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.viewmodel.AuthIntent
 import com.hogumiwarts.lumos.ui.screens.auth.components.GradientButton
+import com.hogumiwarts.lumos.ui.screens.auth.login.LoginEffect
+import com.hogumiwarts.lumos.ui.screens.auth.login.LoginIntent
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 

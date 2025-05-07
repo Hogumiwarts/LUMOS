@@ -51,7 +51,7 @@ class SignupViewModel @Inject constructor(
                 )
             }
 
-            is SignupIntent.inputPw2 -> _state.update {
+            is SignupIntent.inputPw2 -> _state.update{
                 it.copy(
                     pw2 = intent.pw2,
                     pw2ErrorMessage = null
