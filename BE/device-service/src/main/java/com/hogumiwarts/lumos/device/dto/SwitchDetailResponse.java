@@ -29,6 +29,9 @@ public class SwitchDetailResponse {
     @Schema(description = "디바이스 모델명")
     private String deviceModel;
 
+    @Schema(description = "디바이스 타입")
+    private String deviceType;
+
     @Schema(description = "현재 스위치 전원 상태", example = "true")
     private Boolean activated;
 }

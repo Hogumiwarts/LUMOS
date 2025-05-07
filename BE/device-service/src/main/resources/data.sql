@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS device (
     device_name VARCHAR(100),
     device_manufacturer VARCHAR(255),
     device_model VARCHAR(255),
+    device_type VARCHAR(255),
     control JSON,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP
