@@ -16,9 +16,6 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class SwaggerConfig {
 
-	@Value("${spring.profiles.active:default}")
-	private String activeProfile;
-
 	private Info apiInfo() {
 		return new Info()
 			.title("[LUMOS] REST API")
@@ -41,7 +38,7 @@ public class SwaggerConfig {
 	@Bean
 	public OpenAPI openApi() {
 		return new OpenAPI()
-			.addServersItem(new Server().url(activeProfile.equals("dev") ? "/" : "/gesture-sensor"))
+			.addServersItem(new Server().url("/gesture-sensor"))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
 			.components(new Components().addSecuritySchemes("Bearer Authentication", createApiKeyScheme()))
 			.info(apiInfo());
