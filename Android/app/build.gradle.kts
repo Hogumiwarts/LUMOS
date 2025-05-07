@@ -119,6 +119,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // constraintlayout
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
     // 기타
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.3-beta")
 
