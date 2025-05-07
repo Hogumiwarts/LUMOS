@@ -73,7 +73,7 @@ class SignupViewModel @Inject constructor(
 
         // 1차 유효성 검사
         when {
-            id.contains("@") -> {
+            !isEmailFormatValid(id) -> {
                 _state.update { it.copy(idErrorMessage = "아이디는 이메일 주소 형태로 입력해 주세요.") }
                 return
             }
@@ -105,7 +105,6 @@ class SignupViewModel @Inject constructor(
 
         }
 
-        //todo: api 호출
 
         viewModelScope.launch {
             try {
@@ -122,4 +121,8 @@ class SignupViewModel @Inject constructor(
     }
 }
 
+private fun isEmailFormatValid(email: String): Boolean {
+    val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    return emailRegex.matches(email)
+}
 
