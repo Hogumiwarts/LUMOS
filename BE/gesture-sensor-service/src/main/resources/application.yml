@@ -51,3 +51,14 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    cloudfront:
+      url: ${CLOUDFRONT_DOMAIN}

@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class GestureSensorDataService {
 
 	private final GestureSensorDataRepository repository;
+	private final S3Service s3Service;
 
 	private final ObjectMapper snakeCaseMapper = new ObjectMapper()
 		.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
@@ -33,5 +34,7 @@ public class GestureSensorDataService {
 			.build();
 
 		repository.save(entity);
+
+		String url = s3Service.saveCsvAndUpload(request);
 	}
 }
