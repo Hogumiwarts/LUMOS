@@ -76,7 +76,7 @@ public class DeviceService {
 					.updatedAt(Timestamp.valueOf(LocalDateTime.now()))
 					.deviceManufacturer(dto.getDeviceManufacturerCode())
 					.deviceModel(dto.getDeviceModel())
-//					.deviceType(inferredType)
+					.deviceType(inferredType.name())
 					.build();
 			deviceRepository.save(device);
 
@@ -108,6 +108,7 @@ public class DeviceService {
 						.installedAppId(device.getInstalledAppId())
 						.deviceImg(device.getDeviceUrl())
 						.deviceName(device.getDeviceName())
+						.deviceType(device.getDeviceType())
 						.activated(extractActivatedFromControl(device.getControl()))
 						.build())
 				.collect(Collectors.toList());

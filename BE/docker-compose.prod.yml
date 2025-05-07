@@ -7,7 +7,7 @@ services:
     expose:
       - "8080"
     env_file:
-      - .env
+      - .env.prod
     depends_on:
       - gesture-sensor-service
       - auth-service
@@ -86,7 +86,7 @@ services:
     image: postgres:latest
     container_name: lumos-postgres
     env_file:
-      - .env
+      - .env.prod
     ports:
       - "5432:5432"
     volumes:
@@ -129,7 +129,7 @@ services:
     ports:
       - "3001:3000"
     env_file:
-      - .env
+      - .env.prod
     volumes:
       - grafana_data:/var/lib/grafana
     networks:

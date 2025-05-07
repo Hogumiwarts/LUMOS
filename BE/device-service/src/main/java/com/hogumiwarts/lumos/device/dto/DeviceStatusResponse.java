@@ -11,5 +11,6 @@ public class DeviceStatusResponse {
     private String installedAppId;
     private String deviceImg;
     private String deviceName;
+    private String deviceType;
     private boolean activated;
 }

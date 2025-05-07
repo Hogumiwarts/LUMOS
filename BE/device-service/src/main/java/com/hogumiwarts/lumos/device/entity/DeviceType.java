@@ -6,6 +6,7 @@ import java.util.Map;
 public enum DeviceType {
     SWITCH,
     AUDIO,
+    AIRPURIFIER,
     LIGHT,
     UNKNOWN;
 
@@ -13,6 +14,7 @@ public enum DeviceType {
         if (deviceModel == null) return UNKNOWN;
         String name = deviceModel.toLowerCase();
         if (name.contains("push") || name.contains("mini")) return SWITCH;
+        if (name.contains("air") || name.contains("purifier")) return AIRPURIFIER;
         if (name.contains("bookshelf") || name.contains("sonos")) return AUDIO;
         if (name.contains("lite_lab")) return LIGHT;
         return UNKNOWN;
@@ -21,6 +23,14 @@ public enum DeviceType {
     public Map<String, Object> defaultControlInfo() {
         return switch (this) {
             case SWITCH -> Map.of(
+                    "capabilities", List.of(
+                            Map.of(
+                                    "capability", "switch",
+                                    "commands", List.of("on", "off")
+                            )
+                    )
+            );
+            case AIRPURIFIER -> Map.of(
                     "capabilities", List.of(
                             Map.of(
                                     "capability", "switch",
