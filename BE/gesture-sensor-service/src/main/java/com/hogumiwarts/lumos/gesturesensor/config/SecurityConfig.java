@@ -15,13 +15,10 @@ public class SecurityConfig extends AbstractSecurityConfig {
 		super(entryPoint, jwtTokenProvider, redisTokenService);
 	}
 
-	@Value("${spring.profiles.active:default}")
-	private String activeProfile;
-
 	@Override
 	protected String[] getPermitAllPaths() {
-		return activeProfile.equals("dev") ?
-			new String[] {"/**"}
-			: new String[] {};
+		return new String[] {
+			"/**"
+		};
 	}
 }
