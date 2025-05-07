@@ -17,6 +17,7 @@ import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.jwt.JwtTokenProvider;
 import com.hogumiwarts.lumos.redis.RedisTokenService;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -69,11 +70,11 @@ public class AuthService {
 		}
 
 		// 3. JWT 생성
-		String accessToken = jwtTokenProvider.generateAccessToken(member.getEmail());
-		String refreshToken = jwtTokenProvider.generateRefreshToken(member.getEmail());
+		String accessToken = jwtTokenProvider.generateAccessToken(member.getMemberId());
+		String refreshToken = jwtTokenProvider.generateRefreshToken(member.getMemberId());
 
 		// Redis에 리프레시 토큰 저장 (만료 시간 설정)
-		redisTokenService.saveRefreshToken(member.getEmail(), refreshToken, jwtTokenProvider.getRefreshTokenExpiration());
+		redisTokenService.saveRefreshToken(member.getMemberId(), refreshToken, jwtTokenProvider.getRefreshTokenExpiration());
 
 		return LoginResponse.builder()
 			.memberId(member.getMemberId())
@@ -103,27 +104,35 @@ public class AuthService {
 		redisTokenService.blacklistAccessToken(token, expiration);
 
 		// 3. RefreshToken 삭제 (subject = email)
-		String email = jwtTokenProvider.getEmailFromToken(token);
-		redisTokenService.deleteRefreshToken(email);
+		Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
+		redisTokenService.deleteRefreshToken(memberId);
 	}
 
 	public TokenRefreshResponse reissueAccessToken(TokenRefreshRequest request) {
 		String refreshToken = request.refreshToken();
-		Long memberId = request.memberId();
 
+		// 1. Refresh Token 유효성 검증
 		jwtTokenProvider.validateRefreshToken(refreshToken);
 
-		// FeignClient 통해 Member 정보 조회
-		MemberResponse member = memberClient.getMember(memberId);
+		// 2. 토큰에서 memberId 추출
+		Long memberId = jwtTokenProvider.getMemberIdFromToken(refreshToken);
 
-		String storedToken = redisTokenService.getRefreshToken(member.getEmail())
+		// 3. FeignClient 통해 member 존재 여부 확인
+		MemberResponse member = memberClient.getMember(memberId);
+		if (member == null) {
+			throw new CustomException(ErrorCode.MEMBER_ID_NOT_FOUND);
+		}
+
+		// 4. Redis에서 저장된 refreshToken과 비교
+		String storedToken = redisTokenService.getRefreshToken(memberId)
 			.orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_USER));
 
 		if (!storedToken.equals(refreshToken)) {
 			throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
 		}
 
-		String newAccessToken = jwtTokenProvider.generateAccessToken(member.getEmail());
+		// 5. 새로운 Access Token 발급
+		String newAccessToken = jwtTokenProvider.generateAccessToken(memberId);
 
 		return new TokenRefreshResponse(newAccessToken);
 	}

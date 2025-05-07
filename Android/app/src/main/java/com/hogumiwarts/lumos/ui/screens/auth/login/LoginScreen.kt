@@ -70,10 +70,13 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
+                // 성공하면 home 화면으로 이동
                 LoginEffect.NavigateToHome -> {
                     onLoginSuccess()
                     authViewModel.logIn()
                 }
+                
+                // 성공하면 토스트 메시지 띄움
                 LoginEffect.ShowWelcomeToast ->
                     Toast.makeText(context, "LUMOS에 오신 걸 환영해요!", Toast.LENGTH_SHORT).show()
             }
@@ -256,7 +259,7 @@ fun LoginScreen(
 
             // 로그인 버튼
             GradientButton(
-                onClick = { viewModel.handleIntent(LoginIntent.submitLogin) },
+                onClick = { viewModel.handleIntent(LoginIntent.submitLogin(context)) },
                 inputText = "로그인"
             )
 

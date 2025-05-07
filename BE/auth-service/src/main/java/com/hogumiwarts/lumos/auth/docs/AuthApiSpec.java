@@ -2,6 +2,8 @@ package com.hogumiwarts.lumos.auth.docs;
 
 import com.hogumiwarts.lumos.auth.dto.LoginRequest;
 import com.hogumiwarts.lumos.auth.dto.LoginResponse;
+import com.hogumiwarts.lumos.auth.dto.SignupRequest;
+import com.hogumiwarts.lumos.auth.dto.SignupResponse;
 import com.hogumiwarts.lumos.auth.dto.SuccessResponse;
 import com.hogumiwarts.lumos.auth.dto.TokenRefreshRequest;
 import com.hogumiwarts.lumos.auth.dto.TokenRefreshResponse;
@@ -42,7 +44,7 @@ public interface AuthApiSpec {
 			description = "`[SIGNUP-003]` 회원 가입 처리 중 서버 내부 오류가 발생했습니다.",
 			content = @Content())
 	})
-	ResponseEntity<com.hogumiwarts.lumos.dto.CommonResponse<com.hogumiwarts.lumos.auth.dto.SignupResponse>> signup(@RequestBody com.hogumiwarts.lumos.auth.dto.SignupRequest request);
+	ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request);
 
 	@Operation(summary = "로그인", description = """
 		💡 사용자가 로그인을 진행합니다.
@@ -55,7 +57,7 @@ public interface AuthApiSpec {
 			description = "`[LOGIN-003]` 로그인 처리 중 서버 오류가 발생했습니다.",
 			content = @Content())
 	})
-	ResponseEntity<CommonResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request);
+	ResponseEntity<?> login(@Valid @RequestBody LoginRequest request);
 
 	@Operation(summary = "로그아웃", description = """
 		💡 사용자가 로그아웃을 진행합니다.
@@ -81,7 +83,7 @@ public interface AuthApiSpec {
 			content = @Content()),
 		@ApiResponse(responseCode = "500", description = "`[LOGOUT-001]` 로그아웃 처리 중 서버 오류가 발생했습니다.", content = @Content())
 	})
-	ResponseEntity<CommonResponse<SuccessResponse>> logout(HttpServletRequest request);
+	ResponseEntity<?> logout(HttpServletRequest request);
 
 	@Operation(
 		summary = "Access Token 재발급",
@@ -93,7 +95,8 @@ public interface AuthApiSpec {
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "토큰이 성공적으로 재발급되었습니다."),
 		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
-		@ApiResponse(responseCode = "401", description = "만료된 Refresh Token입니다.", content = @Content)
+		@ApiResponse(responseCode = "401", description = "만료된 Refresh Token입니다.", content = @Content),
+		@ApiResponse(responseCode = "401", description = "잘못된 JWT 서명입니다.", content = @Content)
 	})
-	ResponseEntity<CommonResponse<TokenRefreshResponse>> refreshToken(@RequestBody TokenRefreshRequest request);
+	ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request);
 }

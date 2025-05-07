@@ -12,6 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeviceListResponse {
-    private boolean success;
     private List<SmartThingsDevice> devices;
 }

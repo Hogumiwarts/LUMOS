@@ -52,6 +52,9 @@ public class SwaggerConfig {
 			.addTagsItem(new Tag()
 				.name("스피커")
 				.description("스피커 관련 상태 및 제어 API입니다."))
+				.addTagsItem(new Tag()
+						.name("공기청정기")
+						.description("공기청정기 관련 상태 및 제어 API입니다."))
 			.addTagsItem(new Tag()
 				.name("조명")
 				.description("조명 관련 상태 및 제어 API입니다."));
