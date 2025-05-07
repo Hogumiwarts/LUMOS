@@ -53,7 +53,7 @@ fun CommonTopBar(
 
         Text(
             text = barTitle,
-            fontSize = 20.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold,
             fontFamily = nanum_square_neo
         )
