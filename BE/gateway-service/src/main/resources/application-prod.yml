@@ -23,7 +23,7 @@ spring:
         - id: gesture-sensor-service
           uri: http://gesture-sensor-service:8080
           predicates:
-            - Path=/gesture/**    # prefix로 구분
+            - Path=/gesture-sensor/**    # prefix로 구분
           filters:
             - StripPrefix=1
         - id: smartthings-service
