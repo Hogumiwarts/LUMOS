@@ -1,11 +1,15 @@
 package com.hogumiwarts.lumos.ui.screens.auth.login
 
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.LoginResult
 import com.hogumiwarts.domain.repository.AuthRepository
+import com.hogumiwarts.lumos.datastore.TokenDataStore
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state
@@ -42,13 +47,13 @@ class LoginViewModel @Inject constructor(
             }
 
             is LoginIntent.togglePasswordVisibility -> _state.update { it.copy(passwordVisible = !it.passwordVisible) }
-            is LoginIntent.submitLogin -> validateAndLogin()
+            is LoginIntent.submitLogin -> validateAndLogin(context)
 
 
         }
     }
 
-    private fun validateAndLogin() {
+    private fun validateAndLogin(context: Context) {
         val id = _state.value.id
         val pw = _state.value.pw
 
@@ -88,6 +93,14 @@ class LoginViewModel @Inject constructor(
 
                     _effect.send(LoginEffect.ShowWelcomeToast)
                     _effect.send(LoginEffect.NavigateToHome)
+
+                    // 토큰 저장
+
+                    TokenDataStore.saveTokens(
+                        context = context,
+                        accessToken = result.accessToken,
+                        refreshToken = result.refreshToken
+                    )
                 }
 
                 is LoginResult.Error -> {

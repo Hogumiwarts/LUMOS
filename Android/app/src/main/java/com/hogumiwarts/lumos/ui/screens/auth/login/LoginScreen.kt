@@ -256,7 +256,7 @@ fun LoginScreen(
 
             // 로그인 버튼
             GradientButton(
-                onClick = { viewModel.handleIntent(LoginIntent.submitLogin) },
+                onClick = { viewModel.handleIntent(LoginIntent.submitLogin(context)) },
                 inputText = "로그인"
             )
 
