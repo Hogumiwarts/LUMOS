@@ -1,10 +1,12 @@
 package com.hogumiwarts.lumos.device.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.docs.AudioApiSpec;
 import com.hogumiwarts.lumos.device.docs.DeviceApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.service.AudioService;
 import com.hogumiwarts.lumos.device.service.DeviceService;
+import com.hogumiwarts.lumos.device.service.ExternalDeviceService;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -20,27 +22,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AudioController implements AudioApiSpec {
 
-	private final DeviceService deviceService;
 	private final AudioService audioService;
 
-	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
-	public ResponseEntity<CommonResponse<DeviceStatusResponse>> updateAudioPower(Long deviceId, PowerControlRequest request) {
-		DeviceStatusResponse response = deviceService.executeCommand(deviceId, request);
-		return ResponseEntity.ok(CommonResponse.ok(response));
+	public ResponseEntity<CommonResponse<SuccessResponse>> updateAudioVolume(Long deviceId, VolumeControlRequest request) {
+		audioService.updateAudioVolume(deviceId, request);
+		return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
 	}
 
-	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
-	public ResponseEntity<?> updateAudioVolume(Long deviceId, VolumeControlRequest request) {
-		VolumeControlResponse response = audioService.updateAudioVolume(deviceId, request);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<CommonResponse<SuccessResponse>> updateAudioPlayback(Long deviceId, PowerControlRequest request) {
+		audioService.updateAudioPlayback(deviceId, request);
+		return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
 	}
 
-	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
 	public ResponseEntity<?> getAudioStatus(Long deviceId, Long memberId) {
-		DeviceStatusResponse response = audioService.getAudioStatus(deviceId, memberId);
+		JsonNode response = audioService.getAudioStatus(deviceId, memberId);
 		return ResponseEntity.ok(response);
 	}
 

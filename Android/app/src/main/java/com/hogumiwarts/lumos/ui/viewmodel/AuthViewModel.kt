@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
+// 전체 로그인 여부 관리
 @HiltViewModel
 class AuthViewModel @Inject constructor() : ViewModel() {
 

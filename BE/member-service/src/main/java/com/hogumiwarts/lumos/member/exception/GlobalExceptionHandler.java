@@ -1,9 +1,8 @@
-package com.hogumiwarts.lumos.auth.exception;
+package com.hogumiwarts.lumos.member.exception;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,7 +13,6 @@ import com.hogumiwarts.lumos.dto.ErrorResponse;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
 
-import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

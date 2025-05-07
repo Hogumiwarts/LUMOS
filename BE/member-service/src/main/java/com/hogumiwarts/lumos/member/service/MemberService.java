@@ -1,5 +1,7 @@
 package com.hogumiwarts.lumos.member.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.hogumiwarts.lumos.exception.CustomException;
@@ -32,16 +34,12 @@ public class MemberService {
 	}
 
 	public MemberResponse findByEmail(String email) {
-		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-		return MemberResponse.fromEntity(member);
+		Optional<Member> member = memberRepository.findByEmail(email);
+		return member.map(MemberResponse::fromEntity).orElse(null);
 	}
 
 	public MemberResponse findById(Long memberId) {
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-		return MemberResponse.fromEntity(member);
+		Optional<Member> member = memberRepository.findById(memberId);
+		return member.map(MemberResponse::fromEntity).orElse(null);
 	}
 }
