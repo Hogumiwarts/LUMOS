@@ -22,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val tokenDataStore: TokenDataStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
@@ -79,7 +80,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authRepository.login(id, pw)) {
                 is LoginResult.Success -> {
-                    //todo: 이후에 토큰 저장 등 처리
+                    // log로 정보 확인
                     Timber.tag("Login").i(
                         """
                         ✅ 로그인 성공
@@ -95,22 +96,33 @@ class LoginViewModel @Inject constructor(
                     _effect.send(LoginEffect.NavigateToHome)
 
                     // 토큰 저장
-
-                    TokenDataStore.saveTokens(
-                        context = context,
+                    tokenDataStore.saveTokens(
                         accessToken = result.accessToken,
                         refreshToken = result.refreshToken
                     )
                 }
 
-                is LoginResult.Error -> {
-                    // 에러 메시지에 따라 상태 갱신
-                    if (result.message.contains("비밀번호")) {
-                        _state.update { it.copy(pwErrorMessage = result.message) }
-                    } else {
-                        _state.update { it.copy(idErrorMessage = result.message) }
-                    }
+                // 에러 처리
+                LoginResult.UserNotFound -> {
+                        _state.update { it.copy(idErrorMessage = "존재하지 않는 사용자입니다.") }
                 }
+                LoginResult.InvalidPassword -> {
+                    _state.update { it.copy(pwErrorMessage = "비밀번호가 틀렸습니다.") }
+                }
+                LoginResult.NetworkError -> {
+                    _state.update { it.copy(pwErrorMessage = "네트워크 오류가 발생했습니다.") }
+                }
+                LoginResult.UnknownError -> {
+                    _state.update { it.copy(pwErrorMessage = "알 수 없는 오류가 발생했습니다.") }
+                }
+//                is LoginResult.Error -> {
+//                    // 에러 메시지에 따라 상태 갱신
+//                    if (result.message.contains("비밀번호")) {
+//                        _state.update { it.copy(pwErrorMessage = result.message) }
+//                    } else {
+//                        _state.update { it.copy(idErrorMessage = result.message) }
+//                    }
+//                }
             }
         }
     }

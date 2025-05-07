@@ -15,16 +15,19 @@ import javax.inject.Inject
 // 전체 로그인 여부 관리
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggin: StateFlow<Boolean> = _isLoggedIn
 
+
     init{
         viewModelScope.launch {
-            val token = TokenDataStore.getAccessToken(context).first()
-            _isLoggedIn.value = token.isNotEmpty()
+            tokenDataStore.accessTokenFlow.first().let{
+                _isLoggedIn.value = it.isNotEmpty()
+            }
         }
     }
 

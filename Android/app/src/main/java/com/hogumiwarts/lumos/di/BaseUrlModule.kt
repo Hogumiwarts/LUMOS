@@ -1,5 +1,9 @@
 package com.hogumiwarts.lumos.di
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,5 +21,5 @@ object BaseUrlModule {
     @Named("AUTH_BASE_URL")
     fun provideAuthBaseUrl(): String = BuildConfig.AUTH_BASE_URL
 
-
+    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "token_prefs")
 }

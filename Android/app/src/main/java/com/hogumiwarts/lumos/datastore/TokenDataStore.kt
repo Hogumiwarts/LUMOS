@@ -6,43 +6,43 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.hogumiwarts.lumos.di.BaseUrlModule.dataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-object TokenDataStore {
-    // Context 확장 프로퍼티로 DataStore 정의
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "token_prefs")
+// hilt 방식으로 변경
+class TokenDataStore @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    val accessTokenFlow: Flow<String> = context.dataStore.data
+        .map { it[ACCESS_TOKEN_KEY] ?: "" }
 
     // 키 정의
     private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
     private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
 
     // 저장 함수
-    suspend fun saveTokens(context: Context, accessToken: String, refreshToken: String) {
-        context.dataStore.edit { prefs ->
-            prefs[ACCESS_TOKEN_KEY] = accessToken
-            prefs[REFRESH_TOKEN_KEY] = refreshToken
+    suspend fun saveTokens(accessToken: String, refreshToken: String) {
+        context.dataStore.edit {
+            it[ACCESS_TOKEN_KEY] = accessToken
+            it[REFRESH_TOKEN_KEY] = refreshToken
         }
     }
 
     // AccessToken 가져오기
-    fun getAccessToken(context: Context): Flow<String> {
-        return context.dataStore.data.map { prefs ->
-            prefs[ACCESS_TOKEN_KEY] ?: ""
-        }
+    fun getAccessToken(): Flow<String> {
+        return context.dataStore.data.map { it[ACCESS_TOKEN_KEY] ?: "" }
     }
 
     // RefreshToken 가져오기
-    fun getRefreshToken(context: Context): Flow<String> {
-        return context.dataStore.data.map { prefs ->
-            prefs[REFRESH_TOKEN_KEY] ?: ""
-        }
+    fun getRefreshToken(): Flow<String> {
+        return context.dataStore.data.map { it[REFRESH_TOKEN_KEY] ?: "" }
     }
 
     // 삭제 함수 (선택)
-    suspend fun clearTokens(context: Context) {
-        context.dataStore.edit { prefs ->
-            prefs.clear()
-        }
+    suspend fun clearTokens() {
+        context.dataStore.edit { it.clear() }
     }
 }

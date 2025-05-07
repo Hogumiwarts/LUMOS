@@ -22,13 +22,14 @@ class AuthRepositoryImpl @Inject constructor(
                 refreshToken = response.data.refreshToken
             )
         } catch (e: retrofit2.HttpException) {
+            // 구조화된 에러 타입 사용을 위해 수정
             when (e.code()) {
-                400 -> LoginResult.Error("잘못된 비밀번호입니다.")
-                404 -> LoginResult.Error("해당 이메일을 가진 사용자가 없습니다.")
-                else -> LoginResult.Error("알 수 없는 오류가 발생했습니다.")
+                400 -> LoginResult.InvalidPassword
+                404 -> LoginResult.UserNotFound
+                else -> LoginResult.UnknownError
             }
         } catch (e: Exception) {
-            LoginResult.Error("네트워크 오류가 발생했습니다.")
+            LoginResult.NetworkError
         }
     }
 }
