@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.light
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
@@ -32,14 +34,26 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.data.LightData
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.BedLightSwitch
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
+val exampleLight = LightData(
+    deviceId = 1L,
+    tagNumber = 123456789L,
+    deviceName = "무드등",
+    deviceImg = "icon_light", // 또는 실제 이미지 URL/리소스 키
+    lightColor = "#FFA500",   // 주황색 (ARGB Hex 형식)
+    activated = true
+)
 
 @Composable
-fun LightScreen() {
-    var isOn by remember { mutableStateOf(false) } // 전체 스위치 상태
+fun LightScreen(tagNumber: Long) {
+    var isOn by remember { mutableStateOf(exampleLight.activated) } // 전체 스위치 상태
+
+
+
     LightSwitch(
         isChecked = isOn,
         onCheckedChange = { isOn = it }
@@ -58,13 +72,18 @@ fun LightSwitch(
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111322))
     ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.device_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
         val (title, toggle, arrow) = createRefs()
 
         // 텍스트: 상단 고정
         Text(
-            text = "침대 조명 스위치",
+            text = exampleLight.deviceName,
             style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
             color = Color.White,
             modifier = Modifier.constrainAs(title) {
@@ -109,6 +128,6 @@ fun LightSwitch(
 @Composable
 fun DefaultPreview() {
     LUMOSTheme {
-        LightScreen()
+        LightScreen(1L)
     }
 }
