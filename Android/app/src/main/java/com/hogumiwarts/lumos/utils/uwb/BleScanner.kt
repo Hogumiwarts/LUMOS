@@ -93,21 +93,26 @@ class BleScanner(private val context: Context) {
 
     // BLE가 지원되는지 확인
     fun isBleSupported(): Boolean {
-        return bluetoothAdapter != null
+        // 블루투스 어댑터가 존재하는지 + 기기가 BLE 기능이 있는지
+        return bluetoothAdapter != null &&
+                context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
     }
 
     // BLE가 활성화되어 있는지 확인
     fun isBleEnabled(): Boolean {
-        // 권한 확인
+        // Android 12 이상: BLUETOOTH_CONNECT 권한 필요
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             return false
         }
-
         return try {
             bluetoothAdapter?.isEnabled == true
         } catch (e: SecurityException) {
-            Log.e(TAG, "권한 부족으로 블루투스 상태를 확인할 수 없습니다: ${e.message}")
+            Log.e(TAG, "블루투스 상태 확인 실패: ${e.message}")
             false
         }
     }
