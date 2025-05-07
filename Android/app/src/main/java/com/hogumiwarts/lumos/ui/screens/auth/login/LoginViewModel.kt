@@ -60,7 +60,7 @@ class LoginViewModel @Inject constructor(
 
         // 1차 유효성 검사
         when {
-            !id.contains("@") -> {
+            !isEmailFormatValid(id) -> {
                 _state.update { it.copy(idErrorMessage = "아이디는 이메일 주소 형태로 입력해 주세요.") }
                 return
             }
@@ -115,16 +115,13 @@ class LoginViewModel @Inject constructor(
                 LoginResult.UnknownError -> {
                     _state.update { it.copy(pwErrorMessage = "알 수 없는 오류가 발생했습니다.") }
                 }
-//                is LoginResult.Error -> {
-//                    // 에러 메시지에 따라 상태 갱신
-//                    if (result.message.contains("비밀번호")) {
-//                        _state.update { it.copy(pwErrorMessage = result.message) }
-//                    } else {
-//                        _state.update { it.copy(idErrorMessage = result.message) }
-//                    }
-//                }
             }
         }
     }
 
+}
+
+private fun isEmailFormatValid(email: String): Boolean {
+    val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    return emailRegex.matches(email)
 }
