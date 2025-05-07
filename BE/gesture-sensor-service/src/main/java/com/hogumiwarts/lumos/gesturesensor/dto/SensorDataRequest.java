@@ -23,6 +23,15 @@ public class SensorDataRequest {
 		@Schema(description = "Unix 타임스탬프 (ms)", example = "1714297200000")
 		private Long timestamp;
 
+		@Schema(description = "X축 선형 가속도(중력 X)", example = "0.12")
+		private Double accLiX;
+
+		@Schema(description = "Y축 선형 가속도(중력 X)", example = "-0.03")
+		private Double accLiY;
+
+		@Schema(description = "Z축 선형 가속도(중력 X)", example = "9.81")
+		private Double accLiZ;
+
 		@Schema(description = "X축 가속도", example = "0.12")
 		private Double accX;
 

@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.gesturesensor.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import com.hogumiwarts.lumos.config.AbstractSecurityConfig;
@@ -14,10 +15,13 @@ public class SecurityConfig extends AbstractSecurityConfig {
 		super(entryPoint, jwtTokenProvider, redisTokenService);
 	}
 
+	@Value("${spring.profiles.active:default}")
+	private String activeProfile;
+
 	@Override
 	protected String[] getPermitAllPaths() {
-		return new String[]{
-			"/api/sensor",
-		};
+		return activeProfile.equals("dev") ?
+			new String[] {"/**"}
+			: new String[] {};
 	}
 }

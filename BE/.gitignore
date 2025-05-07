@@ -510,7 +510,9 @@ gradle-app.setting
 *.hprof
 
 # SmartThings
-smartthings-app/data/.json
-smartthins-service/data/.json
+smartthings-service/data/*.json
+
+# Postgres
+postgres/
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,intellij+iml,intellij+all,windows,macos,gradle,node,visualstudiocode,netbeans
