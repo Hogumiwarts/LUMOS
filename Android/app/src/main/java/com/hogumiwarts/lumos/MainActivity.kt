@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.datastore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-                    MainScreen()
+                    GestureScreen()
                 }
             }
         }
