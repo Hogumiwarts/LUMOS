@@ -21,6 +21,7 @@ import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
+import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 
 @Composable
 fun NavGraph(
@@ -41,7 +42,7 @@ fun NavGraph(
     val viewModel: AuthViewModel = hiltViewModel()
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    if(isLoggedIn == null){
+    if (isLoggedIn == null) {
         // todo: 로딩 중 화면 띄우기
     }
 
@@ -194,8 +195,6 @@ fun NavGraph(
 
         // Auth
         composable("login") {
-            val context = LocalContext.current
-
             LoginScreen(
                 onLoginSuccess = {
                     navController.navigate("home") {
@@ -204,7 +203,15 @@ fun NavGraph(
                 }
             )
         }
-        //composable("RegisterScreen") { RegisterScreen(navController) }
+        composable("signup") {
+            SignupScreen(
+                onSignupSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true } // 뒤로가기로 돌아가지 않게
+                    }
+                }
+            )
+        }
 
 
     }
