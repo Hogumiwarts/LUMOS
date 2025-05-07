@@ -21,26 +21,28 @@ public class DeviceController implements DeviceApiSpec {
 
 	private final DeviceService deviceService;
 
-	// TODO : 공통응답 적용
+	// TODO : Main 에서 보여줘야할 정보 확인 필요
 	@Override
-	public ResponseEntity<CommonResponse<List<DeviceResponse>>> getAllDeviceByMember(Long memberId) {
-		List<DeviceResponse> devices = deviceService.getAllDeviceByMember(memberId);
-		return ResponseEntity.ok(CommonResponse.ok(devices));
+	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember(Long memberId) {
+		List<DeviceStatusResponse> devices = deviceService.getAllDeviceByMember(memberId);
+		String message = devices.isEmpty() ? "등록된 디바이스가 없습니다." : "기기 목록 조회 성공";
+		return ResponseEntity.ok(CommonResponse.ok(message, devices));
 	}
 
-	// TODO : 공통응답 적용, Error 처리, 응답결과가 0인 경우, 새로운 DB 항목 발견시, 추가 Node.js 요청으로 제어 목록 받아오기
 	@Override
-	public ResponseEntity<List<NewDiscoveredDeviceResponse>> getSmartThingsDevices(Long memberId) {
-		String installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"; // 테스트용 하드코딩
-		List<NewDiscoveredDeviceResponse> result = deviceService.getSmartThingsDevices(memberId, installedAppId);
-		return ResponseEntity.ok(result);
+	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(Long memberId) {
+		// TODO 삭제 : 임시 installedAppId, 테스트를 위해 하드코딩
+		String installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5";
+
+		List<DeviceStatusResponse> result = deviceService.getSmartThingsDevices(memberId, installedAppId);
+		String message = result.isEmpty() ? "새롭게 검색된 디바이스가 없습니다." : "기기 목록 조회 성공";
+		return ResponseEntity.ok(CommonResponse.ok(message, result));
 	}
 
-	// TODO : 공통응답 적용, Request, Response 구조, Error 처리
 	@Override
-	public ResponseEntity<?> getDeviceStatusByTagNumber(int tagNumber, Long memberId) {
-		DeviceStatusResponse response = deviceService.getDeviceStatusByTagNumber(tagNumber, memberId);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<CommonResponse<Object>> getDeviceStatusByTagNumber(int tagNumber, Long memberId) {
+		Object response = deviceService.getDeviceStatusByTagNumber(tagNumber, memberId);
+		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
 }
