@@ -19,28 +19,28 @@ public class RedisTokenService {
 
 	/**
 	 * 리프레시 토큰 저장
-	 * Key: refresh:<email>
+	 * Key: refresh:<memberId>
 	 */
-	public void saveRefreshToken(String email, String refreshToken, long expiration) {
-		String key = REFRESH_TOKEN_PREFIX + email;
+	public void saveRefreshToken(Long memberId, String refreshToken, long expiration) {
+		String key = REFRESH_TOKEN_PREFIX + memberId;
 		redisTemplate.opsForValue().set(key, refreshToken, expiration, TimeUnit.MILLISECONDS);
 	}
 
 	/**
 	 * 리프레시 토큰 조회
-	 * Key: refresh:<email>
+	 * Key: refresh:<memberId>
 	 */
-	public Optional<String> getRefreshToken(String email) {
-		String key = REFRESH_TOKEN_PREFIX + email;
+	public Optional<String> getRefreshToken(Long memberId) {
+		String key = REFRESH_TOKEN_PREFIX + memberId;
 		return Optional.ofNullable(redisTemplate.opsForValue().get(key));
 	}
 
 	/**
 	 * 리프레시 토큰 삭제 (로그아웃)
-	 * Key: refresh:<email>
+	 * Key: refresh:<memberId>
 	 */
-	public void deleteRefreshToken(String email) {
-		String key = REFRESH_TOKEN_PREFIX + email;
+	public void deleteRefreshToken(Long memberId) {
+		String key = REFRESH_TOKEN_PREFIX + memberId;
 		redisTemplate.delete(key);
 	}
 
@@ -62,4 +62,3 @@ public class RedisTokenService {
 		return Boolean.TRUE.equals(redisTemplate.hasKey(key));
 	}
 }
-

@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.auth.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,7 +36,7 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	public OpenAPI openzApi() {
+	public OpenAPI openApi() {
 		return new OpenAPI()
 			.addServersItem(new Server().url("/auth"))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))

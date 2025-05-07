@@ -23,8 +23,8 @@ public class DeviceController implements DeviceApiSpec {
 
 	// TODO : Main 에서 보여줘야할 정보 확인 필요
 	@Override
-	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember(Long memberId) {
-		List<DeviceStatusResponse> devices = deviceService.getAllDeviceByMember(memberId);
+	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember() {
+		List<DeviceStatusResponse> devices = deviceService.getAllDeviceByMember();
 		String message = devices.isEmpty() ? "등록된 디바이스가 없습니다." : "기기 목록 조회 성공";
 		return ResponseEntity.ok(CommonResponse.ok(message, devices));
 	}

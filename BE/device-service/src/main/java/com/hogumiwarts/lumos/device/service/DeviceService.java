@@ -5,8 +5,13 @@ import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
 import com.hogumiwarts.lumos.device.entity.DeviceType;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
+import com.hogumiwarts.lumos.jwt.JwtTokenProvider;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -90,7 +95,11 @@ public class DeviceService {
 
 
 	// [ DB에 저장된 사용자의 기기 목록 불러오기 ]
-	public List<DeviceStatusResponse> getAllDeviceByMember(Long memberId) {
+	public List<DeviceStatusResponse> getAllDeviceByMember() {
+		// 인증 정보 가져오기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Long memberId = Long.valueOf(authentication.getName());
+
 		List<Device> devices = deviceRepository.findByMemberId(memberId);
 		return devices.stream()
 				.map(device -> DeviceStatusResponse.builder()
