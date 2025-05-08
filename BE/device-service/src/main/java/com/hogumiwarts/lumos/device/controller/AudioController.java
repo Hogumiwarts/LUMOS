@@ -37,9 +37,9 @@ public class AudioController implements AudioApiSpec {
 	}
 
 	@Override
-	public ResponseEntity<?> getAudioStatus(Long deviceId, Long memberId) {
-		JsonNode response = audioService.getAudioStatus(deviceId, memberId);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<CommonResponse<AudioDetailResponse>> getAudioStatus(Long deviceId) {
+		AudioDetailResponse response = audioService.getAudioStatus(deviceId);
+		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
 }

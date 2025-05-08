@@ -41,10 +41,7 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "기기 탐색 성공"),})
     @GetMapping("/discover")
-    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam Long memberId
-    );
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices();
 
     @Operation(
             summary = "스마트 태그로 디바이스 상태 조회",
@@ -63,9 +60,7 @@ public interface DeviceApiSpec {
     @GetMapping("/{tagNumber}/status")
     ResponseEntity<CommonResponse<Object>> getDeviceStatusByTagNumber(
             @Parameter(description = "스마트 태그 번호", required = true)
-            @PathVariable("tagNumber") int tagNumber,
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam("memberId") Long memberId
+            @PathVariable("tagNumber") int tagNumber
     );
 
 

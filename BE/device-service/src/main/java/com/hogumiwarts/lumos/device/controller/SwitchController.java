@@ -29,8 +29,8 @@ public class SwitchController implements SwitchApiSpec {
 	}
 
 	@Override
-	public ResponseEntity<CommonResponse<SwitchDetailResponse>> getSwitchStatus(Long deviceId, Long memberId) {
-		SwitchDetailResponse response = switchService.getSwitchStatus(deviceId, memberId);
+	public ResponseEntity<CommonResponse<SwitchDetailResponse>> getSwitchStatus(Long deviceId) {
+		SwitchDetailResponse response = switchService.getSwitchStatus(deviceId);
 		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
