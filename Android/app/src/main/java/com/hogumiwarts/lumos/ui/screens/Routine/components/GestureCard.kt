@@ -35,9 +35,9 @@ fun GestureCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(106.dp)
+            .height(90.dp)
             .shadow(
-                elevation = 12.dp,
+                elevation = 5.dp,
                 shape = RoundedCornerShape(10.dp),
                 spotColor = Color(0x66000000), // 더 진하게 하고 싶으면 숫자 99로 바꾸기
                 ambientColor = Color(0x66000000)

@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontVariation.weight
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +43,7 @@ fun DeviceCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
+            .height(106.dp)
             .shadow(
                 elevation = 12.dp,
                 shape = RoundedCornerShape(10.dp),
@@ -53,6 +54,9 @@ fun DeviceCard(
                 color = Color.White,
                 shape = RoundedCornerShape(10.dp)
             )
+            .graphicsLayer{
+                clip = false
+            }
     ) {
         // 좌측의 기기 타입별 색 표시
         Box(
@@ -98,8 +102,8 @@ fun DeviceCard(
                 // on/off 여부
                 Text(
                     text = if (routineDevice.isOn) "ON" else "OFF",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 13.sp,
                         lineHeight = 16.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(800),

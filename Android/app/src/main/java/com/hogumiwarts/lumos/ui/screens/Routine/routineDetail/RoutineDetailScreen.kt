@@ -20,9 +20,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,6 +32,9 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -44,19 +49,24 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun RoutineDetailScreen(
+    routineId: String?,
     routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
     routineItem: List<RoutineItem> = RoutineItem.sample // 루틴 리스트
 ) {
+    val currentRoutine = routineItem.find { it.id.toString() == routineId } ?: return
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 40.dp, start = 28.dp, end = 28.dp)
+            .statusBarsPadding()
+            .padding(top = 30.dp, start = 28.dp, end = 28.dp)
     ) {
         val deviceCount = routineDevices.size
 
         // todo: 추후 하드코딩으로 넣어놓은거 api 연동하기
         // todo: 17.dp 씩 여백 있는데 spaceBy로 한 번에 설정하기
+
 
         // TopBar
         Box(
@@ -79,14 +89,10 @@ fun RoutineDetailScreen(
 
                 // 루틴 이름
                 Text(
-                    text = routineItem[0].title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight(800),
-                        color = Color(0xFF000000),
-                        fontFamily = nanum_square_neo,
-                        textAlign = TextAlign.Center,
-                    )
+                    text = currentRoutine.title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = nanum_square_neo
                 )
             }
         }
@@ -144,16 +150,23 @@ fun RoutineDetailScreen(
         Spacer(modifier = Modifier.height(17.dp))
 
         // 기기 리스트
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(17.dp)
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    clip = false
+                }
         ) {
-            items(routineDevices) { device ->
-                DeviceCard(routineDevice = device)
+            LazyColumn(
+                contentPadding = PaddingValues(top = 10.dp, bottom = 30.dp),
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(17.dp)
+            ) {
+                items(routineDevices) { device ->
+                    DeviceCard(routineDevice = device)
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(17.dp))
 
         // 구분선
         Divider(
@@ -161,17 +174,21 @@ fun RoutineDetailScreen(
             thickness = 1.dp
         )
 
-        Spacer(modifier = Modifier.height(17.dp))
 
         // 제스처 카드
         // todo: 선택된 제스처 api 연결
-        GestureCard(selectedGesture = GestureType.DOUBLE_CLAP)
+        Box(
+            modifier = Modifier
+                .padding(top = 30.dp)
+        ) {
+            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP)
+        }
     }
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun RoutineDetailScreenPreview() {
-    RoutineDetailScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun RoutineDetailScreenPreview() {
+//    RoutineDetailScreen()
+//}

@@ -15,6 +15,8 @@ import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
@@ -161,7 +163,13 @@ fun NavGraph(
 
                     BottomNavItem.Info -> InfoScreen()
 
-                    BottomNavItem.Routine -> RoutineScreen()
+                    BottomNavItem.Routine -> RoutineScreen(
+                        routines = RoutineItem.sample, // todo: 실제 api 필요
+                        onRoutineClick = { routine ->
+                            navController.navigate("routine_detail/${routine.id}")
+                        }
+                    )
+
 
                     BottomNavItem.Settings -> SettingScreen()
                 }
@@ -210,6 +218,10 @@ fun NavGraph(
             )
         }
 
+        composable("routine_detail/{routineId}") { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routineId")
+            RoutineDetailScreen(routineId)
+        }
 
     }
 }

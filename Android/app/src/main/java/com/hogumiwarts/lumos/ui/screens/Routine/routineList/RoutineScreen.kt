@@ -2,6 +2,7 @@ package com.hogumiwarts.lumos.ui.screens.Routine.routineList
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -60,7 +61,8 @@ fun RoutineScreen(
             items(routines) { routine ->
                 DeviceRoutineCard(
                     modifier = Modifier
-                        .aspectRatio(1.05f),
+                        .aspectRatio(1.05f)
+                        .clickable{onRoutineClick(routine)},
                     showToggle = false, // 토글 X
                     cardTitle = routine.title,
                     cardSubtitle = routine.subtitle,
