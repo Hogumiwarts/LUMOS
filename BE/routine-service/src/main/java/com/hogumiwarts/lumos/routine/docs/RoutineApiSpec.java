@@ -19,7 +19,7 @@ import java.util.List;
 public interface RoutineApiSpec {
 
     @Operation(summary = "루틴 생성", description = """
-            💡 루틴 만들기
+            💡 루틴 생성합니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공"),
@@ -32,7 +32,7 @@ public interface RoutineApiSpec {
     );
 
     @Operation(summary = "루틴 목록 조회", description = """
-            💡 루틴 리스트 조회
+            💡 루틴 리스트 조회합니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공"),
@@ -44,8 +44,8 @@ public interface RoutineApiSpec {
     );
 
     // RoutineApiSpec.java (interface)
-    @Operation(summary = "루틴 일부 수정", description = """
-        ✏️ 루틴 일부 필드만 수정합니다. (PATCH)
+    @Operation(summary = "루틴 수정", description = """
+        ✏️ 루틴을 수정합니다.
         """)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공"),
@@ -62,7 +62,7 @@ public interface RoutineApiSpec {
 
 
     @Operation(summary = "루틴 삭제", description = """
-            💡 루틴 삭제하기
+            💡 루틴을 삭제합니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공"),

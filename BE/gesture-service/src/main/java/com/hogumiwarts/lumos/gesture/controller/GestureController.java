@@ -17,16 +17,19 @@ public class GestureController implements GestureApiSpec {
 
     private final GestureService gestureService;
 
+    // 모든 제스처 조회
     @GetMapping
     public ResponseEntity<CommonResponse<List<GestureResponse>>> getGestures(@RequestParam Long memberId) {
         List<GestureResponse> gestures = gestureService.getGestures(memberId);
         return ResponseEntity.ok(CommonResponse.ok(gestures));
     }
 
-    @GetMapping("/{gestureId}")
-    public ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(@RequestParam Long memberId,
-                                                                          @PathVariable Long gestureId) {
-        GestureResponse response = gestureService.getGestureInfo(memberId, gestureId);
+    // gestureId에 해당하는 제스처 상세 정보 조회
+    @GetMapping("/{memberGestureId}")
+    public ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(
+            @PathVariable Long memberGestureId,
+            @RequestParam Long memberId) {
+        GestureResponse response = gestureService.getGestureInfo(memberId, memberGestureId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 

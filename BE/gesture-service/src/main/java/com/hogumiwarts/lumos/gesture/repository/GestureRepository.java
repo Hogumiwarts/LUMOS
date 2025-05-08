@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GestureRepository extends JpaRepository<MemberGesture, Long> {
@@ -12,5 +13,6 @@ public interface GestureRepository extends JpaRepository<MemberGesture, Long> {
 	// 특정 memberId로 조회
 	List<MemberGesture> findByMemberId(Long memberId);
 
-	MemberGesture findByMemberIdAndGestureId(Long memberId, Long gestureId);
+	Optional<MemberGesture> findByMemberIdAndMemberGestureId(Long memberId, Long memberGestureId);
+
 }

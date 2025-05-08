@@ -35,6 +35,8 @@ public interface GestureApiSpec {
     })
     ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(
             @Parameter(description = "회원 ID", example = "1") @RequestParam Long memberId,
-            @Parameter(description = "제스처 ID", example = "1") @PathVariable Long gestureId
+            @Parameter(description = "제스처 ID", example = "1") @PathVariable Long memberGestureId
     );
+
+
 }
