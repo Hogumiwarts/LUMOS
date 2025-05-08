@@ -4,6 +4,7 @@ import com.hogumiwarts.lumos.device.entity.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,4 +14,6 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 	Optional<Device> findByTagNumberAndMemberId(int tagNumber, Long memberId);
 
     Optional<Object> findByDeviceIdAndMemberId(Long deviceId, Long memberId);
+
+    Optional<Device> findFirstByMemberId(Long memberId);
 }

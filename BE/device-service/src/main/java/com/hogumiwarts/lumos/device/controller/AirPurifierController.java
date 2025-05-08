@@ -1,20 +1,14 @@
 package com.hogumiwarts.lumos.device.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.docs.AirPurifierApiSpec;
-import com.hogumiwarts.lumos.device.docs.AudioApiSpec;
 import com.hogumiwarts.lumos.device.dto.PowerControlRequest;
 import com.hogumiwarts.lumos.device.dto.SuccessResponse;
-import com.hogumiwarts.lumos.device.dto.SwitchDetailResponse;
-import com.hogumiwarts.lumos.device.dto.VolumeControlRequest;
 import com.hogumiwarts.lumos.device.service.AirPurifierService;
-import com.hogumiwarts.lumos.device.service.AudioService;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RestController
 @RequestMapping("/api/devices")
@@ -29,9 +23,10 @@ public class AirPurifierController implements AirPurifierApiSpec {
 		return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
 	}
 
+	// Todo : 공기청정기 테스트 후, Response 변경 필요
 	@Override
-	public ResponseEntity<CommonResponse<?>> getAirPurifierStatus(Long deviceId, Long memberId) {
-		Object response = airPurifierService.getAirPurifierStatus(deviceId, memberId);
+	public ResponseEntity<CommonResponse<?>> getAirPurifierStatus(Long deviceId) {
+		Object response = airPurifierService.getAirPurifierStatus(deviceId);
 		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
