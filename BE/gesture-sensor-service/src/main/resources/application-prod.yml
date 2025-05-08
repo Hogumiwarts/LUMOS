@@ -5,6 +5,9 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  kafka:
+    bootstrap-servers: kafka:9092  # 컨테이너 내부에서 Kafka로 접근 시
+
   data:
     redis:
       host: ${REDIS_HOST}
