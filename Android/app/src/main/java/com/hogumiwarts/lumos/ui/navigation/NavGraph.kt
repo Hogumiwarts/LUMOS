@@ -21,6 +21,7 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
@@ -242,7 +243,9 @@ fun NavGraph(
         // 루틴 수정
         composable("routine_edit/{rouineId}") { navBackStackEntry ->
             val routineId = navBackStackEntry.arguments?.getString("routineId")
-            RoutineEditScreen(routineId = routineId)
+            val viewModel = hiltViewModel<RoutineEditViewModel>()
+
+            RoutineEditScreen(routineId = routineId, viewModel = viewModel)
         }
 
     }
