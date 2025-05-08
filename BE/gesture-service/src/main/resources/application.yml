@@ -1,6 +1,11 @@
 spring:
   application:
-    name: gesture-sensor-service
+    name: gesture-service
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
 
   jackson:
     time-zone: ${TZ}
@@ -34,6 +39,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+
 server:
   encoding:
     charset: UTF-8
@@ -52,4 +58,5 @@ springdoc:
   enable-spring-security: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
 
