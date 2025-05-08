@@ -6,6 +6,7 @@
 
 package com.hogumiwarts.lumos.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
@@ -33,6 +35,7 @@ import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
+import com.hogumiwarts.lumos.service.SensorService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +67,8 @@ class MainActivity : ComponentActivity() {
 
 //            WearApp("Android")
         }
+        val intent = Intent(this, SensorService::class.java)
+        ContextCompat.startForegroundService(this, intent)
     }
 }
 

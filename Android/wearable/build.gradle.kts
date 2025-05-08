@@ -94,4 +94,6 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-navigation-animation:0.33.2-alpha")
 
+    implementation ("org.tensorflow:tensorflow-lite:2.17.0")
+
 }
