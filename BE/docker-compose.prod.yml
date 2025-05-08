@@ -23,6 +23,7 @@ services:
     expose:
       - "8080"  # 내부 통신용
     env_file:
+      - .env.prod
       - ./gesture-sensor-service/.env
     depends_on:
       - postgres

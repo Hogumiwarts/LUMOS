@@ -37,7 +37,7 @@ public class S3DownloadService {
 	public Path zipGestureDataset() throws IOException {
 		String prefix = "gesture_dataset/";
 		String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-		String fileName = "gesture_dataset" + time + ".zip";
+		String fileName = "gesture_dataset_" + time + ".zip";
 
 		Path tempDir = Files.createTempDirectory("s3zip");
 		Path zipPath = tempDir.resolveSibling(fileName);
