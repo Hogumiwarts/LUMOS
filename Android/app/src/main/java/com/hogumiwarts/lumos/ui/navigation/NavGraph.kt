@@ -4,10 +4,6 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,6 +20,7 @@ import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
@@ -225,21 +222,27 @@ fun NavGraph(
             )
         }
 
+        // 루틴 상세
         composable(
             "routine_detail/{routineId}",
-            enterTransition = {
-                fadeIn(tween(300))
-            },
-            popExitTransition = {
-                fadeOut(tween(300))
-            }
+            enterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(300)) }
         ) { backStackEntry ->
             val routineId = backStackEntry.arguments?.getString("routineId")
             val viewModel = hiltViewModel<RoutineDetailViewModel>()
 
             RoutineDetailScreen(
-                routineId = routineId, viewModel = viewModel
+                routineId = routineId, viewModel = viewModel,
+                onEdit = {
+                    navController.navigate("routine_edit/$routineId")
+                }
             )
+        }
+
+        // 루틴 수정
+        composable("routine_edit/{rouineId}") { navBackStackEntry ->
+            val routineId = navBackStackEntry.arguments?.getString("routineId")
+            RoutineEditScreen(routineId = routineId)
         }
 
     }
