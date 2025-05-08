@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public class RoutineService {
     private final DeviceServiceClient deviceServiceClient;
 
     // 루틴 생성
-    public SuccessResponse createRoutine(Long memberId, RoutineRequest request) {
+    public SuccessResponse createRoutine(Long memberId, RoutineCreateRequest request) {
 
         try {
             Routine routine = Routine.builder()
@@ -49,6 +50,48 @@ public class RoutineService {
         }
     }
 
+    // 루틴 목록 조회
+    public List<RoutineResponse> getRoutineList(Long memberId) {
+        List<Routine> routines = routineRepository.findByMemberId(memberId);
+
+        return routines.stream()
+                .map(routine -> {
+                    // 제스처 이름 가져오기
+                    GestureInfo gesture = gestureServiceClient.getGestureInfo(
+                            routine.getMemberGestureId(),
+                            memberId
+                    );
+
+                    return RoutineResponse.builder()
+                            .routineId(routine.getRoutineId())
+                            .routineName(routine.getRoutineName()) // routineName 필드가 없다면 routine.getTitle() 등으로 교체
+                            .routineIcon(routine.getRoutineIcon())
+                            .gestureName(gesture.getGestureName())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 루틴 수정
+    public SuccessResponse updateRoutine(Long routineId, Long memberId, RoutineUpdateRequest request) {
+        Routine routine = routineRepository.findById(routineId)
+                .orElseThrow(() -> new RuntimeException("루틴을 찾을 수 없습니다."));
+
+        if (!routine.getMemberId().equals(memberId)) {
+            throw new RuntimeException("해당 멤버의 루틴이 아닙니다.");
+        }
+
+        request.getRoutineName().ifPresent(routine::setRoutineName);
+        request.getRoutineIcon().ifPresent(routine::setRoutineIcon);
+        request.getGestureId().ifPresent(routine::setMemberGestureId);
+        request.getDevices().ifPresent(routine::setControl);
+
+        routine.setUpdatedAt(LocalDateTime.now());
+        routineRepository.save(routine);
+        return SuccessResponse.of(true);
+    }
+
+
     // 루틴 삭제
     public SuccessResponse deleteRoutine(Long routineId, Long memberId) {
 
@@ -67,15 +110,17 @@ public class RoutineService {
         }
     }
 
+
+    // TODO: 진행중
     // 루틴별 기기 정보 불러오기
-    public RoutineResponse getRoutines(Long memberId, Long routineId) {
+    public RoutineDevicesResponse getRoutineDevices(Long memberId, Long routineId) {
 
         Optional<Routine> optionalRoutine = routineRepository.findByMemberIdAndRoutineId(memberId, routineId)
                 .stream()
                 .findFirst();
 
         if (optionalRoutine.isEmpty()) {
-            return RoutineResponse.builder()
+            return RoutineDevicesResponse.builder()
                     .gestureName(null)
                     .gestureImg(null)
                     .devices(List.of()) // ✅ 빈 리스트
@@ -98,7 +143,7 @@ public class RoutineService {
                 .collect(Collectors.toMap(DeviceResponse::getDeviceId, d -> d));
 
         // 응답 생성
-        return RoutineResponse.builder()
+        return RoutineDevicesResponse.builder()
                 .gestureName(gesture.getGestureName())
                 .gestureImg(gesture.getGestureImg())
                 .devices(devices.stream()

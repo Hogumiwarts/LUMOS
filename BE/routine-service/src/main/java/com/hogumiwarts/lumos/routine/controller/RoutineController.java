@@ -2,14 +2,14 @@ package com.hogumiwarts.lumos.routine.controller;
 
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.routine.docs.RoutineApiSpec;
-import com.hogumiwarts.lumos.routine.dto.SuccessResponse;
-import com.hogumiwarts.lumos.routine.dto.RoutineRequest;
-import com.hogumiwarts.lumos.routine.dto.RoutineResponse;
+import com.hogumiwarts.lumos.routine.dto.*;
 import com.hogumiwarts.lumos.routine.service.RoutineService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/routine")
@@ -22,11 +22,20 @@ public class RoutineController implements RoutineApiSpec {
     @PostMapping
     public ResponseEntity<CommonResponse<SuccessResponse>> createRoutine(
             @RequestParam Long memberId,
-            @RequestBody RoutineRequest routineRequest) {
+            @RequestBody RoutineCreateRequest routineCreateRequest) {
 
-        SuccessResponse response = routineService.createRoutine(memberId, routineRequest);
+        SuccessResponse response = routineService.createRoutine(memberId, routineCreateRequest);
         return ResponseEntity.ok(CommonResponse.ok(response));
 
+    }
+
+    // 루틴 목록 조회
+    @GetMapping
+    public ResponseEntity<CommonResponse<List<RoutineResponse>>> getRoutines(
+            @RequestParam Long memberId
+    ) {
+        List<RoutineResponse> routines = routineService.getRoutineList(memberId);
+        return ResponseEntity.ok(CommonResponse.ok(routines));
     }
 
     // 루틴 삭제
@@ -39,9 +48,30 @@ public class RoutineController implements RoutineApiSpec {
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
+    // 루틴 수정
+//    @PutMapping("/{routineId}")
+//    public ResponseEntity<CommonResponse<SuccessResponse>> updateRoutine(
+//            @PathVariable Long routineId,
+//            @RequestBody RoutineUpdateRequest request
+//    ) {
+//        SuccessResponse response = routineService.updateRoutine(routineId, request);
+//        return ResponseEntity.ok(CommonResponse.ok(response));
+//    }
+
+    @PatchMapping("/{routineId}")
+    public ResponseEntity<CommonResponse<SuccessResponse>> patchRoutine(
+            @PathVariable Long routineId,
+            @RequestParam Long memberId,
+            @RequestBody RoutineUpdateRequest request
+    ) {
+        SuccessResponse response = routineService.updateRoutine(routineId, memberId, request);
+        return ResponseEntity.ok(CommonResponse.ok(response));
+    }
+
+
     // 루틴별 기기 정보 조회
     @GetMapping("/{routineId}/devices")
-    public ResponseEntity<CommonResponse<RoutineResponse>> getRoutineDevices(
+    public ResponseEntity<CommonResponse<RoutineDevicesResponse>> getRoutineDevices(
             @RequestParam Long memberId,
             @PathVariable Long routineId
     ) {
@@ -49,7 +79,7 @@ public class RoutineController implements RoutineApiSpec {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        Long memberId = Long.valueOf(authentication.getName());
 
-        RoutineResponse response = routineService.getRoutines(memberId, routineId);
+        RoutineDevicesResponse response = routineService.getRoutineDevices(memberId, routineId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 

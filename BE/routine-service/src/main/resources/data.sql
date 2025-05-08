@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS routine (
         routine_id BIGSERIAL PRIMARY KEY,
         member_id INT,
         member_gesture_id BIGINT,
+        routine_name VARCHAR(255),
         routine_icon INT,
         control JSON,
         created_at TIMESTAMP DEFAULT now(),
@@ -70,9 +71,9 @@ INSERT INTO device (member_id, installed_app_id, control_id, tag_number, device_
                                                                                                                                        (1, 'app123', 'ctrl-002', 2, '스마트 스위치', 'https://cdn.example.com/img/switch.png', '{"on": false}'::json, now(), now()),
                                                                                                                                        (2, 'app999', 'ctrl-abc', 3, '스마트 공기청정기', 'https://cdn.example.com/img/air.png', '{"power": "auto"}'::json, now(), now());
 
-INSERT INTO routine (member_id, member_gesture_id, routine_icon, control, created_at, updated_at) VALUES
-                                                                                                      (1, 1, 101, '[{"deviceId": 1, "control": {"on": true}}, {"deviceId": 2, "control": {"on": false}}]'::json, now(), now()),
-                                                                                                      (2, 2, 102, '[{"deviceId": 3, "control": {"power": "auto"}}]'::json, now(), now());
+INSERT INTO routine (member_id, member_gesture_id, routine_name, routine_icon, control, created_at, updated_at) VALUES
+                                                                                                      (1, 1, '수면중',101, '[{"deviceId": 1, "control": {"on": true}}, {"deviceId": 2, "control": {"on": false}}]'::json, now(), now()),
+                                                                                                      (2, 2, '귀가',102, '[{"deviceId": 3, "control": {"power": "auto"}}]'::json, now(), now());
 INSERT INTO member_gesture (member_id, gesture_id, created_at, updated_at) VALUES
                                                                                (1, 1, now(), now()),
                                                                                (1, 2, now(), now()),

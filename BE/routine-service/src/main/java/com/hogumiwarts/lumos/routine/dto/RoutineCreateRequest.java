@@ -1,14 +1,12 @@
 package com.hogumiwarts.lumos.routine.dto;
 
 import java.util.List;
-import java.util.Map;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public class RoutineRequest {
+public class RoutineCreateRequest {
 
 	@Schema(description = "루틴 이름", example = "수면중")
 	private String routineName;

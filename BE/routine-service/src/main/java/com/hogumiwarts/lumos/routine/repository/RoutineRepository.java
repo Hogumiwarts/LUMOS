@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RoutineRepository extends JpaRepository<Routine, Long> {
 
+    List<Routine> findByMemberId(Long memberId);
     List<Routine> findByMemberIdAndRoutineId(Long memberId, Long routineId);
 
     Optional<Routine> findByRoutineIdAndMemberId(Long routineId, Long memberId);
