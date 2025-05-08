@@ -119,6 +119,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // UWB
+    implementation("androidx.core.uwb:uwb:1.0.0-alpha10")
+
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -127,6 +130,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // constraintlayout
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     // 기타
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.3-beta")

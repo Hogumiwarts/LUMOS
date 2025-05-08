@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Routine
+package com.hogumiwarts.lumos.ui.screens.Routine.routineList
 
 // TODO: 루틴 조회 및 삭제 인텐트 정의 예정
 sealed interface RoutineIntent {
