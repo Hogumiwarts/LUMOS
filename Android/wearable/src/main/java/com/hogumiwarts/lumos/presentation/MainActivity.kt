@@ -76,8 +76,8 @@ class MainActivity : ComponentActivity() {
 
 //            WearApp("Android")
         }
-        val intent = Intent(this, SensorService::class.java)
-        ContextCompat.startForegroundService(this, intent)
+//        val intent = Intent(this, SensorService::class.java)
+//        ContextCompat.startForegroundService(this, intent)
     }
 }
 
