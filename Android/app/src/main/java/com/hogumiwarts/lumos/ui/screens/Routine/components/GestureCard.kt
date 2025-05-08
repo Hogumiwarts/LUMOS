@@ -4,6 +4,7 @@ import android.health.connect.datatypes.HeightRecord
 import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,11 +39,15 @@ fun GestureCard(
             .fillMaxWidth()
             .height(90.dp)
             .shadow(
-                elevation = 5.dp,
+                elevation = 9.dp,
                 shape = RoundedCornerShape(10.dp),
-                spotColor = Color(0x66000000), // 더 진하게 하고 싶으면 숫자 99로 바꾸기
-                ambientColor = Color(0x66000000)
+                spotColor = Color(0x55000000), // 더 진하게 하고 싶으면 숫자 99로 바꾸기
+                ambientColor = Color(0x55000000)
             )
+            .border((1).dp, color = Color(0xFFF2F2F2), shape = RoundedCornerShape(10.dp))
+            .graphicsLayer{
+                clip = false
+            }
             .background(
                 color = Color.White,
                 shape = RoundedCornerShape(10.dp)

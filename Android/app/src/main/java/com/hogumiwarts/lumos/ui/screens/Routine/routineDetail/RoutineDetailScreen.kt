@@ -1,7 +1,9 @@
 package com.hogumiwarts.lumos.ui.screens.Routine.routineDetail
 
+import android.content.Context
 import android.graphics.drawable.Icon
 import android.widget.Space
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,13 +30,18 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -51,136 +58,140 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun RoutineDetailScreen(
     routineId: String?,
     routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
-    routineItem: List<RoutineItem> = RoutineItem.sample // 루틴 리스트
+    routineItem: List<RoutineItem> = RoutineItem.sample, // 루틴 리스트
+    onBack: () -> Unit = {},
+    viewModel: RoutineDetailViewModel
 ) {
-    val currentRoutine = routineItem.find { it.id.toString() == routineId } ?: return
+    val state by viewModel.state.collectAsState()
 
-    Column(
+    val context = LocalContext.current
+
+    LaunchedEffect(routineId) {
+        if (routineId != null) {
+            viewModel.loadRoutine(routineId)
+        } else {
+            Toast.makeText(context, "\uD83D\uDE22 루틴 정보를 찾을 수 없습니다!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    when (state) {
+        is RoutineDetailState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is RoutineDetailState.Error -> {
+            val error = (state as RoutineDetailState.Error).message
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = error)
+                // TODO: Snackbar 또는 자동 뒤로가기 처리
+            }
+        }
+
+        is RoutineDetailState.Success -> {
+            val data = state as RoutineDetailState.Success
+            RoutineDetailContent(
+                routine = data.routine,
+                devices = data.devices
+            )
+        }
+
+    }
+
+
+}
+
+@Composable
+fun RoutineDetailContent(
+    routine: RoutineItem,
+    devices: List<RoutineDevice>
+) {
+    val deviceCount = devices.size
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .statusBarsPadding()
-            .padding(top = 30.dp, start = 28.dp, end = 28.dp)
+            .padding(horizontal = 28.dp)
+            .statusBarsPadding(),
+        contentPadding = PaddingValues(vertical = 25.dp),
+        verticalArrangement = Arrangement.spacedBy(17.dp)
     ) {
-        val deviceCount = routineDevices.size
-
-        // todo: 추후 하드코딩으로 넣어놓은거 api 연동하기
-        // todo: 17.dp 씩 여백 있는데 spaceBy로 한 번에 설정하기
-
-
-        // TopBar
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.Center)
+        item {
+            // TopBar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                // 아이콘
-                Image(
-                    painter = painterResource(id = R.drawable.ic_moon_sleep),
-                    contentDescription = null,
-                    modifier = Modifier.size(27.dp),
-                    alignment = Alignment.Center
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_moon_sleep),
+                        contentDescription = null,
+                        modifier = Modifier.size(27.dp)
+                    )
 
-                Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
-                // 루틴 이름
+                    Text(
+                        text = routine.title,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontFamily = nanum_square_neo
+                    )
+                }
+            }
+
+        }
+
+        item {
+            // 리스트 정보
+            Row {
                 Text(
-                    text = currentRoutine.title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = nanum_square_neo
+                    text = "$deviceCount" + "개",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFF000000),
+                        letterSpacing = 0.4.sp,
+                    )
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    "수정",
+                    modifier = Modifier.clickable {},
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(700)
+                    )
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "삭제",
+                    modifier = Modifier.clickable {},
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(700)
+                    )
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(17.dp))
-
-        // 리스트 정보
-        Row(
-
-        ) {
-            // 기기 개수
-            Text(
-                text = "$deviceCount" + "개",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFF000000),
-                    letterSpacing = 0.4.sp,
-                )
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // 수정 버튼
-            Text(
-                text = "수정",
-                modifier = Modifier.clickable {
-                    //todo: 수정 로직 실행
-                },
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFF000000),
-                    letterSpacing = 0.4.sp,
-                )
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // 삭제 버튼
-            Text(
-                text = "삭제",
-                modifier = Modifier.clickable {
-                    //todo: 삭제 로직 실행
-                },
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFF000000),
-                    letterSpacing = 0.4.sp,
-                )
-            )
+        items(devices) { device ->
+            DeviceCard(routineDevice = device)
         }
 
-        Spacer(modifier = Modifier.height(17.dp))
-
-        // 기기 리스트
-        Box(
-            modifier = Modifier
-                .graphicsLayer {
-                    clip = false
-                }
-        ) {
-            LazyColumn(
-                contentPadding = PaddingValues(top = 10.dp, bottom = 30.dp),
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(17.dp)
-            ) {
-                items(routineDevices) { device ->
-                    DeviceCard(routineDevice = device)
-                }
-            }
+        item {
+            Divider(color = Color(0xFFB9C0D4), thickness = 1.dp)
         }
 
-
-        // 구분선
-        Divider(
-            color = Color(0xFFB9C0D4),
-            thickness = 1.dp
-        )
-
-
-        // 제스처 카드
-        // todo: 선택된 제스처 api 연결
-        Box(
-            modifier = Modifier
-                .padding(top = 30.dp)
-        ) {
+        item {
             GestureCard(selectedGesture = GestureType.DOUBLE_CLAP)
         }
     }
