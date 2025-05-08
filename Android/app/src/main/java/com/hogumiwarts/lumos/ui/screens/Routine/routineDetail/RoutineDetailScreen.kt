@@ -18,11 +18,14 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
+import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
@@ -140,8 +144,13 @@ fun RoutineDetailScreen(
         Spacer(modifier = Modifier.height(17.dp))
 
         // 기기 리스트
-        for (i in 0 until deviceCount) {
-            DeviceCard(routineDevices[i])
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(17.dp)
+        ) {
+            items(routineDevices) { device ->
+                DeviceCard(routineDevice = device)
+            }
         }
 
         Spacer(modifier = Modifier.height(17.dp))
@@ -155,7 +164,8 @@ fun RoutineDetailScreen(
         Spacer(modifier = Modifier.height(17.dp))
 
         // 제스처 카드
-        GestureCard()
+        // todo: 선택된 제스처 api 연결
+        GestureCard(selectedGesture = GestureType.DOUBLE_CLAP)
     }
 }
 

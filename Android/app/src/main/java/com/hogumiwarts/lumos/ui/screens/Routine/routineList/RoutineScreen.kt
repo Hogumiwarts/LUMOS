@@ -29,10 +29,10 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 fun RoutineScreen(
     routines: List<RoutineItem> = RoutineItem.sample,
     onBackClick: () -> Unit = {},
-    onAddClick: () -> Unit = {}
+    onAddClick: () -> Unit = {},
+    onRoutineClick: (RoutineItem) -> Unit = {}
 ) {
     // TODO: ViewModel에서 루틴 데이터를 받아오는 구조로 변경 예정
-
 
     Column(
         modifier = Modifier

@@ -44,7 +44,7 @@ fun DeviceCard(
             .fillMaxWidth()
             .height(120.dp)
             .shadow(
-                elevation = 20.dp,
+                elevation = 12.dp,
                 shape = RoundedCornerShape(10.dp),
                 spotColor = Color(0x66000000), // 더 진하게 하고 싶으면 숫자 99로 바꾸기
                 ambientColor = Color(0x66000000)

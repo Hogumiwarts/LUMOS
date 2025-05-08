@@ -41,19 +41,9 @@ class MainActivity : ComponentActivity() {
 
         // 상태바, 네비게이션 바 아이콘 색상 설정 (false: 아이콘 흰색)
         val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.isAppearanceLightStatusBars = false
-        controller.isAppearanceLightNavigationBars = false
+        controller.isAppearanceLightStatusBars = true
+        controller.isAppearanceLightNavigationBars = true
 
-        // 자동 로그인 관련
-        // 자동 로그인 처리 (Coroutine으로!)
-//        lifecycleScope.launch {
-//            val accessToken = TokenDataStore.getAccessToken(this@MainActivity).first()
-//            if (accessToken.isNotEmpty()) {
-//                navigateToHome()
-//            } else {
-//                navigateToLogin()
-//            }
-//        }
 
         setContent {
             LUMOSTheme {
