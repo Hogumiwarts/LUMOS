@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Routine
+package com.hogumiwarts.lumos.ui.screens.Routine.routineList
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
