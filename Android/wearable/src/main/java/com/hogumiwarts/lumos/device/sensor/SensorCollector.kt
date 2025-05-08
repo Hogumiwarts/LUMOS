@@ -29,6 +29,10 @@ class SensorCollector(context: Context, private val windowSize: Int = 50) : Sens
         }
     }
 
+    fun clear(){
+        buffer.clear()
+    }
+
     fun start() {
         Log.d("TAG", "start: ")
         accSensor?.let {

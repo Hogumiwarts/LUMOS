@@ -53,13 +53,17 @@ class SensorService : Service() {
                     val result = predictGesture(interpreter, normalized, labelMap)
 
                     Log.d("TAG", "결과: ${result.first}, 신뢰도: ${result.second}")
-
-                    if (result.first == "motion1" && result.second > 0.8f) {
-                        NotificationUtils.showGestureNotification(this@SensorService, "모션 감지됨!", "motion1")
-                    }
-
                     // 결과 후 앞에서 25개 삭제
                     sensorCollector.reset()
+
+                    if ( result.second > 0.8f) {
+                        if(result.first == "motion1"){
+                            NotificationUtils.showGestureNotification(this@SensorService, "모션 감지됨!", "motion1")
+                        }
+                        sensorCollector.clear()
+                    }
+
+
 
                 }
                 handler.postDelayed(this, 500)
