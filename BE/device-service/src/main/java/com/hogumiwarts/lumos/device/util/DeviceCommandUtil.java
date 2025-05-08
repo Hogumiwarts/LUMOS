@@ -54,5 +54,27 @@ public class DeviceCommandUtil {
         ));
     }
 
-    // 필요한 경우 LIGHT도 추가
+    // ============================== Light onOff : SSAFY 조명 ==============================
+    public static CommandRequest buildLightOnOffCommand(Boolean activated) {
+        return new CommandRequest(List.of(
+                new CommandRequest.Command(
+                        "main",
+                        "switch",
+                        activated != null && activated ? "on" : "off",
+                        List.of()
+                )
+        ));
+    }
+
+    // ============================== Light Color : SSAFY 조명 ==============================
+    public static CommandRequest buildLightColorCommand(String lightColor) {
+        return new CommandRequest(List.of(
+                new CommandRequest.Command(
+                        "main",
+                        "colorControl",
+                        lightColor,
+                        List.of()
+                )
+        ));
+    }
 }
