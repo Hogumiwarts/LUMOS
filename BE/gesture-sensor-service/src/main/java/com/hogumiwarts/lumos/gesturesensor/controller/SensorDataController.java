@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.gesturesensor.controller;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,10 +21,8 @@ import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.gesturesensor.docs.SensorDataApiSpec;
 import com.hogumiwarts.lumos.gesturesensor.dto.SensorDataRequest;
 import com.hogumiwarts.lumos.gesturesensor.service.GestureSensorDataService;
-import com.hogumiwarts.lumos.gesturesensor.service.S3Service;
+import com.hogumiwarts.lumos.gesturesensor.service.S3DownloadService;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +33,8 @@ import lombok.RequiredArgsConstructor;
 public class SensorDataController implements SensorDataApiSpec {
 
 	private final GestureSensorDataService sensorDataService;
-	private final S3Service s3Service;
+
+	private final S3DownloadService s3DownloadService;
 
 	@PostMapping
 	public ResponseEntity<CommonResponse<Map<String, Boolean>>> saveSensorData(
@@ -48,11 +45,8 @@ public class SensorDataController implements SensorDataApiSpec {
 	}
 
 	@GetMapping("/download")
-	public ResponseEntity<StreamingResponseBody> downloadZip(@Parameter(
-		description = "gesture_id",
-		schema = @Schema(type = "integer", allowableValues = {"1", "2", "3", "4"})
-	) @RequestParam int folder) throws IOException {
-		Path zipFile = s3Service.zipAndDownloadFolder(folder); // 압축만 수행, 업로드 안 함
+	public ResponseEntity<StreamingResponseBody> downloadZip() throws IOException {
+		Path zipFile = s3DownloadService.zipGestureDataset(); // 압축만 수행, 업로드 안 함
 
 		StreamingResponseBody stream = outputStream -> {
 			try (InputStream inputStream = new FileInputStream(zipFile.toFile())) {

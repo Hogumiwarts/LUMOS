@@ -54,5 +54,5 @@ public interface SensorDataApiSpec {
 			content = @Content()
 		)
 	})
-	public ResponseEntity<?> downloadZip(@RequestParam int folder) throws IOException;
+	public ResponseEntity<?> downloadZip() throws IOException;
 }

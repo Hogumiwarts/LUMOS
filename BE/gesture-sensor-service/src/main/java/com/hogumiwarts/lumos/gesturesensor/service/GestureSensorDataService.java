@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.gesturesensor.service;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class GestureSensorDataService {
 
 	private final GestureSensorDataRepository repository;
-	private final S3Service s3Service;
+	private final S3UploadService s3UploadService;
 
 	private final ObjectMapper snakeCaseMapper = new ObjectMapper()
 		.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
@@ -35,6 +34,6 @@ public class GestureSensorDataService {
 
 		repository.save(entity);
 
-		String url = s3Service.saveCsvAndUpload(request);
+		String url = s3UploadService.saveCsvAndUpload(request);
 	}
 }
