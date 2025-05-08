@@ -76,6 +76,8 @@ services:
       - "3000"
     env_file:
       - ./smartthings-service/.env
+    volumes:
+      - ./smartthings-service/data:/app/data
     networks:
       - app-network
 

@@ -1,15 +1,18 @@
 -- SampleData : 여러 기기를 보유한 경우, 하나만 보유한 경우, 보유한 디바이스가 없는 경우에 대한 테스트 가능
 
 CREATE TABLE IF NOT EXISTS device (
-    device_id BIGINT PRIMARY KEY,
+    device_id BIGSERIAL PRIMARY KEY,
     installed_app_id VARCHAR(255),
     member_id BIGINT,
     device_url VARCHAR(255),
     control_id VARCHAR(255),
     tag_number INT,
     device_name VARCHAR(100),
+    device_manufacturer VARCHAR(255),
+    device_model VARCHAR(255),
+    device_type VARCHAR(255),
     control JSON,
-    created_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP
 );
 

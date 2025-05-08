@@ -40,6 +40,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -48,13 +49,14 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.wear.compose.material.Icon
 
 
 // 메인 화면 전환을 위한 상위 컴포저블
 @Composable
-fun MoodPlayerScreen() {
+fun MoodPlayerScreen(tagNumber: Long) {
     var showNext by remember { mutableStateOf(false) } // 현재 화면/다음 화면 상태
 
     // 화면 전환 시 애니메이션
@@ -70,6 +72,12 @@ fun MoodPlayerScreen() {
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
+
+        Image(
+            painter = painterResource(id = R.drawable.device_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
         // 무드 플레이어 화면
         Box(modifier = Modifier.offset(y = currentOffsetY)) {
             MoodPlayerSwitch(
@@ -98,6 +106,6 @@ fun MoodPlayerScreen() {
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
 @Composable
 fun MoodPlayerPreview() {
-    MoodPlayerScreen()
+    MoodPlayerScreen(1L)
 }
 

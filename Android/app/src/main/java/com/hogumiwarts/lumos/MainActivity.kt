@@ -25,8 +25,15 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
+import com.hogumiwarts.lumos.datastore.TokenDataStore
+import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
+import com.hogumiwarts.lumos.ui.navigation.NavGraph
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -64,6 +71,16 @@ class MainActivity : ComponentActivity() {
         controller.isAppearanceLightStatusBars = false
         controller.isAppearanceLightNavigationBars = false
 
+        // 자동 로그인 관련
+        // 자동 로그인 처리 (Coroutine으로!)
+//        lifecycleScope.launch {
+//            val accessToken = TokenDataStore.getAccessToken(this@MainActivity).first()
+//            if (accessToken.isNotEmpty()) {
+//                navigateToHome()
+//            } else {
+//                navigateToLogin()
+//            }
+//        }
 
 
         // 권한 확인 및 요청
@@ -78,7 +95,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-                    MainScreen()
+                    GestureScreen()
                 }
             }
         }
@@ -135,6 +152,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     LUMOSTheme {
-
+        val navController = rememberNavController()
+        NavGraph(navController = navController)
     }
 }

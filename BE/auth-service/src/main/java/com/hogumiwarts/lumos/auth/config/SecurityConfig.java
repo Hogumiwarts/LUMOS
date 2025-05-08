@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.auth.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import com.hogumiwarts.lumos.config.AbstractSecurityConfig;
@@ -18,7 +19,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
 
 	@Override
 	protected String[] getPermitAllPaths() {
-		return new String[]{
+		return new String[] {
 			"/api/signup",
 			"/api/login",
 			"/api/refresh"

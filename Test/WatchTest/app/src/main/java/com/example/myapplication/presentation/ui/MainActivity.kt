@@ -158,6 +158,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                 imuDataList.add(
                     GestureData(
                         timestamp = lastTimestamp.toLong(),
+                        liAccX = lax,
+                        liAccY = lay,
+                        liAccZ = laz,
                         accX = ax,
                         accY = ay,
                         accZ = az,
