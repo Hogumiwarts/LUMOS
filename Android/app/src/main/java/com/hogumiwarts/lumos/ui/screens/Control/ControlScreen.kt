@@ -1,46 +1,27 @@
-package com.hogumiwarts.lumos.ui.screens.Control
+package com.hogumiwarts.lumos.ui.screens.control
 
-import android.Manifest
-import android.bluetooth.BluetoothDevice
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.core.uwb.UwbAddress
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
-import com.hogumiwarts.lumos.utils.uwb.UwbRangingManager
-import com.hogumiwarts.lumos.utils.uwb.BleScanner
-import com.hogumiwarts.lumos.utils.uwb.GattConnector
-import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
+import com.hogumiwarts.lumos.utils.uwb.BleDevice
 
 
 @Composable
-fun ControlScreen(navController: NavController) {
+fun ControlScreen(
+    navController: NavController,
+    bleViewModel: BleScannerViewModel = hiltViewModel()
+) {
+
+    val devices by bleViewModel.devices.collectAsState()
 
     Scaffold(
         topBar = {
@@ -50,41 +31,72 @@ fun ControlScreen(navController: NavController) {
                     navController.popBackStack()
                 },
                 isAddBtnVisible = false,
-                onAddClick = {})
+                onAddClick = {}
+            )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-            .background(Color.Gray)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(Color.Gray)
+                .padding(16.dp)
         ) {
+            // 스캔 제어 버튼
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // 전체 스캔
+                Button(onClick = { bleViewModel.startScan() }) {
+                    Text("스캔 시작")
+                }
+                // DWM3001-CDK 필터 스캔
+                OutlinedButton(onClick = { bleViewModel.startScan(onlyDwm = true) }) {
+                    Text("DWM 전용")
+                }
+                // 스캔 중지
+                Button(onClick = { bleViewModel.stopScan() }) {
+                    Text("스캔 중지")
+                }
+            }
 
+            Spacer(Modifier.height(16.dp))
+
+            // 탐지된 기기 리스트
+            if (devices.isEmpty()) {
+                Text(
+                    "주변 BLE 기기를 찾는 중입니다…",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(devices) { d: BleDevice ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    text = d.name ?: "이름 없음",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = d.address,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Text(
+                                    text = "RSSI: ${d.rssi} dBm",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
-
-
-@Composable
-fun RoleSelector(onPick: (Role) -> Unit) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Choose Device Role", style = MaterialTheme.typography.headlineLarge)
-        Spacer(Modifier.height(40.dp))
-        Button(
-            onClick = { onPick(Role.CONTROLLER) },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("I am the Controller") }
-        Spacer(Modifier.height(16.dp))
-        Button(
-            onClick = { onPick(Role.CONTROLEE) },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("I am a Controlee (IoT anchor)") }
-    }
-}
-
-enum class Role { CONTROLLER, CONTROLEE }
