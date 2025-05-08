@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.device.ml
 
 import android.content.Context
+import android.util.Log
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.nio.MappedByteBuffer
