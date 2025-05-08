@@ -16,6 +16,7 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class SwaggerConfig {
 
+
 	private Info apiInfo() {
 		return new Info()
 			.title("[LUMOS] REST API")
@@ -36,20 +37,9 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	@Profile("prod")  // 운영 환경
-	public OpenAPI gatewayApi() {
+	public OpenAPI openApi() {
 		return new OpenAPI()
 			.addServersItem(new Server().url("/routine"))
-			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-			.components(new Components().addSecuritySchemes("Bearer Authentication", createApiKeyScheme()))
-			.info(apiInfo());
-	}
-
-	@Bean
-	@Profile("dev")  // 로컬 개발 환경
-	public OpenAPI localApi() {
-		return new OpenAPI()
-			.addServersItem(new Server().url("D"))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
 			.components(new Components().addSecuritySchemes("Bearer Authentication", createApiKeyScheme()))
 			.info(apiInfo());

@@ -1,26 +1,26 @@
 spring:
-  cloud:
-    gateway:
-      routes:
-        - id: gesture-sensor-service
-          uri: http://gesture-sensor-service:8080
-          predicates:
-            - Path=/gesture/**    # prefix로 구분
-          filters:
-            - StripPrefix=1
-        - id: smartthings-service
-          uri: http://smartthings-service:3000
-          predicates:
-            - Path=/smart/**
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
-springdoc:
-  swagger-ui:
-    urls[0]:
-      name: gesture-sensor-service
-      url: /gesture/v3/api-docs
-    use-root-path: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+
+# Node.js 서비스 정의
+node:
+  api:
+    base-url: http://smartthings-service:3000
 
 
 gesture:
   service:
     url: http://localhost:8083
+
+device:
+  service:
+    url: http://localhost:8082
