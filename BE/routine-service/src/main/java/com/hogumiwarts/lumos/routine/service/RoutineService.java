@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.routine.service;
 
+import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.routine.client.DeviceServiceClient;
 import com.hogumiwarts.lumos.routine.client.GestureServiceClient;
 import com.hogumiwarts.lumos.routine.dto.*;
@@ -31,7 +32,7 @@ public class RoutineService {
                     .memberId(memberId)
                     .routineName(request.getRoutineName())
                     .routineIcon(request.getRoutineIcon())
-                    .memberGestureId(request.getGestureId())
+                    .memberGestureId(request.getMemberGestureId())
                     .control(request.getDevices().stream()
                             .map(device -> Map.of(
                                     "deviceId", device.getDeviceId(),
@@ -57,7 +58,7 @@ public class RoutineService {
         return routines.stream()
                 .map(routine -> {
                     // 제스처 이름 가져오기
-                    GestureInfo gesture = gestureServiceClient.getGestureInfo(
+                    CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(
                             routine.getMemberGestureId(),
                             memberId
                     );
@@ -66,7 +67,7 @@ public class RoutineService {
                             .routineId(routine.getRoutineId())
                             .routineName(routine.getRoutineName()) // routineName 필드가 없다면 routine.getTitle() 등으로 교체
                             .routineIcon(routine.getRoutineIcon())
-                            .gestureName(gesture.getGestureName())
+                            .gestureName(gesture.getData().getGestureName())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -134,7 +135,7 @@ public class RoutineService {
         List<Map<String, Object>> devices = routine.getControl();
 
         // gesture-service에서 제스처 정보 조회
-        GestureInfo gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
+        CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
 
         List<DeviceResponse> allDevices = deviceServiceClient.getAllDeviceByMember(memberId).getData();
 
@@ -144,8 +145,8 @@ public class RoutineService {
 
         // 응답 생성
         return RoutineDevicesResponse.builder()
-                .gestureName(gesture.getGestureName())
-                .gestureImg(gesture.getGestureImg())
+                .gestureName(gesture.getData().getGestureName())
+                .gestureImg(gesture.getData().getGestureImg())
                 .devices(devices.stream()
                         .map(control -> mapToDeviceDto(control, deviceMap))
                         .collect(Collectors.toList()))

@@ -18,6 +18,6 @@ public class GestureResponse {
     @Schema(description = "제스처 이름", example = "핑거스냅")
     private String gestureName;
 
-    @Schema(description = "제스처 대표 이미지 URL", example = "http://example.com/image1.jpg")
+    @Schema(description = "제스처 대표 이미지 URL", example = "https://example.com/image1.jpg")
     private String gestureImg;
 }

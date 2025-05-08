@@ -38,11 +38,14 @@ public class GestureService {
     // 제스처 상세 정보 조회
     @Transactional(readOnly = true)
     public GestureResponse getGestureInfo(Long memberId, Long memberGestureId) {
-        MemberGesture memberGesture = repository.findByMemberIdAndMemberGestureId(memberId, memberGestureId)
+        log.info("memberId: {}, memberGestureId: {}", memberId, memberGestureId);
+        MemberGesture memberGesture = repository.findByMemberGestureId(memberGestureId)
                 .orElseThrow(() -> new RuntimeException("해당 memberGestureId의 제스처가 존재하지 않습니다."));
 
         log.info("조회 요청: memberGestureId={}", memberGestureId);
         Gesture gesture = memberGesture.getGesture();  // 연관관계를 통해 접근
+
+        log.info(gesture.getGestureName());
 
         return GestureResponse.builder()
                 .memberGestureId(memberGesture.getMemberGestureId())

@@ -13,6 +13,6 @@ public interface GestureRepository extends JpaRepository<MemberGesture, Long> {
 	// 특정 memberId로 조회
 	List<MemberGesture> findByMemberId(Long memberId);
 
-	Optional<MemberGesture> findByMemberIdAndMemberGestureId(Long memberId, Long memberGestureId);
+	Optional<MemberGesture> findByMemberGestureId(Long memberGestureId);
 
 }

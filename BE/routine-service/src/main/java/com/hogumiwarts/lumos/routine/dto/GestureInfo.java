@@ -9,6 +9,9 @@ import lombok.*;
 @Builder
 public class GestureInfo {
 
+    @Schema(description = "제스처 ID", example = "1")
+    private Long memberGestureId;
+
     @Schema(description = "제스처 이름", example = "핑거스냅")
     private String gestureName;
 

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -22,7 +23,7 @@ public interface GestureApiSpec {
             @ApiResponse(responseCode = "400", description = "유효하지 않은 입력 형식입니다."),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
-    ResponseEntity<CommonResponse<List<GestureResponse>>> getGestures(
+    ResponseEntity<?> getGestures(
             @Parameter(description = "회원 ID", example = "1")
             @RequestParam Long memberId
     );
@@ -34,9 +35,7 @@ public interface GestureApiSpec {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(
-            @Parameter(description = "회원 ID", example = "1") @RequestParam Long memberId,
-            @Parameter(description = "제스처 ID", example = "1") @PathVariable Long memberGestureId
+            @Parameter(description = "회원 ID", example = "1") @PathVariable("memberGestureId") Long memberGestureId,
+            @Parameter(description = "회원 ID", example = "1") @RequestParam Long memberId
     );
-
-
 }

@@ -18,7 +18,7 @@ public class RoutineCreateRequest {
 	private List<DeviceDto> devices;
 
 	@Schema(description = "제스처 id", example = "")
-	private Long gestureId;
+	private Long memberGestureId;
 
 
 }

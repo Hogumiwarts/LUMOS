@@ -48,16 +48,8 @@ public class RoutineController implements RoutineApiSpec {
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
-    // 루틴 수정
-//    @PutMapping("/{routineId}")
-//    public ResponseEntity<CommonResponse<SuccessResponse>> updateRoutine(
-//            @PathVariable Long routineId,
-//            @RequestBody RoutineUpdateRequest request
-//    ) {
-//        SuccessResponse response = routineService.updateRoutine(routineId, request);
-//        return ResponseEntity.ok(CommonResponse.ok(response));
-//    }
 
+    // 루틴 수정
     @PatchMapping("/{routineId}")
     public ResponseEntity<CommonResponse<SuccessResponse>> patchRoutine(
             @PathVariable Long routineId,
