@@ -2,6 +2,12 @@ package com.hogumiwarts.lumos.ui.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -218,7 +224,15 @@ fun NavGraph(
             )
         }
 
-        composable("routine_detail/{routineId}") { backStackEntry ->
+        composable(
+            "routine_detail/{routineId}",
+            enterTransition = {
+                fadeIn(tween(300))
+            },
+            popExitTransition = {
+                fadeOut(tween(300))
+            }
+        ) { backStackEntry ->
             val routineId = backStackEntry.arguments?.getString("routineId")
             RoutineDetailScreen(routineId)
         }

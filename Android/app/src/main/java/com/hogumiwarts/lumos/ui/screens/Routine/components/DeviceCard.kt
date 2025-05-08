@@ -115,14 +115,19 @@ fun DeviceCard(
             Spacer(modifier = Modifier.weight(1f))
 
             // 기기 타입별 icon
-            Image(
-                painter = painterResource(id = deviceType.iconResId),
-                contentDescription = null,
+            Box(
                 modifier = Modifier
-                    .size(110.dp)
-                    .padding(end = 10.dp)
-                    .align(Alignment.Bottom)
-            )
+                    .fillMaxSize()
+                    .padding(top = 10.dp, end = 10.dp),
+                contentAlignment = Alignment.BottomEnd
+            ){
+                Image(
+                    painter = painterResource(id = deviceType.iconResId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
         }
     }
 }
