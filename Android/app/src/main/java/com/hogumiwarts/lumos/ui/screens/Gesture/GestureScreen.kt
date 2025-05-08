@@ -1,10 +1,13 @@
 package com.hogumiwarts.lumos.ui.screens.Gesture
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -69,6 +72,17 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
         )
 
         val (title, card, select) = createRefs()
+        var isCardFocused by remember { mutableStateOf(false) }
+
+        var title1 = "제스처 선택"
+        var description = "원하는 제스처를 선택해 기기를 제어하세요."
+        if(!isCardFocused){
+            title1 = "제스처 선택"
+            description = "원하는 제스처를 선택해 기기를 제어하세요."
+        }else{
+            title1 = "제스처 테스트"
+            description = "선택 전에 직접 제스처를 체험해보세요."
+        }
 
         Column(
             modifier = Modifier
@@ -76,32 +90,44 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
                 .constrainAs(title) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    bottom.linkTo(card.top)
-                    top.linkTo(parent.top, margin = 40.dp)
+                    top.linkTo(parent.top, margin = 70.dp)
                 },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "제스처 선택",
+                text = title1,
                 fontSize = 25.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold
             )
             Spacer(modifier = Modifier.size(16.dp))
-            Text(text = "원하는 제스처를 선택해 기기를 제어하세요.", fontSize = 16.sp, color = Color.White)
+            Text(text = description, fontSize = 16.sp, color = Color.White)
         }
+
+
+
+        // contentPadding을 애니메이션으로 변경
+        val animatedPadding by animateDpAsState(
+            targetValue = if (isCardFocused) 30.dp else 50.dp,
+            animationSpec = tween(durationMillis = 300),
+            label = "paddingAnimation"
+        )
+
+        // contentPadding을 애니메이션으로 변경
+        val animatedSpacing by animateDpAsState(
+            targetValue = if (isCardFocused) 0.dp else (-20).dp,
+            animationSpec = tween(durationMillis = 300),
+            label = "paddingAnimation"
+        )
 
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(horizontal = 50.dp),
-            pageSpacing = (-20).dp,
-            modifier = Modifier
-                .constrainAs(card) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
+            contentPadding = PaddingValues(horizontal = animatedPadding),
+            pageSpacing = animatedSpacing,
+            userScrollEnabled = !isCardFocused,
+            modifier = Modifier.constrainAs(card){
+                top.linkTo(title.bottom, margin = 40.dp)
+            }
         ) { page ->
             val actualPage = page % cards.size
             val currentPageOffset =
@@ -115,32 +141,40 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
                         scaleX = scale.coerceIn(0.8f, 1f)
                         scaleY = scale.coerceIn(0.8f, 1f)
                     }
+                    .clickable {
+                        isCardFocused = !isCardFocused // 클릭 시 확대/축소 상태 토글
+                    },
+                isCardFocused = isCardFocused
             )
         }
 
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xff3E4784)
-            ),
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.constrainAs(select) {
-                top.linkTo(card.bottom)
-                start.linkTo(parent.start, margin = 30.dp)
-                end.linkTo(parent.end, margin = 30.dp)
-                bottom.linkTo(parent.bottom, margin = 30.dp)
-                width = Dimension.fillToConstraints
+        if(!isCardFocused){
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xff3E4784)
+                ),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.constrainAs(select) {
+                    top.linkTo(card.bottom, margin = 40.dp)
+                    start.linkTo(parent.start, margin = 30.dp)
+                    end.linkTo(parent.end, margin = 30.dp)
+                    width = Dimension.fillToConstraints
+                }
+            ) {
+                Text("선택하기",color= Color.White, fontSize = 18.sp)
             }
-        ) {
-            Text("선택하기",color= Color.White, fontSize = 18.sp)
+
         }
+
     }
 }
 
 @Composable
-fun GestureCard(card: CardData, modifier: Modifier = Modifier) {
+fun GestureCard(card: CardData, modifier: Modifier = Modifier, isCardFocused: Boolean) {
 
     val cornerRadius = 20.dp
+
 
     ConstraintLayout(
         modifier = modifier
@@ -164,57 +198,98 @@ fun GestureCard(card: CardData, modifier: Modifier = Modifier) {
             )
             .background(Color(0x20DCDFF6))
     ) {
+        if (!isCardFocused){
+            val (image, name, test) = createRefs()
+            Image(
+                painter = painterResource(id = card.imageRes),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(100.dp)
+                    .constrainAs(image) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            )
 
-        val (image, name, test) = createRefs()
-        Image(
-            painter = painterResource(id = card.imageRes),
-            contentDescription = null,
-            modifier = Modifier
-                .size(100.dp)
-                .constrainAs(image) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+            Column(modifier= Modifier.constrainAs(name){
+                top.linkTo(image.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                bottom.linkTo(test.top)
+            },
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = card.title,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = card.description,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 14.sp
+                )
+            }
+
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0x10FFFFFF)
+                ),
+                shape = RoundedCornerShape(7.dp),
+                modifier = Modifier.constrainAs(test) {
+                    top.linkTo(name.bottom)
                     start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+                    end.linkTo(parent.end )
+                    bottom.linkTo(parent.bottom)
                 }
-        )
+            ) {
+                Text("테스트 해보기",color= Color(0xB3FFFFFF), fontSize = 11.sp)
+            }
+        }else{
+            val (image, name, content) = createRefs()
 
-        Column(modifier= Modifier.constrainAs(name){
-            top.linkTo(image.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-            bottom.linkTo(test.top)
-        },
-            horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = card.title,
                 color = Color.White,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.constrainAs(name){
+                    bottom.linkTo(image.top)
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Image(
+                painter = painterResource(id = card.imageRes),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(100.dp)
+                    .constrainAs(image) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            )
+
             Text(
-                text = card.description,
+                text = "지금 ${card.title}을 해보세요.",
                 color = Color.White.copy(alpha = 0.7f),
-                fontSize = 14.sp
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.constrainAs(content){
+                    top.linkTo(image.bottom, margin = 20.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
         }
 
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0x10FFFFFF)
-            ),
-            shape = RoundedCornerShape(7.dp),
-            modifier = Modifier.constrainAs(test) {
-                top.linkTo(name.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end )
-                bottom.linkTo(parent.bottom)
-            }
-        ) {
-            Text("테스트 해보기",color= Color(0x70FFFFFF), fontSize = 11.sp)
-        }
 
     }
 }
