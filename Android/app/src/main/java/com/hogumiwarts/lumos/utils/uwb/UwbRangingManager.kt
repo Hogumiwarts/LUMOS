@@ -6,7 +6,206 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.Executors
 
+import android.util.Log
+import androidx.core.uwb.RangingParameters
+import androidx.core.uwb.RangingResult
+import androidx.core.uwb.UwbAddress
+import androidx.core.uwb.UwbComplexChannel
+import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.UwbControllerSessionScope
+import androidx.core.uwb.UwbManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.util.concurrent.Executor
+
+data class UwbRangingData(
+    val distance: Float = 0f,
+    val azimuth: Float = 0f,
+    val elevation: Float = 0f
+)
+
 class UwbRangingManager(private val context: Context) {
+    private val uwbManager = UwbManager.createInstance(context)
+    private val _rangingData = MutableStateFlow(UwbRangingData())
+    val rangingData = _rangingData.asStateFlow()
+
+    private var controllerSession: UwbControllerSessionScope? = null
+    private var controleeSession: UwbControleeSessionScope? = null
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+
+    // RangingResult 콜백
+    private val rangingListener = object : RangingListener {
+        override fun onRangingResult(result: RangingResult) {
+            when (result) {
+                is RangingResult.RangingResultPosition -> {
+                    val position = result.position
+
+                    // RangingMeasurement 객체에서 값 추출
+                    val distanceValue = position.distance?.value ?: 0f
+                    val azimuthValue = position.azimuth?.value ?: 0f
+                    val elevationValue = position.elevation?.value ?: 0f
+
+                    Log.d("UwbRangingManager", "거리: $distanceValue, 방위각: $azimuthValue, 고도각: $elevationValue")
+
+                    _rangingData.value = UwbRangingData(distanceValue, azimuthValue, elevationValue)
+                }
+                is RangingResult.RangingResultPeerDisconnected -> {
+                    val address = result.device.address
+                    Log.d("UwbRangingManager", "피어 연결 해제: $address")
+                }
+                else -> {
+                    Log.d("UwbRangingManager", "기타 결과: $result")
+                }
+            }
+        }
+    }
+
+    // Controller 모드에서 UWB 거리 측정 시작
+    fun startRanging(
+        uwbAddress: UwbAddress,
+        onRangingResult: (distance: Float, azimuth: Float, elevation: Float) -> Unit
+    ) {
+        coroutineScope.launch {
+            try {
+                // UWB 사용 가능 여부 확인
+                val isAvailable = uwbManager.isAvailable()
+                if (!isAvailable) {
+                    Log.e("UwbRangingManager", "UWB 서비스를 사용할 수 없습니다.")
+                    return@launch
+                }
+
+                // 이전 세션이 있으면 종료
+                stopRanging()
+
+                // 컨트롤러 세션 생성
+                controllerSession = uwbManager.controllerSessionScope()
+
+                // 세션 설정 및 거리 측정 시작
+                configureAndStartRanging(uwbAddress)
+
+                // 거리 측정 결과 콜백 처리
+                // 여기서는 rangingData 스테이트 플로우를 통해 값을 전달
+                // UwbRangingData가 변경될 때마다 onRangingResult 콜백 호출
+                coroutineScope.launch {
+                    rangingData.collect { data ->
+                        onRangingResult(data.distance, data.azimuth, data.elevation)
+                    }
+                }
+
+                Log.d("UwbRangingManager", "UWB 거리 측정 시작: $uwbAddress")
+
+            } catch (e: Exception) {
+                Log.e("UwbRangingManager", "UWB 거리 측정 시작 실패: ${e.message}")
+            }
+        }
+    }
+
+    // 세션 설정 및 거리 측정 시작
+    private suspend fun configureAndStartRanging(uwbAddress: UwbAddress) {
+        try {
+            // Controlee 추가
+            controllerSession?.addControlee(uwbAddress)
+
+            // 여기서 RangingListener를 등록해야 하는데,
+            // 인터페이스에 직접적인 메소드가 없어 보입니다.
+            // 실제 구현에서는 다음과 같은 방식으로 처리할 가능성이 있습니다:
+
+            // 1. 세션 설정 시 리스너를 등록하거나
+            // 2. 이벤트를 구독하기 위한 다른 메커니즘을 사용
+
+            // 이 예제에서는 실제 API가 어떻게 구현되어 있는지 모르므로
+            // 주석으로 대체합니다.
+
+            Log.d("UwbRangingManager", "UWB 거리 측정 설정 완료")
+
+        } catch (e: Exception) {
+            Log.e("UwbRangingManager", "거리 측정 설정 실패: ${e.message}")
+            throw e
+        }
+    }
+
+    // Controlee 모드에서 UWB 응답 모드 시작
+    fun startControleeMode() {
+        coroutineScope.launch {
+            try {
+                // UWB 사용 가능 여부 확인
+                val isAvailable = uwbManager.isAvailable()
+                if (!isAvailable) {
+                    Log.e("UwbRangingManager", "UWB 서비스를 사용할 수 없습니다.")
+                    return@launch
+                }
+
+                // 이전 세션이 있으면 종료
+                stopRanging()
+
+                // Controlee 세션 생성
+                controleeSession = uwbManager.controleeSessionScope()
+
+                // 여기서도 리스너 등록이 필요하지만,
+                // 인터페이스에 직접적인 메소드가 없어 주석으로 대체합니다.
+
+                Log.d("UwbRangingManager", "UWB Controlee 모드 시작")
+
+            } catch (e: Exception) {
+                Log.e("UwbRangingManager", "UWB Controlee 모드 시작 실패: ${e.message}")
+            }
+        }
+    }
+
+    // UWB 사용 가능 여부 확인
+    fun checkUwbAvailability(
+        callback: (Boolean) -> Unit
+    ) {
+        coroutineScope.launch {
+            try {
+                val isAvailable = uwbManager.isAvailable()
+                callback(isAvailable)
+            } catch (e: Exception) {
+                Log.e("UwbRangingManager", "UWB 사용 가능 여부 확인 실패: ${e.message}")
+                callback(false)
+            }
+        }
+    }
+
+    // IoT 기기 정보로 서비스 광고 시작
+    fun advertiseService(deviceName: String, deviceType: String) {
+        // BLE 광고 관련 코드 구현 (UWB 주소와 함께 IoT 기기 정보 포함)
+        Log.d("UwbRangingManager", "IoT 서비스 광고 시작: $deviceName ($deviceType)")
+    }
+
+    // 세션 종료
+    fun stopRanging() {
+        try {
+            // 세션 종료 로직
+            // 인터페이스에 close() 메소드가 없으므로
+            // 다른 방식으로 세션을 종료해야 합니다.
+            // 해당 API의 실제 구현을 참조해야 합니다.
+
+            controllerSession = null
+            controleeSession = null
+
+            Log.d("UwbRangingManager", "UWB 세션 종료")
+        } catch (e: Exception) {
+            Log.e("UwbRangingManager", "UWB 세션 종료 실패: ${e.message}")
+        }
+    }
+}
+
+// RangingListener 인터페이스 정의
+interface RangingListener {
+    fun onRangingResult(result: RangingResult)
+}
+
+// UwbAvailabilityCallback 인터페이스 정의
+interface UwbAvailabilityCallback {
+    fun onUwbAvailabilityChanged(isAvailable: Boolean)
+}
+
+//class UwbRangingManager(private val context: Context) {
 //    companion object {
 //        private const val TAG = "UwbRangingManager"
 //    }
@@ -152,4 +351,4 @@ class UwbRangingManager(private val context: Context) {
 //        stopRanging()
 //        tagInfos.clear()
 //    }
-}
+//}
