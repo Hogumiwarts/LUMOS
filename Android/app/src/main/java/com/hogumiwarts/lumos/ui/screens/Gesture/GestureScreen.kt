@@ -1,5 +1,10 @@
 package com.hogumiwarts.lumos.ui.screens.Gesture
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -36,20 +41,26 @@ import kotlin.math.abs
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.wearable.Wearable
+import com.hogumiwarts.lumos.GestureTestViewModel
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 // 제스처 카드 데이터 모델
 data class CardData(val title: String, val description: String, val imageRes: Int)
 
 @Composable
 fun GestureScreen() {
+
+
     // 테스트용 제스처 카드 데이터 리스트
     val cards = listOf(
         CardData("손목 회전", "손목을 돌려서 명령을 실행합니다.", R.drawable.ic_gesture),
@@ -62,6 +73,8 @@ fun GestureScreen() {
 
 @Composable
 fun CircularCarouselWithScaling(cards: List<CardData>) {
+
+    val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정
     val pagerState = rememberPagerState(
         initialPage = Int.MAX_VALUE / 2,
@@ -150,7 +163,11 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
                         onClick = { isCardFocused = false } // 다시 선택 해제
                     ),
                 isCardFocused = isCardFocused,
-                onclick = { isCardFocused = true } // "테스트 해보기" 버튼 클릭 시 실행
+                viewModel = viewModel,
+                onclick = {
+                    isCardFocused = true
+
+                } // "테스트 해보기" 버튼 클릭 시 실행
             )
         }
 
@@ -178,10 +195,12 @@ fun GestureCard(
     card: CardData,
     modifier: Modifier = Modifier,
     isCardFocused: Boolean,
-    onclick: () -> Unit
+    onclick: () -> Unit,
+    viewModel: GestureTestViewModel
 ) {
     val cornerRadius = 20.dp
 
+    val message by viewModel.message
     ConstraintLayout(
         modifier = modifier
             .padding(10.dp)
@@ -235,9 +254,13 @@ fun GestureCard(
                 Text(card.description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
             }
 
+            val context = LocalContext.current
             // 테스트 버튼 클릭 시 선택 상태로 전환
             Button(
-                onClick = { onclick() },
+                onClick = {
+                    onclick()
+                    sendTextToWatch(context,"gd")
+                          },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
                 modifier = Modifier.constrainAs(test) {
@@ -311,7 +334,7 @@ fun GestureCard(
             )
 
             Text(
-                text = "제스처 인식 중 ..",
+                text = message,
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
@@ -322,8 +345,52 @@ fun GestureCard(
                     bottom.linkTo(parent.bottom)
                 }
             )
+
+            MessageReceiver(viewModel = viewModel)
         }
     }
+}
+
+@Composable
+fun MessageReceiver(viewModel: GestureTestViewModel) {
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val msg = intent.getStringExtra("message") ?: return
+                Log.d("TAG", "onReceive: $msg")
+                viewModel.updateMessage(msg)
+            }
+        }
+
+        val filter = IntentFilter("WATCH_MESSAGE")
+        context.registerReceiver(receiver, filter)
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+}
+
+fun sendTextToWatch(context: Context, message: String) {
+    val messageClient = Wearable.getMessageClient(context)
+    val path = "/launch_text_display"
+
+
+    // 워치 노드 가져오기
+    Wearable.getNodeClient(context).connectedNodes
+        .addOnSuccessListener { nodes ->
+            for (node in nodes) {
+                messageClient.sendMessage(node.id, path, message.toByteArray())
+                    .addOnSuccessListener {
+                        Log.d("Mobile", "메시지 전송 성공")
+                    }
+                    .addOnFailureListener {
+                        Log.e("Mobile", "메시지 전송 실패: ${it.message}")
+                    }
+            }
+        }
 }
 
 @Preview(showBackground = true)

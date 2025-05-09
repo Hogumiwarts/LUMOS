@@ -125,4 +125,6 @@ dependencies {
     // 기타
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.3-beta")
 
+    implementation("com.google.android.gms:play-services-wearable:18.1.0")
+
 }
