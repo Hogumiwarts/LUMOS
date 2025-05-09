@@ -185,7 +185,7 @@ fun RoutineDetailContent(
         }
 
         item {
-            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP)
+            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, false)
         }
     }
 }
