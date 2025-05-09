@@ -15,6 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -34,16 +39,17 @@ import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DeviceCard(
-    routineDevice: RoutineDevice
+    routineDevice: RoutineDevice,
 ) {
     val deviceType = DeviceType.from(routineDevice.deviceType)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(106.dp)
+            .height(95.dp)
             .shadow(
                 elevation = 12.dp,
                 shape = RoundedCornerShape(10.dp),
@@ -54,7 +60,7 @@ fun DeviceCard(
                 color = Color.White,
                 shape = RoundedCornerShape(10.dp)
             )
-            .graphicsLayer{
+            .graphicsLayer {
                 clip = false
             }
     ) {
@@ -71,14 +77,13 @@ fun DeviceCard(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(vertical = 21.dp, horizontal = 35.dp)
+                    .padding(vertical = 15.dp, horizontal = 35.dp)
             ) {
                 // 기기 커스텀 이름
                 Text(
                     text = routineDevice.deviceName,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 16.sp,
-                        lineHeight = 16.sp,
+                        fontSize = 14.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(700),
                         color = Color(0xFF000000)
@@ -92,6 +97,7 @@ fun DeviceCard(
                     text = routineDevice.deviceType,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight(400),
                         color = Color(0xFFA1A1A1)
                     )
@@ -120,7 +126,7 @@ fun DeviceCard(
                     .fillMaxSize()
                     .padding(top = 10.dp, end = 10.dp),
                 contentAlignment = Alignment.BottomEnd
-            ){
+            ) {
                 Image(
                     painter = painterResource(id = deviceType.iconResId),
                     contentDescription = null,
