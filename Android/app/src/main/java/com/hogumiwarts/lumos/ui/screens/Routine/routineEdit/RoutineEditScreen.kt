@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
@@ -189,17 +190,48 @@ fun RoutineEditScreen(
 
         // 적용 기기
         item {
-            // 제목
-            Text(
-                "적용 기기",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 16.sp,
-                    lineHeight = 16.sp,
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight(800),
-                    color = Color(0xFF000000),
+            Row(
+
+            ) {
+                // 제목
+                Text(
+                    "적용 기기",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 16.sp,
+                        lineHeight = 16.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(800),
+                        color = Color(0xFF000000),
+                    )
                 )
-            )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable {
+                            //todo: 클릭 시 기기 추가 화면으로 이동
+                        }
+                ) {
+                    Image(
+                        painterResource(id = R.drawable.ic_plus),
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp)
+                    )
+
+                    Text(
+                        text = "기기 추가",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontSize = 10.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFFBFC2D7),
+                        )
+                    )
+                }
+            }
         }
 
         // 기기 리스트
