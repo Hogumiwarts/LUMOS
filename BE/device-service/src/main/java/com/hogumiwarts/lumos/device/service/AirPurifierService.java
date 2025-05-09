@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
+import com.hogumiwarts.lumos.device.util.AuthUtil;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,11 @@ public class AirPurifierService {
 		externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 	}
 
-	public SwitchDetailResponse getAirPurifierStatus(Long deviceId, Long memberId) {
+	// Todo: 공기청정기 테스트 후, Response 변경 필요
+	public SwitchDetailResponse getAirPurifierStatus(Long deviceId) {
+		// JWT 기반 인증 정보 가져오기
+		Long memberId = AuthUtil.getMemberId();
+
 		// 1. DB에서 디바이스 조회
 		Device device = (Device) deviceRepository.findByDeviceIdAndMemberId(deviceId, memberId)
 				.orElseThrow(() -> new EntityNotFoundException("기기를 찾을 수 없습니다."));

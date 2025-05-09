@@ -2,6 +2,8 @@ package com.hogumiwarts.lumos.ui.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,7 +17,13 @@ import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.RoutineScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
+import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
@@ -161,7 +169,13 @@ fun NavGraph(
 
                     BottomNavItem.Info -> InfoScreen()
 
-                    BottomNavItem.Routine -> RoutineScreen()
+                    BottomNavItem.Routine -> RoutineScreen(
+                        routines = RoutineItem.sample, // todo: 실제 api 필요
+                        onRoutineClick = { routine ->
+                            navController.navigate("routine_detail/${routine.id}")
+                        }
+                    )
+
 
                     BottomNavItem.Settings -> SettingScreen()
                 }
@@ -210,6 +224,36 @@ fun NavGraph(
             )
         }
 
+        // 루틴 상세
+        composable(
+            "routine_detail/{routineId}",
+            enterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(300)) }
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routineId")
+            val viewModel = hiltViewModel<RoutineDetailViewModel>()
+
+            RoutineDetailScreen(
+                routineId = routineId, viewModel = viewModel,
+                onEdit = {
+                    navController.navigate("routine_edit/$routineId")
+                }
+            )
+        }
+
+        // 루틴 수정
+        composable("routine_edit/{rouineId}") { navBackStackEntry ->
+            val routineId = navBackStackEntry.arguments?.getString("routineId")
+            val viewModel = hiltViewModel<RoutineEditViewModel>()
+
+            RoutineEditScreen(
+                viewModel = viewModel,
+                devices = RoutineDevice.sample,
+                onRoutineEditComplete = {
+                    navController.popBackStack() // 이전 화면으로 돌아감
+                }
+            )
+        }
 
     }
 }

@@ -31,7 +31,11 @@ springdoc:
         url: /auth/v3/api-docs
       - name: device-service
         url: /device/v3/api-docs
+      - name: gesture-service
+        url: /gesture/v3/api-docs
       - name: gesture-sensor-service
         url: /gesture-sensor/v3/api-docs
+      - name: routine-service
+        url: /routine/v3/api-docs
       - name: smartthings-service
         url: /smart/v3/api-docs/

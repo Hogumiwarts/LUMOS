@@ -30,6 +30,7 @@ import com.hogumiwarts.lumos.datastore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
+import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -68,19 +69,9 @@ class MainActivity : ComponentActivity() {
 
         // 상태바, 네비게이션 바 아이콘 색상 설정 (false: 아이콘 흰색)
         val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.isAppearanceLightStatusBars = false
-        controller.isAppearanceLightNavigationBars = false
+        controller.isAppearanceLightStatusBars = true
+        controller.isAppearanceLightNavigationBars = true
 
-        // 자동 로그인 관련
-        // 자동 로그인 처리 (Coroutine으로!)
-//        lifecycleScope.launch {
-//            val accessToken = TokenDataStore.getAccessToken(this@MainActivity).first()
-//            if (accessToken.isNotEmpty()) {
-//                navigateToHome()
-//            } else {
-//                navigateToLogin()
-//            }
-//        }
 
 
         // 권한 확인 및 요청
@@ -95,6 +86,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
+
                     MainScreen()
                 }
             }

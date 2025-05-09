@@ -7,6 +7,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface TestApiService {
-    @POST("/gesture/api/sensor")
+    @POST("/gesture-sensor/api/sensor")
     suspend fun postTest(@Body data: ImuRequest): ImuResponse
 }
