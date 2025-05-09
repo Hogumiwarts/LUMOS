@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.Routine.routineEdit
 
 import androidx.lifecycle.ViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineIconType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +12,9 @@ import javax.inject.Inject
 class RoutineEditViewModel @Inject constructor() : ViewModel() {
     private val _state = MutableStateFlow(RoutineEditState())
     val state: StateFlow<RoutineEditState> = _state
+
+    private val _devices = MutableStateFlow<List<RoutineDevice>>(emptyList())
+    val devices: StateFlow<List<RoutineDevice>> = _devices
 
     private val _selectedIcon =
         MutableStateFlow<RoutineIconType?>(null) // null 포함해서 처음에 아무것도 선택 안한 상태이도록
@@ -25,5 +29,13 @@ class RoutineEditViewModel @Inject constructor() : ViewModel() {
 
     fun onRoutineNameChanged(newName: String) {
         _routineName.value = newName
+    }
+
+    fun loadInitialDevices(initial: List<RoutineDevice>) {
+        _devices.value = initial
+    }
+
+    fun deleteDevice(device: RoutineDevice) {
+        _devices.value = _devices.value.filterNot { it.deviceId == device.deviceId }
     }
 }
