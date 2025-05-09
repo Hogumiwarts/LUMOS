@@ -16,6 +16,7 @@ class RoutineDetailViewModel @Inject constructor() : ViewModel() {
     private val _state = MutableStateFlow<RoutineDetailState>(RoutineDetailState.Loading)
     val state: StateFlow<RoutineDetailState> = _state
 
+
     fun loadRoutine(routineId: String?) {
         viewModelScope.launch {
             //todo: 실제 api 연동
@@ -33,5 +34,4 @@ class RoutineDetailViewModel @Inject constructor() : ViewModel() {
     fun setError(message: String) {
         _state.value = RoutineDetailState.Error(message)
     }
-
 }

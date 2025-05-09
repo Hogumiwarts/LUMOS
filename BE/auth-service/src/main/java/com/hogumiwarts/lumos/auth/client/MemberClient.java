@@ -13,15 +13,15 @@ import com.hogumiwarts.lumos.auth.dto.MemberResponse;
 @FeignClient(name = "member-service", url = "${member.service.url}")
 public interface MemberClient {
 
-	@GetMapping("/member/api/email-exists")
+	@GetMapping("/api/email-exists")
 	Boolean checkEmailExists(@RequestParam("email") String email);
 
-	@PostMapping("/member/api/create")
+	@PostMapping("/api/create")
 	MemberResponse createMember(@RequestBody CreateMemberRequest request);
 
-	@GetMapping("/member/api/find-by-email")
+	@GetMapping("/api/find-by-email")
 	MemberResponse findByEmail(@RequestParam("email") String email);
 
-	@GetMapping("/member/api/members/{memberId}")
+	@GetMapping("/api/members/{memberId}")
 	MemberResponse getMember(@PathVariable Long memberId);
 }

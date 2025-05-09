@@ -19,14 +19,21 @@ public class RoutineController implements RoutineApiSpec {
     private final RoutineService routineService;
 
     // 루틴 생성
-    @PostMapping
-    public ResponseEntity<CommonResponse<SuccessResponse>> createRoutine(
-            @RequestParam Long memberId,
-            @RequestBody RoutineCreateRequest routineCreateRequest) {
+    // @PostMapping
+    // public ResponseEntity<CommonResponse<SuccessResponse>> createRoutine(
+    //         @RequestParam Long memberId,
+    //         @RequestBody RoutineCreateRequest routineCreateRequest) {
+    //     SuccessResponse response = routineService.createRoutine(memberId, routineCreateRequest);
+    //     return ResponseEntity.ok(CommonResponse.ok(response));
+    // }
 
+    // 루틴 생성
+    @PostMapping("/test")
+    public ResponseEntity<CommonResponse<SuccessResponse>> createRoutine(
+        @RequestParam Long memberId,
+        @RequestBody RoutineCreateRequest routineCreateRequest) {
         SuccessResponse response = routineService.createRoutine(memberId, routineCreateRequest);
         return ResponseEntity.ok(CommonResponse.ok(response));
-
     }
 
     // 루틴 목록 조회
@@ -48,7 +55,6 @@ public class RoutineController implements RoutineApiSpec {
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
-
     // 루틴 수정
     @PatchMapping("/{routineId}")
     public ResponseEntity<CommonResponse<SuccessResponse>> patchRoutine(
@@ -60,7 +66,6 @@ public class RoutineController implements RoutineApiSpec {
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
-
     // 루틴별 기기 정보 조회
     @GetMapping("/{routineId}/devices")
     public ResponseEntity<CommonResponse<RoutineDevicesResponse>> getRoutineDevices(
@@ -71,8 +76,8 @@ public class RoutineController implements RoutineApiSpec {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        Long memberId = Long.valueOf(authentication.getName());
 
-        RoutineDevicesResponse response = routineService.getRoutineDevices(memberId, routineId);
-        return ResponseEntity.ok(CommonResponse.ok(response));
+        // RoutineDevicesResponse response = routineService.getRoutineDevices(memberId, routineId);
+        // return ResponseEntity.ok(CommonResponse.ok(response));
+        return ResponseEntity.ok(CommonResponse.ok(null));
     }
-
 }

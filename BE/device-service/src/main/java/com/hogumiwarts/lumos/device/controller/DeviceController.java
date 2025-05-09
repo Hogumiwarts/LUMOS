@@ -7,6 +7,7 @@ import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -30,8 +31,8 @@ public class DeviceController implements DeviceApiSpec {
 	}
 
 	@Override
-	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices() {
-		List<DeviceStatusResponse> result = deviceService.getSmartThingsDevices();
+	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(@RequestParam String installedAppId) {
+		List<DeviceStatusResponse> result = deviceService.getSmartThingsDevices(installedAppId);
 		return ResponseEntity.ok(
 				result.isEmpty()
 					? CommonResponse.ok("새롭게 검색된 디바이스가 없습니다.", result)

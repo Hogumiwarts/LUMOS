@@ -18,5 +18,5 @@ public class RoutineDevicesResponse {
     private String gestureImg;
 
     @Schema(description = "루틴에 포함된 디바이스 목록")
-    private List<DeviceDto> devices;
+    private List<DeviceRequest> devices;
 }

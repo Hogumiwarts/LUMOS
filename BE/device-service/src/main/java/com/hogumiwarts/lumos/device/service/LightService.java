@@ -5,6 +5,7 @@ import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
 import com.hogumiwarts.lumos.device.util.AuthUtil;
+import com.hogumiwarts.lumos.device.util.ColorUtil;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
@@ -41,6 +42,46 @@ public class LightService {
         String lightValue = lightNode.path("value").asText(null);
 
 
+
+
+        // 색온도 : lightTemperature
+        int colorTemperature = main
+                .path("colorTemperature")
+                .path("colorTemperature")
+                .path("value")
+                .asInt(-1);
+
+        // lightColor : 밝기
+        JsonNode brightnessNode = main
+                .path("switchLevel")
+                .path("level")
+                .path("value");
+
+        Integer brightness = null;
+        if (!brightnessNode.isMissingNode() && !brightnessNode.isNull()) {
+            brightness = brightnessNode.asInt();
+            System.out.println("조명 밝기: " + brightness + "%");
+        } else {
+            System.out.println("밝기 정보 없음");
+        }
+
+        // lightCode : hex 값
+        JsonNode hueNode = main.path("colorControl").path("hue").path("value");
+        JsonNode satNode = main.path("colorControl").path("saturation").path("value");
+        String hex = null;
+        if (!hueNode.isMissingNode() && !hueNode.isNull()
+                && !satNode.isMissingNode() && !satNode.isNull()) {
+
+            double hue = hueNode.asDouble();
+            double saturation = satNode.asDouble();
+
+            hex = ColorUtil.hslToHex(hue, saturation);
+            System.out.println("HEX Color: " + hex);
+        } else {
+            System.out.println("색상 정보가 없습니다.");
+        }
+
+
         return LightDetailResponse.builder()
                 .tagNumber(device.getTagNumber())
                 .deviceId(device.getDeviceId())
@@ -50,9 +91,9 @@ public class LightService {
                 .deviceModel(device.getDeviceModel())
                 .deviceType(device.getDeviceType())
                 .activated("on".equalsIgnoreCase(lightValue))
-                .lightColor(lightNode.path("color").asText(null))
-                .lightTemperature(lightNode.path("temperature").asText(null))
-                .lightCode(lightNode.path("code").asText(null))
+                .lightColor(String.valueOf(brightness))
+                .lightTemperature(String.valueOf(colorTemperature))
+                .lightCode(hex)
                 .build();
     }
 

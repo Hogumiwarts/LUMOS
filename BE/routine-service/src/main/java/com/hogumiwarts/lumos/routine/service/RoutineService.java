@@ -8,6 +8,7 @@ import com.hogumiwarts.lumos.routine.entity.Routine;
 import com.hogumiwarts.lumos.routine.repository.RoutineRepository;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -25,25 +26,30 @@ public class RoutineService {
     private final DeviceServiceClient deviceServiceClient;
 
     // 루틴 생성
+    @Transactional
     public SuccessResponse createRoutine(Long memberId, RoutineCreateRequest request) {
-
         try {
+            // 1. routine 저장
             Routine routine = Routine.builder()
-                    .memberId(memberId)
-                    .routineName(request.getRoutineName())
-                    .routineIcon(request.getRoutineIcon())
-                    .memberGestureId(request.getMemberGestureId())
-                    .control(request.getDevices().stream()
-                            .map(device -> Map.of(
-                                    "deviceId", device.getDeviceId(),
-                                    "deviceName", device.getDeviceName(),
-                                    "deviceImg", device.getDeviceImg(),
-                                    "control", device.getControl()
-                            ))
-                            .collect(Collectors.toList()))
-                    .build();
+                .memberId(memberId)
+                .routineName(request.getRoutineName())
+                .routineIcon(request.getRoutineIcon())
+                .memberGestureId(request.getGestureId())
+                .control(request.getDevices().stream()
+                    .map(device -> Map.of(
+                        "deviceId", device.getDeviceId(),
+                        "installedAppId", device.getInstalledAppId(),
+                        "controlId", device.getControlId(),
+                        "commands", device.getCommands()
+                    ))
+                    .collect(Collectors.toList()))
+                .build();
 
             routineRepository.save(routine);
+
+            // 2. member_gesture 저장(변경)
+            CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
+
             return SuccessResponse.of(true);
         } catch (Exception e) {
             // 로깅 가능
@@ -92,7 +98,6 @@ public class RoutineService {
         return SuccessResponse.of(true);
     }
 
-
     // 루틴 삭제
     public SuccessResponse deleteRoutine(Long routineId, Long memberId) {
 
@@ -114,58 +119,56 @@ public class RoutineService {
 
     // TODO: 진행중
     // 루틴별 기기 정보 불러오기
-    public RoutineDevicesResponse getRoutineDevices(Long memberId, Long routineId) {
-
-        Optional<Routine> optionalRoutine = routineRepository.findByMemberIdAndRoutineId(memberId, routineId)
-                .stream()
-                .findFirst();
-
-        if (optionalRoutine.isEmpty()) {
-            return RoutineDevicesResponse.builder()
-                    .gestureName(null)
-                    .gestureImg(null)
-                    .devices(List.of()) // ✅ 빈 리스트
-                    .build();
-        }
-
-        Routine routine = optionalRoutine.get();
-
-
-        // 루틴 내부의 control  조회
-        List<Map<String, Object>> devices = routine.getControl();
-
-        // gesture-service에서 제스처 정보 조회
-        CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
-
-        List<DeviceResponse> allDevices = deviceServiceClient.getAllDeviceByMember(memberId).getData();
-
-        // 🔽 Map 형태로 캐싱
-        Map<Long, DeviceResponse> deviceMap = allDevices.stream()
-                .collect(Collectors.toMap(DeviceResponse::getDeviceId, d -> d));
-
-        // 응답 생성
-        return RoutineDevicesResponse.builder()
-                .gestureName(gesture.getData().getGestureName())
-                .gestureImg(gesture.getData().getGestureImg())
-                .devices(devices.stream()
-                        .map(control -> mapToDeviceDto(control, deviceMap))
-                        .collect(Collectors.toList()))
-                .build();
-    }
-
-    private DeviceDto mapToDeviceDto(Map<String, Object> deviceMapRaw, Map<Long, DeviceResponse> deviceDetailsMap) {
-        Long deviceId = ((Number) deviceMapRaw.get("deviceId")).longValue();
-        List<Map<String, Object>> controlList = List.of((Map<String, Object>) deviceMapRaw.get("control"));
-
-        DeviceResponse detail = deviceDetailsMap.get(deviceId);
-
-        return DeviceDto.builder()
-                .deviceId(deviceId)
-                .deviceName(detail != null ? detail.getDeviceName() : null)
-                .deviceImg(detail != null ? detail.getDeviceImg() : null)
-                .control(controlList)
-                .build();
-    }
-
-
+    // public RoutineDevicesResponse getRoutineDevices(Long memberId, Long routineId) {
+    //
+    //     Optional<Routine> optionalRoutine = routineRepository.findByMemberIdAndRoutineId(memberId, routineId)
+    //             .stream()
+    //             .findFirst();
+    //
+    //     if (optionalRoutine.isEmpty()) {
+    //         return RoutineDevicesResponse.builder()
+    //                 .gestureName(null)
+    //                 .gestureImg(null)
+    //                 .devices(List.of()) // ✅ 빈 리스트
+    //                 .build();
+    //     }
+    //
+    //     Routine routine = optionalRoutine.get();
+    //
+    //
+    //     // 루틴 내부의 control  조회
+    //     List<Map<String, Object>> devices = routine.getControl();
+    //
+    //     // gesture-service에서 제스처 정보 조회
+    //     CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
+    //
+    //     List<DeviceResponse> allDevices = deviceServiceClient.getAllDeviceByMember(memberId).getData();
+    //
+    //     // 🔽 Map 형태로 캐싱
+    //     Map<Long, DeviceResponse> deviceMap = allDevices.stream()
+    //             .collect(Collectors.toMap(DeviceResponse::getDeviceId, d -> d));
+    //
+    //     // 응답 생성
+    //     return RoutineDevicesResponse.builder()
+    //             .gestureName(gesture.getData().getGestureName())
+    //             .gestureImg(gesture.getData().getGestureImg())
+    //             .devices(devices.stream()
+    //                     .map(control -> mapToDeviceDto(control, deviceMap))
+    //                     .collect(Collectors.toList()))
+    //             .build();
+    // }
+    //
+    // private DeviceRequest mapToDeviceDto(Map<String, Object> deviceMapRaw, Map<Long, DeviceResponse> deviceDetailsMap) {
+    //     Long deviceId = ((Number) deviceMapRaw.get("deviceId")).longValue();
+    //     List<Map<String, Object>> controlList = List.of((Map<String, Object>) deviceMapRaw.get("control"));
+    //
+    //     DeviceResponse detail = deviceDetailsMap.get(deviceId);
+    //
+    //     return DeviceRequest.builder()
+    //             .deviceId(deviceId)
+    //             .deviceName(detail != null ? detail.getDeviceName() : null)
+    //             .deviceImg(detail != null ? detail.getDeviceImg() : null)
+    //             .control(controlList)
+    //             .build();
+    // }
 }
