@@ -247,7 +247,11 @@ fun NavGraph(
             val viewModel = hiltViewModel<RoutineEditViewModel>()
 
             RoutineEditScreen(
-                viewModel = viewModel, devices = RoutineDevice.sample
+                viewModel = viewModel,
+                devices = RoutineDevice.sample,
+                onRoutineEditComplete = {
+                    navController.popBackStack() // 이전 화면으로 돌아감
+                }
             )
         }
 

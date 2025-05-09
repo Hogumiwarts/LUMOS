@@ -42,7 +42,7 @@ fun GestureCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp)
+            .height(80.dp)
             .shadow(
                 elevation = 9.dp,
                 shape = RoundedCornerShape(10.dp),
@@ -91,8 +91,7 @@ fun GestureCard(
                 Text(
                     text = selectedGesture.gestureName,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 16.sp,
-                        lineHeight = 16.sp,
+                        fontSize = 14.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(700),
                         color = Color(0xFF000000),
@@ -105,7 +104,7 @@ fun GestureCard(
                 Text(
                     text = "제스처",
                     style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         lineHeight = 16.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(400),
@@ -135,7 +134,7 @@ fun GestureCard(
                 Text(
                     text = "변경하기",
                     style = MaterialTheme.typography.titleSmall.copy(
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         lineHeight = 16.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(700),

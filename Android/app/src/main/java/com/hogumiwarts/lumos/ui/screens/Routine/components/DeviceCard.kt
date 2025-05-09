@@ -49,7 +49,7 @@ fun DeviceCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(106.dp)
+            .height(95.dp)
             .shadow(
                 elevation = 12.dp,
                 shape = RoundedCornerShape(10.dp),
@@ -77,14 +77,13 @@ fun DeviceCard(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(vertical = 21.dp, horizontal = 35.dp)
+                    .padding(vertical = 15.dp, horizontal = 35.dp)
             ) {
                 // 기기 커스텀 이름
                 Text(
                     text = routineDevice.deviceName,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 16.sp,
-                        lineHeight = 16.sp,
+                        fontSize = 14.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(700),
                         color = Color(0xFF000000)
@@ -98,6 +97,7 @@ fun DeviceCard(
                     text = routineDevice.deviceType,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight(400),
                         color = Color(0xFFA1A1A1)
                     )
