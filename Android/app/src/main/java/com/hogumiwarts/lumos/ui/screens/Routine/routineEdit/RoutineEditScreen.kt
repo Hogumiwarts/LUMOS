@@ -223,6 +223,7 @@ fun RoutineEditScreen(
                         modifier = Modifier
                             .clickable {
                                 //todo: 클릭 시 기기 추가 화면으로 이동
+
                             }
                     ) {
                         Image(

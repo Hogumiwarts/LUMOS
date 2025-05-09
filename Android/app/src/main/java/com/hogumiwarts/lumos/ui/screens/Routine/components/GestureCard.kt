@@ -119,7 +119,7 @@ fun GestureCard(
         if (isEditMode) {
             Button(
                 onClick = {
-                    /*TODO: 기기 목록 화면 띄우기*/
+                    /*TODO: 제스처 목록 화면 띄우기*/
                 },
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier

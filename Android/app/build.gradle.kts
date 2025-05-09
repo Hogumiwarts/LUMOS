@@ -142,5 +142,6 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.48")
     implementation(libs.datastore.preferences)
     implementation(libs.datastore.core)
+    implementation("androidx.compose.foundation:foundation:1.4.3")
 
 }
