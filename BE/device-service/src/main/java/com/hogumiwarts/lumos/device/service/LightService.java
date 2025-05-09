@@ -50,6 +50,9 @@ public class LightService {
                 .deviceModel(device.getDeviceModel())
                 .deviceType(device.getDeviceType())
                 .activated("on".equalsIgnoreCase(lightValue))
+                .lightColor(lightNode.path("color").asText(null))
+                .lightTemperature(lightNode.path("temperature").asText(null))
+                .lightCode(lightNode.path("code").asText(null))
                 .build();
     }
 

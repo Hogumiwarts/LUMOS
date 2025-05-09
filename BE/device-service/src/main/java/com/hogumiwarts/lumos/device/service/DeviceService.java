@@ -38,9 +38,10 @@ public class DeviceService {
 
         // 0. memberId 를 기준으로 smartThings API 호출에 필요한 installedAppId 찾기
         Long memberId = AuthUtil.getMemberId();
-        String installedAppId = deviceRepository.findFirstByMemberId(memberId)
-                .map(Device::getInstalledAppId)
-                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+//        String installedAppId = deviceRepository.findFirstByMemberId(memberId)
+//                .map(Device::getInstalledAppId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+        String installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5";
 
         System.out.println("인증키 : " + installedAppId);
 

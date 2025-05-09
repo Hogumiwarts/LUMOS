@@ -44,6 +44,4 @@ public class LightDetailResponse {
     @Schema(description = "조명 색상 코드")
     private String lightCode;
 
-    @Schema(description = "오디오 볼륨(1~100)")
-    private Integer audioVolume;
 }
