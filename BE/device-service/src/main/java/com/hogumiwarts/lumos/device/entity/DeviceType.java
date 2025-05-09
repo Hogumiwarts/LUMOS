@@ -50,8 +50,6 @@ public enum DeviceType {
                             )
                     )
             );
-
-            // Example
             case LIGHT -> Map.of(
                     "capabilities", List.of(
                             Map.of(
@@ -59,8 +57,10 @@ public enum DeviceType {
                                     "commands", List.of("on", "off")
                             ),
                             Map.of(
-                                    "capability", "switchLevel",
-                                    "commands", List.of("setLevel")
+                                    "capability", "colorControl",
+                                    // hue: 색조(0=빨강, 120=초록, 240=파랑)
+                                    // saturation: 채도(색상의 강도 / 0: 회색 ~ 100: 완전한 색상)
+                                    "commands", List.of("hex", "hue", "saturation")
                             )
                     )
             );
