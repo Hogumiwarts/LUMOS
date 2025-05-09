@@ -73,5 +73,10 @@ public class LightService {
         CommandRequest command = DeviceCommandUtil.buildLightColorTemperatureCommand(request.getTemperature());
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
     }
-
+    
+    // 조명 밝기 변경
+    public void updateLightBrightness(Long deviceId, LightBrightRequest request) {
+        CommandRequest command = DeviceCommandUtil.buildLightColorBrightnessCommand(request.getBrightness());
+        externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
+    }
 }
