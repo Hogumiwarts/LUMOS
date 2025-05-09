@@ -39,17 +39,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
-
-// 임시 카드 데이터 모델
+// 제스처 카드 데이터 모델
 data class CardData(val title: String, val description: String, val imageRes: Int)
 
 @Composable
 fun GestureScreen() {
+    // 테스트용 제스처 카드 데이터 리스트
     val cards = listOf(
-        CardData("핑거 스냅", "손가락을 튕겨서 명령을 실행합니다.", R.drawable.ic_sun),
-        CardData("주먹 쥠", "손을 쥐어서 제어합니다.", R.drawable.ic_sun),
-        CardData("손 펴기", "손을 펴서 동작을 시작합니다.", R.drawable.ic_sun)
+        CardData("손목 회전", "손목을 돌려서 명령을 실행합니다.", R.drawable.ic_gesture),
+        CardData("주먹 쥠", "손을 쥐어서 제어합니다.", R.drawable.ic_gesture),
+        CardData("손 펴기", "손을 펴서 동작을 시작합니다.", R.drawable.ic_gesture)
     )
 
     CircularCarouselWithScaling(cards)
@@ -57,12 +62,19 @@ fun GestureScreen() {
 
 @Composable
 fun CircularCarouselWithScaling(cards: List<CardData>) {
+    // 무한 스크롤 가능한 Pager 상태 설정
     val pagerState = rememberPagerState(
         initialPage = Int.MAX_VALUE / 2,
         pageCount = { Int.MAX_VALUE }
     )
 
+    // 카드가 선택된 상태를 저장하는 상태 변수
+    var isCardFocused by remember { mutableStateOf(false) }
+
+    // 화면 전체를 제약 조건으로 구성
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (title, card, select) = createRefs()
+
         // 배경 이미지
         Image(
             painter = painterResource(id = R.drawable.bg_gesture),
@@ -71,19 +83,7 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
             contentScale = ContentScale.Crop
         )
 
-        val (title, card, select) = createRefs()
-        var isCardFocused by remember { mutableStateOf(false) }
-
-        var title1 = "제스처 선택"
-        var description = "원하는 제스처를 선택해 기기를 제어하세요."
-        if(!isCardFocused){
-            title1 = "제스처 선택"
-            description = "원하는 제스처를 선택해 기기를 제어하세요."
-        }else{
-            title1 = "제스처 테스트"
-            description = "선택 전에 직접 제스처를 체험해보세요."
-        }
-
+        // 상단 제목 및 설명 영역
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,44 +95,48 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = title1,
+                text = if (isCardFocused) "제스처 테스트" else "제스처 선택",
                 fontSize = 25.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold
             )
             Spacer(modifier = Modifier.size(16.dp))
-            Text(text = description, fontSize = 16.sp, color = Color.White)
+            Text(
+                text = if (isCardFocused)
+                    "선택 전에 직접 제스처를 체험해보세요."
+                else
+                    "원하는 제스처를 선택해 기기를 제어하세요.",
+                fontSize = 16.sp,
+                color = Color.White
+            )
         }
 
-
-
-        // contentPadding을 애니메이션으로 변경
+        // 패딩과 간격 애니메이션 (선택 시 변경)
         val animatedPadding by animateDpAsState(
-            targetValue = if (isCardFocused) 30.dp else 50.dp,
+            targetValue = if (isCardFocused) 40.dp else 50.dp,
             animationSpec = tween(durationMillis = 300),
             label = "paddingAnimation"
         )
-
-        // contentPadding을 애니메이션으로 변경
         val animatedSpacing by animateDpAsState(
             targetValue = if (isCardFocused) 0.dp else (-20).dp,
             animationSpec = tween(durationMillis = 300),
-            label = "paddingAnimation"
+            label = "spacingAnimation"
         )
 
+        // 제스처 카드 수평 Pager
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = animatedPadding),
             pageSpacing = animatedSpacing,
-            userScrollEnabled = !isCardFocused,
-            modifier = Modifier.constrainAs(card){
+            userScrollEnabled = !isCardFocused, // 선택되면 스크롤 금지
+            modifier = Modifier.constrainAs(card) {
                 top.linkTo(title.bottom, margin = 40.dp)
             }
         ) { page ->
             val actualPage = page % cards.size
             val currentPageOffset =
                 (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-            val scale = 1f - (0.2f * kotlin.math.abs(currentPageOffset))
+            val scale = 1f - (0.2f * abs(currentPageOffset)) // 가운데 카드 확대 효과
 
             GestureCard(
                 card = cards[actualPage],
@@ -141,19 +145,20 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
                         scaleX = scale.coerceIn(0.8f, 1f)
                         scaleY = scale.coerceIn(0.8f, 1f)
                     }
-                    .clickable {
-                        isCardFocused = !isCardFocused // 클릭 시 확대/축소 상태 토글
-                    },
-                isCardFocused = isCardFocused
+                    .clickable(
+                        enabled = isCardFocused, // 선택된 상태일 때만 클릭 가능
+                        onClick = { isCardFocused = false } // 다시 선택 해제
+                    ),
+                isCardFocused = isCardFocused,
+                onclick = { isCardFocused = true } // "테스트 해보기" 버튼 클릭 시 실행
             )
         }
 
-        if(!isCardFocused){
+        // 하단 "선택하기" 버튼 (카드 선택 전만 표시)
+        if (!isCardFocused) {
             Button(
                 onClick = {},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xff3E4784)
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3E4784)),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.constrainAs(select) {
                     top.linkTo(card.bottom, margin = 40.dp)
@@ -162,19 +167,20 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
                     width = Dimension.fillToConstraints
                 }
             ) {
-                Text("선택하기",color= Color.White, fontSize = 18.sp)
+                Text("선택하기", color = Color.White, fontSize = 18.sp)
             }
-
         }
-
     }
 }
 
 @Composable
-fun GestureCard(card: CardData, modifier: Modifier = Modifier, isCardFocused: Boolean) {
-
+fun GestureCard(
+    card: CardData,
+    modifier: Modifier = Modifier,
+    isCardFocused: Boolean,
+    onclick: () -> Unit
+) {
     val cornerRadius = 20.dp
-
 
     ConstraintLayout(
         modifier = modifier
@@ -192,86 +198,83 @@ fun GestureCard(card: CardData, modifier: Modifier = Modifier, isCardFocused: Bo
                         Color(0xFFAEBCFF),
                         Color(0xFF9BACFF),
                         Color(0xFF8499FF)
-                    ) // 보라 → 남색 그라데이션
+                    )
                 ),
                 shape = RoundedCornerShape(cornerRadius)
             )
             .background(Color(0x20DCDFF6))
     ) {
-        if (!isCardFocused){
+        if (!isCardFocused) {
+            // 이미지 + 텍스트 + 테스트 버튼 구성
             val (image, name, test) = createRefs()
+
             Image(
                 painter = painterResource(id = card.imageRes),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(200.dp)
                     .constrainAs(image) {
                         top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
+                        bottom.linkTo(parent.bottom, margin = 150.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
             )
 
-            Column(modifier= Modifier.constrainAs(name){
-                top.linkTo(image.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(test.top)
-            },
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = card.title,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            Column(
+                modifier = Modifier.constrainAs(name) {
+                    top.linkTo(image.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(test.top)
+                },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(card.title, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = card.description,
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 14.sp
-                )
+                Text(card.description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
             }
 
+            // 테스트 버튼 클릭 시 선택 상태로 전환
             Button(
-                onClick = {},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0x10FFFFFF)
-                ),
+                onClick = { onclick() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
                 modifier = Modifier.constrainAs(test) {
                     top.linkTo(name.bottom)
                     start.linkTo(parent.start)
-                    end.linkTo(parent.end )
+                    end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 }
             ) {
-                Text("테스트 해보기",color= Color(0xB3FFFFFF), fontSize = 11.sp)
+                Text("테스트 해보기", color = Color(0xB3FFFFFF), fontSize = 11.sp)
             }
-        }else{
-            val (image, name, content) = createRefs()
+
+        } else {
+            // 선택 상태일 때: 제스처 테스트 화면
+            val (image, name, content, lottie, state) = createRefs()
 
             Text(
                 text = card.title,
                 color = Color.White,
-                fontSize = 20.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.constrainAs(name){
+                modifier = Modifier.constrainAs(name) {
                     bottom.linkTo(image.top)
-                    top.linkTo(parent.top)
+                    top.linkTo(parent.top, margin = 25.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
             )
+
             Image(
                 painter = painterResource(id = card.imageRes),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(200.dp)
                     .constrainAs(image) {
                         top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
+                        bottom.linkTo(parent.bottom, margin = 150.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
@@ -282,26 +285,53 @@ fun GestureCard(card: CardData, modifier: Modifier = Modifier, isCardFocused: Bo
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.constrainAs(content){
+                modifier = Modifier.constrainAs(content) {
                     top.linkTo(image.bottom, margin = 20.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
             )
+
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.gesture_lottie))
+            val progress by animateLottieCompositionAsState(
+                composition,
+                iterations = LottieConstants.IterateForever
+            )
+
+            LottieAnimation(
+                composition = composition,
+                progress = progress,
+                modifier = Modifier
+                    .size(100.dp)
+                    .constrainAs(lottie) {
+                        top.linkTo(content.bottom, margin = 16.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            )
+
+            Text(
+                text = "제스처 인식 중 ..",
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.constrainAs(state) {
+                    top.linkTo(lottie.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                }
+            )
         }
-
-
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     LUMOSTheme {
         Surface(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             color = Color.Transparent
         ) {
             GestureScreen()
