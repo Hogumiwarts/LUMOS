@@ -17,7 +17,7 @@ import com.hogumiwarts.lumos.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/member/api")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class MemberController {
 

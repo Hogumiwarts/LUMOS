@@ -11,4 +11,4 @@ server:
 # Node.js : SmartThings Service
 smartthings:
   service:
-    url: http://localhost:3000
+    url: https://k12d103.p.ssafy.io/smart

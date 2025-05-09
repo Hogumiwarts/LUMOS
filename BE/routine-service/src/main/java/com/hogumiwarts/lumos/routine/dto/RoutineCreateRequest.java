@@ -15,10 +15,8 @@ public class RoutineCreateRequest {
 	private Integer routineIcon;
 
 	@Schema(description = "루틴에 추가할 기기 정보", example = "")
-	private List<DeviceDto> devices;
+	private List<DeviceRequest> devices;
 
-	@Schema(description = "제스처 id", example = "")
-	private Long memberGestureId;
-
-
+	@Schema(description = "제스처 id", example = "1")
+	private Long gestureId;
 }

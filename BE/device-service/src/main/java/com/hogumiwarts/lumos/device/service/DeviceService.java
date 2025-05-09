@@ -32,13 +32,13 @@ public class DeviceService {
 	private final AudioService audioService;
 
 	// [ SmartThingsApp 에 등록된 모든 기기 정보 불러오기 (node.js 통신) ]
-	public List<DeviceStatusResponse> getSmartThingsDevices(){
-
+	public List<DeviceStatusResponse> getSmartThingsDevices(String installedAppId) {
 		// 0. memberId 를 기준으로 smartThings API 호출에 필요한 installedAppId 찾기
 		Long memberId = AuthUtil.getMemberId();
-		String installedAppId = deviceRepository.findFirstByMemberId(memberId)
-				.map(Device::getInstalledAppId)
-				.orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+		// String installedAppId = deviceRepository.findFirstByMemberId(memberId)
+		// 		.map(Device::getInstalledAppId)
+		// 		.orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
 		System.out.println("인증키 : " + installedAppId);
 
@@ -46,7 +46,9 @@ public class DeviceService {
 		DeviceListResponse response = externalDeviceService.fetchDeviceList(installedAppId);
 
 		// 2. DB에서 DeviceId 추출 (새로 검색된 디바이스, 이미 등록되어있는 디바이스 비교를 위해)
-		Set<String> existingControlIds = deviceRepository.findByMemberId(memberId).stream()
+		Set<String> existingControlIds = deviceRepository.findByMemberId(memberId)
+				.orElse(new ArrayList<>())
+				.stream()
 				.map(Device::getControlId)
 				.collect(Collectors.toSet());
 
@@ -107,7 +109,8 @@ public class DeviceService {
 		// JWT 기반 인증 정보 가져오기
 		Long memberId = AuthUtil.getMemberId();
 
-		List<Device> devices = deviceRepository.findByMemberId(memberId);
+		List<Device> devices = deviceRepository.findByMemberId(memberId).orElse(new ArrayList<>());
+
 		return devices.stream()
 				.map(device -> {
 					boolean activated = deviceStatusResolver.getActivatedStatus(device); // ⭐️ 이게 핵심
