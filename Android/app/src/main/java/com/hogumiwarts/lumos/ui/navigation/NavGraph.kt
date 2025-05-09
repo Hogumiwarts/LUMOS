@@ -17,6 +17,7 @@ import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
@@ -245,7 +246,9 @@ fun NavGraph(
             val routineId = navBackStackEntry.arguments?.getString("routineId")
             val viewModel = hiltViewModel<RoutineEditViewModel>()
 
-            RoutineEditScreen(routineId = routineId, viewModel = viewModel)
+            RoutineEditScreen(
+                viewModel = viewModel, devices = RoutineDevice.sample
+            )
         }
 
     }

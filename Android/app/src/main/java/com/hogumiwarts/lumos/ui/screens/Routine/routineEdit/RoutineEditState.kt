@@ -1,4 +1,5 @@
 package com.hogumiwarts.lumos.ui.screens.Routine.routineEdit
 
-class RoutineEditState {
-}
+data class RoutineEditState (
+    val nameBlankMessage: String? = null
+)

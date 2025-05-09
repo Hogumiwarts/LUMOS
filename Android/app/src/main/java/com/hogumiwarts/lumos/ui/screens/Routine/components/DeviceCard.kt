@@ -15,6 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -34,9 +39,10 @@ import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DeviceCard(
-    routineDevice: RoutineDevice
+    routineDevice: RoutineDevice,
 ) {
     val deviceType = DeviceType.from(routineDevice.deviceType)
 
@@ -54,7 +60,7 @@ fun DeviceCard(
                 color = Color.White,
                 shape = RoundedCornerShape(10.dp)
             )
-            .graphicsLayer{
+            .graphicsLayer {
                 clip = false
             }
     ) {
@@ -120,7 +126,7 @@ fun DeviceCard(
                     .fillMaxSize()
                     .padding(top = 10.dp, end = 10.dp),
                 contentAlignment = Alignment.BottomEnd
-            ){
+            ) {
                 Image(
                     painter = painterResource(id = deviceType.iconResId),
                     contentDescription = null,

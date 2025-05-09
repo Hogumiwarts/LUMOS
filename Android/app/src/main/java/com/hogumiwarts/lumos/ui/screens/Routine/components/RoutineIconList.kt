@@ -32,7 +32,7 @@ fun RoutineIconList(
     val allIcons = RoutineIconType.values()
 
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(10git .dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
 
         items(allIcons) { icon ->
