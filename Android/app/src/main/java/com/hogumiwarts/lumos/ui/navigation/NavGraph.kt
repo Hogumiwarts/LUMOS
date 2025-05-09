@@ -13,7 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
-import com.hogumiwarts.lumos.ui.screens.Control.ControlScreen
+import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen

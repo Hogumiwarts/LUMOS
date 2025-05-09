@@ -102,4 +102,18 @@ public class DeviceCommandUtil {
         ));
     }
 
+    // ============================== Light Brightness: SSAFY 조명 ==============================
+    public static CommandRequest buildLightColorBrightnessCommand(int brightness) {
+        brightness = Math.max(0, Math.min(brightness, 100));
+
+        return new CommandRequest(List.of(
+                new CommandRequest.Command(
+                        "main",
+                        "switchLevel",
+                        "setLevel",
+                        List.of(brightness)
+                )
+        ));
+    }
+
 }
