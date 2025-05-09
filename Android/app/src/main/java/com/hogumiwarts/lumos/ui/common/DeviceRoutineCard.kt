@@ -60,8 +60,7 @@ fun DeviceRoutineCard(
     isOn: Boolean,
     onToggle: (() -> Unit)? = null,
     endPadding: Dp = 0.dp,
-    isActive: Boolean, // 활성화 여부 -> smartthings 에서 받아와야 함
-    iconTopPadding: Dp
+    isActive: Boolean // 활성화 여부 -> smartthings 에서 받아와야 함
 ) {
 
     Box(
@@ -110,7 +109,7 @@ fun DeviceRoutineCard(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     // endPadding을 입력 받아서 아이콘마다 여백 지정
-                    .padding(end = endPadding, top = iconTopPadding)
+                    .padding(end = endPadding)
                     .size(iconSize)
                     .graphicsLayer{
                         alpha = if(isActive) 1f else 0.4f
@@ -195,8 +194,7 @@ fun DeviceRoutineCardPreview() {
             isOn = isOn,
             onToggle = { isOn = !isOn },
             endPadding = 7.dp,
-            isActive = false,
-            iconTopPadding = 0.dp
+            isActive = false
         )
     }
 }

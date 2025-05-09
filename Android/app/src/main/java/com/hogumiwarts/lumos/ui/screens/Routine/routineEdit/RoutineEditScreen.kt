@@ -27,9 +27,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +52,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
@@ -60,16 +65,22 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.SwipeableDeviceCard
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineEditScreen(
     viewModel: RoutineEditViewModel,
     devices: List<RoutineDevice>,
-    onRoutineEditComplete: () -> Unit
+    onRoutineEditComplete: () -> Unit,
+    navController: NavController
 ) {
     val selectedIcon by viewModel.selectedIcon.collectAsState()
     val routineName by viewModel.routineName.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
+    var isSheetOpen by remember { mutableStateOf(false) }
 
     // 기기 리스트 관리
     val deviceList = remember { mutableStateListOf<RoutineDevice>().apply { addAll(devices) } }
@@ -222,7 +233,8 @@ fun RoutineEditScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clickable {
-                                //todo: 클릭 시 기기 추가 화면으로 이동
+                                //기기 추가 화면으로 이동
+                                navController.navigate("routineDeviceList")
 
                             }
                     ) {
@@ -353,6 +365,7 @@ fun RoutineEditScreenPreview() {
     RoutineEditScreen(
         viewModel = fakeViewModel,
         devices = RoutineDevice.sample,
-        onRoutineEditComplete = {}
+        onRoutineEditComplete = {},
+        navController = rememberNavController()
     )
 }

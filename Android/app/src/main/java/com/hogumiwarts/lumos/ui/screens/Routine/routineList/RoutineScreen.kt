@@ -84,7 +84,6 @@ fun RoutineScreen(
                     },
                     endPadding = 3.dp,
                     isActive = true,
-                    iconTopPadding = 0.dp
                 )
             }
         }

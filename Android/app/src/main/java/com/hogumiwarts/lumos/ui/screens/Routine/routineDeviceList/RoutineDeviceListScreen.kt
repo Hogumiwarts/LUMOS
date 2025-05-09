@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -33,6 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -41,7 +44,8 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun RoutineDeviceListScreen(
     viewModel: RoutineDeviceListViewModel,
     devices: List<MyDevice>,
-    onSelectComplete: () -> Unit
+    onSelectComplete: () -> Unit,
+    navController: NavController
 ) {
     Column(
         modifier = Modifier
@@ -64,10 +68,9 @@ fun RoutineDeviceListScreen(
                 fontFamily = nanum_square_neo
             )
 
-            Spacer(modifier = Modifier.height(44.dp))
-
-
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         // 기기 목록
         LazyVerticalGrid(
@@ -90,18 +93,18 @@ fun RoutineDeviceListScreen(
                     cardTitle = device.deviceName,
                     cardSubtitle = if (device.isOn) "ON" else "OFF",
                     isOn = false,
-                    iconSize = DpSize(80.dp, 80.dp),
+                    iconSize = DpSize(85.dp, 85.dp),
                     cardIcon = { size ->
                         Image(
                             painter = painterResource(id = device.deviceType.iconResId),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(size)
+                                //.offset(y = -2.dp)
                         )
                     },
                     endPadding = 3.dp,
-                    isActive = device.isActive,
-                    iconTopPadding = device.deviceType.iconTopPadding
+                    isActive = device.isActive
                 )
             }
         }
@@ -119,6 +122,7 @@ fun RoutineDeviceListScreenPreview() {
     RoutineDeviceListScreen(
         viewModel = fakeViewModel,
         devices = MyDevice.sample,
-        onSelectComplete = {}
+        onSelectComplete = {},
+        navController = rememberNavController()
     )
 }

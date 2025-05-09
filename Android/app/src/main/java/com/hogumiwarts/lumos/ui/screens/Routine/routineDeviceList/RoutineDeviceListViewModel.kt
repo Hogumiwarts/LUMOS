@@ -1,4 +1,9 @@
 package com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList
 
-class RoutineDeviceListViewModel {
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class RoutineDeviceListViewModel @Inject constructor() : ViewModel(){
 }
