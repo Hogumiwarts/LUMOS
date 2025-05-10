@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.device.util;
+package com.hogumiwarts.lumos.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

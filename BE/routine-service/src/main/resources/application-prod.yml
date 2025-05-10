@@ -19,8 +19,8 @@ node:
 
 gesture:
   service:
-    url: http://localhost:8083
+    url: http://gesture-service:8080
 
 device:
   service:
-    url: http://localhost:8082
+    url: http://device-service:8080

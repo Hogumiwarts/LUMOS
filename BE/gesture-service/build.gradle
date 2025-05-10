@@ -23,6 +23,12 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.1") // 최신 BOM 버전 확인(Feign)
+    }
+}
+
 dependencies {
 
     implementation(project(":common-core"))
@@ -53,6 +59,9 @@ dependencies {
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // OpenFeign
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

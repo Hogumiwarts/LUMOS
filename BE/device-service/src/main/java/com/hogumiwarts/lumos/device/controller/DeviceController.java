@@ -6,6 +6,7 @@ import com.hogumiwarts.lumos.device.service.DeviceService;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,4 +47,9 @@ public class DeviceController implements DeviceApiSpec {
 		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
+	@GetMapping("/details")
+	public ResponseEntity<CommonResponse<List<DevicesCreateResponse>>> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds) {
+		List<DevicesCreateResponse> response = deviceService.getDeviceDetailsByIds(deviceIds);
+		return ResponseEntity.ok(CommonResponse.ok(response));
+	}
 }

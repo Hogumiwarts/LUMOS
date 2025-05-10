@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeviceResponse {
+public class DevicesCreateResponse {
     private Integer tagNumber;
     private Long deviceId;
     private String installedAppId;

@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.routine.dto;
+package com.hogumiwarts.lumos.gesture.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -36,5 +36,4 @@ public class AirPurifierController implements AirPurifierApiSpec {
 		AirPurifierDetailResponse response = airPurifierService.getAirPurifierStatus(deviceId);
 		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
-
 }
