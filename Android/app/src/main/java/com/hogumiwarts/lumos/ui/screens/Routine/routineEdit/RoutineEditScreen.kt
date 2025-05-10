@@ -26,9 +26,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -55,6 +58,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
@@ -62,8 +66,11 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureType
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.Routine.components.SwipeableDeviceCard
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,12 +85,44 @@ fun RoutineEditScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
+    // 바텀 시트
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var isSheetOpen by remember { mutableStateOf(false) }
 
     // 기기 리스트 관리
     val deviceList = remember { mutableStateListOf<RoutineDevice>().apply { addAll(devices) } }
+    val myDeviceList = remember {
+        mutableStateListOf<MyDevice>().apply {
+            addAll(MyDevice.sample.map {
+                MyDevice(
+                    deviceId = it.deviceId,
+                    deviceName = it.deviceName,
+                    isOn = it.isOn,
+                    isActive = it.isActive,
+                    deviceType = it.deviceType
+                )
+            })
+        }
+    }
+
+    if (isSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isSheetOpen = false },
+            sheetState = sheetState,
+            containerColor = Color.White,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
+            RoutineDeviceListScreen(
+                viewModel = RoutineDeviceListViewModel(),
+                devices = myDeviceList,
+                onSelectComplete = {
+                    isSheetOpen = false // 바텀 시트 닫기
+                },
+            )
+        }
+    }
+
 
     Box(
         modifier = Modifier
@@ -108,7 +147,7 @@ fun RoutineEditScreen(
                 ) {
                     Text(
                         text = "루틴 수정",
-                        fontSize = 20.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
                         fontFamily = nanum_square_neo
                     )
@@ -234,8 +273,12 @@ fun RoutineEditScreen(
                         modifier = Modifier
                             .clickable {
                                 //기기 추가 화면으로 이동
-                                navController.navigate("routineDeviceList")
-
+                                //navController.navigate("routineDeviceList")
+//                               isSheetOpen = true
+                                coroutineScope.launch {
+                                    isSheetOpen = true
+                                    sheetState.show() // 바텀 시트 열기
+                                }
                             }
                     ) {
                         Image(

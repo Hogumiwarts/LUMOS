@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -105,7 +106,6 @@ fun RoutineDetailContent(
             .background(Color.White)
             .padding(horizontal = 28.dp)
             .statusBarsPadding(),
-        contentPadding = PaddingValues(vertical = 25.dp),
         verticalArrangement = Arrangement.spacedBy(17.dp)
     ) {
         item {
@@ -116,6 +116,7 @@ fun RoutineDetailContent(
                 contentAlignment = Alignment.Center
             ) {
                 Row(
+                    modifier = Modifier.height(70.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Image(

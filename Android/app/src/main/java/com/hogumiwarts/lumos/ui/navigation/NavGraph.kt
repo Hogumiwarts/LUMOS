@@ -269,7 +269,6 @@ fun NavGraph(
                 onSelectComplete = {
                     navController.popBackStack()
                 },
-                navController
             )
         }
 
