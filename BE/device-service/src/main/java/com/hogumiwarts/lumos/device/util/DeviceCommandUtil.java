@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.device.util;
 
 import com.hogumiwarts.lumos.device.dto.CommandRequest;
+import com.hogumiwarts.lumos.device.dto.FanMode;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,17 @@ public class DeviceCommandUtil {
                         "switch",
                         activated != null && activated ? "on" : "off",
                         List.of()
+                )
+        ));
+    }
+
+    public static CommandRequest buildAirPurifierFanModeCommand(FanMode mode) {
+        return new CommandRequest(List.of(
+                new CommandRequest.Command(
+                        "main",
+                        "airConditionerFanMode",
+                        "setFanMode",
+                        List.of(mode.getMode())
                 )
         ));
     }

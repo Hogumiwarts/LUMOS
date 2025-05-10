@@ -1,11 +1,11 @@
 package com.hogumiwarts.lumos.routine.client;
 
 import com.hogumiwarts.lumos.dto.CommonResponse;
-import com.hogumiwarts.lumos.routine.dto.DeviceResponse;
-import com.hogumiwarts.lumos.routine.dto.GestureInfo;
+import com.hogumiwarts.lumos.routine.dto.DevicesCreateResponse;
+import com.hogumiwarts.lumos.routine.dto.DevicesResponse;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -14,7 +14,10 @@ import java.util.List;
 public interface DeviceServiceClient {
 
     @GetMapping("/api/devices")
-    CommonResponse<List<DeviceResponse>> getAllDeviceByMember(@RequestParam("memberId") Long memberId);
+    CommonResponse<List<DevicesCreateResponse>> getAllDeviceByMember(@RequestParam("memberId") Long memberId);
+
+    @GetMapping("/api/devices/details")
+    CommonResponse<List<DevicesResponse>> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds);
 }
 
 

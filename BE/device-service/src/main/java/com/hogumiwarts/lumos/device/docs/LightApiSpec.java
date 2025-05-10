@@ -69,7 +69,7 @@ public interface LightApiSpec {
 
     @Operation(summary = "조명 상태 조회", description = "조명의 밝기, 전원 상태 등을 확인합니다.", tags = {"조명"})
     @GetMapping("/{deviceId}/light/status")
-    ResponseEntity<?> getLightStatus(
+    ResponseEntity<CommonResponse<LightDetailResponse>> getLightStatus(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId
     );
