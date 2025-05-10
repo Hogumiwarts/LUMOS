@@ -51,7 +51,11 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "기기 탐색 성공"),})
     @GetMapping("/discover")
-    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(@Parameter(description = "SmartThings 제어용 installedAppId", required = true) @RequestParam String installedAppId);
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(
+            @Parameter(description = "SmartThings 제어용 installedAppId",
+                    required = true,
+                    example = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5")
+            @RequestParam String installedAppId);
 
     @Operation(
             summary = "스마트 태그로 디바이스 상태 조회",

@@ -2,8 +2,6 @@ package com.hogumiwarts.lumos.device.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.CommandRequest;
-import com.hogumiwarts.lumos.device.dto.DeviceListResponse;
-import com.hogumiwarts.lumos.dto.CommonResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

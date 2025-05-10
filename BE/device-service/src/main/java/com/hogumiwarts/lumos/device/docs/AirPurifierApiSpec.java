@@ -1,8 +1,6 @@
 package com.hogumiwarts.lumos.device.docs;
 
-import com.hogumiwarts.lumos.device.dto.PowerControlRequest;
-import com.hogumiwarts.lumos.device.dto.SuccessResponse;
-import com.hogumiwarts.lumos.device.dto.VolumeControlRequest;
+import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,9 +24,22 @@ public interface AirPurifierApiSpec {
             @RequestBody PowerControlRequest  request
     );
 
+    @Operation(summary = "공기청정기 FanMode 변경", description = "공기청정기의 FanMode를 변경 합니다.", tags = {"공기청정기"})
+    @PatchMapping("/{deviceId}/airpurifier/fanmode")
+    ResponseEntity<CommonResponse<SuccessResponse>> updateAirPurifierFanMode(
+            @Parameter(description = "디바이스 ID", required = true)
+            @PathVariable("deviceId") Long deviceId,
+            @Parameter(
+                    description = "FanMode 설정값 : auto, low, medium, high, quiet",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = FanModeControlRequest.class))
+            )
+            @RequestBody FanModeControlRequest request
+    );
+
     @Operation(summary = "공기청정기 상태 조회", description = "공기청정기 필터 정보, 전원 상태 등을 확인합니다.", tags = {"공기청정기"})
     @GetMapping("/{deviceId}/airpurifier/status")
-    ResponseEntity<?> getAirPurifierStatus(
+    ResponseEntity<CommonResponse<AirPurifierDetailResponse>> getAirPurifierStatus(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId
     );

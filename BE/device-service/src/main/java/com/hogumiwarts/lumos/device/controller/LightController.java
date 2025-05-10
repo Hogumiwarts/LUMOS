@@ -47,7 +47,7 @@ public class LightController implements LightApiSpec {
 
     // 조명 상태 조회
     @Override
-    public ResponseEntity<?> getLightStatus(Long deviceId) {
+    public ResponseEntity<CommonResponse<LightDetailResponse>> getLightStatus(Long deviceId) {
         LightDetailResponse response = lightService.getLightStatus(deviceId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }

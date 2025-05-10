@@ -55,6 +55,17 @@ public class DeviceCommandUtil {
         ));
     }
 
+    public static CommandRequest buildAirPurifierFanModeCommand(String mode) {
+        return new CommandRequest(List.of(
+                new CommandRequest.Command(
+                        "main",
+                        "airConditionerFanMode",
+                        "setFanMode",
+                        List.of(mode)
+                )
+        ));
+    }
+
     // ============================== Light onOff : SSAFY 조명 ==============================
     public static CommandRequest buildLightOnOffCommand(Boolean activated) {
         return new CommandRequest(List.of(
