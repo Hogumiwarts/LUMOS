@@ -80,9 +80,9 @@ class MainActivity : ComponentActivity() {
                     if(text ==""){
                         NavGraph(navController)
                     }else{
-                        GestureTestScreen({
-                            sendTextToMobile(this@MainActivity, "hi")
-                        })
+                        GestureTestScreen(text) {
+                            sendTextToMobile(this@MainActivity, it)
+                        }
 
 
                     }

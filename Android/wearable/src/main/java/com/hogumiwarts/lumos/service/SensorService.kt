@@ -18,6 +18,8 @@ class SensorService : Service() {
     private lateinit var labelMap: Map<Int, String>
     private val handler = Handler(Looper.getMainLooper())
 
+    private var isTestMode = false // ← 여기 선언
+
     override fun onCreate() {
         super.onCreate()
 
@@ -43,6 +45,13 @@ class SensorService : Service() {
         startInferenceLoop()
     }
 
+    // ✅ 여기 추가
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        isTestMode = intent?.getBooleanExtra("isTest", false) ?: false
+        Log.d("SensorService", "onStartCommand 호출됨, isTestMode = $isTestMode")
+        return START_STICKY
+    }
+
     private fun startInferenceLoop() {
         handler.post(object : Runnable {
             override fun run() {
@@ -53,13 +62,26 @@ class SensorService : Service() {
                     val result = predictGesture(interpreter, normalized, labelMap)
 
                     Log.d("TAG", "결과: ${result.first}, 신뢰도: ${result.second}")
+
                     // 결과 후 앞에서 25개 삭제
                     sensorCollector.reset()
 
                     if ( result.second > 0.8f) {
                         if(result.first == "motion1"){
                             NotificationUtils.showGestureNotification(this@SensorService, "모션 감지됨!", "motion1")
+                            Log.d("TAG", "isTestMode: $isTestMode")
+
+
                         }
+                        if(isTestMode){ // 테스트용: 결과 브로드캐스트
+                            val intent = Intent("GESTURE_RESULT")
+                            intent.putExtra("gesture", result.first) // 예: "motion1"
+                                .setPackage(packageName)
+                            Log.d("TAG", "브로드캐스트 보내기: $result")
+                            applicationContext.sendBroadcast(intent)
+                        }
+
+
                         sensorCollector.clear()
                     }
 
@@ -73,6 +95,8 @@ class SensorService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stopForeground(true)
+        handler.removeCallbacksAndMessages(null)
         sensorCollector.stop()
     }
 

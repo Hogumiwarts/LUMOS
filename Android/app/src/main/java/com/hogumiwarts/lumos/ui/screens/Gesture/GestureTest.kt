@@ -133,7 +133,10 @@ fun GestureTest(cards: List<GestureData>) {
                     }
                     .clickable(
                         enabled = isCardFocused, // 선택된 상태일 때만 클릭 가능
-                        onClick = { isCardFocused = false } // 다시 선택 해제
+                        onClick = {
+                            isCardFocused = false
+                            viewModel.updateMessage("")
+                        } // 다시 선택 해제
                     ),
                 isCardFocused = isCardFocused,
                 viewModel = viewModel,

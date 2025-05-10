@@ -167,11 +167,7 @@ fun NavGraph(
             AipurifierSetting()
         }
 
-        composable(
-            route = "GestureTestScreen"
-        ) {
-            GestureTestScreen({})
-        }
+
 
     }
 }

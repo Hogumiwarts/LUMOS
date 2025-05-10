@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -144,7 +145,7 @@ fun GestureTestCard(
             Button(
                 onClick = {
                     onclick()
-                    sendTextToWatch(context, "${card.routineName}")
+                    sendTextToWatch(context, "${card.memberGestureId}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
@@ -191,10 +192,10 @@ fun GestureTestCard(
             Text(
                 text = "지금 ${card.gestureName}을 해보세요.",
                 color = Color.White.copy(alpha = 0.7f),
-                fontSize = 16.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.constrainAs(content) {
-                    top.linkTo(image.bottom, margin = 20.dp)
+                    top.linkTo(image.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
@@ -215,36 +216,57 @@ fun GestureTestCard(
                 Crossfade(targetState = message) { state ->
                     when (state) {
                         "done" -> {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_recognize),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(100.dp),
-                                contentScale = ContentScale.Crop
-                            )
-                            Text(
-                                text = "제스처 인식 완료!",
-                                color = Color(0xFF2CDF33),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_recognize),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(100.dp),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Text(
+                                    text = "제스처 인식 완료!",
+                                    color = Color(0xFF2CDF33),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                )
+                                Spacer(modifier = Modifier.size(20.dp))
+                            }
                         }
 
                         "fail" -> {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_error),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(100.dp),
-                                contentScale = ContentScale.Crop
-                            )
-                            Text(
-                                text = "제스처 인식 실패!",
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_error),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(100.dp),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Text(
+                                    text = "제스처 인식 실패!",
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Thin,
+                                )
+                                val context = LocalContext.current
+                                Text(
+                                    text = "다시 시도하기",
+                                    color = Color(0xFFFF5252),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.W900,
+                                    modifier = Modifier.clickable {
+                                        viewModel.updateMessage("")
+
+                                        sendTextToWatch(context, "${card.memberGestureId}")
+                                    }
+
+                                )
+                                Spacer(modifier = Modifier.size(20.dp))
+                            }
+
 
                         }
 
