@@ -225,7 +225,30 @@ fun GestureCard(
     ) {
         if (!isCardFocused) {
             // 이미지 + 텍스트 + 테스트 버튼 구성
-            val (image, name, test) = createRefs()
+            val (routine,image, name, test) = createRefs()
+
+
+            Box(
+                modifier = Modifier.constrainAs(routine){
+                    top.linkTo(parent.top, margin = 0.dp)
+                    bottom.linkTo(image.top)
+                }
+                    .background(
+                        color = Color(0xFF7A80AD).copy(alpha = 0.7f), // 배경 색상 (70% 투명도 예시)
+                        shape = RoundedCornerShape(
+                            topEnd = 8.dp,
+                            bottomEnd = 8.dp,
+                            topStart = 0.dp,
+                            bottomStart = 0.dp
+                        )
+                    )
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "1번 루틴과 연결",
+                    color = Color.White
+                )
+            }
 
             Image(
                 painter = painterResource(id = card.imageRes),
@@ -234,7 +257,7 @@ fun GestureCard(
                     .size(200.dp)
                     .constrainAs(image) {
                         top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom, margin = 150.dp)
+                        bottom.linkTo(parent.bottom, margin = 100.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
