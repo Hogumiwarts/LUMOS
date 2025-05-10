@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.State
 
 class GestureTestViewModel : ViewModel() {
-    private val _message = mutableStateOf("기본 메시지")
+    private val _message = mutableStateOf("제스처 인식중")
     val message: State<String> = _message
 
     fun updateMessage(newMsg: String) {

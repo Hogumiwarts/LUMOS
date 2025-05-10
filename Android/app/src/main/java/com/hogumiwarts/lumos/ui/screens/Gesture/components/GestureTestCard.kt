@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.Gesture.components
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,8 +39,8 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.Gesture.MessageReceiver
-import com.hogumiwarts.lumos.ui.screens.Gesture.sendTextToWatch
+import com.hogumiwarts.lumos.ui.screens.Gesture.network.MessageReceiver
+import com.hogumiwarts.lumos.ui.screens.Gesture.network.sendTextToWatch
 
 @Composable
 fun GestureTestCard(
@@ -45,7 +48,7 @@ fun GestureTestCard(
     modifier: Modifier = Modifier,
     isCardFocused: Boolean,
     onclick: () -> Unit,
-    viewModel: GestureTestViewModel
+    viewModel: GestureTestViewModel,
 ) {
     val cornerRadius = 20.dp
 
@@ -74,32 +77,36 @@ fun GestureTestCard(
     ) {
         if (!isCardFocused) {
             // 이미지 + 텍스트 + 테스트 버튼 구성
-            val (routine,image, name, test) = createRefs()
+            val (routine, image, name, test) = createRefs()
 
 
-            Box(
-                modifier = Modifier
-                    .constrainAs(routine) {
-                        top.linkTo(parent.top, margin = 0.dp)
-                        bottom.linkTo(image.top)
-                    }
-                    .background(
-                        color = Color(0xFF7A80AD).copy(alpha = 0.7f), // 배경 색상 (70% 투명도 예시)
-                        shape = RoundedCornerShape(
-                            topEnd = 8.dp,
-                            bottomEnd = 8.dp,
-                            topStart = 0.dp,
-                            bottomStart = 0.dp
+            if (card.routineName != "") {
+                Box(
+                    modifier = Modifier
+                        .constrainAs(routine) {
+                            top.linkTo(parent.top, margin = 0.dp)
+                            bottom.linkTo(image.top)
+                        }
+                        .background(
+                            color = Color(0xFF7A80AD).copy(alpha = 0.7f), // 배경 색상 (70% 투명도 예시)
+                            shape = RoundedCornerShape(
+                                topEnd = 8.dp,
+                                bottomEnd = 8.dp,
+                                topStart = 0.dp,
+                                bottomStart = 0.dp
+                            )
                         )
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = "1번 루틴과 연결",
-                    color = Color.White
-                )
-            }
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
 
+                    Text(
+                        text = "${card.routineName} 루틴과 연결",
+                        color = Color.White
+                    )
+
+
+                }
+            }
             Image(
                 painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지 Url 변경
                 contentDescription = null,
@@ -122,7 +129,12 @@ fun GestureTestCard(
                 },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(card.gestureName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    card.gestureName,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(card.description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
             }
@@ -132,7 +144,7 @@ fun GestureTestCard(
             Button(
                 onClick = {
                     onclick()
-                    sendTextToWatch(context,"gd")
+                    sendTextToWatch(context, "${card.routineName}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
@@ -148,7 +160,7 @@ fun GestureTestCard(
 
         } else {
 
-            val (image, name, content, lottie, state) = createRefs()
+            val (image, name, content, case) = createRefs()
 
             Text(
                 text = card.gestureName,
@@ -188,38 +200,89 @@ fun GestureTestCard(
                 }
             )
 
-            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.gesture_lottie))
-            val progress by animateLottieCompositionAsState(
-                composition,
-                iterations = LottieConstants.IterateForever
-            )
 
-            LottieAnimation(
-                composition = composition,
-                progress = progress,
-                modifier = Modifier
-                    .size(100.dp)
-                    .constrainAs(lottie) {
-                        top.linkTo(content.bottom, margin = 16.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-            )
 
-            Text(
-                text = message,
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.constrainAs(state) {
-                    top.linkTo(lottie.bottom)
+            Box(
+                modifier = Modifier.constrainAs(case) {
+                    top.linkTo(content.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
+                    bottom.linkTo(parent.bottom, margin = 20.dp)
                 }
-            )
+            ) {
 
-            MessageReceiver(viewModel = viewModel)
+
+                Crossfade(targetState = message) { state ->
+                    when (state) {
+                        "done" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_recognize),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(100.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = "제스처 인식 완료!",
+                                color = Color(0xFF2CDF33),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                            )
+                        }
+
+                        "fail" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_error),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(100.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = "제스처 인식 실패!",
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+
+                        }
+
+                        else -> {
+                            val composition by rememberLottieComposition(
+                                LottieCompositionSpec.RawRes(
+                                    R.raw.gesture_lottie
+                                )
+                            )
+                            val progress by animateLottieCompositionAsState(
+                                composition,
+                                iterations = LottieConstants.IterateForever
+                            )
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                LottieAnimation(
+                                    composition = composition,
+                                    progress = progress,
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                )
+
+                                Spacer(modifier = Modifier.size(24.dp))
+                                Text(
+                                    text = "제스처 인식중...",
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+
+                        }
+                    }
+                }
+
+
+                MessageReceiver(viewModel = viewModel)
+            }
         }
     }
 }

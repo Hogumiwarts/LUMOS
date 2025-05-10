@@ -8,6 +8,6 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface GestureApi {
-    @GET("gesture")
+    @GET("/gesture/api/routine/gesture")
     suspend fun getGestureList(): GetGestureListResponse
 }
