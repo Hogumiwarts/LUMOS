@@ -77,6 +77,34 @@ services:
     networks:
       - app-network
   
+  # 제스처 서비스
+  gesture-service:
+    build:
+      context: ./gesture-service
+    container_name: lumos-gesture-service
+    expose:
+      - "8080"
+    env_file:
+      - ./gesture-service/.env
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+  # 루틴 서비스
+  routine-service:
+    build:
+      context: ./routine-service
+    container_name: lumos-routine-service
+    expose:
+      - "8080"
+    env_file:
+      - ./routine-service/.env
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
   # SmartThings 서버
   smartthings-service:
     build:
