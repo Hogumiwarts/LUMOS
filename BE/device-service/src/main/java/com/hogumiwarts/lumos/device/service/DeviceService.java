@@ -5,9 +5,10 @@ import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
 import com.hogumiwarts.lumos.device.entity.DeviceType;
 import com.hogumiwarts.lumos.device.service.support.DeviceStatusResolver;
-import com.hogumiwarts.lumos.device.util.AuthUtil;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
+import com.hogumiwarts.lumos.util.AuthUtil;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -163,5 +164,16 @@ public class DeviceService {
         };
     }
 
+	public List<DevicesCreateResponse> getDeviceDetailsByIds(List<Long> deviceIds) {
+		List<Device> devices = deviceRepository.findAllById(deviceIds);
 
+		return devices.stream()
+			.map(device -> DevicesCreateResponse.builder()
+				.deviceId(device.getDeviceId())
+				.deviceName(device.getDeviceName())
+				.deviceType(device.getDeviceType())
+				.deviceImageUrl(device.getDeviceUrl())
+				.build())
+			.toList();
+	}
 }

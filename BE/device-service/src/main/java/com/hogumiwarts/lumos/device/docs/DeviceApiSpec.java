@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.DeviceStatusResponse;
+import com.hogumiwarts.lumos.device.dto.DevicesCreateResponse;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -73,5 +74,5 @@ public interface DeviceApiSpec {
             @PathVariable("tagNumber") int tagNumber
     );
 
-
+    ResponseEntity<?> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds);
 }

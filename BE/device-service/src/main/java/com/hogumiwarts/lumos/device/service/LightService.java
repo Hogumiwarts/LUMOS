@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
-import com.hogumiwarts.lumos.device.util.AuthUtil;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
+import com.hogumiwarts.lumos.util.AuthUtil;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,17 +1,20 @@
 package com.hogumiwarts.lumos.routine.service;
 
-import com.hogumiwarts.lumos.dto.CommonResponse;
+import com.hogumiwarts.lumos.exception.CustomException;
+import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.routine.client.DeviceServiceClient;
 import com.hogumiwarts.lumos.routine.client.GestureServiceClient;
 import com.hogumiwarts.lumos.routine.dto.*;
 import com.hogumiwarts.lumos.routine.entity.Routine;
 import com.hogumiwarts.lumos.routine.repository.RoutineRepository;
+import com.hogumiwarts.lumos.util.AuthUtil;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RoutineService {
 
     private final RoutineRepository routineRepository;
@@ -27,148 +31,154 @@ public class RoutineService {
 
     // 루틴 생성
     @Transactional
-    public SuccessResponse createRoutine(Long memberId, RoutineCreateRequest request) {
-        try {
-            // 1. routine 저장
-            Routine routine = Routine.builder()
-                .memberId(memberId)
-                .routineName(request.getRoutineName())
-                .routineIcon(request.getRoutineIcon())
-                .memberGestureId(request.getGestureId())
-                .control(request.getDevices().stream()
-                    .map(device -> Map.of(
-                        "deviceId", device.getDeviceId(),
-                        "installedAppId", device.getInstalledAppId(),
-                        "controlId", device.getControlId(),
-                        "commands", device.getCommands()
-                    ))
-                    .collect(Collectors.toList()))
-                .build();
+    public RoutineCreateResponse createRoutine(RoutineCreateRequest request) {
+        Long memberId = AuthUtil.getMemberId();
+        Optional<Long> gestureIdOpt = request.getGestureId();
 
-            routineRepository.save(routine);
+        if (gestureIdOpt.isPresent()) {
+            Long gestureId = gestureIdOpt.get();
 
-            // 2. member_gesture 저장(변경)
-            CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
+            // 유효한 제스처인지 확인
+            if (gestureServiceClient.getGesture(gestureId).getData() == null) {
+                throw new CustomException(ErrorCode.GESTURE_NOT_FOUND);
+            }
 
-            return SuccessResponse.of(true);
-        } catch (Exception e) {
-            // 로깅 가능
-            return SuccessResponse.of(false);
+            // 기존 루틴에서 동일한 (memberId, gestureId) 조합이 있는지 확인 후 gesture 연결 끊기
+            routineRepository.clearGestureBinding(memberId, gestureId);
         }
+
+        // 새로운 루틴 생성
+        Routine routine = Routine.builder()
+            .memberId(memberId)
+            .gestureId(gestureIdOpt.orElse(null))
+            .routineName(request.getRoutineName())
+            .routineIcon(request.getRoutineIcon())
+            .devices(request.getDevices())
+            .build();
+
+        routineRepository.save(routine);
+
+        return RoutineCreateResponse.from(routine);
     }
 
     // 루틴 목록 조회
-    public List<RoutineResponse> getRoutineList(Long memberId) {
-        List<Routine> routines = routineRepository.findByMemberId(memberId);
+    public List<RoutineListResponse> getRoutineList() {
+        Long memberId = AuthUtil.getMemberId();
+
+        List<Routine> routines = routineRepository.findByMemberIdOrderByRoutineIdAsc(memberId);
 
         return routines.stream()
                 .map(routine -> {
                     // 제스처 이름 가져오기
-                    CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(
-                            routine.getMemberGestureId(),
-                            memberId
-                    );
+                    GestureResponse gesture = routine.getGestureId() == null ? null : gestureServiceClient.getGesture(routine.getGestureId()).getData();
 
-                    return RoutineResponse.builder()
+                    return RoutineListResponse.builder()
                             .routineId(routine.getRoutineId())
                             .routineName(routine.getRoutineName()) // routineName 필드가 없다면 routine.getTitle() 등으로 교체
                             .routineIcon(routine.getRoutineIcon())
-                            .gestureName(gesture.getData().getGestureName())
+                            .gestureName(gesture == null ? null : gesture.getGestureName())
                             .build();
                 })
                 .collect(Collectors.toList());
     }
 
-    // 루틴 수정
-    public SuccessResponse updateRoutine(Long routineId, Long memberId, RoutineUpdateRequest request) {
+    // 루틴 상세 조회
+    @Transactional
+    public RoutineDetailResponse getRoutine(Long routineId) {
+        // 1. 루틴 조회
         Routine routine = routineRepository.findById(routineId)
-                .orElseThrow(() -> new RuntimeException("루틴을 찾을 수 없습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND));
 
-        if (!routine.getMemberId().equals(memberId)) {
-            throw new RuntimeException("해당 멤버의 루틴이 아닙니다.");
+        Long gestureId = routine.getGestureId();
+
+        // 2. 제스처 정보 조회 (gesture-service)
+        GestureResponse gesture = gestureId == null ? null : gestureServiceClient.getGesture(gestureId).getData();
+
+        // 3. control 안의 deviceId 목록 추출
+        List<Long> deviceIds = routine.getDevices().stream()
+            .map(DevicesCreateRequest::getDeviceId)
+            .toList();
+
+        // 4. device-service에서 상세 정보 조회
+        List<DevicesResponse> deviceDetails = deviceServiceClient.getDeviceDetailsByIds(deviceIds).getData();
+
+        // 5. 디바이스 정보 매핑
+        Map<Long, DevicesResponse> deviceDetailMap = deviceDetails.stream()
+            .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
+
+        List<DevicesResponse> devices = routine.getDevices().stream()
+            .map(device -> {
+                DevicesResponse detail = deviceDetailMap.get(device.getDeviceId());
+
+                return DevicesResponse.builder()
+                    .deviceId(device.getDeviceId())
+                    .deviceName(detail != null ? detail.getDeviceName() : null)
+                    .deviceType(detail != null ? detail.getDeviceType() : null)
+                    .deviceImageUrl(detail != null ? detail.getDeviceImageUrl() : null)
+                    .commands(device.getCommands())
+                    .build();
+            })
+            .toList();
+
+        // 6. 최종 DTO 조립
+        return RoutineDetailResponse.from(routine, gesture, devices);
+    }
+
+    // 루틴 수정
+    public RoutineCreateResponse updateRoutine(Long routineId, RoutineUpdateRequest request) {
+        Long memberId = AuthUtil.getMemberId();
+
+        // 유효한 제스처인지 확인
+        Optional<Long> gestureId = request.getGestureId();
+
+        if (gestureId.isPresent()) {
+            if (gestureServiceClient.getGesture(gestureId.get()).getData() == null) {
+                throw new CustomException(ErrorCode.GESTURE_NOT_FOUND);
+            }
+
+            // 기존에 해달 제스처를 사용하는 루틴이 있는지 확인
+            Optional<Routine> existing = routineRepository.findByMemberIdAndGestureId(memberId, gestureId.get());
+
+            if (existing.isPresent()) {
+                // 기존 루틴 업데이트
+                Routine routine = existing.get();
+                routine.setGestureId(null);
+            }
         }
 
+        // 루틴 조회
+        Routine routine = routineRepository.findById(routineId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND));
+
+        gestureId.ifPresent(routine::setGestureId);
         request.getRoutineName().ifPresent(routine::setRoutineName);
         request.getRoutineIcon().ifPresent(routine::setRoutineIcon);
-        request.getGestureId().ifPresent(routine::setMemberGestureId);
-        request.getDevices().ifPresent(routine::setControl);
-
-        routine.setUpdatedAt(LocalDateTime.now());
+        request.getDevices().ifPresent(routine::setDevices);
         routineRepository.save(routine);
-        return SuccessResponse.of(true);
+
+        return RoutineCreateResponse.from(routine);
     }
 
     // 루틴 삭제
-    public SuccessResponse deleteRoutine(Long routineId, Long memberId) {
+    public void deleteRoutine(Long routineId) {
+        Long memberId = AuthUtil.getMemberId();
 
-        try {
-            Optional<Routine> routine = routineRepository.findByRoutineIdAndMemberId(routineId, memberId);
-
-            if (routine.isEmpty()) {
-                return SuccessResponse.of(false); // 없는 경우 false 응답
-            }
-
-            routineRepository.delete(routine.get());
-            return SuccessResponse.of(true);
-
-        } catch (Exception e) {
-            return SuccessResponse.of(false); // 예외 발생 시 false
-        }
+        Routine routine = routineRepository.findByRoutineIdAndMemberId(routineId, memberId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND));
+        routineRepository.delete(routine);
     }
 
+    @Transactional
+    public RoutineResponse getRoutineByMemberIdAndGestureId(Long memberId, Long gestureId) {
+        Routine routine = routineRepository.findByMemberIdAndGestureId(memberId, gestureId).orElse(null);
 
-    // TODO: 진행중
-    // 루틴별 기기 정보 불러오기
-    // public RoutineDevicesResponse getRoutineDevices(Long memberId, Long routineId) {
-    //
-    //     Optional<Routine> optionalRoutine = routineRepository.findByMemberIdAndRoutineId(memberId, routineId)
-    //             .stream()
-    //             .findFirst();
-    //
-    //     if (optionalRoutine.isEmpty()) {
-    //         return RoutineDevicesResponse.builder()
-    //                 .gestureName(null)
-    //                 .gestureImg(null)
-    //                 .devices(List.of()) // ✅ 빈 리스트
-    //                 .build();
-    //     }
-    //
-    //     Routine routine = optionalRoutine.get();
-    //
-    //
-    //     // 루틴 내부의 control  조회
-    //     List<Map<String, Object>> devices = routine.getControl();
-    //
-    //     // gesture-service에서 제스처 정보 조회
-    //     CommonResponse<GestureInfo> gesture = gestureServiceClient.getGestureInfo(routine.getMemberGestureId(), memberId);
-    //
-    //     List<DeviceResponse> allDevices = deviceServiceClient.getAllDeviceByMember(memberId).getData();
-    //
-    //     // 🔽 Map 형태로 캐싱
-    //     Map<Long, DeviceResponse> deviceMap = allDevices.stream()
-    //             .collect(Collectors.toMap(DeviceResponse::getDeviceId, d -> d));
-    //
-    //     // 응답 생성
-    //     return RoutineDevicesResponse.builder()
-    //             .gestureName(gesture.getData().getGestureName())
-    //             .gestureImg(gesture.getData().getGestureImg())
-    //             .devices(devices.stream()
-    //                     .map(control -> mapToDeviceDto(control, deviceMap))
-    //                     .collect(Collectors.toList()))
-    //             .build();
-    // }
-    //
-    // private DeviceRequest mapToDeviceDto(Map<String, Object> deviceMapRaw, Map<Long, DeviceResponse> deviceDetailsMap) {
-    //     Long deviceId = ((Number) deviceMapRaw.get("deviceId")).longValue();
-    //     List<Map<String, Object>> controlList = List.of((Map<String, Object>) deviceMapRaw.get("control"));
-    //
-    //     DeviceResponse detail = deviceDetailsMap.get(deviceId);
-    //
-    //     return DeviceRequest.builder()
-    //             .deviceId(deviceId)
-    //             .deviceName(detail != null ? detail.getDeviceName() : null)
-    //             .deviceImg(detail != null ? detail.getDeviceImg() : null)
-    //             .control(controlList)
-    //             .build();
-    // }
+        if (routine == null) {
+            return null;
+        }
+
+        return RoutineResponse.builder()
+            .routineId(routine.getRoutineId())
+            .routineName(routine.getRoutineName())
+            .build();
+    }
 }
