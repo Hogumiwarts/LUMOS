@@ -3,7 +3,7 @@ package com.hogumiwarts.data.entity.remote
 data class GetGestureListResponse(
     val status: Int,
     val message: String,
-    val data: GestureListData
+    val data: List<GestureListData>
 )
 
 data class GestureListData(

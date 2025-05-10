@@ -4,11 +4,7 @@ import javax.management.Descriptor
 
 sealed class GestureResult {
     data class Success(
-        val memberGestureId: Long,
-        val gestureName: String,
-        val description: String,
-        val gestureImg: String,
-        val routineName: String
+        val data: List<GestureData>
     ) : GestureResult()
 
     // 구조화된 에러 타입 사용을 위해 수정
@@ -17,3 +13,11 @@ sealed class GestureResult {
     object UnknownError : GestureResult()
     object NetworkError : GestureResult()
 }
+
+data class GestureData(
+    val memberGestureId: Long,
+    val gestureName: String,
+    val description: String,
+    val gestureImg: String,
+    val routineName: String
+)
