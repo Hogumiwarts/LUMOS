@@ -6,11 +6,11 @@ public class AirQualityLevelUtil {
         try {
             int level = Integer.parseInt(value);
             return switch (level) {
-                case 0 -> "VeryHigh";
-                case 1 -> "High";
+                case 0 -> "VeryLow";
+                case 1 -> "Low";
                 case 2 -> "Medium";
-                case 3 -> "Low";
-                case 4 -> "VeryLow";
+                case 3 -> "High";
+                case 4 -> "VeryHigh";
                 default -> "Unknown";
             };
         } catch (NumberFormatException e) {

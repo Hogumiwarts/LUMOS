@@ -8,6 +8,10 @@ import lombok.Setter;
 @Setter
 @Schema(description = "공기청정기 FanMode 변경 DTO")
 public class FanModeControlRequest {
-    @Schema(description = "공기청정기 FanMode (auto / low / medium / high / quiet)", example = "auto")
-    private String fanMode;
+
+    @Schema(
+            description = "공기청정기 FanMode (auto / low / medium / high / quiet)",
+            example = "auto"
+    )
+    private FanMode fanMode;
 }
