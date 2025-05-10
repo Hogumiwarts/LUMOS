@@ -11,33 +11,67 @@ import org.springframework.web.bind.annotation.*;
 
 public interface AirPurifierApiSpec {
 
-    @Operation(summary = "공기청정기 전원 On/Off", description = "공기청정기의 전원을 제어 합니다.", tags = {"공기청정기"})
+    @Operation(
+            summary = "공기청정기 전원 On/Off",
+            description = """
+                    공기청정기의 전원을 제어합니다. 
+                    - `true`: 전원 켜기  / `false`: 전원 끄기
+                    
+                    """,
+            tags = {"공기청정기"}
+    )
     @PatchMapping("/{deviceId}/airpurifier/power")
     ResponseEntity<CommonResponse<SuccessResponse>> updateAirPurifierPower(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "회원 ID와 전원 상태 정보",
                     required = true,
                     content = @Content(schema = @Schema(implementation = PowerControlRequest.class))
             )
-            @RequestBody PowerControlRequest  request
+            @RequestBody PowerControlRequest request
     );
 
-    @Operation(summary = "공기청정기 FanMode 변경", description = "공기청정기의 FanMode를 변경 합니다.", tags = {"공기청정기"})
+    @Operation(
+            summary = "공기청정기 FanMode 변경",
+            description = """
+                    FanMode 설정값은 다음 중 하나입니다 (5개): 
+                    - `auto`: 자동 / `low`: 약풍 / `medium`: 중간풍 / `high`: 강풍 / `quiet`: 조용한 모드  
+                    """,
+            tags = {"공기청정기"}
+    )
     @PatchMapping("/{deviceId}/airpurifier/fanmode")
     ResponseEntity<CommonResponse<SuccessResponse>> updateAirPurifierFanMode(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
-            @Parameter(
-                    description = "FanMode 설정값 : auto, low, medium, high, quiet",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = FanModeControlRequest.class))
-            )
             @RequestBody FanModeControlRequest request
     );
 
-    @Operation(summary = "공기청정기 상태 조회", description = "공기청정기 필터 정보, 전원 상태 등을 확인합니다.", tags = {"공기청정기"})
+    @Operation(
+            summary = "공기청정기 상태 조회",
+            description = """
+                    공기청정기 상태(전원, 팬 모드, 공기질 등)를 조회합니다.
+                    
+                    📘 응답 필드 설명
+                    - `deviceName` : SmartThigns 에 저장된 기기명
+                    
+                    - `manufacturerCode` : 제조사
+                    
+                    - `deviceModel` : 모델명
+                    
+                    - `deviceType` : 기기 타입
+                    
+                    - `activated` : 전원 상태 (true = 켜짐, false = 꺼짐)  
+                    
+                    - `fanMode` : 팬 속도 (auto / low / medium / high / quiet)  
+                    
+                    - `caqi` : 공기질 등급 (VeryLow / Low / Medium / High / VeryHigh / UNKNOWN)  
+                    
+                    - `filterUsageTime` : 필터 누적 사용 시간 (단위: 시간)  
+                    
+                    - `dustLevel : 미세먼지(㎍/m³)` / `fineDustLevel : 초미세먼지(㎍/m³)` / `odorLevel : 현재 냄새 센서 수치`
+                    """,
+            tags = {"공기청정기"}
+    )
     @GetMapping("/{deviceId}/airpurifier/status")
     ResponseEntity<CommonResponse<AirPurifierDetailResponse>> getAirPurifierStatus(
             @Parameter(description = "디바이스 ID", required = true)
