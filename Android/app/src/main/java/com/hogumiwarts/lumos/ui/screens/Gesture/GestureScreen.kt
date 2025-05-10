@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -52,27 +53,44 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.wearable.Wearable
+import com.hogumiwarts.domain.model.GestureResult
 import com.hogumiwarts.lumos.GestureTestViewModel
+import com.hogumiwarts.lumos.ui.screens.auth.login.LoginViewModel
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
-// 제스처 카드 데이터 모델
-data class CardData(val title: String, val description: String, val imageRes: Int)
+import kotlinx.coroutines.flow.collectLatest
+
 
 @Composable
-fun GestureScreen() {
+fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
 
 
-    // 테스트용 제스처 카드 데이터 리스트
-    val cards = listOf(
-        CardData("손목 회전", "손목을 돌려서 명령을 실행합니다.", R.drawable.ic_gesture),
-        CardData("주먹 쥠", "손을 쥐어서 제어합니다.", R.drawable.ic_gesture),
-        CardData("손 펴기", "손을 펴서 동작을 시작합니다.", R.drawable.ic_gesture)
-    )
+    LaunchedEffect(Unit) {
+        viewModel.channel.send(GestureIntent.LoadGesture)
+    }
 
-    CircularCarouselWithScaling(cards)
+    val state by viewModel.state.collectAsState()
+    when (state) {
+        is GestureState.Idle -> {
+            // 아무 것도 안함 (초기 상태)
+        }
+
+        is GestureState.Loading -> {
+            // 🔄 로딩 UI 표시
+            CircularProgressIndicator()
+        }
+        is GestureState.LoadedGesture ->{
+            CircularCarouselWithScaling((state as GestureState.LoadedGesture).data)
+        }
+
+    }
+
+
+
+
 }
 
 @Composable
-fun CircularCarouselWithScaling(cards: List<CardData>) {
+fun CircularCarouselWithScaling(cards: List<GestureResult>) {
 
     val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정
@@ -192,7 +210,7 @@ fun CircularCarouselWithScaling(cards: List<CardData>) {
 
 @Composable
 fun GestureCard(
-    card: CardData,
+    card: GestureResult,
     modifier: Modifier = Modifier,
     isCardFocused: Boolean,
     onclick: () -> Unit,
@@ -251,7 +269,7 @@ fun GestureCard(
             }
 
             Image(
-                painter = painterResource(id = card.imageRes),
+                painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지 Url 변경
                 contentDescription = null,
                 modifier = Modifier
                     .size(200.dp)
@@ -272,7 +290,7 @@ fun GestureCard(
                 },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(card.title, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(card.gestureName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(card.description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
             }
@@ -301,7 +319,7 @@ fun GestureCard(
             val (image, name, content, lottie, state) = createRefs()
 
             Text(
-                text = card.title,
+                text = card.gestureName,
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -314,7 +332,7 @@ fun GestureCard(
             )
 
             Image(
-                painter = painterResource(id = card.imageRes),
+                painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지url 변경
                 contentDescription = null,
                 modifier = Modifier
                     .size(200.dp)
@@ -327,7 +345,7 @@ fun GestureCard(
             )
 
             Text(
-                text = "지금 ${card.title}을 해보세요.",
+                text = "지금 ${card.gestureName}을 해보세요.",
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
