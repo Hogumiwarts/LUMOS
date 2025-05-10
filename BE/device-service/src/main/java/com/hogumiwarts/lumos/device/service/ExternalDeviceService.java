@@ -67,37 +67,4 @@ public class ExternalDeviceService {
         JsonNode response = smartThingsClient.executeCommand(controlDeviceId, installedAppId, body).getBody();
         return objectMapper.convertValue(response, responseType);
     }
-
-
-//    // 실시간 상태 정보 조회용 API (On, Off 상태값만 가져오기 위함)
-//    private boolean resolveActivatedStatus(Device device) {
-//        JsonNode status;
-//        try {
-//            status = smartThingsClient.fetchDeviceStatus(device.getDeviceId());
-//        } catch (Exception e) {
-//            log.warn("디바이스 상태 조회 실패: {}", device.getDeviceId(), e);
-//            return false;
-//        }
-//
-//        JsonNode main = status.path("status").path("components").path("main");
-//        String type = device.getDeviceType(); // 예: "SWITCH", "AUDIO", "AIRPURIFIER"
-//
-//        switch (type) {
-//            case "SWITCH":
-//                return "on".equalsIgnoreCase(
-//                        main.path("switch").path("switch").path("value").asText("")
-//                );
-//            case "AUDIO":
-//                return "playing".equalsIgnoreCase(
-//                        main.path("audioPlayback").path("playbackStatus").path("value").asText("")
-//                );
-//            case "AIRPURIFIER":
-//                return "on".equalsIgnoreCase(
-//                        main.path("switch").path("switch").path("value").asText("")
-//                );
-//            default:
-//                return false;
-//        }
-//    }
-
 }
