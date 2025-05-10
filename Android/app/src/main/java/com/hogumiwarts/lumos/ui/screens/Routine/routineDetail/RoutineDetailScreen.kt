@@ -1,11 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.Routine.routineDetail
 
-import android.content.Context
-import android.graphics.drawable.Icon
-import android.widget.Space
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,16 +33,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
@@ -60,10 +47,10 @@ fun RoutineDetailScreen(
     routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
     routineItem: List<RoutineItem> = RoutineItem.sample, // 루틴 리스트
     onBack: () -> Unit = {},
-    viewModel: RoutineDetailViewModel
+    viewModel: RoutineDetailViewModel,
+    onEdit: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
-
     val context = LocalContext.current
 
     LaunchedEffect(routineId) {
@@ -94,7 +81,8 @@ fun RoutineDetailScreen(
             val data = state as RoutineDetailState.Success
             RoutineDetailContent(
                 routine = data.routine,
-                devices = data.devices
+                devices = data.devices,
+                onEdit = onEdit
             )
         }
 
@@ -106,7 +94,8 @@ fun RoutineDetailScreen(
 @Composable
 fun RoutineDetailContent(
     routine: RoutineItem,
-    devices: List<RoutineDevice>
+    devices: List<RoutineDevice>,
+    onEdit: () -> Unit
 ) {
     val deviceCount = devices.size
 
@@ -165,7 +154,9 @@ fun RoutineDetailContent(
 
                 Text(
                     "수정",
-                    modifier = Modifier.clickable {},
+                    modifier = Modifier.clickable {
+                        onEdit()
+                    },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(700)
@@ -174,7 +165,9 @@ fun RoutineDetailContent(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     "삭제",
-                    modifier = Modifier.clickable {},
+                    modifier = Modifier.clickable {
+                        // todo: 삭제 화면으로 이동
+                    },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(700)
@@ -192,7 +185,7 @@ fun RoutineDetailContent(
         }
 
         item {
-            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP)
+            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, false)
         }
     }
 }

@@ -18,6 +18,8 @@ public class SecurityConfig extends AbstractSecurityConfig {
 
 	@Override
 	protected String[] getPermitAllPaths() {
-		return new String[]{ "/api/devices/**", };
+		return new String[]{
+			"/api/devices/details",
+		};
 	}
 }

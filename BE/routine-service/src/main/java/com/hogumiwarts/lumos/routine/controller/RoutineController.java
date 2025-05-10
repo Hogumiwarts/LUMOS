@@ -20,59 +20,48 @@ public class RoutineController implements RoutineApiSpec {
 
     // 루틴 생성
     @PostMapping
-    public ResponseEntity<CommonResponse<SuccessResponse>> createRoutine(
-            @RequestParam Long memberId,
-            @RequestBody RoutineCreateRequest routineCreateRequest) {
-
-        SuccessResponse response = routineService.createRoutine(memberId, routineCreateRequest);
-        return ResponseEntity.ok(CommonResponse.ok(response));
-
+    public ResponseEntity<CommonResponse<RoutineCreateResponse>> createRoutine(
+        @RequestBody RoutineCreateRequest request) {
+        RoutineCreateResponse routine  = routineService.createRoutine(request);
+        return ResponseEntity.ok(CommonResponse.ok("루틴이 성공적으로 생성되었습니다.", routine));
     }
 
     // 루틴 목록 조회
     @GetMapping
-    public ResponseEntity<CommonResponse<List<RoutineResponse>>> getRoutines(
-            @RequestParam Long memberId
-    ) {
-        List<RoutineResponse> routines = routineService.getRoutineList(memberId);
+    public ResponseEntity<CommonResponse<List<RoutineListResponse>>> getRoutines() {
+        List<RoutineListResponse> routines = routineService.getRoutineList();
         return ResponseEntity.ok(CommonResponse.ok(routines));
+    }
+
+    // 루틴 상세 조회
+    @GetMapping("/{routineId}")
+    public ResponseEntity<CommonResponse<RoutineDetailResponse>> getRoutine(@PathVariable Long routineId) {
+        RoutineDetailResponse routines = routineService.getRoutine(routineId);
+        return ResponseEntity.ok(CommonResponse.ok(routines));
+    }
+
+    // 루틴 생성
+    @PutMapping("/{routineId}")
+    public ResponseEntity<CommonResponse<RoutineCreateResponse>> updateRoutine(
+        @PathVariable Long routineId,
+        @RequestBody RoutineUpdateRequest request
+    ) {
+        RoutineCreateResponse routine  = routineService.updateRoutine(routineId, request);
+        return ResponseEntity.ok(CommonResponse.ok("루틴이 성공적으로 수정되었습니다.", routine));
     }
 
     // 루틴 삭제
     @DeleteMapping("/{routineId}")
-    public ResponseEntity<CommonResponse<SuccessResponse>> deleteRoutine(
-            @PathVariable Long routineId,
-            @RequestParam Long memberId
-    ) {
-        SuccessResponse response = routineService.deleteRoutine(routineId, memberId);
-        return ResponseEntity.ok(CommonResponse.ok(response));
+    public ResponseEntity<CommonResponse<SuccessResponse>> deleteRoutine(@PathVariable Long routineId) {
+        routineService.deleteRoutine(routineId);
+        return ResponseEntity.ok(CommonResponse.ok("루틴이 성공적으로 삭제되었습니다.", SuccessResponse.of(true)));
     }
 
-
-    // 루틴 수정
-    @PatchMapping("/{routineId}")
-    public ResponseEntity<CommonResponse<SuccessResponse>> patchRoutine(
-            @PathVariable Long routineId,
-            @RequestParam Long memberId,
-            @RequestBody RoutineUpdateRequest request
+    @GetMapping("/by-gesture")
+    public RoutineResponse getRoutineByMemberIdAndGestureId(
+        @RequestParam("memberId") Long memberId,
+        @RequestParam("gestureId") Long gestureId
     ) {
-        SuccessResponse response = routineService.updateRoutine(routineId, memberId, request);
-        return ResponseEntity.ok(CommonResponse.ok(response));
+		return routineService.getRoutineByMemberIdAndGestureId(memberId, gestureId);
     }
-
-
-    // 루틴별 기기 정보 조회
-    @GetMapping("/{routineId}/devices")
-    public ResponseEntity<CommonResponse<RoutineDevicesResponse>> getRoutineDevices(
-            @RequestParam Long memberId,
-            @PathVariable Long routineId
-    ) {
-
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Long memberId = Long.valueOf(authentication.getName());
-
-        RoutineDevicesResponse response = routineService.getRoutineDevices(memberId, routineId);
-        return ResponseEntity.ok(CommonResponse.ok(response));
-    }
-
 }

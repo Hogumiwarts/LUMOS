@@ -13,10 +13,25 @@ public enum DeviceType {
     public static DeviceType fromModelName(String deviceModel) {
         if (deviceModel == null) return UNKNOWN;
         String name = deviceModel.toLowerCase();
+
+        // Switch (푸시 버튼)
         if (name.contains("push") || name.contains("mini")) return SWITCH;
-        if (name.contains("air") || name.contains("purifier")) return AIRPURIFIER;
-        if (name.contains("bookshelf") || name.contains("sonos")) return AUDIO;
-        if (name.contains("lite_lab")) return LIGHT;
+
+        // Air Purifier
+        if (name.contains("air") || name.contains("purifier") || name.contains("airpurifier")
+                || name.contains("artik")) return AIRPURIFIER;
+
+        // Audio / Speaker
+        if (name.contains("bookshelf") || name.contains("sonos")
+                || name.contains("speaker") || name.contains("audio") || name.contains("sound") || name.contains("쉼포니") || name.contains("player"))
+            return AUDIO;
+
+        // Light
+        if (name.contains("light") || name.contains("lamp") || name.contains("bulb")
+                || name.contains("lite_lab") || name.contains("조명") || name.contains("전구")
+                || name.contains("lighting") || name.contains("hero"))
+            return LIGHT;
+
         return UNKNOWN;
     }
 
@@ -50,8 +65,6 @@ public enum DeviceType {
                             )
                     )
             );
-
-            // Example
             case LIGHT -> Map.of(
                     "capabilities", List.of(
                             Map.of(
@@ -59,8 +72,10 @@ public enum DeviceType {
                                     "commands", List.of("on", "off")
                             ),
                             Map.of(
-                                    "capability", "switchLevel",
-                                    "commands", List.of("setLevel")
+                                    "capability", "colorControl",
+                                    // hue: 색조(0=빨강, 120=초록, 240=파랑)
+                                    // saturation: 채도(색상의 강도 / 0: 회색 ~ 100: 완전한 색상)
+                                    "commands", List.of("hex", "hue", "saturation")
                             )
                     )
             );

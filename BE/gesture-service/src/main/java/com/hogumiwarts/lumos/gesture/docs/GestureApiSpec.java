@@ -14,28 +14,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@Tag(name = "제스처 조회", description = "회원 ID로 제스처 목록을 조회합니다.")
+@Tag(name = "제스처", description = "제스처 관리 API")
 public interface GestureApiSpec {
 
-    @Operation(summary = "제스처 목록 조회", description = "회원 ID를 기반으로 제스처 정보를 반환합니다.")
+    @Operation(summary = "제스처 목록 조회", description = """
+            💡 사용자의 제스처 + 루틴 정보를 반환합니다.
+            """)
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "센서 데이터 저장 성공"),
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "400", description = "유효하지 않은 입력 형식입니다."),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
-    ResponseEntity<?> getGestures(
-            @Parameter(description = "회원 ID", example = "1")
-            @RequestParam Long memberId
-    );
+    ResponseEntity<?> getGestures();
 
-    @Operation(summary = "단일 제스처 조회", description = "제스처 ID로 제스처 정보를 조회합니다.")
+    @Operation(summary = "X", description = """
+            💡 `gestureId`로 제스처 정보를 조회합니다.
+            """)
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "제스처 정보 반환 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
+        @ApiResponse(responseCode = "200", description = "제스처 정보 반환 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    ResponseEntity<CommonResponse<GestureResponse>> getGestureInfo(
-            @Parameter(description = "회원 ID", example = "1") @PathVariable("memberGestureId") Long memberGestureId,
-            @Parameter(description = "회원 ID", example = "1") @RequestParam Long memberId
-    );
+    ResponseEntity<?> getGesture(@Parameter(description = "제스처 ID", example = "1") @PathVariable("gestureId") Long gestureId);
 }
