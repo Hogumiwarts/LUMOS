@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.DeviceStatusResponse;
+import com.hogumiwarts.lumos.device.dto.DevicesCreateResponse;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -76,4 +77,12 @@ public interface DeviceApiSpec {
         @Parameter(description = "스마트 태그 번호", required = true)
         @PathVariable("tagNumber") int tagNumber
     );
+
+
+    @Operation(summary = "X", description = """
+            💡 deviceId 리스트를 통해 디바이스 조회 후 각 디바이스의 정보를 리스트로 반환
+            """,
+        tags = {"기기정보 조회"}
+    )
+    List<DevicesCreateResponse> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds);
 }

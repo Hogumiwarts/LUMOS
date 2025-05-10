@@ -163,4 +163,17 @@ public class DeviceService {
 			default -> throw new IllegalArgumentException("지원하지 않는 디바이스 타입입니다: " + inferredType);
 		};
 	}
+
+	public List<DevicesCreateResponse> getDeviceDetailsByIds(List<Long> deviceIds) {
+		List<Device> devices = deviceRepository.findAllById(deviceIds);
+
+		return devices.stream()
+			.map(device -> DevicesCreateResponse.builder()
+				.deviceId(device.getDeviceId())
+				.deviceName(device.getDeviceName())
+				.deviceType(device.getDeviceType())
+				.deviceImageUrl(device.getDeviceUrl())
+				.build())
+			.toList();
+	}
 }

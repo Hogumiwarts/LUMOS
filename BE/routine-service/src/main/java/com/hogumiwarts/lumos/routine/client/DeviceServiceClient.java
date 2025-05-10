@@ -17,7 +17,7 @@ public interface DeviceServiceClient {
     CommonResponse<List<DevicesCreateResponse>> getAllDeviceByMember(@RequestParam("memberId") Long memberId);
 
     @GetMapping("/api/devices/details")
-    CommonResponse<List<DevicesResponse>> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds);
+    List<DevicesResponse> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds);
 }
 
 

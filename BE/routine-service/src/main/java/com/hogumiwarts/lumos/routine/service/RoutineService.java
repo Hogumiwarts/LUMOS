@@ -100,7 +100,7 @@ public class RoutineService {
             .toList();
 
         // 4. device-service에서 상세 정보 조회
-        List<DevicesResponse> deviceDetails = deviceServiceClient.getDeviceDetailsByIds(deviceIds).getData();
+        List<DevicesResponse> deviceDetails = deviceServiceClient.getDeviceDetailsByIds(deviceIds);
 
         // 5. 디바이스 정보 매핑
         Map<Long, DevicesResponse> deviceDetailMap = deviceDetails.stream()
