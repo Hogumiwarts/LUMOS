@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
+import com.hogumiwarts.lumos.device.util.AuthUtil;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
+import com.hogumiwarts.lumos.exception.CustomException;
+import com.hogumiwarts.lumos.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,10 +24,13 @@ public class SwitchService {
 		externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 	}
 
-	public SwitchDetailResponse getSwitchStatus(Long deviceId, Long memberId) {
+	public SwitchDetailResponse getSwitchStatus(Long deviceId) {
+		// JWT 기반 인증 정보 가져오기
+		Long memberId = AuthUtil.getMemberId();
+
 		// 1. DB에서 디바이스 조회
 		Device device = (Device) deviceRepository.findByDeviceIdAndMemberId(deviceId, memberId)
-				.orElseThrow(() -> new EntityNotFoundException("기기를 찾을 수 없습니다."));
+				.orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "deviceId에 해당하는 디바이스를 찾을 수 없습니다."));
 
 		// 2. SmartThings 상태 조회
 		JsonNode raw = externalDeviceService.fetchDeviceStatus(deviceId);
@@ -52,6 +58,7 @@ public class SwitchService {
 				.deviceName(device.getDeviceName())
 				.manufacturerCode(device.getDeviceManufacturer())
 				.deviceModel(device.getDeviceModel())
+				.deviceType(device.getDeviceType())
 				.activated("on".equalsIgnoreCase(switchValue))
 //				.switchTimestamp(switchTimestamp)
 //				.batteryLevel(batteryLevel)

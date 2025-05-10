@@ -45,9 +45,7 @@ public interface AudioApiSpec {
     @GetMapping("/{deviceId}/audio/status")
     ResponseEntity<?> getAudioStatus(
             @Parameter(description = "디바이스 ID", required = true)
-            @PathVariable("deviceId") Long deviceId,
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam("memberId") Long memberId
+            @PathVariable("deviceId") Long deviceId
     );
 
 }

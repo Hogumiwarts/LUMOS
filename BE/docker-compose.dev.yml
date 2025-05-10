@@ -8,7 +8,7 @@ services:
     ports:
       - "80:8080"  # 외부 80 → 내부 Spring 포트
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       - gesture-sensor-service
       - auth-service
@@ -40,7 +40,7 @@ services:
     expose:
       - "8080"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       - postgres
       - redis
@@ -96,7 +96,7 @@ services:
     image: postgres:latest
     container_name: lumos-postgres
     env_file:
-      - .env
+      - .env.dev
     ports:
       - "5432:5432"
     volumes:
@@ -145,6 +145,38 @@ services:
       - grafana_data:/var/lib/grafana
     networks:
       - app-network
+  
+  zookeeper-0:
+    image: bitnami/zookeeper:3.9.2
+    container_name: lumos-zookeeper-0
+    ports:
+      - 2181:2181
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
+
+  kafka-0:
+    image: bitnami/kafka:3.7.0
+    container_name: lumos-kafka-0
+    ports:
+      - 9094:9094
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: lumos-kafka-ui
+    depends_on:
+      - kafka-0
+    ports:
+      - 8090:8080
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
@@ -152,6 +184,8 @@ volumes:
   redis_data:
     driver: local
   redis-insight-data:
+  zookeeper_data:
+  kafka_data:
 
 networks:
   app-network:

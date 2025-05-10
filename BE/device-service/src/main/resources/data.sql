@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS device (
     device_name VARCHAR(100),
     device_manufacturer VARCHAR(255),
     device_model VARCHAR(255),
+    device_type VARCHAR(255),
     control JSON,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP
@@ -38,3 +39,7 @@ CREATE TABLE IF NOT EXISTS device (
 -- -- member_id = 3 (1개)
 -- INSERT INTO device (device_id, installed_app_id, member_id, device_url, control_id, tag_number, device_name, control, created_at, updated_at)
 -- VALUES (10, '11237955-08ec-418f-a2cd-8c7ca1a0919e',3, 'http://localhost/device/10', '30', 3001, '스마트 락', '{"locked": true}', now(), now());
+
+-- -- member_id = 3 (1개)
+-- INSERT INTO device (device_id, installed_app_id, member_id, device_url, control_id, tag_number, device_name, control, created_at, updated_at)
+-- VALUES (12, '5f810cf2-432c-4c4c-bc72-c5af5abf1ef5',3, 'http://localhost/device/10', '9d7627a8-5240-4cd5-9183-09158a53f040', 3001, '알감자 조명', '{"activated" : true}', now(), now());

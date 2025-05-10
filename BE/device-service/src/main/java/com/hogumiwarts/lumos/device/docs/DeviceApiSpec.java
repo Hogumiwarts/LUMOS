@@ -26,10 +26,7 @@ public interface DeviceApiSpec {
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "디바이스 목록 조회 성공"),})
     @GetMapping
-    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember(
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam Long memberId
-    );
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember();
 
     @Operation(
             summary = "SmartThings 기기 탐색(동기화)",
@@ -39,15 +36,22 @@ public interface DeviceApiSpec {
                     - 연결된 SmartThings 계정의 전체 디바이스 목록을 받아옵니다.
                     - 내부 DB에 없는 신규 디바이스는 자동으로 저장되며,
                     - 이렇게 추가된 신규 디바이스 목록만 응답으로 반환됩니다.
+                    
+                    ---
+                    
+                    1. SmartThings 인증 요청
+                    - https://api.smartthings.com/oauth/authorize?client_id=8ec4baf1-5c20-425d-9bb4-c015a47534aa&scope=r:locations:*%20r:devices:*%20x:devices:*&response_type=code&redirect_uri=https://k12d103.p.ssafy.io/smart/oauth/callback 주소로 인증 요청
+                    - 안드로이드 딥링크로 redirect
+                    
+                    2. API 요청
+                    - 위 과정에서 받은 installedAppId로 현재 API 요청
+                    - SmartThings 연동 기기 정보를 DB와 동기화
                     """,
             tags = {"기기정보 조회"}
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "기기 탐색 성공"),})
     @GetMapping("/discover")
-    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam Long memberId
-    );
+    ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(@Parameter(description = "SmartThings 제어용 installedAppId", required = true) @RequestParam String installedAppId);
 
     @Operation(
             summary = "스마트 태그로 디바이스 상태 조회",
@@ -66,9 +70,7 @@ public interface DeviceApiSpec {
     @GetMapping("/{tagNumber}/status")
     ResponseEntity<CommonResponse<Object>> getDeviceStatusByTagNumber(
             @Parameter(description = "스마트 태그 번호", required = true)
-            @PathVariable("tagNumber") int tagNumber,
-            @Parameter(description = "회원 ID", required = true)
-            @RequestParam("memberId") Long memberId
+            @PathVariable("tagNumber") int tagNumber
     );
 
 

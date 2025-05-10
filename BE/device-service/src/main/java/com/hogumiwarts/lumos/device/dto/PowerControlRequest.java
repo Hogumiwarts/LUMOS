@@ -8,10 +8,6 @@ import lombok.Setter;
 @Setter
 @Schema(description = "디바이스 전원 제어 요청 DTO")
 public class PowerControlRequest {
-
-    @Schema(description = "회원 ID", example = "1")
-    private Long memberId;
-
     @Schema(description = "디바이스 제어 상태 (true: ON, false: OFF)", example = "false")
     private Boolean activated;
 }
