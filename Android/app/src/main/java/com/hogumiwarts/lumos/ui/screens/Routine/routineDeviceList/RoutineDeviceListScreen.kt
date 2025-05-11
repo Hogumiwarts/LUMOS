@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
@@ -44,7 +45,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun RoutineDeviceListScreen(
-    viewModel: RoutineDeviceListViewModel,
+    viewModel: RoutineDeviceListViewModel = hiltViewModel(),
     devices: List<MyDevice>,
     onSelectComplete: (MyDevice) -> Unit,
 ) {
@@ -221,10 +222,7 @@ fun CustomDialog(showDialog: Boolean, onDismiss: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun RoutineDeviceListScreenPreview() {
-    val fakeViewModel = remember { RoutineDeviceListViewModel() }
-
     RoutineDeviceListScreen(
-        viewModel = fakeViewModel,
         devices = MyDevice.sample,
         onSelectComplete = {},
     )
