@@ -44,4 +44,12 @@ class RoutineCreateViewModel @Inject constructor() : ViewModel() {
         _devices.value = _devices.value + device
     }
 
+    fun setNameBlankError(message: String) {
+        _state.value = state.value.copy(nameBlankMessage = message)
+    }
+
+    fun clearNameError() {
+        _state.value = state.value.copy(nameBlankMessage = null)
+    }
+
 }

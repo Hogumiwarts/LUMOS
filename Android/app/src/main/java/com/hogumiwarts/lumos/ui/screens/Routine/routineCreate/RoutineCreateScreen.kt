@@ -214,7 +214,12 @@ fun RoutineCreateScreen(
                 // 루틴 이름 입력창
                 OutlinedTextField(
                     value = routineName,
-                    onValueChange = { viewModel.onRoutineNameChanged(it) },
+                    onValueChange = {
+                        viewModel.onRoutineNameChanged(it)
+                        if(state.nameBlankMessage != null){
+                            viewModel.clearNameError()
+                        }
+                    },
                     isError = state.nameBlankMessage != null,
                     placeholder = {
                         Text(
@@ -253,6 +258,16 @@ fun RoutineCreateScreen(
                         }
                     }
                 )
+
+                if(state.nameBlankMessage != null){
+                    Text(
+                        text = state.nameBlankMessage ?: "",
+                        color = Color(0xFFF26D6D),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(start = 8.dp, top = 4.dp),
+                        fontFamily = nanum_square_neo
+                    )
+                }
             }
 
             item { Box(modifier = Modifier.height(1.dp)) {} }
@@ -387,8 +402,13 @@ fun RoutineCreateScreen(
             PrimaryButton(
                 buttonText = "생성하기",
                 onClick = {
-                /*todo: api 연결*/
-                    onRoutineCreateComplete()
+                    if (routineName.isBlank()) {
+                        viewModel.setNameBlankError("루틴 이름은 필수 항목입니다.")
+                    } else {
+                        viewModel.clearNameError()
+                        onRoutineCreateComplete()
+                    }
+
                 }
             )
         }
@@ -396,6 +416,7 @@ fun RoutineCreateScreen(
 
 
 }
+
 
 @Composable
 fun AddDeviceCard(onClick: () -> Unit) {
