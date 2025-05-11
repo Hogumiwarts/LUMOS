@@ -166,7 +166,10 @@ fun RoutineDeviceListScreen(
         Spacer(modifier = Modifier.height(125.dp))
 
         // 선택 버튼
-        PrimaryButton(buttonText = "선택하기", onClick = {})
+        PrimaryButton(
+            buttonText = "선택하기",
+            onClick = {/*todo: 기기별 제어 화면과 연동 (설정 완료 버튼 추가)*/ }
+        )
 
         Spacer(modifier = Modifier.height(28.dp))
 

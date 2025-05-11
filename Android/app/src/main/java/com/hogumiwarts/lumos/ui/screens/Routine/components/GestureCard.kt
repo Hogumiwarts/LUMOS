@@ -5,6 +5,7 @@ import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -140,7 +141,8 @@ fun GestureCard(
                         fontWeight = FontWeight(700),
                         color = Color(0xFFFFFFFF),
                         textAlign = TextAlign.Center,
-                    )
+                    ),
+                    modifier = Modifier.clickable { /*todo: 제스처 선택 화면과 연동*/ }
                 )
             }
         }
