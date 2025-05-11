@@ -59,6 +59,7 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureType
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.Routine.components.SwipeableDeviceCard
+import com.hogumiwarts.lumos.ui.screens.Routine.components.toRoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -115,15 +116,8 @@ fun RoutineEditScreen(
                     deviceList.removeAll { it.deviceId == selectedDevice.deviceId }
 
                     // 새로운 기기 추가
-                    deviceList.add(
-                        RoutineDevice(
-                            deviceId = selectedDevice.deviceId,
-                            deviceName = selectedDevice.deviceName,
-                            deviceType = selectedDevice.deviceType.toString(),
-                            isOn = selectedDevice.isOn,
-                            iconResId = selectedDevice.deviceType.iconResId
-                        )
-                    )
+                    deviceList.add(selectedDevice.toRoutineDevice())
+
 
                     isSheetOpen = false // 바텀 시트 닫기
                 },
