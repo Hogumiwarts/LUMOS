@@ -36,8 +36,8 @@ fun DeviceGridSection(
         contentPadding = PaddingValues(
             start = 0.dp,
             end = 0.dp,
-            top = 20.dp,
-            bottom = 20.dp
+            top = 25.dp,
+            bottom = 25.dp
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
