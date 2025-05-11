@@ -383,14 +383,13 @@ fun RoutineCreateScreen(
                     Alignment.CenterHorizontally
                 )
                 .padding(bottom = 40.dp, top = 20.dp)
-                .clickable {
-                    //todo: 생성 api 연동
-
-                }
         ) {
             PrimaryButton(
                 buttonText = "생성하기",
-                onClick = {/*todo: api 연결*/ }
+                onClick = {
+                /*todo: api 연결*/
+                    onRoutineCreateComplete()
+                }
             )
         }
     }
