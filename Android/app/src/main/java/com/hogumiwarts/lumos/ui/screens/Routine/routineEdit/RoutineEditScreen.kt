@@ -1,7 +1,5 @@
 package com.hogumiwarts.lumos.ui.screens.Routine.routineEdit
 
-import android.content.Context
-import android.graphics.Paint.Align
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -26,10 +24,13 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,10 +38,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,43 +49,98 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.CommonDialog
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureType
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.Routine.components.SwipeableDeviceCard
+import com.hogumiwarts.lumos.ui.screens.Routine.components.toRoutineDevice
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineEditScreen(
     viewModel: RoutineEditViewModel,
     devices: List<RoutineDevice>,
-    onRoutineEditComplete: () -> Unit
+    onRoutineEditComplete: () -> Unit,
+    navController: NavController
 ) {
     val selectedIcon by viewModel.selectedIcon.collectAsState()
     val routineName by viewModel.routineName.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
+    // 바텀 시트
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
+    var isSheetOpen by remember { mutableStateOf(false) }
+
     // 기기 리스트 관리
     val deviceList = remember { mutableStateListOf<RoutineDevice>().apply { addAll(devices) } }
+    val myDeviceList = remember {
+        mutableStateListOf<MyDevice>().apply {
+            addAll(MyDevice.sample.map {
+                MyDevice(
+                    deviceId = it.deviceId,
+                    deviceName = it.deviceName,
+                    isOn = it.isOn,
+                    isActive = it.isActive,
+                    deviceType = it.deviceType
+                )
+            })
+        }
+    }
+    val showDuplicateDialog = remember { mutableStateOf(false) }
 
-    Box(
+    if (isSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isSheetOpen = false },
+            sheetState = sheetState,
+            containerColor = Color.White,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
+            RoutineDeviceListScreen(
+                viewModel = RoutineDeviceListViewModel(),
+                devices = myDeviceList,
+                onSelectComplete = { selectedDevice ->
+                    // 같은 기기 + 같은 상태라면 추가 안함
+                    val newDevice = selectedDevice.toRoutineDevice()
+
+                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
+                        showDuplicateDialog.value = true
+                    } else {
+                        deviceList.add(newDevice)
+                        isSheetOpen = false
+                    }
+                },
+                showDuplicateDialog = showDuplicateDialog.value,
+                onDismissDuplicateDialog = { showDuplicateDialog.value = false }
+            )
+        }
+    }
+
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 28.dp)
             .statusBarsPadding(),
-        contentAlignment = Alignment.Center
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize(),
+                .weight(1f),
             contentPadding = PaddingValues(top = 25.dp, bottom = 50.dp),
             verticalArrangement = Arrangement.spacedBy(17.dp)
         ) {
@@ -97,7 +153,7 @@ fun RoutineEditScreen(
                 ) {
                     Text(
                         text = "루틴 수정",
-                        fontSize = 20.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
                         fontFamily = nanum_square_neo
                     )
@@ -222,7 +278,13 @@ fun RoutineEditScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clickable {
-                                //todo: 클릭 시 기기 추가 화면으로 이동
+                                //기기 추가 화면으로 이동
+                                //navController.navigate("routineDeviceList")
+//                               isSheetOpen = true
+                                coroutineScope.launch {
+                                    isSheetOpen = true
+                                    sheetState.show() // 바텀 시트 열기
+                                }
                             }
                     ) {
                         Image(
@@ -317,15 +379,15 @@ fun RoutineEditScreen(
         Box(
             modifier = Modifier
                 .align(
-                    Alignment.BottomCenter
+                    Alignment.CenterHorizontally
                 )
-                .padding(bottom = 40.dp, top = 50.dp)
+                .padding(bottom = 40.dp, top = 20.dp)
                 .clickable {
                     //todo: 수정 api 연동
                     onRoutineEditComplete()
                 }
         ) {
-            PrimaryButton(buttonText = "수정하기")
+            PrimaryButton(buttonText = "수정하기", onClick = {})
         }
     }
 
@@ -352,6 +414,7 @@ fun RoutineEditScreenPreview() {
     RoutineEditScreen(
         viewModel = fakeViewModel,
         devices = RoutineDevice.sample,
-        onRoutineEditComplete = {}
+        onRoutineEditComplete = {},
+        navController = rememberNavController()
     )
 }

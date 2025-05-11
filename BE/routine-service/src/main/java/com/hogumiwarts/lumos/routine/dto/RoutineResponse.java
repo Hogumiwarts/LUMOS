@@ -1,13 +1,17 @@
 package com.hogumiwarts.lumos.routine.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class RoutineResponse {
-    private Long routineId;
-    private String routineName;
-    private Integer routineIcon;
-    private String gestureName;
+
+	private Long routineId;
+	private String routineName;
 }
+

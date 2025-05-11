@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.device.exception;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import feign.FeignException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,6 +19,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+	// SmartThings API : 디바이스 제어 불가능 상태일 때 에러처리
+//	@ExceptionHandler(FeignException.class)
+//	public ResponseEntity<ErrorResponse> handleFeignException(FeignException ex) {
+//		log.warn("FeignException 발생: status={}, message={}", ex.status(), ex.contentUTF8());
+//
+//		// 409 Conflict - invalid device state
+//		if (ex.status() == 409 && ex.contentUTF8().contains("invalid device state")) {
+//			return ResponseEntity
+//					.status(ErrorCode.DEVICE_INVALID_STATE.getStatus().value())
+//					.body(ErrorResponse.of(ErrorCode.DEVICE_INVALID_STATE));
+//		}
+//
+//		// 403 Forbidden - 권한 없음 또는 연결 해제 등
+//		if (ex.status() == 403) {
+//			return ResponseEntity
+//					.status(ErrorCode.DEVICE_FORBIDDEN.getStatus().value())
+//					.body(ErrorResponse.of(ErrorCode.DEVICE_FORBIDDEN));
+//		}
+//
+//		// 그 외 Feign 에러는 일반 서버 에러로 처리
+//		log.error("Unhandled FeignException", ex);
+//		return ResponseEntity
+//				.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value())
+//				.body(ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR));
+//	}
 
 	// CustomException 처리 (ErrorCode 활용)
 	@ExceptionHandler(CustomException.class)

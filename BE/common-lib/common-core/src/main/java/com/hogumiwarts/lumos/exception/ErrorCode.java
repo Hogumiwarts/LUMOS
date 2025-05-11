@@ -61,7 +61,13 @@ public enum ErrorCode {
 	INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "FCM-001", "유효하지 않은 FCM 토큰 값입니다."),
 	UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "AUTH-010", "권한이 없습니다."),
 
-	FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH-015", "접근이 금지되었습니다.");
+	FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH-015", "접근이 금지되었습니다."),
+
+	// 루틴 관련 에러
+	ROUTINE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTINE-001", "해당하는 루틴을 찾을 수 없습니다."),
+
+	// 제스처 관련 에러
+	GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "GESTURE-001", "해당하는 제스처를 찾을 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String errorCode;

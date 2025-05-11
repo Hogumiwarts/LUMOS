@@ -7,11 +7,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
@@ -19,8 +22,12 @@ import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
+import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
@@ -173,6 +180,9 @@ fun NavGraph(
                         routines = RoutineItem.sample, // todo: 실제 api 필요
                         onRoutineClick = { routine ->
                             navController.navigate("routine_detail/${routine.id}")
+                        },
+                        onAddClick = {
+                            navController.navigate("routine_create")
                         }
                     )
 
@@ -242,7 +252,7 @@ fun NavGraph(
         }
 
         // 루틴 수정
-        composable("routine_edit/{rouineId}") { navBackStackEntry ->
+        composable("routine_edit/{routineId}") { navBackStackEntry ->
             val routineId = navBackStackEntry.arguments?.getString("routineId")
             val viewModel = hiltViewModel<RoutineEditViewModel>()
 
@@ -250,8 +260,37 @@ fun NavGraph(
                 viewModel = viewModel,
                 devices = RoutineDevice.sample,
                 onRoutineEditComplete = {
-                    navController.popBackStack() // 이전 화면으로 돌아감
-                }
+                    navController.popBackStack()
+                },
+                navController = navController
+            )
+        }
+
+
+        // 루틴 - 기기 선택
+        composable("routineDeviceList") {
+            val viewModel = hiltViewModel<RoutineDeviceListViewModel>()
+            val showDuplicateDialog = remember { mutableStateOf(false) }
+
+            RoutineDeviceListScreen(
+                viewModel = viewModel,
+                devices = MyDevice.sample,
+                onSelectComplete = {
+                    navController.popBackStack()
+                },
+                showDuplicateDialog = showDuplicateDialog.value,
+                onDismissDuplicateDialog = { showDuplicateDialog.value = false }
+            )
+        }
+
+        composable("routine_create") {
+            val viewModel = hiltViewModel<RoutineCreateViewModel>()
+            RoutineCreateScreen(
+                viewModel = viewModel,
+                onRoutineCreateComplete = {
+                    navController.popBackStack()
+                },
+                navController = navController
             )
         }
 
