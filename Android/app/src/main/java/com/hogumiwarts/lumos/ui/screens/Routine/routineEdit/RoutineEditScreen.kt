@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
@@ -100,6 +101,7 @@ fun RoutineEditScreen(
             })
         }
     }
+    val showDuplicateDialog = remember { mutableStateOf(false) }
 
     if (isSheetOpen) {
         ModalBottomSheet(
@@ -112,31 +114,33 @@ fun RoutineEditScreen(
                 viewModel = RoutineDeviceListViewModel(),
                 devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
-                    // 기존에 동일한 id 있으면 제거
-                    deviceList.removeAll { it.deviceId == selectedDevice.deviceId }
+                    // 같은 기기 + 같은 상태라면 추가 안함
+                    val newDevice = selectedDevice.toRoutineDevice()
 
-                    // 새로운 기기 추가
-                    deviceList.add(selectedDevice.toRoutineDevice())
-
-
-                    isSheetOpen = false // 바텀 시트 닫기
+                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
+                        showDuplicateDialog.value = true
+                    } else {
+                        deviceList.add(newDevice)
+                        isSheetOpen = false
+                    }
                 },
+                showDuplicateDialog = showDuplicateDialog.value,
+                onDismissDuplicateDialog = { showDuplicateDialog.value = false }
             )
         }
     }
 
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 28.dp)
             .statusBarsPadding(),
-        contentAlignment = Alignment.Center
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize(),
+                .weight(1f),
             contentPadding = PaddingValues(top = 25.dp, bottom = 50.dp),
             verticalArrangement = Arrangement.spacedBy(17.dp)
         ) {
@@ -375,9 +379,9 @@ fun RoutineEditScreen(
         Box(
             modifier = Modifier
                 .align(
-                    Alignment.BottomCenter
+                    Alignment.CenterHorizontally
                 )
-                .padding(bottom = 40.dp, top = 50.dp)
+                .padding(bottom = 40.dp, top = 20.dp)
                 .clickable {
                     //todo: 수정 api 연동
                     onRoutineEditComplete()

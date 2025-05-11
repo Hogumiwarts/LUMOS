@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -245,7 +247,7 @@ fun NavGraph(
         }
 
         // 루틴 수정
-        composable("routine_edit/{rouineId}") { navBackStackEntry ->
+        composable("routine_edit/{routineId}") { navBackStackEntry ->
             val routineId = navBackStackEntry.arguments?.getString("routineId")
             val viewModel = hiltViewModel<RoutineEditViewModel>()
 
@@ -253,15 +255,17 @@ fun NavGraph(
                 viewModel = viewModel,
                 devices = RoutineDevice.sample,
                 onRoutineEditComplete = {
-                    navController.popBackStack() // 이전 화면으로 돌아감
+                    navController.popBackStack()
                 },
-                navController
+                navController = navController
             )
         }
+
 
         // 루틴 - 기기 선택
         composable("routineDeviceList") {
             val viewModel = hiltViewModel<RoutineDeviceListViewModel>()
+            val showDuplicateDialog = remember { mutableStateOf(false) }
 
             RoutineDeviceListScreen(
                 viewModel = viewModel,
@@ -269,6 +273,8 @@ fun NavGraph(
                 onSelectComplete = {
                     navController.popBackStack()
                 },
+                showDuplicateDialog = showDuplicateDialog.value,
+                onDismissDuplicateDialog = { showDuplicateDialog.value = false }
             )
         }
 

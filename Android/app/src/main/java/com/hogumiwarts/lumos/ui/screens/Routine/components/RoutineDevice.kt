@@ -17,7 +17,7 @@ data class RoutineDevice(
     companion object {
         val sample = listOf(
             RoutineDevice(1, "거실 공기청정기", DeviceListType.AIR_CLEANER, true),
-            RoutineDevice(2, "내 방 조명 1", DeviceListType.LIGHT, false)
+            RoutineDevice(3, "내 방 조명", DeviceListType.LIGHT, false)
         )
     }
 

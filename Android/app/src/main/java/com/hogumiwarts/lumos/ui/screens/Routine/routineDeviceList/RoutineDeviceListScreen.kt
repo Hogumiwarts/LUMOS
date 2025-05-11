@@ -24,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
@@ -48,6 +50,8 @@ fun RoutineDeviceListScreen(
     viewModel: RoutineDeviceListViewModel = hiltViewModel(),
     devices: List<MyDevice>,
     onSelectComplete: (MyDevice) -> Unit,
+    showDuplicateDialog: Boolean,
+    onDismissDuplicateDialog: () -> Unit
 ) {
     // 선택 기기 상태
     val selectedDeviceId by viewModel.selectedDeviceId
@@ -172,58 +176,29 @@ fun RoutineDeviceListScreen(
         Spacer(modifier = Modifier.height(28.dp))
 
         // 다이얼로그 설정
-        CustomDialog(showDialog, onDismiss = { viewModel.dismissDialog() })
+        CommonDialog(
+            showDialog = showDialog,
+            onDismiss = { viewModel.dismissDialog() },
+            titleText = "선택할 수 없는 기기예요!",
+            bodyText = "기기 상태가 비활성화로 감지되어 제어할 수 없습니다. 거리가 멀어지면 비활성화로 전환될 수 있어요."
+        )
 
-    }
-
-}
-
-@Composable
-fun CustomDialog(showDialog: Boolean, onDismiss: () -> Unit) {
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                PrimaryButton(
-                    buttonText = "확인",
-                    onClick = onDismiss
-                )
-            },
-            title = {
-                Text(
-                    text = "선택할 수 없는 기기예요!",
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp,
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight(800),
-                    color = Color(0xFF000000),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            text = {
-                Text(
-                    text = "기기 상태가 비활성화로 감지되어 제어할 수 없습니다. " +
-                            "거리가 멀어지면 비활성화로 전환될 수 있어요.",
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight(400),
-                    color = Color(0x80151920),
-                    textAlign = TextAlign.Center
-                )
-            },
-            containerColor = Color.White,
-            shape = RoundedCornerShape(16.dp)
+        // 중복 기기용 다이얼로그
+        CommonDialog(
+            showDialog = showDuplicateDialog,
+            onDismiss = onDismissDuplicateDialog,
+            titleText = "이미 추가된 기기입니다",
+            bodyText = "같은 기기와 상태의 조합은 한 번만 추가할 수 있어요."
         )
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun RoutineDeviceListScreenPreview() {
-    RoutineDeviceListScreen(
-        devices = MyDevice.sample,
-        onSelectComplete = {},
-    )
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun RoutineDeviceListScreenPreview() {
+//    RoutineDeviceListScreen(
+//        devices = MyDevice.sample,
+//        onSelectComplete = {},
+//    )
+//}
