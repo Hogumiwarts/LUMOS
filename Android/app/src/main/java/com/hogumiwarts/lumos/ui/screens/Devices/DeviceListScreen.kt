@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,6 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
@@ -46,9 +51,21 @@ fun DeviceListScreen(
     val showDialog by viewModel.showDialog
 
     val isLinked by viewModel.isLinked.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit) {
-        viewModel.checkAccountLinked()
+    // 화면이 다시 Resume될 때마다 연동 상태 재확인
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.checkAccountLinked()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     Column(
@@ -101,7 +118,8 @@ fun DeviceListScreen(
 fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(bottom = 80.dp), // 네비게이션 높이 제외
     ) {
         Column(
@@ -138,7 +156,7 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel) {
                     .padding(horizontal = 8.dp, vertical = 5.dp)
                     .clickable {
                         // todo: SmartThings 계정 
-                        
+
                         // 연동 끝나면 상태 업데이트
                         viewModel.checkAccountLinked()
                     }
