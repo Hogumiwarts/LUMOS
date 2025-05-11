@@ -46,7 +46,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun RoutineDeviceListScreen(
     viewModel: RoutineDeviceListViewModel,
     devices: List<MyDevice>,
-    onSelectComplete: () -> Unit,
+    onSelectComplete: (MyDevice) -> Unit,
 ) {
     // 선택 기기 상태
     val selectedDeviceId by viewModel.selectedDeviceId
@@ -76,7 +76,6 @@ fun RoutineDeviceListScreen(
 
         }
 
-        //Spacer(modifier = Modifier.height(20.dp))
 
         // 기기 목록
         LazyVerticalGrid(
@@ -88,7 +87,7 @@ fun RoutineDeviceListScreen(
                 .fillMaxWidth()
         ) {
             itemsIndexed(devices) { index, device ->
-                val isSelected = selectedDeviceId.value == device.deviceId
+                val isSelected = selectedDeviceId == device.deviceId
 
                 // 전체 줄 수를 계산
                 val rows = (devices.size + 1) / 2
@@ -161,7 +160,12 @@ fun RoutineDeviceListScreen(
         // 선택 버튼
         PrimaryButton(
             buttonText = "선택하기",
-            onClick = {/*todo: 기기별 제어 화면과 연동 (설정 완료 버튼 추가)*/ }
+            onClick = {
+                val selected = viewModel.getSelectedDevice(devices)
+                if (selected != null) {
+                    onSelectComplete(selected)
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(28.dp))

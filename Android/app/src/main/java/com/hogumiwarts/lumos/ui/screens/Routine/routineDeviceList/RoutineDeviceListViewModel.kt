@@ -23,4 +23,8 @@ class RoutineDeviceListViewModel @Inject constructor() : ViewModel() {
     fun dismissDialog() {
         showDialog.value = false
     }
+
+    fun getSelectedDevice(devices: List<MyDevice>): MyDevice? {
+        return devices.find { it.deviceId == selectedDeviceId.value }
+    }
 }

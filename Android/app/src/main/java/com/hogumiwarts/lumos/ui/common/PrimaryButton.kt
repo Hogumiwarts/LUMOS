@@ -33,7 +33,7 @@ fun PrimaryButton(
                 colorResource(id = R.color.main_primary),
                 shape = RoundedCornerShape(10.dp)
             )
-            .clickable { onClick() },
+            .clickable { onClick },
         contentAlignment = Alignment.Center,
 
         ) {

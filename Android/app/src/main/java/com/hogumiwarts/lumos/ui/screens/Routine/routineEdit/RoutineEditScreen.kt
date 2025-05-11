@@ -64,6 +64,7 @@ import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceL
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,7 +110,21 @@ fun RoutineEditScreen(
             RoutineDeviceListScreen(
                 viewModel = RoutineDeviceListViewModel(),
                 devices = myDeviceList,
-                onSelectComplete = {
+                onSelectComplete = { selectedDevice ->
+                    // 기존에 동일한 id 있으면 제거
+                    deviceList.removeAll { it.deviceId == selectedDevice.deviceId }
+
+                    // 새로운 기기 추가
+                    deviceList.add(
+                        RoutineDevice(
+                            deviceId = selectedDevice.deviceId,
+                            deviceName = selectedDevice.deviceName,
+                            deviceType = selectedDevice.deviceType.toString(),
+                            isOn = selectedDevice.isOn,
+                            iconResId = selectedDevice.deviceType.iconResId
+                        )
+                    )
+
                     isSheetOpen = false // 바텀 시트 닫기
                 },
             )
