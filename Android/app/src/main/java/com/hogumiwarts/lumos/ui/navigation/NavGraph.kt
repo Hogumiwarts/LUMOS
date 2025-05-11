@@ -22,6 +22,8 @@ import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
+import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
@@ -178,6 +180,9 @@ fun NavGraph(
                         routines = RoutineItem.sample, // todo: 실제 api 필요
                         onRoutineClick = { routine ->
                             navController.navigate("routine_detail/${routine.id}")
+                        },
+                        onAddClick = {
+                            navController.navigate("routine_create")
                         }
                     )
 
@@ -275,6 +280,17 @@ fun NavGraph(
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false }
+            )
+        }
+
+        composable("routine_create") {
+            val viewModel = hiltViewModel<RoutineCreateViewModel>()
+            RoutineCreateScreen(
+                viewModel = viewModel,
+                onRoutineCreateComplete = {
+                    navController.popBackStack()
+                },
+                navController = navController
             )
         }
 

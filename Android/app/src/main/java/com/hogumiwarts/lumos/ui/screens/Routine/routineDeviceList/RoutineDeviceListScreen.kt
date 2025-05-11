@@ -187,8 +187,8 @@ fun RoutineDeviceListScreen(
         CommonDialog(
             showDialog = showDuplicateDialog,
             onDismiss = onDismissDuplicateDialog,
-            titleText = "이미 추가된 기기입니다",
-            bodyText = "같은 기기와 상태의 조합은 한 번만 추가할 수 있어요."
+            titleText = "이미 선택한 기기예요!",
+            bodyText = "같은 기기 + 같은 상태 조합은 한 번만 사용할 수 있어요. 새로운 조합으로 시도해볼까요? ✨"
         )
     }
 }

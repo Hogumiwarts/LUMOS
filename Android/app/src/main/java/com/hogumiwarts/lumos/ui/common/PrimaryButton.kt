@@ -28,7 +28,7 @@ fun PrimaryButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(45.dp)
             .background(
                 colorResource(id = R.color.main_primary),
                 shape = RoundedCornerShape(10.dp)
