@@ -216,7 +216,7 @@ fun RoutineCreateScreen(
                     value = routineName,
                     onValueChange = {
                         viewModel.onRoutineNameChanged(it)
-                        if(state.nameBlankMessage != null){
+                        if (state.nameBlankMessage != null) {
                             viewModel.clearNameError()
                         }
                     },
@@ -259,7 +259,7 @@ fun RoutineCreateScreen(
                     }
                 )
 
-                if(state.nameBlankMessage != null){
+                if (state.nameBlankMessage != null) {
                     Text(
                         text = state.nameBlankMessage ?: "",
                         color = Color(0xFFF26D6D),
@@ -335,8 +335,20 @@ fun RoutineCreateScreen(
                             }
                         }
                     )
+
+                    if (state.deviceEmptyMessage != null) {
+                        Text(
+                            text = state.deviceEmptyMessage!!,
+                            color = Color(0xFFF26D6D),
+                            fontSize = 12.sp,
+                            fontFamily = nanum_square_neo,
+                            modifier = Modifier.padding(top = 6.dp, start = 4.dp)
+                        )
+                    }
                 }
             }
+
+
 
             // 기기 리스트
             items(devices, key = { it.deviceId }) { device ->
@@ -402,10 +414,14 @@ fun RoutineCreateScreen(
             PrimaryButton(
                 buttonText = "생성하기",
                 onClick = {
+
                     if (routineName.isBlank()) {
                         viewModel.setNameBlankError("루틴 이름은 필수 항목입니다.")
+                    } else if (devices.isEmpty()) {
+                        viewModel.setDeviceEmptyError("적용할 기기를 하나 이상 선택해주세요.")
                     } else {
                         viewModel.clearNameError()
+                        viewModel.clearDeviceError()
                         onRoutineCreateComplete()
                     }
 

@@ -7,12 +7,13 @@ import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
 class RoutineCreateViewModel @Inject constructor() : ViewModel() {
-    private val _state = MutableStateFlow(RoutineEditState())
-    val state: StateFlow<RoutineEditState> = _state
+    private val _state = MutableStateFlow(RoutineCreateState())
+    val state: StateFlow<RoutineCreateState> = _state
 
     private val _devices = MutableStateFlow<List<RoutineDevice>>(emptyList())
     val devices: StateFlow<List<RoutineDevice>> = _devices
@@ -50,6 +51,14 @@ class RoutineCreateViewModel @Inject constructor() : ViewModel() {
 
     fun clearNameError() {
         _state.value = state.value.copy(nameBlankMessage = null)
+    }
+
+    fun setDeviceEmptyError(message: String?) {
+        _state.update { it.copy(deviceEmptyMessage  = message) }
+    }
+
+    fun clearDeviceError() {
+        _state.update { it.copy(deviceEmptyMessage = null) }
     }
 
 }
