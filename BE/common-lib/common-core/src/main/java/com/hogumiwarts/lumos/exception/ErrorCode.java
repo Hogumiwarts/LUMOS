@@ -67,7 +67,10 @@ public enum ErrorCode {
 	ROUTINE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTINE-001", "해당하는 루틴을 찾을 수 없습니다."),
 
 	// 제스처 관련 에러
-	GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "GESTURE-001", "해당하는 제스처를 찾을 수 없습니다.");
+	GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "GESTURE-001", "해당하는 제스처를 찾을 수 없습니다."),
+
+	// 모델 추론 관련 에러
+	PREDICT_FAIL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PREDICT-001", "모델 추론 서버가 현재 응답하지 않습니다. 서버 상태를 확인해주세요.");
 
 	private final HttpStatus status;
 	private final String errorCode;

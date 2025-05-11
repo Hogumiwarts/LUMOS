@@ -44,7 +44,6 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun DeviceCard(
     routineDevice: RoutineDevice,
 ) {
-    val deviceType = DeviceType.from(routineDevice.deviceType)
 
     Box(
         modifier = Modifier
@@ -69,7 +68,7 @@ fun DeviceCard(
             modifier = Modifier
                 .width(10.dp)
                 .fillMaxHeight()
-                .background(deviceType.color)
+                .background(routineDevice.color)
         )
 
         Row(
@@ -94,7 +93,7 @@ fun DeviceCard(
 
                 // 기기 타입
                 Text(
-                    text = routineDevice.deviceType,
+                    text = routineDevice.deviceTypeName,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
                         fontSize = 11.sp,
@@ -124,11 +123,11 @@ fun DeviceCard(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 10.dp, end = 10.dp),
+                    .padding(end = 10.dp),
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Image(
-                    painter = painterResource(id = deviceType.iconResId),
+                    painter = painterResource(id = routineDevice.iconResId),
                     contentDescription = null,
                     modifier = Modifier
                         .size(100.dp)

@@ -82,7 +82,8 @@ fun RoutineScreen(
                                 .size(size)
                         )
                     },
-                    endPadding = 3.dp
+                    endPadding = 3.dp,
+                    isActive = true,
                 )
             }
         }
