@@ -53,7 +53,7 @@ fun LightDeviceItem() {
             )
             .border(
                 width = 1.dp,
-                color = colorResource(R.color.point_primary),
+                color = if (isOnToggle) colorResource(R.color.point_color) else Color(0xFFBBBFDD),
                 shape = RoundedCornerShape(20.dp)
             ),
         shape = RoundedCornerShape(20.dp),
@@ -72,8 +72,8 @@ fun LightDeviceItem() {
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
                     uncheckedThumbColor = Color.White,
-                    checkedTrackColor = colorResource(R.color.point_primary),
-                    uncheckedTrackColor = Color.LightGray,
+                    checkedTrackColor = colorResource(R.color.on_toggle_color),
+                    uncheckedTrackColor = colorResource(R.color.off_toggle_color),
                     checkedBorderColor = Color.Transparent,
                     uncheckedBorderColor = Color.Transparent
                 ),

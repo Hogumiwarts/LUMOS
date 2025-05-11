@@ -134,6 +134,9 @@ fun HomeScreen() {
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(
+                    bottom = 12.dp
+                )
             ) {
                 items(devices) {
                     LightDeviceItem()
