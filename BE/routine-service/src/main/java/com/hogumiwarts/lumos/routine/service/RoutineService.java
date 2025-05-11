@@ -4,6 +4,7 @@ import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.routine.client.DeviceServiceClient;
 import com.hogumiwarts.lumos.routine.client.GestureServiceClient;
+import com.hogumiwarts.lumos.routine.client.SmartThingsServiceClient;
 import com.hogumiwarts.lumos.routine.dto.*;
 import com.hogumiwarts.lumos.routine.entity.Routine;
 import com.hogumiwarts.lumos.routine.repository.RoutineRepository;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class RoutineService {
     private final RoutineRepository routineRepository;
     private final GestureServiceClient gestureServiceClient;
     private final DeviceServiceClient deviceServiceClient;
+    private final SmartThingsServiceClient smartThingsClient;
 
     // 루틴 생성
     @Transactional
@@ -166,6 +169,33 @@ public class RoutineService {
         Routine routine = routineRepository.findByRoutineIdAndMemberId(routineId, memberId)
             .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND));
         routineRepository.delete(routine);
+    }
+
+    // 루틴 실행
+    public void executeRoutineByGestureId(Long gestureId) {
+        Long memberId = AuthUtil.getMemberId();
+
+        Routine routine = routineRepository.findByMemberIdAndGestureId(memberId, gestureId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_GESTURE_NOT_FOUND));
+
+        List<Long> failedDeviceIds = new ArrayList<>();
+
+        routine.getDevices().forEach(device -> {
+            try {
+                smartThingsClient.executeCommand(
+                    device.getControlId(),
+                    device.getInstalledAppId(),
+                    new CommandExecuteRequest(device.getCommands())
+                );
+            } catch (Exception e) {
+                failedDeviceIds.add(device.getDeviceId());
+                log.error("스마트싱스 제어 실패: deviceId={}, error={}", device.getDeviceId(), e.getMessage());
+            }
+        });
+
+        if (!failedDeviceIds.isEmpty()) {
+            throw new CustomException(ErrorCode.ROUTINE_PARTIAL_FAILURE);
+        }
     }
 
     @Transactional
