@@ -10,41 +10,34 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
@@ -59,6 +52,7 @@ fun RoutineDeviceListScreen(
 ) {
     // 선택 기기 상태
     val selectedDeviceId = remember { mutableStateOf<Int?>(null) }
+    val showDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -109,9 +103,13 @@ fun RoutineDeviceListScreen(
                     DeviceRoutineCard(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clickable {
-                                selectedDeviceId.value =
-                                    if (isSelected) null else device.deviceId
+                            .clickable { // 특정 기기 클릭 시 동작
+                                if (!device.isActive) { // 비활 기기라면 다이얼로그 띄우고 선택 X
+                                    showDialog.value = true
+                                } else {
+                                    selectedDeviceId.value =
+                                        if (isSelected) null else device.deviceId
+                                }
                             },
                         showToggle = false,
                         cardTitle = device.deviceName,
@@ -168,12 +166,56 @@ fun RoutineDeviceListScreen(
         Spacer(modifier = Modifier.height(125.dp))
 
         // 선택 버튼
-        PrimaryButton(buttonText = "선택하기")
+        PrimaryButton(buttonText = "선택하기", onClick = {})
 
         Spacer(modifier = Modifier.height(28.dp))
 
+        // 다이얼로그 설정
+        CustomDialog(showDialog)
+
     }
 
+}
+
+@Composable
+fun CustomDialog(showDialog: MutableState<Boolean>) {
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            confirmButton = {
+                PrimaryButton(
+                    buttonText = "확인",
+                    onClick = { showDialog.value = false }
+                )
+            },
+            title = {
+                Text(
+                    text = "선택할 수 없는 기기예요!",
+                    fontSize = 18.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight(800),
+                    color = Color(0xFF000000),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Text(
+                    text = "기기 상태가 비활성화로 감지되어 제어할 수 없습니다. " +
+                            "거리가 멀어지면 비활성화로 전환될 수 있어요.",
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight(400),
+                    color = Color(0x80151920),
+                    textAlign = TextAlign.Center
+                )
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
 }
 
 @Preview(showBackground = true)

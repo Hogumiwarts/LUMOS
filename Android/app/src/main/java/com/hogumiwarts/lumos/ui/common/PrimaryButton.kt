@@ -1,7 +1,7 @@
 package com.hogumiwarts.lumos.ui.common
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,15 +16,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 // 주요 사용 버튼 정의
 @Composable
 fun PrimaryButton(
-    buttonText: String
-){
+    buttonText: String,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -32,10 +32,11 @@ fun PrimaryButton(
             .background(
                 colorResource(id = R.color.main_primary),
                 shape = RoundedCornerShape(10.dp)
-            ),
+            )
+            .clickable { onClick() },
         contentAlignment = Alignment.Center,
 
-    ){
+        ) {
         Text(
             text = buttonText,
             style = MaterialTheme.typography.titleMedium.copy(
@@ -49,6 +50,6 @@ fun PrimaryButton(
 
 @Preview(showBackground = false)
 @Composable
-private fun PrimaryButtonPreview(){
-    PrimaryButton(buttonText = "수정하기")
+private fun PrimaryButtonPreview() {
+    PrimaryButton(buttonText = "수정하기", onClick = {})
 }
