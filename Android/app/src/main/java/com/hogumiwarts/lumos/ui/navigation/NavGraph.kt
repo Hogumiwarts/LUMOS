@@ -15,11 +15,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.screens.Devices.DeviceListScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
-import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateScreen
@@ -174,7 +174,16 @@ fun NavGraph(
                 when (item) {
                     BottomNavItem.Home -> HomeScreen()
 
-                    BottomNavItem.Info -> InfoScreen()
+                    BottomNavItem.Info -> {
+                        val myDeviceList = MyDevice.sample
+
+                        DeviceListScreen(
+                            devices = myDeviceList,
+                            onSelectedComplete = { selectedDevice ->
+                                //todo: 선택 완료 시 동작 정의
+                            }
+                        )
+                    }
 
                     BottomNavItem.Routine -> RoutineScreen(
                         routines = RoutineItem.sample, // todo: 실제 api 필요

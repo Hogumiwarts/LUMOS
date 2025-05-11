@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -43,14 +44,14 @@ fun RoutineScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 40.dp)
+            .statusBarsPadding()
     ) {
         //상단 TopBar
         CommonTopBar(
             barTitle = "나의 루틴",
             onBackClick = { onBackClick },
-            isAddBtnVisible = true,
-            onAddClick = onAddClick
+            isRightBtnVisible = true,
+            onRightBtnClick = onAddClick
         )
 
         // 루틴 카드 목록 그리드
