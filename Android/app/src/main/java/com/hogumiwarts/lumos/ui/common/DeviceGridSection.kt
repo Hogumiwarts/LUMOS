@@ -33,7 +33,12 @@ fun DeviceGridSection(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(vertical = 8.dp),
+        contentPadding = PaddingValues(
+            start = 0.dp,
+            end = 0.dp,
+            top = 20.dp,
+            bottom = 20.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxWidth()
@@ -42,8 +47,6 @@ fun DeviceGridSection(
             val isSelected = selectedDeviceId == device.deviceId
             val rows = (devices.size + 1) / 2
             val currentRow = index / 2
-            val topPadding = if (currentRow == 0) 20.dp else 0.dp
-            val bottomPadding = if (currentRow == rows - 1) 20.dp else 0.dp
 
             val cardContent: @Composable () -> Unit = {
                 DeviceRoutineCard(
@@ -69,7 +72,6 @@ fun DeviceGridSection(
 
             Box(
                 modifier = Modifier
-                    .padding(top = topPadding, bottom = bottomPadding)
                     .aspectRatio(1.05f)
             ) {
                 if (isSelected) {
