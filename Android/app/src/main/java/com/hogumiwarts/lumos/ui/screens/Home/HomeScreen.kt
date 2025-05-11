@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.Home
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,11 +26,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,13 +41,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.Home.components.LightDeviceItem
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.utils.CommonUtils
+import com.hogumiwarts.lumos.utils.getCurrentLocation
+import org.orbitmvi.orbit.compose.collectAsState
+import timber.log.Timber
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val weatherState by homeViewModel.collectAsState()
+
+    LaunchedEffect(Unit) {
+        val location = getCurrentLocation(context)
+
+        if (location != null) {
+            Timber.tag("HomeScreen").d("lat: ${location.latitude}, ${location.longitude}")
+            homeViewModel.onIntent(
+                HomeIntent.LoadWeather(
+                    latitude = location.latitude,
+                    longitude = location.longitude
+                )
+            )
+        } else {
+            Toast.makeText(context, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -113,6 +141,18 @@ fun HomeScreen() {
                 Row(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    // 날씨 정보
+                    Column {
+                        Text(
+                            text = weatherState.weatherInfo?.cityName ?: "ㅇㅅㅇ"
+                        )
+                        Text(
+                            text = "${weatherState.weatherInfo?.currentTemp} °C" ?: "몇도?"
+                        )
+                        Text(
+                            text = "${weatherState.weatherInfo?.minTemp}°C / ${weatherState.weatherInfo?.maxTemp}°C",
+                        )
+                    }
 
                 }
             }
@@ -139,7 +179,7 @@ fun HomeScreen() {
                 )
             ) {
                 items(devices) {
-                    LightDeviceItem()
+//                    LightDeviceItem()
                 }
             }
 
