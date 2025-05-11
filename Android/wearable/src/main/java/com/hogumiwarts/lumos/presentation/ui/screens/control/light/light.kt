@@ -1,13 +1,18 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.light
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -18,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -39,6 +45,9 @@ import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.BedLightSwitch
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerContainer
+import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerSwitch
+
 val exampleLight = LightData(
     deviceId = 1L,
     tagNumber = 123456789L,
@@ -50,77 +59,97 @@ val exampleLight = LightData(
 
 @Composable
 fun LightScreen(tagNumber: Long) {
-    var isOn by remember { mutableStateOf(exampleLight.activated) } // 전체 스위치 상태
+    var state by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
-
-
-    LightSwitch(
-        isChecked = isOn,
-        onCheckedChange = { isOn = it }
-    )
-}
-
-@Composable
-fun LightSwitch(
-    isChecked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.animation_down)
+    // 화면 전환 시 애니메이션
+    val switchOffsetY by animateDpAsState(
+        targetValue = when (state) {
+            "switch" -> 0.dp
+            "brightness" -> (-300).dp
+            "color" -> (-600).dp
+            "other" -> (-900).dp
+            else -> 0.dp
+        },
+        animationSpec = tween(400),
+        label = "switchOffset"
     )
 
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    val brightnessOffsetY by animateDpAsState(
+        targetValue = when (state) {
+            "switch" -> 300.dp
+            "brightness" -> 0.dp
+            "color" -> (-300).dp
+            "other" -> (-600).dp
+            else -> 0.dp
+        },
+        animationSpec = tween(400),
+        label = "brightnessOffset"
+    )
 
-        Image(
-            painter = painterResource(id = R.drawable.device_background),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-        )
-        val (title, toggle, arrow) = createRefs()
+    val colorOffsetY by animateDpAsState(
+        targetValue = when (state) {
+            "switch" -> 600.dp
+            "brightness" -> 300.dp
+            "color" -> 0.dp
+            "other" -> (-300).dp
+            else -> 600.dp
+        },
+        animationSpec = tween(400),
+        label = "colorOffset"
+    )
 
-        // 텍스트: 상단 고정
-        Text(
-            text = exampleLight.deviceName,
-            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
-            color = Color.White,
-            modifier = Modifier.constrainAs(title) {
-                top.linkTo(parent.top, margin = 18.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(toggle.top)
-            }
-        )
 
-        // 토글 버튼: 화면 정중앙
-        AnimatedToggleButton(
-            isOn = isChecked,
-            onToggle = { onCheckedChange(it) },
-            modifier = Modifier.constrainAs(toggle) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-        )
+    val otherOffsetY by animateDpAsState(
+        targetValue = when (state) {
+            "switch" -> 900.dp
+            "brightness" -> 600.dp
+            "color" -> 300.dp
+            "other" -> 0.dp
+            else -> 900.dp
+        },
+        animationSpec = tween(400),
+        label = "otherOffset"
+    )
 
-        // Lottie 애니메이션: 하단 고정
-        LottieAnimation(
-            composition = composition,
-            iterations = LottieConstants.IterateForever,
-            modifier = Modifier
-                .size(100.dp)
-                .constrainAs(arrow) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    top.linkTo(toggle.bottom)
-                }
-        )
+
+    Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(Color(0xFF111322))) {
+
+        // 1. LightSwitch
+        Box(modifier = Modifier.offset(y = switchOffsetY)) {
+            LightSwitch(
+                onSwipeUp = { state = "brightness" }
+            )
+        }
+
+        // 2. Brightness Screen
+        Box(modifier = Modifier.offset(y = brightnessOffsetY)) {
+            WatchBrightnessWithPureCompose(
+                onSwipeDown = { state = "switch" },
+                onSwipeUp = { state = "color" }
+            )
+        }
+
+        // 3. Color Picker
+        Box(modifier = Modifier.offset(y = colorOffsetY)) {
+            ColorWheelPicker(
+                onSwipeDown = { state = "brightness" },
+                onSwipeUp = {state = "other"}
+            )
+        }
+
+        // 4. Other Setting
+        Box(modifier = Modifier.offset(y = otherOffsetY)) {
+            LightOtherSetting(
+                onSwipeDown = { state = "color" }
+            )
+        }
+
+
     }
+
 }
+
+
 
 
 // 🧪 Wear OS 에뮬레이터에서 미리보기 지원
