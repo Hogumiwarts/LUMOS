@@ -44,7 +44,6 @@ public enum ErrorCode {
 	UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-013", "지원되지 않는 JWT 토큰입니다."),
 	TOKEN_TAMPERED(HttpStatus.UNAUTHORIZED, "AUTH-014", "JWT 토큰이 변조되었습니다."),
 	UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "AUTH-015", "권한이 없습니다."),
-	FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH-016", "접근이 금지되었습니다."),
 
 	// 회원 가입 관련 에러
 	EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SIGNUP-001", "이미 존재하는 이메일입니다."),
@@ -58,7 +57,8 @@ public enum ErrorCode {
 	// 루틴 관련 에러
 	ROUTINE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTINE-001", "해당하는 루틴을 찾을 수 없습니다."),
 	ROUTINE_GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTINE-002", "해당 제스처와 연결된 루틴이 없습니다."),
-	ROUTINE_EXECUTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ROUTINE-003", "루틴 기기 제어 중 서버 내부 오류가 발생했습니다."),
+	ROUTINE_PARTIAL_FAILURE(HttpStatus.MULTI_STATUS, "ROUTINE-003", "루틴 실행 중 일부 디바이스 제어에 실패했습니다."),
+	ROUTINE_EXECUTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ROUTINE-004", "루틴 기기 제어 중 서버 내부 오류가 발생했습니다."),
 
 	// 제스처 관련 에러
 	GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "GESTURE-001", "해당하는 제스처를 찾을 수 없습니다.");
