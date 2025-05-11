@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -177,29 +178,23 @@ public class RoutineService {
         Routine routine = routineRepository.findByMemberIdAndGestureId(memberId, gestureId)
             .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_GESTURE_NOT_FOUND));
 
-        List<DevicesCreateRequest> devices = routine.getDevices();
+        List<Long> failedDeviceIds = new ArrayList<>();
 
-        if (devices == null || devices.isEmpty()) return;
-
-        for (DevicesCreateRequest device : devices) {
-            String installedAppId = device.getInstalledAppId();
-            String controlId = device.getControlId();
-
-            List<CommandRequest> commands = device.getCommands();
-            if (commands == null || commands.isEmpty()) continue;
-
-            for (CommandRequest command : commands) {
-                try {
-                    CommandExecuteRequest wrapped = CommandExecuteRequest.builder()
-                        .commands(device.getCommands())  // 전체 commands 리스트
-                        .build();
-
-                    smartThingsClient.executeCommand(controlId, installedAppId, wrapped);
-                } catch (Exception e) {
-                    log.warn("디바이스 제어 실패: deviceId={}, error={}", controlId, e.getMessage());
-                    throw new CustomException(ErrorCode.ROUTINE_EXECUTION_ERROR);
-                }
+        routine.getDevices().forEach(device -> {
+            try {
+                smartThingsClient.executeCommand(
+                    device.getControlId(),
+                    device.getInstalledAppId(),
+                    new CommandExecuteRequest(device.getCommands())
+                );
+            } catch (Exception e) {
+                failedDeviceIds.add(device.getDeviceId());
+                log.error("스마트싱스 제어 실패: deviceId={}, error={}", device.getDeviceId(), e.getMessage());
             }
+        });
+
+        if (!failedDeviceIds.isEmpty()) {
+            throw new CustomException(ErrorCode.ROUTINE_PARTIAL_FAILURE);
         }
     }
 
