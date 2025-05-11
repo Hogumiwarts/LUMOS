@@ -23,8 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hogumiwarts.lumos.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
@@ -46,13 +45,13 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun RoutineDeviceListScreen(
-    viewModel: RoutineDeviceListViewModel,
+    viewModel: RoutineDeviceListViewModel = hiltViewModel(),
     devices: List<MyDevice>,
-    onSelectComplete: () -> Unit,
+    onSelectComplete: (MyDevice) -> Unit,
 ) {
     // 선택 기기 상태
-    val selectedDeviceId = remember { mutableStateOf<Int?>(null) }
-    val showDialog = remember { mutableStateOf(false) }
+    val selectedDeviceId by viewModel.selectedDeviceId
+    val showDialog by viewModel.showDialog
 
     Column(
         modifier = Modifier
@@ -78,7 +77,6 @@ fun RoutineDeviceListScreen(
 
         }
 
-        //Spacer(modifier = Modifier.height(20.dp))
 
         // 기기 목록
         LazyVerticalGrid(
@@ -90,7 +88,7 @@ fun RoutineDeviceListScreen(
                 .fillMaxWidth()
         ) {
             itemsIndexed(devices) { index, device ->
-                val isSelected = selectedDeviceId.value == device.deviceId
+                val isSelected = selectedDeviceId == device.deviceId
 
                 // 전체 줄 수를 계산
                 val rows = (devices.size + 1) / 2
@@ -104,12 +102,7 @@ fun RoutineDeviceListScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable { // 특정 기기 클릭 시 동작
-                                if (!device.isActive) { // 비활 기기라면 다이얼로그 띄우고 선택 X
-                                    showDialog.value = true
-                                } else {
-                                    selectedDeviceId.value =
-                                        if (isSelected) null else device.deviceId
-                                }
+                                viewModel.onDeviceClicked(device)
                             },
                         showToggle = false,
                         cardTitle = device.deviceName,
@@ -168,27 +161,32 @@ fun RoutineDeviceListScreen(
         // 선택 버튼
         PrimaryButton(
             buttonText = "선택하기",
-            onClick = {/*todo: 기기별 제어 화면과 연동 (설정 완료 버튼 추가)*/ }
+            onClick = {
+                val selected = viewModel.getSelectedDevice(devices)
+                if (selected != null) {
+                    onSelectComplete(selected)
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(28.dp))
 
         // 다이얼로그 설정
-        CustomDialog(showDialog)
+        CustomDialog(showDialog, onDismiss = { viewModel.dismissDialog() })
 
     }
 
 }
 
 @Composable
-fun CustomDialog(showDialog: MutableState<Boolean>) {
-    if (showDialog.value) {
+fun CustomDialog(showDialog: Boolean, onDismiss: () -> Unit) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = onDismiss,
             confirmButton = {
                 PrimaryButton(
                     buttonText = "확인",
-                    onClick = { showDialog.value = false }
+                    onClick = onDismiss
                 )
             },
             title = {
@@ -224,10 +222,7 @@ fun CustomDialog(showDialog: MutableState<Boolean>) {
 @Preview(showBackground = true)
 @Composable
 fun RoutineDeviceListScreenPreview() {
-    val fakeViewModel = remember { RoutineDeviceListViewModel() }
-
     RoutineDeviceListScreen(
-        viewModel = fakeViewModel,
         devices = MyDevice.sample,
         onSelectComplete = {},
     )
