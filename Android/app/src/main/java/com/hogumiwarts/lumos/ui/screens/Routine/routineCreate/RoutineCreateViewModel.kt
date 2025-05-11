@@ -39,4 +39,9 @@ class RoutineCreateViewModel @Inject constructor() : ViewModel() {
     fun deleteDevice(device: RoutineDevice) {
         _devices.value = _devices.value.filterNot { it.deviceId == device.deviceId }
     }
+
+    fun addDevice(device: RoutineDevice) {
+        _devices.value = _devices.value + device
+    }
+
 }

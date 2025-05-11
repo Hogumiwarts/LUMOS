@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,23 +55,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureType
-import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.Routine.components.SwipeableDeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.toRoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
-import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.appendSubject
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +88,8 @@ fun RoutineCreateScreen(
     var isSheetOpen by remember { mutableStateOf(false) }
 
     // 기기 리스트 관리
-    val deviceList = viewModel.devices.collectAsState().value.toMutableStateList()
+    val devices by viewModel.devices.collectAsState()
+
 
     val myDeviceList = remember {
         mutableStateListOf<MyDevice>().apply {
@@ -121,10 +120,10 @@ fun RoutineCreateScreen(
                     // 같은 기기 + 같은 상태라면 추가 안함
                     val newDevice = selectedDevice.toRoutineDevice()
 
-                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
+                    if (devices.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
                         showDuplicateDialog.value = true
                     } else {
-                        deviceList.add(newDevice)
+                        viewModel.addDevice(newDevice)
                         isSheetOpen = false
                     }
                 },
@@ -165,6 +164,7 @@ fun RoutineCreateScreen(
 
             }
 
+
             // 아이콘 선택
             item {
                 Column(
@@ -193,7 +193,6 @@ fun RoutineCreateScreen(
                     )
                 }
             }
-
             item { Box(modifier = Modifier.height(1.dp)) {} }
 
             // 루틴 이름
@@ -261,7 +260,7 @@ fun RoutineCreateScreen(
 
             // 적용 기기
             item {
-                Row{
+                Row {
                     // 제목
                     Text(
                         "적용 기기",
@@ -287,23 +286,61 @@ fun RoutineCreateScreen(
                                 }
                             }
                     ) {
-                        Image(
-                            painterResource(id = R.drawable.ic_plus),
-                            contentDescription = null,
-                            modifier = Modifier.size(12.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(5.dp))
-
-                        Text(
-                            text = "기기 추가",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                fontSize = 11.sp,
-                                lineHeight = 16.sp,
-                                fontFamily = nanum_square_neo,
-                                fontWeight = FontWeight(700),
-                                color = Color(0xFFBFC2D7),
+                        if (devices.isNotEmpty()) {
+                            Image(
+                                painterResource(id = R.drawable.ic_plus),
+                                contentDescription = null,
+                                modifier = Modifier.size(12.dp)
                             )
+
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = "기기 추가",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontSize = 11.sp,
+                                    lineHeight = 16.sp,
+                                    fontFamily = nanum_square_neo,
+                                    fontWeight = FontWeight(700),
+                                    color = Color(0xFFBFC2D7),
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (devices.isEmpty()) {
+                // 비어있으면 하단에 기기 추가 버튼 생성
+                item {
+                    AddDeviceCard(
+                        onClick = {
+                            coroutineScope.launch {
+                                isSheetOpen = true
+                                sheetState.show()
+                            }
+                        }
+                    )
+                }
+            }
+
+            // 기기 리스트
+            items(devices, key = { it.deviceId }) { device ->
+                var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
+
+                if (!shouldRemove) {
+                    AnimatedVisibility(
+                        visible = true,
+                        exit = shrinkVertically(tween(300)) + fadeOut()
+                    ) {
+                        SwipeableDeviceCard(
+                            device = device,
+                            onDelete = {
+                                shouldRemove = true
+                                coroutineScope.launch {
+                                    delay(300)
+                                    viewModel.deleteDevice(device)
+                                }
+                            }
                         )
                     }
                 }
@@ -348,14 +385,55 @@ fun RoutineCreateScreen(
                 .padding(bottom = 40.dp, top = 20.dp)
                 .clickable {
                     //todo: 생성 api 연동
-                    
+
                 }
         ) {
-            PrimaryButton(buttonText = "생성하기", onClick = {})
+            PrimaryButton(
+                buttonText = "생성하기",
+                onClick = {/*todo: api 연결*/ }
+            )
         }
     }
 
 
+}
+
+@Composable
+fun AddDeviceCard(onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clickable { onClick() }
+            .border(
+                width = 1.dp,
+                color = Color(0xFFD9DCE8),
+                shape = RoundedCornerShape(size = 10.dp)
+            )
+            .background(color = Color(0xFFF5F6F9), shape = RoundedCornerShape(size = 10.dp)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painterResource(id = R.drawable.ic_plus),
+            contentDescription = null,
+            modifier = Modifier.size(15.dp)
+        )
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        Text(
+            text = "기기 추가",
+            style = TextStyle(
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                fontFamily = nanum_square_neo,
+                fontWeight = FontWeight(700),
+                color = Color(0xFFBFC2D7),
+
+                )
+        )
+    }
 }
 
 fun String.appendSubject(): String {
@@ -370,15 +448,14 @@ fun SelectIcon() {
     TODO("Not yet implemented")
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
-fun RoutineEditScreenPreview() {
-    val fakeViewModel = remember { RoutineEditViewModel() }
+fun RoutineCreateScreenPreview() {
+    val fakeViewModel = remember { RoutineCreateViewModel() }
 
-    RoutineEditScreen(
+    RoutineCreateScreen(
         viewModel = fakeViewModel,
-        devices = RoutineDevice.sample,
-        onRoutineEditComplete = {},
+        onRoutineCreateComplete = {},
         navController = rememberNavController()
     )
 }
