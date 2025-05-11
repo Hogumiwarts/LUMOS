@@ -75,7 +75,6 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-//            .statusBarsPadding()
             .background(Color.White)
     ) {
         Box(
@@ -99,6 +98,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
                 .padding(horizontal = 28.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
