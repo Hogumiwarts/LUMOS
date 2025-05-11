@@ -12,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
@@ -21,6 +22,8 @@ import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
+import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
 import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditViewModel
 import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
@@ -251,7 +254,21 @@ fun NavGraph(
                 devices = RoutineDevice.sample,
                 onRoutineEditComplete = {
                     navController.popBackStack() // 이전 화면으로 돌아감
-                }
+                },
+                navController
+            )
+        }
+
+        // 루틴 - 기기 선택
+        composable("routineDeviceList") {
+            val viewModel = hiltViewModel<RoutineDeviceListViewModel>()
+
+            RoutineDeviceListScreen(
+                viewModel = viewModel,
+                devices = MyDevice.sample,
+                onSelectComplete = {
+                    navController.popBackStack()
+                },
             )
         }
 
