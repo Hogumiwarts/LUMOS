@@ -100,7 +100,8 @@ fun RoutineDeviceListScreen(
                 if (selected != null) {
                     onSelectComplete(selected)
                 }
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(28.dp))
