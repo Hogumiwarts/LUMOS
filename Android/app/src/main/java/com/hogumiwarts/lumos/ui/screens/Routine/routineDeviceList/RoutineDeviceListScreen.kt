@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.ui.common.CommonDialog
+import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
@@ -83,82 +84,11 @@ fun RoutineDeviceListScreen(
 
 
         // 기기 목록
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            itemsIndexed(devices) { index, device ->
-                val isSelected = selectedDeviceId == device.deviceId
-
-                // 전체 줄 수를 계산
-                val rows = (devices.size + 1) / 2
-                val currentRow = index / 2
-
-                val topPadding = if (currentRow == 0) 20.dp else 0.dp
-                val bottomPadding = if (currentRow == rows - 1) 20.dp else 0.dp
-
-                val cardContent: @Composable () -> Unit = {
-                    DeviceRoutineCard(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable { // 특정 기기 클릭 시 동작
-                                viewModel.onDeviceClicked(device)
-                            },
-                        showToggle = false,
-                        cardTitle = device.deviceName,
-                        cardSubtitle = if (device.isOn) "ON" else "OFF",
-                        isOn = false,
-                        iconSize = DpSize(85.dp, 85.dp),
-                        cardIcon = { size ->
-                            Image(
-                                painter = painterResource(id = device.deviceType.iconResId),
-                                contentDescription = null,
-                                modifier = Modifier.size(size)
-                            )
-                        },
-                        endPadding = 3.dp,
-                        isActive = device.isActive
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .padding(top = topPadding, bottom = bottomPadding)
-                        .aspectRatio(1.05f)
-                ) {
-                    if (isSelected) {
-                        GlowingCard(
-                            modifier = Modifier
-                                .aspectRatio(1.05f)
-                                .fillMaxSize(),
-                            glowingColor = Color(0xFF3D5AFE),
-                            containerColor = Color.White,
-                            cornerRadius = 12.dp,
-                            glowingRadius = 24.dp
-                        ) {
-                            cardContent()
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .aspectRatio(1.05f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .border(
-                                    1.dp,
-                                    Color(0xFFE0E0E0),
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                        ) {
-                            cardContent()
-                        }
-                    }
-                }
-            }
-        }
+        DeviceGridSection(
+            devices = devices,
+            selectedDeviceId = selectedDeviceId,
+            onDeviceClick = { viewModel.onDeviceClicked(it) }
+        )
 
         Spacer(modifier = Modifier.height(125.dp))
 
