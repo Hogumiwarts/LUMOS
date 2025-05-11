@@ -18,7 +18,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,10 +32,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.Routine.components.GestureType
@@ -53,6 +56,7 @@ fun RoutineDetailScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(routineId) {
         if (routineId != null) {
@@ -83,20 +87,31 @@ fun RoutineDetailScreen(
             RoutineDetailContent(
                 routine = data.routine,
                 devices = data.devices,
-                onEdit = onEdit
+                onEdit = onEdit,
+                onRequestDelete = { showDeleteDialog = true }
             )
         }
 
     }
 
-
+    ConfirmCancelDialog(
+        showDialog = showDeleteDialog,
+        titleText = "정말 삭제할까요?",
+        bodyText = "루틴을 삭제하면 설정된 기기 동작도 모두 사라져요. 그래도 삭제하시겠어요?",
+        onConfirm = {
+            showDeleteDialog = false
+            // TODO: 삭제 API 호출 or navigation.popBackStack()
+        },
+        onCancel = { showDeleteDialog = false }
+    )
 }
 
 @Composable
 fun RoutineDetailContent(
     routine: RoutineItem,
     devices: List<RoutineDevice>,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onRequestDelete: () -> Unit
 ) {
     val deviceCount = devices.size
 
@@ -167,7 +182,7 @@ fun RoutineDetailContent(
                 Text(
                     "삭제",
                     modifier = Modifier.clickable {
-                        // todo: 삭제 화면으로 이동
+                        onRequestDelete()
                     },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = nanum_square_neo,
@@ -189,6 +204,8 @@ fun RoutineDetailContent(
             GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, false)
         }
     }
+
+
 }
 
 

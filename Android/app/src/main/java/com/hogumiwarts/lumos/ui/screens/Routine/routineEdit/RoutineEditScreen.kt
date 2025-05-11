@@ -387,7 +387,7 @@ fun RoutineEditScreen(
                     onRoutineEditComplete()
                 }
         ) {
-            PrimaryButton(buttonText = "수정하기", onClick = {})
+            PrimaryButton(buttonText = "수정하기", onClick = {}, modifier = Modifier.fillMaxWidth())
         }
     }
 
