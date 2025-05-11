@@ -23,12 +23,12 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun PrimaryButton(
     buttonText: String,
-    onClick: () -> Unit
+    onClick:() -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(45.dp)
             .background(
                 colorResource(id = R.color.main_primary),
                 shape = RoundedCornerShape(10.dp)
