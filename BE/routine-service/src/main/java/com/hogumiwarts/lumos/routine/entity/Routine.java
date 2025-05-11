@@ -52,4 +52,3 @@ public class Routine {
 	@Column(name = "updated_at")
 	private Timestamp updatedAt;
 }
-

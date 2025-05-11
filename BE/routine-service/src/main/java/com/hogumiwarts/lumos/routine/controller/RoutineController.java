@@ -57,6 +57,13 @@ public class RoutineController implements RoutineApiSpec {
         return ResponseEntity.ok(CommonResponse.ok("루틴이 성공적으로 삭제되었습니다.", SuccessResponse.of(true)));
     }
 
+    // 루틴 실행
+    @PostMapping("/execute")
+    public ResponseEntity<CommonResponse<SuccessResponse>> executeRoutine(@RequestParam Long gestureId) {
+        routineService.executeRoutineByGestureId(gestureId);
+        return ResponseEntity.ok(CommonResponse.ok("루틴이 성공적으로 실행되었습니다.", SuccessResponse.of(true)));
+    }
+
     @GetMapping("/by-gesture")
     public RoutineResponse getRoutineByMemberIdAndGestureId(
         @RequestParam("memberId") Long memberId,
