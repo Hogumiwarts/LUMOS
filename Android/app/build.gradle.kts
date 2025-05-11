@@ -122,6 +122,13 @@ dependencies {
     // UWB
     implementation("androidx.core.uwb:uwb:1.0.0-alpha10")
 
+    // Orbit MVI core 기능
+    implementation("org.orbit-mvi:orbit-core:9.0.0")
+    // Android ViewModel 통합
+    implementation("org.orbit-mvi:orbit-viewmodel:9.0.0")
+    // Jetpack Compose 통합
+    implementation("org.orbit-mvi:orbit-compose:9.0.0")
+
     // 위치 정보
     implementation("com.google.android.gms:play-services-location:21.3.0")
 

@@ -27,8 +27,4 @@ dependencies {
 
     // Test
     testImplementation(libs.junit)
-
-    // Hilt - 인터페이스 정의에 필요한 어노테이션만
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
 }
