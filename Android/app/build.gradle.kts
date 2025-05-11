@@ -144,4 +144,6 @@ dependencies {
     implementation(libs.datastore.core)
     implementation("androidx.compose.foundation:foundation:1.4.3")
 
+    implementation("com.google.android.gms:play-services-wearable:18.1.0")
+
 }
