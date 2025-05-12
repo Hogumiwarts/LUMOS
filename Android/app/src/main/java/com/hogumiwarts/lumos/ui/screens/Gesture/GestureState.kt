@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.gesture
+package com.hogumiwarts.lumos.ui.screens.Gesture
 
 import com.hogumiwarts.domain.model.GestureResult
 

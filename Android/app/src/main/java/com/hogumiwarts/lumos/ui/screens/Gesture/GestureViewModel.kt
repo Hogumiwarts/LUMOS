@@ -1,9 +1,11 @@
-package com.hogumiwarts.lumos.ui.screens.gesture
+package com.hogumiwarts.lumos.ui.screens.Gesture
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.domain.model.GestureResult
 import com.hogumiwarts.domain.repository.GestureRepository
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
