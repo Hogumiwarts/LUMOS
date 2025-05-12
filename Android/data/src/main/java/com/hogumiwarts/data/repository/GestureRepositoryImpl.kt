@@ -1,15 +1,10 @@
 package com.hogumiwarts.data.repository
 
-import com.hogumiwarts.data.entity.remote.GestureListData
-import com.hogumiwarts.data.entity.remote.GetGestureListResponse
-import com.hogumiwarts.data.entity.remote.LoginRequest
-import com.hogumiwarts.data.entity.remote.LoginResponse
-import com.hogumiwarts.data.source.remote.AuthApi
+import com.hogumiwarts.data.entity.remote.Response.GestureListData
+import com.hogumiwarts.data.entity.remote.Response.GetGestureListResponse
 import com.hogumiwarts.data.source.remote.GestureApi
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.GestureResult
-import com.hogumiwarts.domain.model.LoginResult
-import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.domain.repository.GestureRepository
 import javax.inject.Inject
 

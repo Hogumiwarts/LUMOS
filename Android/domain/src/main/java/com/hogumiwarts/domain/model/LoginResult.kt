@@ -1,6 +1,5 @@
 package com.hogumiwarts.domain.model
 
-import javax.annotation.processing.Messager
 
 
 sealed class LoginResult {

@@ -236,8 +236,8 @@ fun NavGraph(
         composable("signup") {
             SignupScreen(
                 onSignupSuccess = {
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true } // 뒤로가기로 돌아가지 않게
+                    navController.navigate("login") {
+                        popUpTo("signup") { inclusive = true }
                     }
                 }
             )

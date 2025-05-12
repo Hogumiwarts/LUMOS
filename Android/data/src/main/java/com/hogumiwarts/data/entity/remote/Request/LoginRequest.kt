@@ -1,4 +1,4 @@
-package com.hogumiwarts.data.entity.remote
+package com.hogumiwarts.data.entity.remote.Request
 
 data class LoginRequest(
     val email: String,
