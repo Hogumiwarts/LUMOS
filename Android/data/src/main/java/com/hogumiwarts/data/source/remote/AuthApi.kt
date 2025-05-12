@@ -1,7 +1,10 @@
 package com.hogumiwarts.data.source.remote
 
-import com.hogumiwarts.data.entity.remote.LoginRequest
-import com.hogumiwarts.data.entity.remote.LoginResponse
+import com.hogumiwarts.data.entity.remote.Request.LoginRequest
+import com.hogumiwarts.data.entity.remote.Request.SignupRequest
+import com.hogumiwarts.data.entity.remote.Response.LoginResponse
+import com.hogumiwarts.data.entity.remote.Response.SignupResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -10,4 +13,8 @@ interface AuthApi {
     suspend fun login(
         @Body request: LoginRequest
     ): LoginResponse
+
+    @POST("signup")
+    suspend fun signup(@Body body: SignupRequest): SignupResponse
+
 }

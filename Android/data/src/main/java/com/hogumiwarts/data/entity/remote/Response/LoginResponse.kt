@@ -1,4 +1,4 @@
-package com.hogumiwarts.data.entity.remote
+package com.hogumiwarts.data.entity.remote.Response
 
 data class LoginResponse(
     val status: Int,

@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.auth.signup
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,25 +63,38 @@ fun SignupScreen(
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
-            when (effect) {
-                // 회원가입 성공하면 토스트 메시지 띄움
-                SignupEffect.ShowSignupSuccessToast -> {
-                    Toast.makeText(context, "가입을 축하드려요! LUMOS에 오신 걸 환영합니다 🪄", Toast.LENGTH_SHORT)
-                        .show()
-                }
-                // 회원가입 성공하면 login 페이지로 이동
-                SignupEffect.NavigateToLogin -> {
-                    onSignupSuccess()
-                }
+            Log.d("SignupEffect", "받은 이펙트: $effect")
 
-                SignupEffect.SignupCompleted -> {
-                    authViewModel.handleIntent(AuthIntent.SignUp)
+            try {
+                when (effect) {
+                    // 회원가입 성공하면 토스트 메시지 띄움
+                    SignupEffect.ShowSignupSuccessToast -> {
+                        Toast.makeText(
+                            context,
+                            "가입을 축하드려요! LUMOS에 오신 걸 환영합니다 🪄",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                    // 회원가입 성공하면 login 페이지로 이동
+                    SignupEffect.NavigateToLogin -> {
+                        onSignupSuccess()
+                    }
+
+//                    SignupEffect.SignupCompleted -> {
+//                        authViewModel.handleIntent(AuthIntent.SignUp)
+//                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, "회원가입 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
             }
+
         }
     }
 
-    // 회원가입 UI
+
+// 회원가입 UI
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -133,7 +147,6 @@ fun SignupScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 로그인 영역
             // ID 입력
             OutlinedTextField(
                 value = state.id,
