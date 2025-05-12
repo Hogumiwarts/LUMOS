@@ -24,7 +24,7 @@ public class RoutineDetailResponse {
 	private String routineIcon;
 
 	@Schema(description = "기기 정보")
-	private List<DevicesResponse> devices;
+	private List<DevicesCreateResponse> devices;
 
 	@Schema(description = "제스처 ID", example = "1")
 	private Long gestureId;
@@ -38,7 +38,7 @@ public class RoutineDetailResponse {
 	@Schema(description = "제스처 설명", example = "손가락을 튕깁니다.")
 	private String gestureDescription;
 
-	public static RoutineDetailResponse from(Routine routine, GestureResponse gestureResponse, List<DevicesResponse> devices) {
+	public static RoutineDetailResponse from(Routine routine, GestureResponse gestureResponse, List<DevicesCreateResponse> devices) {
 		return RoutineDetailResponse.builder()
 			.routineName(routine.getRoutineName())
 			.routineIcon(routine.getRoutineIcon())

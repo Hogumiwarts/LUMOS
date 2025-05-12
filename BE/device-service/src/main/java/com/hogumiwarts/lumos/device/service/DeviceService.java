@@ -173,6 +173,8 @@ public class DeviceService {
 				.deviceName(device.getDeviceName())
 				.deviceType(device.getDeviceType())
 				.deviceImageUrl(device.getDeviceUrl())
+				.installedAppId(device.getInstalledAppId())
+				.controlId(device.getControlId())
 				.build())
 			.toList();
 	}

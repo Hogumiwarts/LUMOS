@@ -10,7 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import java.sql.Timestamp;
 import java.util.List;
 
-import com.hogumiwarts.lumos.routine.dto.DevicesCreateRequest;
+import com.hogumiwarts.lumos.routine.dto.DevicesSaveRequest;
 
 @Entity
 @Table(name = "routine", uniqueConstraints = {
@@ -42,7 +42,7 @@ public class Routine {
 
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "devices", columnDefinition = "jsonb")
-	private List<DevicesCreateRequest> devices;
+	private List<DevicesSaveRequest> devices;
 
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false)
