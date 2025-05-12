@@ -1,21 +1,14 @@
 package com.hogumiwarts.lumos
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,17 +17,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.hogumiwarts.lumos.datastore.TokenDataStore
-import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
-import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
