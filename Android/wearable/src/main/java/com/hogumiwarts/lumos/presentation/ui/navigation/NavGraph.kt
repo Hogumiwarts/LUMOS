@@ -23,122 +23,59 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScre
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavGraph(
     navController: NavHostController
 ) {
-
+    // Accompanist 라이브러리 기반 애니메이션 지원 NavHost 사용
     AnimatedNavHost(navController, startDestination = "splash") {
+
+        // 🔸 SplashScreen → Main으로 이동
         composable("splash") {
             SplashScreen {
                 navController.navigate("main") {
-                    popUpTo("splash") { inclusive = true }
+                    popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
                 }
             }
         }
-        composable("main",
-            enterTransition = {
-                if(initialState.destination.route == "splash"){
-                    null
-                }else{
-                    scaleIn(
-                        initialScale = 0.8f,
-                        animationSpec = tween(600)
-                    )
-                }
 
+        // 🔸 DevicesScreen (메인 화면)
+        composable(
+            "main",
+            enterTransition = {
+                if (initialState.destination.route == "splash") {
+                    null // splash → main 전환 시엔 애니메이션 없음
+                } else {
+                    scaleIn(initialScale = 0.8f, animationSpec = tween(600))
+                }
             },
             exitTransition = {
-                scaleOut(
-                    targetScale = 0.8f,
-                    animationSpec = tween(1000)
-                )
+                scaleOut(targetScale = 0.8f, animationSpec = tween(1000))
             }
-            ) {
+        ) {
             DevicesScreen(navController)
         }
+
+        // 🔸 Light 기기 제어 화면
         composable("light/{tagNumber}",
             enterTransition = {
-
-                slideInHorizontally(initialOffsetX = { 1000 },
-                    animationSpec = tween(durationMillis = 600)) + fadeIn(initialAlpha = 1f)
-
-
+                slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
+                        fadeIn(initialAlpha = 1f)
             },
             popExitTransition = {
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
-            }) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
-
-            if (tagNumber != null) {
-                LightScreen(tagNumber = tagNumber)
-            } else {
-                // 예외 처리: tagNumber가 null인 경우
-                Text("Invalid tag number")
             }
+        ) {
+            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+            LightScreen(tagNumber = tagNumber)
         }
+
+        // 🔸 Minibig 기기 제어 화면
         composable("minibig/{tagNumber}",
             enterTransition = {
-
-                slideInHorizontally(initialOffsetX = { 1000 },
-                    animationSpec = tween(durationMillis = 600)) + fadeIn(initialAlpha = 1f)
-
-
-            },
-            popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
-            }) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
-
-            if (tagNumber != null) {
-                MinibigScreen(tagNumber = tagNumber)
-            } else {
-                // 예외 처리: tagNumber가 null인 경우
-                Text("Invalid tag number")
-            }
-        }
-
-        composable("speaker/{tagNumber}",
-            enterTransition = {
-
-                    slideInHorizontally(initialOffsetX = { 1000 },
-                        animationSpec = tween(durationMillis = 600)) + fadeIn(initialAlpha = 1f)
-
-
-            },
-            popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
-            }) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
-
-            if (tagNumber != null) {
-                MoodPlayerScreen(tagNumber = tagNumber)
-            } else {
-                // 예외 처리: tagNumber가 null인 경우
-                Text("Invalid tag number")
-            }
-        }
-
-        composable("airPurifier/{tagNumber}",
-            enterTransition = {
-                if(initialState.destination.route == "main"){
-                    slideInHorizontally(initialOffsetX = { 1000 },
-                        animationSpec = tween(durationMillis = 600)) + fadeIn(initialAlpha = 1f)
-                }else{
-                    scaleIn(
-                        initialScale = 0.8f,
-                        animationSpec = tween(600)
-                    )
-                }
-
-            },
-            exitTransition = {
-                    scaleOut(
-                        targetScale = 0.8f,
-                        animationSpec = tween(600)
-                    )
+                slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
+                        fadeIn(initialAlpha = 1f)
             },
             popExitTransition = {
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
@@ -146,28 +83,60 @@ fun NavGraph(
         ) {
             val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
 
-            if (tagNumber != null) {
-                AipurifierSwitch(tagNumber = tagNumber,navController)
-            } else {
-                // 예외 처리: tagNumber가 null인 경우
-                Text("Invalid tag number")
-            }
+                MinibigScreen(tagNumber = tagNumber)
+
         }
-        composable(
-            route = "AipurifierSetting",
+
+        // 🔸 Speaker 제어 화면
+        composable("speaker/{tagNumber}",
             enterTransition = {
-                slideInHorizontally(initialOffsetX = { 1000 },
-                    animationSpec = tween(durationMillis = 600)) + fadeIn(initialAlpha = 1f)
+                slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
+                        fadeIn(initialAlpha = 1f)
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
+            }
+        ) {
+            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+
+                MoodPlayerScreen(tagNumber = tagNumber)
+
+        }
+
+        // 🔸 공기청정기 제어 화면
+        composable("airPurifier/{tagNumber}",
+            enterTransition = {
+                if (initialState.destination.route == "main") {
+                    slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
+                            fadeIn(initialAlpha = 1f)
+                } else {
+                    scaleIn(initialScale = 0.8f, animationSpec = tween(600))
+                }
             },
             exitTransition = {
-                slideOutHorizontally(targetOffsetX = { 1000 },
-                    animationSpec = tween(durationMillis = 600))
+                scaleOut(targetScale = 0.8f, animationSpec = tween(600))
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
+            }
+        ) {
+            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+
+                AipurifierSwitch(tagNumber = tagNumber, navController)
+
+        }
+
+        // 🔸 공기청정기 세팅 화면 (파라미터 없음)
+        composable("AipurifierSetting",
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
+                        fadeIn(initialAlpha = 1f)
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(600))
             }
         ) {
             AipurifierSetting()
         }
-
-
-
     }
 }
