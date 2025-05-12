@@ -81,9 +81,14 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
             }
         ) {
-            val tagNumber = it.arguments?.getString("deviceId")?.toLongOrNull()
+            val deviceId = it.arguments?.getString("deviceId")?.toLongOrNull()
 
-            SwitchScreen(deviceId = tagNumber)
+            if(deviceId != null){
+                SwitchScreen(deviceId = deviceId)
+            }else{
+                Text(text = "오류가 발생했습니다.")
+            }
+            
 
         }
 

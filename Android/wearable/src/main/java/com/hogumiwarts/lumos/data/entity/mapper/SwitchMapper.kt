@@ -1,6 +1,8 @@
 package com.hogumiwarts.lumos.data.entity.mapper
 
 import com.hogumiwarts.lumos.data.entity.remote.GetSwitchStatusResponse
+import com.hogumiwarts.lumos.data.entity.remote.PatchSwitchPowerResponse
+import com.hogumiwarts.lumos.domain.model.SwitchPowerData
 import com.hogumiwarts.lumos.domain.model.SwitchStatusData
 
 object SwitchMapper {
@@ -17,6 +19,13 @@ object SwitchMapper {
             deviceType = dtoList.deviceType,
             activated = dtoList.activated
 
+        )
+    }
+
+    // 🔄 전체 리스트 변환 함수: DTO 리스트 → 도메인 모델 리스트
+    fun fromSwitchPowerResponse(dtoList: PatchSwitchPowerResponse): SwitchPowerData {
+        return SwitchPowerData(
+            success = dtoList.success
         )
     }
 

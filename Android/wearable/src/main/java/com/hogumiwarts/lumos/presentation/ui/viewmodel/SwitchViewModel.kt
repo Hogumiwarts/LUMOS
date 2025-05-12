@@ -1,22 +1,26 @@
 package com.hogumiwarts.lumos.presentation.ui.viewmodel
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hogumiwarts.lumos.domain.model.GetDevicesResult
 import com.hogumiwarts.lumos.domain.model.GetSwitchStatusResult
-import com.hogumiwarts.lumos.domain.usecase.DeviceUseCase
+import com.hogumiwarts.lumos.domain.model.PatchSwitchPowerResult
+import com.hogumiwarts.lumos.domain.model.SwitchStatusData
 import com.hogumiwarts.lumos.domain.usecase.SwitchUseCase
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusIntent
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchPowerState
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
-import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceIntent
-import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,12 +30,19 @@ class SwitchViewModel@Inject constructor(
     @ApplicationContext private val context: Context, // 앱 context (현재는 미사용)
 ) : ViewModel() {
 
+    private val _isOn = MutableStateFlow(false)
+    val isOn: StateFlow<Boolean> = _isOn
+
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
     private val _state = MutableStateFlow<SwitchStatusState>(SwitchStatusState.Idle)
     val state: StateFlow<SwitchStatusState> = _state
 
+    // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
+    private val _powerState = MutableStateFlow<SwitchPowerState>(SwitchPowerState.Idle)
+    val powerState: StateFlow<SwitchPowerState> = _powerState
+
     // 🔸 Intent를 받기 위한 SharedFlow (MVI 이벤트 트리거
-    val intentFlow = MutableSharedFlow<SwitchStatusIntent>()
+    val intentFlow = MutableSharedFlow<SwitchIntent>()
 
     init {
         handleIntent() // Intent 처리 루프 시작
@@ -42,14 +53,15 @@ class SwitchViewModel@Inject constructor(
         viewModelScope.launch {
             intentFlow.collectLatest { intent ->
                 when (intent) {
-                    is SwitchStatusIntent.LoadSwitchStatus -> loadSwitchStatus(intent.deviceId)
+                    is SwitchIntent.LoadSwitchStatus -> loadSwitchStatus(intent.deviceId)
+                    is SwitchIntent.ChangeSwitchPower -> changeSwitchPower(intent.deviceId, intent.activated)
                 }
             }
         }
     }
 
     // 🔸 외부에서 Intent를 보낼 수 있도록 helper 함수 제공
-    fun sendIntent(intent: SwitchStatusIntent) {
+    fun sendIntent(intent: SwitchIntent) {
         viewModelScope.launch {
             intentFlow.emit(intent)
         }
@@ -63,7 +75,7 @@ class SwitchViewModel@Inject constructor(
             when (val result = switchUseCase.getSwitchStatus(deviceId)) {
                 is GetSwitchStatusResult.Success -> {
                     _state.value = SwitchStatusState.Loaded(result.data)
-
+                    _isOn.value =result.data.activated
                 }
                 is GetSwitchStatusResult.Error -> {
                     _state.value = SwitchStatusState.Error(result.error)
@@ -71,4 +83,23 @@ class SwitchViewModel@Inject constructor(
             }
         }
     }
+
+    // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
+    private fun changeSwitchPower(deviceId: Long, activated: Boolean) {
+        viewModelScope.launch {
+            _powerState.value = SwitchPowerState.Loading
+
+            when (val result = switchUseCase.patchSwitchStatus(deviceId = deviceId, activated = activated)) {
+                is PatchSwitchPowerResult.Success -> {
+                    _powerState.value = SwitchPowerState.Loaded(result.data)
+                    _isOn.value =activated
+                }
+                is PatchSwitchPowerResult.Error -> {
+                    _powerState.value = SwitchPowerState.Error(result.error)
+                }
+            }
+        }
+    }
+
+
 }
