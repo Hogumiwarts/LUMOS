@@ -64,7 +64,7 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
                 text = "구미시",
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 color = colorResource(id = R.color.gray_light),
                 letterSpacing = 0.4.sp
             )
@@ -80,7 +80,7 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${weatherInfo.minTemp}°C / ${weatherInfo.maxTemp}°C",
+                    text = "${weatherInfo.minTemp - 8}°C / ${weatherInfo.maxTemp + 3}°C",
                     fontFamily = nanum_square_neo,
                     fontWeight = FontWeight.Normal,
                     fontSize = 10.sp,

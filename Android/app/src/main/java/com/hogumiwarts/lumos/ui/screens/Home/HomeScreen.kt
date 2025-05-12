@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -202,30 +203,33 @@ fun HomeScreen(
                         textAlign = TextAlign.Center,
                         fontFamily = nanum_square_neo,
                         fontSize = 12.sp,
+                        lineHeight = 18.sp,
                         color = colorResource(R.color.gray_medium),
                         fontWeight = FontWeight.Normal
                     )
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Box(
                         modifier = Modifier
                             .height(32.dp)
+                            .wrapContentWidth()
                             .background(
-                                color = colorResource(R.color.on_toggle_color),
+                                color = Color(0xFFE9E9EC),
                                 shape = RoundedCornerShape(10.dp)
                             )
                             .align(Alignment.CenterHorizontally),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "계정 연동해서 불러오기",
+                            text = "계정 연동해서 기기 불러오기",
                             fontFamily = nanum_square_neo,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            color = colorResource(id = R.color.point_color)
                         )
                     }
-                    Spacer(modifier = Modifier.height(180.dp))
+                    Spacer(modifier = Modifier.height(192.dp))
 
                 }
             }
