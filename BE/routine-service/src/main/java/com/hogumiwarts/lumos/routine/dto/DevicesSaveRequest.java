@@ -1,4 +1,6 @@
-package com.hogumiwarts.lumos.device.dto;
+package com.hogumiwarts.lumos.routine.dto;
+
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DevicesCreateResponse {
+public class DevicesSaveRequest {
+
 	private Long deviceId;
-	private String deviceName;
-	private String deviceType;
 	private String installedAppId;
 	private String controlId;
-	private String deviceImageUrl;
+	private List<CommandRequest> commands;
 }

@@ -10,7 +10,6 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
-# Node.js : SmartThings Service
 smartthings:
   service:
-    url: http://smartthings-service:8080
+    url: http://smartthings-service:3000

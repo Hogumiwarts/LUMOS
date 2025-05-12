@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DevicesResponse {
+
     @Schema(description = "디바이스 ID", example = "1")
     private Long deviceId;
 
@@ -24,6 +25,12 @@ public class DevicesResponse {
 
     @Schema(description = "디바이스 이미지 URL", example = "https://example.com/img/lamp.png")
     private String deviceImageUrl;
+
+    @Schema(description = "SmartThings 제어용 installedAppId", example = "")
+    private String installedAppId;
+
+    @Schema(description = "SmartThings 제어용 deviceId", example = "")
+    private String controlId;
 
     @Schema(description = "디바이스 제어 명령 목록")
     private List<CommandRequest> commands;

@@ -30,16 +30,16 @@ public class RoutineCreateResponse {
 	private String routineIcon;
 
 	@Schema(description = "기기 제어 정보")
-	private List<DevicesCreateRequest> devices;
+	private List<DevicesCreateResponse> devices;
 
-	public static RoutineCreateResponse from(Routine routine) {
+	public static RoutineCreateResponse from(Routine routine, List<DevicesCreateResponse> deviceResponses) {
 		return RoutineCreateResponse.builder()
 			.routineId(routine.getRoutineId())
 			.memberId(routine.getMemberId())
 			.gestureId(routine.getGestureId())
 			.routineName(routine.getRoutineName())
 			.routineIcon(routine.getRoutineIcon())
-			.devices(routine.getDevices())
+			.devices(deviceResponses)
 			.build();
 	}
 }
