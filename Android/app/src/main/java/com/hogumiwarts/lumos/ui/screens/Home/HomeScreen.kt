@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.SkeletonComponent
 import com.hogumiwarts.lumos.ui.screens.Home.components.LightDeviceItem
+import com.hogumiwarts.lumos.ui.screens.Home.components.WeatherCardView
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.utils.CommonUtils
 import com.hogumiwarts.lumos.utils.getCurrentLocation
@@ -149,23 +150,7 @@ fun HomeScreen(
                     )
                 }
                 else {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        // 날씨 정보
-                        Column {
-                            Text(
-                                text = weatherState.weatherInfo?.cityName ?: "ㅇㅅㅇ"
-                            )
-                            Text(
-                                text = "${weatherState.weatherInfo?.currentTemp} °C"
-                            )
-                            Text(
-                                text = "${weatherState.weatherInfo?.minTemp}°C / ${weatherState.weatherInfo?.maxTemp}°C",
-                            )
-                        }
-                    }
+                    weatherState.weatherInfo?.let { WeatherCardView(it) }
                 }
             }
             Spacer(modifier = Modifier.height(28.dp))

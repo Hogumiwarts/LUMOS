@@ -30,13 +30,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hogumiwarts.domain.model.WeatherInfo
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.utils.CommonUtils
 
 @Composable
-fun WeatherCardView() {
+fun WeatherCardView(weatherInfo: WeatherInfo) {
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +71,7 @@ fun WeatherCardView() {
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "25°C",
+                    text = "${weatherInfo.currentTemp}°C",
                     fontFamily = nanum_square_neo,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
@@ -79,7 +80,7 @@ fun WeatherCardView() {
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "12°C / 25°C",
+                    text = "${weatherInfo.minTemp}°C / ${weatherInfo.maxTemp}°C",
                     fontFamily = nanum_square_neo,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
@@ -134,7 +135,7 @@ fun WeatherCardView() {
                         letterSpacing = 0.4.sp
                     )
                     Text(
-                        text = "16%",
+                        text = "${weatherInfo.humidity}%",
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
@@ -145,25 +146,5 @@ fun WeatherCardView() {
             }
 
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-private fun CardPreview() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(148.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(20.dp),
-                clip = true
-            ),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-    ) {
-        WeatherCardView()
     }
 }
