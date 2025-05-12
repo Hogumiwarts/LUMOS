@@ -18,10 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -116,7 +119,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End
             )
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
             Text(
                 text = "XX님\n집에 돌아오신 걸 환영해요.",
@@ -133,7 +136,7 @@ fun HomeScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
+                    .height(148.dp)
                     .shadow(
                         elevation = 4.dp,
                         shape = RoundedCornerShape(20.dp),
@@ -148,8 +151,7 @@ fun HomeScreen(
                             .fillMaxSize()
                             .background(SkeletonComponent())
                     )
-                }
-                else {
+                } else {
                     weatherState.weatherInfo?.let { WeatherCardView(it) }
                 }
             }
@@ -166,8 +168,11 @@ fun HomeScreen(
 
             // 등록된 장치가 있는지 확인
             val devices = listOf("거실 조명", "내 방 조명", "주방 조명", "안방 조명")
+
             LazyVerticalGrid(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -178,45 +183,53 @@ fun HomeScreen(
                 items(devices) {
                     LightDeviceItem()
                 }
-            }
 
-            Image(
-                painter = painterResource(R.drawable.img_broken_link),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(200.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "SmartThings 계정이 아직 연동되지 않았어요.\n" +
-                        "기기를 불러오기 위해 먼저 계정을 연동해주세요!",
-                textAlign = TextAlign.Center,
-                fontFamily = nanum_square_neo,
-                color = colorResource(R.color.gray_medium),
-                fontWeight = FontWeight.Normal
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .height(32.dp)
-                    .background(
-                        color = colorResource(R.color.on_toggle_color),
-                        shape = RoundedCornerShape(10.dp)
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Image(
+                        painter = painterResource(R.drawable.img_broken_link),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(200.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
-                    .align(Alignment.CenterHorizontally),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "계정 연동해서 불러오기",
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "SmartThings 계정이 아직 연동되지 않았어요.\n" +
+                                "기기를 불러오기 위해 먼저 계정을 연동해주세요!",
+                        textAlign = TextAlign.Center,
+                        fontFamily = nanum_square_neo,
+                        fontSize = 12.sp,
+                        color = colorResource(R.color.gray_medium),
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Box(
+                        modifier = Modifier
+                            .height(32.dp)
+                            .background(
+                                color = colorResource(R.color.on_toggle_color),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .align(Alignment.CenterHorizontally),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "계정 연동해서 불러오기",
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(180.dp))
 
+                }
             }
+
 
         }
 

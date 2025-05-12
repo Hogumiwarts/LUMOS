@@ -58,7 +58,7 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
         Column(
             Modifier
                 .fillMaxHeight()
-                .padding(end = 28.dp, top = 16.dp, bottom = 16.dp)
+                .padding(end = 12.dp, top = 12.dp, bottom = 12.dp)
         ) {
             Text(
                 text = "구미시",
@@ -68,37 +68,37 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
                 color = colorResource(id = R.color.gray_light),
                 letterSpacing = 0.4.sp
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "${weatherInfo.currentTemp}°C",
                     fontFamily = nanum_square_neo,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
+                    fontSize = 22.sp,
                     modifier = Modifier.alignBy(LastBaseline),
                     letterSpacing = 0.4.sp
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "${weatherInfo.minTemp}°C / ${weatherInfo.maxTemp}°C",
                     fontFamily = nanum_square_neo,
                     fontWeight = FontWeight.Normal,
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     color = colorResource(id = R.color.gray_medium),
                     modifier = Modifier.alignBy(LastBaseline),
                     letterSpacing = 0.4.sp
                 )
             }
             Row(modifier = Modifier.padding(top = 10.dp)) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = "강수확률",
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = colorResource(id = R.color.gray_medium),
-                        letterSpacing = 0.4.sp
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+//                    Text(
+//                        text = "강수확률",
+//                        fontFamily = nanum_square_neo,
+//                        fontWeight = FontWeight.Bold,
+//                        fontSize = 13.sp,
+//                        color = colorResource(id = R.color.gray_medium),
+//                        letterSpacing = 0.4.sp
+//                    )
                     Text(
                         text = "강수확률",
                         fontFamily = nanum_square_neo,
@@ -117,17 +117,17 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+//                    Text(
+//                        text = "좋음",
+//                        fontFamily = nanum_square_neo,
+//                        fontWeight = FontWeight.Bold,
+//                        fontSize = 13.sp,
+//                        color = colorResource(id = R.color.gray_medium),
+//                        letterSpacing = 0.4.sp
+//                    )
                     Text(
-                        text = "좋음",
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = colorResource(id = R.color.gray_medium),
-                        letterSpacing = 0.4.sp
-                    )
-                    Text(
-                        text = "15%",
+                        text = "${weatherInfo.rainProbability}%",
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,

@@ -47,12 +47,14 @@ fun LightDeviceItem() {
         modifier = Modifier
             .aspectRatio(1f)
             .shadow(
-                elevation = 4.dp,
+                elevation = if (isOnToggle) 6.dp else 4.dp,
                 shape = RoundedCornerShape(20.dp),
-                clip = true
+                clip = true,
+                ambientColor = if (isOnToggle) colorResource(R.color.main_primary) else Color.Black,
+                spotColor = if (isOnToggle) colorResource(R.color.main_primary) else Color.Black,
             )
             .border(
-                width = 1.dp,
+                width = if (isOnToggle) 1.dp else 1.dp,
                 color = if (isOnToggle) colorResource(R.color.point_color) else Color(0xFFBBBFDD),
                 shape = RoundedCornerShape(20.dp)
             ),
