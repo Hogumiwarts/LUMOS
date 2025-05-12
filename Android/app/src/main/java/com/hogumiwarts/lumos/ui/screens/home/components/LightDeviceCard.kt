@@ -3,14 +3,19 @@ package com.hogumiwarts.lumos.ui.screens.home.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -39,8 +44,12 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
-fun LightDeviceItem() {
-    var isOnToggle by rememberSaveable { mutableStateOf(false) }
+fun LightDeviceItem(
+    deviceName: String,
+//    deviceType: String,
+    isActive: Boolean,
+) {
+    var isOnToggle by rememberSaveable { mutableStateOf(isActive) }
 
     Card(
         modifier = Modifier
@@ -93,7 +102,7 @@ fun LightDeviceItem() {
 
             ) {
                 Text(
-                    "거실 조명",
+                    text = deviceName,
                     fontFamily = nanum_square_neo,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(0.6f),
@@ -101,22 +110,24 @@ fun LightDeviceItem() {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "조명",
+                    text = "조명",
                     fontFamily = nanum_square_neo,
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
             }
 
-            Box(modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 12.dp)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
 
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_light_off),
+                    painter = if (isActive) painterResource(R.drawable.img_device_light_on)
+                    else painterResource(R.drawable.img_device_light_off),
                     contentDescription = null,
-                    )
+//                    modifier = Modifier.fillMaxHeight(0.6f)
+                )
             }
         }
     }
@@ -125,5 +136,28 @@ fun LightDeviceItem() {
 @Preview(showBackground = true)
 @Composable
 private fun CardPreview() {
-    LightDeviceItem()
+    val devices = listOf("거실 조명", "내 방 조명", "주방 조명", "안방 조명")
+
+    Column(Modifier.fillMaxSize().padding(horizontal = 28.dp).background(Color.White)) {
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxWidth(),
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(
+                bottom = 12.dp
+            )
+        ) {
+            items(devices) {
+
+                LightDeviceItem(
+                    deviceName = "거실 조명",
+                    isActive = true,
+                )
+            }
+
+        }
+    }
+
 }
