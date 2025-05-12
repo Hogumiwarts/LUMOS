@@ -83,7 +83,7 @@ class LoginViewModel @Inject constructor(
                     // log로 정보 확인
                     Timber.tag("Login").i(
                         """
-                        ✅ 로그인 성공
+                        ✅ 로그인 성공!!
                         ├─ ID       : ${result.memberId}
                         ├─ Email    : ${result.email}
                         ├─ Name     : ${result.name}

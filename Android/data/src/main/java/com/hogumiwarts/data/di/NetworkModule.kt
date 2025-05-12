@@ -2,6 +2,7 @@ package com.hogumiwarts.data.di
 
 import android.util.Log
 import com.hogumiwarts.data.source.remote.AuthApi
+import com.hogumiwarts.data.source.remote.WeatherApi
 import com.hogumiwarts.data.source.remote.GestureApi
 import dagger.Module
 import dagger.Provides
@@ -49,6 +50,30 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
+
+
+    // 날씨 API 관련 코드 추가
+    @Provides
+    @Singleton
+    @Named("WEATHER_BASE_URL")
+    fun provideWeatherBaseUrl(): String = "https://api.openweathermap.org/data/2.5/"
+
+    @Provides
+    @Singleton
+    @Named("weatherRetrofit")
+    fun provideWeatherRetrofit(
+        okHttpClient: OkHttpClient,
+        @Named("WEATHER_BASE_URL") baseUrl: String
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideWeatherApi(@Named("weatherRetrofit") retrofit: Retrofit): WeatherApi =
+        retrofit.create(WeatherApi::class.java)
 
     @Provides
     @Singleton

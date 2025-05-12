@@ -126,10 +126,6 @@ router.get('/:deviceId/status', getDeviceStatus);
  *                 capability: switch
  *                 command: on
  *                 arguments: []
- *               - component: main
- *                 capability: airConditionerFanMode
- *                 command: setFanMode
- *                 arguments: [high]
  *     responses:
  *       200:
  *         description: 명령 실행 성공

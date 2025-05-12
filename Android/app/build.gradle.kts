@@ -122,6 +122,16 @@ dependencies {
     // UWB
     implementation("androidx.core.uwb:uwb:1.0.0-alpha10")
 
+    // Orbit MVI core 기능
+    implementation("org.orbit-mvi:orbit-core:9.0.0")
+    // Android ViewModel 통합
+    implementation("org.orbit-mvi:orbit-viewmodel:9.0.0")
+    // Jetpack Compose 통합
+    implementation("org.orbit-mvi:orbit-compose:9.0.0")
+
+    // 위치 정보
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -136,8 +146,14 @@ dependencies {
 
     // 기타
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.3-beta")
+    // Retrofit2
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp3
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
     implementation(libs.datastore.preferences)
