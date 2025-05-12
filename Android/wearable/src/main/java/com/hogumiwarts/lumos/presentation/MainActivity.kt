@@ -49,7 +49,9 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.light.WatchBrightne
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import com.hogumiwarts.lumos.service.SensorService
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()

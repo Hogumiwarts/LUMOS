@@ -71,6 +71,9 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
 
 
     val state by viewModel.state.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         // 배경 이미지

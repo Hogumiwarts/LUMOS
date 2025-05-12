@@ -58,7 +58,7 @@ val exampleLight = LightData(
 )
 
 @Composable
-fun LightScreen(tagNumber: Long) {
+fun LightScreen(tagNumber: Long?) {
     var state by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
     // 화면 전환 시 애니메이션
