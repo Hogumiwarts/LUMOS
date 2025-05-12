@@ -43,7 +43,7 @@ public class GestureSensorDataService {
 		repository.save(entity);
 
 		if (uploadEnabled) {
-			String url = s3UploadService.saveCsvAndUpload(request);
+			String url = s3UploadService.saveCsvAndUpload(request, entity.getGestureSensorDataId());
 		}
 
 		// snake_case로 JSON 직렬화 후 전달
