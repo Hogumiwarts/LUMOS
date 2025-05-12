@@ -1,6 +1,8 @@
 package com.hogumiwarts.lumos.device.controller;
 
 import com.hogumiwarts.lumos.device.docs.AirPurifierApiSpec;
+import com.hogumiwarts.lumos.device.dto.AirPurifierDetailResponse;
+import com.hogumiwarts.lumos.device.dto.FanModeControlRequest;
 import com.hogumiwarts.lumos.device.dto.PowerControlRequest;
 import com.hogumiwarts.lumos.device.dto.SuccessResponse;
 import com.hogumiwarts.lumos.device.service.AirPurifierService;
@@ -23,11 +25,15 @@ public class AirPurifierController implements AirPurifierApiSpec {
 		return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
 	}
 
-	// Todo : 공기청정기 테스트 후, Response 변경 필요
 	@Override
-	public ResponseEntity<CommonResponse<?>> getAirPurifierStatus(Long deviceId) {
-		Object response = airPurifierService.getAirPurifierStatus(deviceId);
-		return ResponseEntity.ok(CommonResponse.ok(response));
+	public ResponseEntity<CommonResponse<SuccessResponse>> updateAirPurifierFanMode(Long deviceId, FanModeControlRequest request) {
+		airPurifierService.updateAirPurifierFanMode(deviceId, request);
+		return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
 	}
 
+	@Override
+	public ResponseEntity<CommonResponse<AirPurifierDetailResponse>> getAirPurifierStatus(Long deviceId) {
+		AirPurifierDetailResponse response = airPurifierService.getAirPurifierStatus(deviceId);
+		return ResponseEntity.ok(CommonResponse.ok(response));
+	}
 }

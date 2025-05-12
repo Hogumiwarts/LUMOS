@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hogumiwarts.lumos.member.dto.CreateUserRequest;
 import com.hogumiwarts.lumos.member.dto.MemberResponse;
-import com.hogumiwarts.lumos.member.entity.Member;
 import com.hogumiwarts.lumos.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;

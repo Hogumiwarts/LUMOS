@@ -24,7 +24,6 @@ spring:
   sql:
     init:
       mode: always  # 또는 embedded
-      data-locations: classpath:data.sql
 
   servlet:
     multipart:

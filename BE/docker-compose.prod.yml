@@ -68,6 +68,32 @@ services:
       - postgres
     networks:
       - app-network
+  
+  # 제스처 서비스
+  gesture-service:
+    image: itsanisland/lumos-gesture-service:latest
+    container_name: lumos-gesture-service
+    expose:
+      - "8080"
+    env_file:
+      - ./gesture-service/.env
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+  # 루틴 서비스
+  routine-service:
+    image: itsanisland/lumos-routine-service:latest
+    container_name: lumos-routine-service
+    expose:
+      - "8080"
+    env_file:
+      - ./routine-service/.env
+    depends_on:
+      - postgres
+    networks:
+      - app-network
 
   # SmartThings 서비스
   smartthings-service:

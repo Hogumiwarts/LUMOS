@@ -6,12 +6,12 @@ import com.hogumiwarts.lumos.device.service.DeviceService;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/devices")
@@ -24,9 +24,9 @@ public class DeviceController implements DeviceApiSpec {
 	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getAllDeviceByMember() {
 		List<DeviceStatusResponse> result = deviceService.getAllDeviceByMember();
 		return ResponseEntity.ok(
-				result.isEmpty()
-						? CommonResponse.ok("등록된 디바이스 정보가 없습니다.", result)
-						: CommonResponse.ok("조회 성공", result)
+			result.isEmpty()
+				? CommonResponse.ok("등록된 디바이스 정보가 없습니다.", result)
+				: CommonResponse.ok("조회 성공", result)
 		);
 	}
 
@@ -34,9 +34,9 @@ public class DeviceController implements DeviceApiSpec {
 	public ResponseEntity<CommonResponse<List<DeviceStatusResponse>>> getSmartThingsDevices(@RequestParam String installedAppId) {
 		List<DeviceStatusResponse> result = deviceService.getSmartThingsDevices(installedAppId);
 		return ResponseEntity.ok(
-				result.isEmpty()
-					? CommonResponse.ok("새롭게 검색된 디바이스가 없습니다.", result)
-					: CommonResponse.ok("조회 성공", result)
+			result.isEmpty()
+				? CommonResponse.ok("새롭게 검색된 디바이스가 없습니다.", result)
+				: CommonResponse.ok("조회 성공", result)
 		);
 	}
 
@@ -46,4 +46,9 @@ public class DeviceController implements DeviceApiSpec {
 		return ResponseEntity.ok(CommonResponse.ok(response));
 	}
 
+	@GetMapping("/details")
+	public List<DevicesCreateResponse> getDeviceDetailsByIds(
+		@RequestParam("deviceIds") List<Long> deviceIds) {
+		return deviceService.getDeviceDetailsByIds(deviceIds);
+	}
 }

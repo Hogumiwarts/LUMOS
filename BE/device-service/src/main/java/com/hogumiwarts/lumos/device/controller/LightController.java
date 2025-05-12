@@ -38,10 +38,16 @@ public class LightController implements LightApiSpec {
         return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
     }
 
+    // 밝기 변환
+    @Override
+    public ResponseEntity<CommonResponse<SuccessResponse>> updateLightBright(Long deviceId, LightBrightRequest request) {
+        lightService.updateLightBrightness(deviceId, request);
+        return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
+    }
 
     // 조명 상태 조회
     @Override
-    public ResponseEntity<?> getLightStatus(Long deviceId) {
+    public ResponseEntity<CommonResponse<LightDetailResponse>> getLightStatus(Long deviceId) {
         LightDetailResponse response = lightService.getLightStatus(deviceId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }

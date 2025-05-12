@@ -22,6 +22,7 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -165,6 +166,8 @@ fun NavGraph(
         ) {
             AipurifierSetting()
         }
+
+
 
     }
 }

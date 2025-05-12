@@ -30,13 +30,15 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun CommonTopBar(
     barTitle: String,
     onBackClick: () -> Unit,
-    isAddBtnVisible: Boolean,
-    onAddClick: () -> Unit,
+    isRightBtnVisible: Boolean,
+    onRightBtnClick: () -> Unit,
+    rightIconResId: Int = R.drawable.ic_add,
+    barHeight: Int = 64
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(barHeight.dp)
             .background(Color.White)
             .statusBarsPadding()
             .padding(horizontal = 24.dp),
@@ -60,16 +62,16 @@ fun CommonTopBar(
             fontFamily = nanum_square_neo
         )
 
-        if (isAddBtnVisible) {
+        if (isRightBtnVisible) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_add),
+                painter = painterResource(id = rightIconResId),
                 contentDescription = null,
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = onAddClick
+                        onClick = onRightBtnClick
                     )
             )
         } else {
@@ -85,8 +87,8 @@ fun CommonTopBar(
 private fun BarPreview() {
     CommonTopBar(
         onBackClick = {},
-        isAddBtnVisible = false,
-        onAddClick = {},
+        isRightBtnVisible = false,
+        onRightBtnClick = {},
         barTitle = "나의 루틴"
     )
 }

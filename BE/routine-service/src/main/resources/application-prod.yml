@@ -10,17 +10,14 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
-
-# Node.js 서비스 정의
-node:
-  api:
-    base-url: http://smartthings-service:3000
-
+smartthings:
+  service:
+    url: http://smartthings-service:3000
 
 gesture:
   service:
-    url: http://localhost:8083
+    url: http://gesture-service:8080
 
 device:
   service:
-    url: http://localhost:8082
+    url: http://device-service:8080

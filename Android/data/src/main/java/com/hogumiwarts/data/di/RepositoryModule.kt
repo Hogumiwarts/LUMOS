@@ -4,6 +4,8 @@ import com.hogumiwarts.data.repository.AuthRepositoryImpl
 import com.hogumiwarts.data.repository.weather.WeatherRepositoryImpl
 import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.domain.repository.WeatherRepository
+import com.hogumiwarts.data.repository.GestureRepositoryImpl
+import com.hogumiwarts.domain.repository.GestureRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,11 @@ abstract class RepositoryModule {
     abstract fun bindWeatherRepository(
         impl: WeatherRepositoryImpl
     ): WeatherRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGestureRepository(
+        impl: GestureRepositoryImpl
+    ): GestureRepository
+
 }

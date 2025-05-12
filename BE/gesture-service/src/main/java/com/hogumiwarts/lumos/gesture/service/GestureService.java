@@ -1,9 +1,15 @@
 package com.hogumiwarts.lumos.gesture.service;
 
+import com.hogumiwarts.lumos.exception.CustomException;
+import com.hogumiwarts.lumos.exception.ErrorCode;
+import com.hogumiwarts.lumos.gesture.client.RoutineServiceClient;
 import com.hogumiwarts.lumos.gesture.dto.GestureResponse;
+import com.hogumiwarts.lumos.gesture.dto.GestureWithRoutineResponse;
+import com.hogumiwarts.lumos.gesture.dto.RoutineResponse;
 import com.hogumiwarts.lumos.gesture.entity.Gesture;
-import com.hogumiwarts.lumos.gesture.entity.MemberGesture;
 import com.hogumiwarts.lumos.gesture.repository.GestureRepository;
+import com.hogumiwarts.lumos.util.AuthUtil;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,40 +23,42 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GestureService {
 
-    private final GestureRepository repository;
+    private final GestureRepository gestureRepository;
+    private final RoutineServiceClient routineServiceClient;
 
     // 전체 제스처 목록 조회
-    public List<GestureResponse> getGestures(Long memberId) {
-        List<MemberGesture> memberGestures = repository.findByMemberId(memberId);
+    public List<GestureWithRoutineResponse> getGestures() {
+        Long memberId = AuthUtil.getMemberId();
+        List<Gesture> gestures = gestureRepository.findAll();
 
-        return memberGestures.stream()
-                .map(g -> {
-                    Gesture gesture = g.getGesture();  // 연관된 Gesture 엔티티
-                    return GestureResponse.builder()
-                            .memberGestureId(gesture.getGestureId())
-                            .gestureName(gesture.getGestureName())
-                            .gestureImg(gesture.getImageUrl())
-                            .build();
-                })
-                .collect(Collectors.toList());
+        return gestures.stream().map(gesture -> {
+            RoutineResponse routine = routineServiceClient.getRoutineByGesture(memberId, gesture.getGestureId());
+
+            return GestureWithRoutineResponse.builder()
+                .gestureId(gesture.getGestureId())
+                .gestureName(gesture.getGestureName())
+                .gestureImageUrl(gesture.getImageUrl())
+                .gestureDescription(gesture.getDescription())
+                .routineId(routine != null ? routine.getRoutineId() : null)
+                .routineName(routine != null ? routine.getRoutineName() : null)
+                .build();
+        }).collect(Collectors.toList());
     }
 
     // 제스처 상세 정보 조회
     @Transactional(readOnly = true)
-    public GestureResponse getGestureInfo(Long memberId, Long memberGestureId) {
-        log.info("memberId: {}, memberGestureId: {}", memberId, memberGestureId);
-        MemberGesture memberGesture = repository.findByMemberGestureId(memberGestureId)
-                .orElseThrow(() -> new RuntimeException("해당 memberGestureId의 제스처가 존재하지 않습니다."));
+    public GestureResponse getGesture(Long gestureId) {
+        Gesture gesture = gestureRepository.findById(gestureId).orElse(null);
 
-        log.info("조회 요청: memberGestureId={}", memberGestureId);
-        Gesture gesture = memberGesture.getGesture();  // 연관관계를 통해 접근
-
-        log.info(gesture.getGestureName());
+        if (gesture == null) {
+            return null;
+        }
 
         return GestureResponse.builder()
-                .memberGestureId(memberGesture.getMemberGestureId())
-                .gestureName(gesture.getGestureName())
-                .gestureImg(gesture.getImageUrl())
-                .build();
+            .gestureId(gesture.getGestureId())
+            .gestureName(gesture.getGestureName())
+            .gestureImageUrl(gesture.getImageUrl())
+            .gestureDescription(gesture.getDescription())
+            .build();
     }
 }

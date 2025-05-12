@@ -59,19 +59,50 @@ fun DeviceRoutineCard(
     borderStyle: BorderStroke = BorderStroke(1.dp, Color.LightGray),
     isOn: Boolean,
     onToggle: (() -> Unit)? = null,
-    endPadding: Dp = 0.dp
+    endPadding: Dp = 0.dp,
+    isActive: Boolean // 활성화 여부 -> smartthings 에서 받아와야 함
 ) {
+
     Box(
         modifier = modifier
             .shadow(
                 elevation = 12.dp,
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(10.dp),
                 spotColor = Color(0x33000000),
                 ambientColor = Color(0x33000000)
             )
-            .background(Color.White, shape = RoundedCornerShape(16.dp))
-            .border(border = borderStyle, shape = RoundedCornerShape(16.dp))
+            .background(Color.White, shape = RoundedCornerShape(10.dp))
+            .border(border = borderStyle, shape = RoundedCornerShape(10.dp))
     ) {
+        // 비활성화인 기기의 경우 카드를 회색으로 처리해서 선택 불가능함을 표시
+        if (!isActive) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFEEEEEE))
+            )
+
+            // 비활성화 텍스트
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(10.dp)
+                    .background(Color(0xFFD9D9D9), shape = RoundedCornerShape(5.dp))
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = "비활성화",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFF606060),
+                        letterSpacing = 0.4.sp,
+                    )
+                )
+            }
+        }
+
 
         cardIcon?.let {
             Box(
@@ -79,7 +110,10 @@ fun DeviceRoutineCard(
                     .align(Alignment.TopEnd)
                     // endPadding을 입력 받아서 아이콘마다 여백 지정
                     .padding(end = endPadding)
-                    .size(iconSize),
+                    .size(iconSize)
+                    .graphicsLayer{
+                        alpha = if(isActive) 1f else 0.4f
+                    },
                 contentAlignment = Alignment.TopEnd
             ) {
                 cardIcon(iconSize)
@@ -109,7 +143,7 @@ fun DeviceRoutineCard(
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight(800),
                         fontFamily = nanum_square_neo,
-                        color = colorResource(id = R.color.black_primary)
+                        color = if(isActive) colorResource(id = R.color.black_primary) else Color(0xFF606069)
                     )
 
                 )
@@ -120,7 +154,7 @@ fun DeviceRoutineCard(
                     text = cardSubtitle,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
-                        color = colorResource(id = R.color.gray_light)
+                        color = if(isActive) colorResource(id = R.color.gray_light) else Color(0xFFB6B6B6)
                     )
                 )
             }
@@ -143,7 +177,7 @@ fun DeviceRoutineCardPreview() {
             modifier = Modifier
                 .width(160.dp) // 전체 380dp 중 절반 정도로 설정
                 .aspectRatio(1f), // 정사각형 비율 유지
-            showToggle = true,
+            showToggle = false,
             cardTitle = "거실 조명",
             cardSubtitle = "조명",
             cardIcon = {
@@ -159,7 +193,8 @@ fun DeviceRoutineCardPreview() {
             ),
             isOn = isOn,
             onToggle = { isOn = !isOn },
-            endPadding = 7.dp
+            endPadding = 7.dp,
+            isActive = false
         )
     }
 }

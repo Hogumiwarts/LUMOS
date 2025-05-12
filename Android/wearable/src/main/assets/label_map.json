@@ -1,0 +1,17 @@
+{
+  "labels": {
+    "0": "motion2",
+    "1": "motion3",
+    "2": "motion4",
+    "3": "motion1"
+  },
+  "feature_columns": [
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "gryo_x",
+    "gryo_y",
+    "gryo_z"
+  ],
+  "window_size": 50
+}

@@ -61,3 +61,7 @@ cloud:
       bucket: ${S3_BUCKET_NAME}
     cloudfront:
       url: ${CLOUDFRONT_DOMAIN}
+
+gesture-classification:
+  server:
+      url: ${GESTURE_CLASSIFICATION_SERVER_URL}

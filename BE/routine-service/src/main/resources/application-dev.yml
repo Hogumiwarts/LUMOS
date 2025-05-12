@@ -8,10 +8,9 @@ spring:
 server:
   port: 8084
 
-# Node.js 서비스 정의
-node:
-  api:
-    base-url: http://localhost:3000
+smartthings:
+  service:
+    url: https://k12d103.p.ssafy.io/smart
 
 gesture:
   service:
