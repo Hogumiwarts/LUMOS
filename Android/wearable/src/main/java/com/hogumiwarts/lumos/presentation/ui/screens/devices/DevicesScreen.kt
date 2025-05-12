@@ -95,11 +95,11 @@ val gradientBrush = Brush.linearGradient(
     )
 )
 
-enum class DeviceType(val id: Int) {
-    LIGHT(1), SPEAKER(2), MINIBIG(3), AIR_PURIFIER(5);
+enum class DeviceType(val type: String) {
+    LIGHT("LIGHT"), SPEAKER("AUDIO"), MINIBIG("SWITCH"), AIR_PURIFIER("AIRPURIFIER");
 
     companion object {
-        fun fromId(id: Int): DeviceType? = values().find { it.id == id }
+        fun fromId(type: String): DeviceType? = values().find { it.type == type }
     }
 }
 

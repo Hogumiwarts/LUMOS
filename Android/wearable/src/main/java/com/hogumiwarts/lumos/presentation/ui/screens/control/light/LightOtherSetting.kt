@@ -25,7 +25,6 @@ import androidx.wear.compose.material.Text
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
 
 @Composable
 fun LightOtherSetting(

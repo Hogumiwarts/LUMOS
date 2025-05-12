@@ -19,7 +19,7 @@ import com.hogumiwarts.lumos.presentation.ui.screens.SplashScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSetting
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSwitch
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
@@ -72,7 +72,7 @@ fun NavGraph(
         }
 
         // 🔸 Minibig 기기 제어 화면
-        composable("minibig/{tagNumber}",
+        composable("minibig/{deviceId}",
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
                         fadeIn(initialAlpha = 1f)
@@ -81,9 +81,9 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
             }
         ) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+            val tagNumber = it.arguments?.getString("deviceId")?.toLongOrNull()
 
-                MinibigScreen(tagNumber = tagNumber)
+            SwitchScreen(deviceId = tagNumber)
 
         }
 

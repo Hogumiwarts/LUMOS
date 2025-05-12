@@ -1,12 +1,10 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.minibig
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -17,19 +15,68 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Text
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
+import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceIntent
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceState
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.SwitchViewModel
 
 // 🟢 최상위 Composable - 스크린 전체를 구성
 @Composable
-fun MinibigScreen(tagNumber: Long?) {
-    var isOn by remember { mutableStateOf(false) } // 전체 스위치 상태
-    BedLightSwitch(
-        isChecked = isOn,
-        onCheckedChange = { isOn = it }
-    )
+fun SwitchScreen(
+    deviceId: Long?,
+    viewModel: SwitchViewModel = hiltViewModel()
+) {
+
+    deviceId?.let {
+        LaunchedEffect(Unit) {
+            viewModel.sendIntent(SwitchStatusIntent.LoadSwitchStatus(it))
+        }
+    }
+    // 최초 진입 시 DeviceIntent 전송
+
+
+    // 상태 관찰
+    val state by viewModel.state.collectAsState()
+    var isOn by remember { mutableStateOf(false) }
+
+    when(state){
+        is SwitchStatusState.Error -> {
+            when ((state as SwitchStatusState.Error).error) {
+                CommonError.NetworkError -> {
+                    // 네트워크 에러 UI
+                    ErrorMessage("인터넷 연결을 확인해주세요.")
+                }
+                CommonError.UserNotFound -> {
+                    ErrorMessage("사용자를 찾을 수 없습니다.")
+                }
+                else -> {
+                    ErrorMessage("알 수 없는 오류가 발생했습니다.")
+                }
+            }
+        }
+        SwitchStatusState.Idle -> {}
+        is SwitchStatusState.Loaded -> {
+            val data =(state as SwitchStatusState.Loaded).data
+            isOn = data.activated
+            // 전체 스위치 상태
+            BedLightSwitch(
+                isChecked = isOn,
+                onCheckedChange = { isOn = it },
+                name = data.deviceName
+            )
+        }
+        SwitchStatusState.Loading -> {LoadingDevice()}
+    }
+
+
 }
 
 // 🟡 UI 구성 (텍스트 + 토글 + 하단 안내 포함)
@@ -37,6 +84,7 @@ fun MinibigScreen(tagNumber: Long?) {
 fun BedLightSwitch(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    name:String
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -51,7 +99,7 @@ fun BedLightSwitch(
         val (title, toggle, arrow) = createRefs()
         // 상단 텍스트
         Text(
-            text = "침대 조명 스위치",
+            text = name,
             style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
             color = Color.White,
             modifier = Modifier.constrainAs(title) {
@@ -82,7 +130,7 @@ fun BedLightSwitch(
             color = Color(0x10FFFFFF),
             modifier = Modifier
                 .constrainAs(arrow) {
-                    bottom.linkTo(parent.bottom)
+                    bottom.linkTo(parent.bottom, margin = 10.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     top.linkTo(toggle.bottom)
@@ -104,6 +152,6 @@ fun BedLightSwitch(
 @Composable
 fun DefaultPreview() {
     LUMOSTheme {
-        MinibigScreen(1L)
+        SwitchScreen(1L)
     }
 }
