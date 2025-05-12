@@ -177,7 +177,7 @@ fun HomeScreen(
                 )
             ) {
                 items(devices) {
-                    LightDeviceItem()
+//                    LightDeviceItem()
                 }
 
                 item(span = { GridItemSpan(maxLineSpan) }) {
