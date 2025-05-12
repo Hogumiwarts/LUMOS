@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture.network
+package com.hogumiwarts.lumos.ui.screens.gesture.network
 
 import android.content.BroadcastReceiver
 import android.content.Context

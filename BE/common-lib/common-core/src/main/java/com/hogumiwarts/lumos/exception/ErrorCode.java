@@ -9,12 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-	// 유효성 검증 관련 에러 -> @Valid 관리
-	// INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "VALIDATION-001", "이메일 형식이 올바르지 않습니다."),
-	// INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "VALIDATION-002", "비밀번호 형식이 올바르지 않습니다."),
-	// EMAIL_REQUIRED(HttpStatus.BAD_REQUEST, "VALIDATION-003", "이메일을 입력해 주세요."),
-	// PASSWORD_REQUIRED(HttpStatus.BAD_REQUEST, "VALIDATION-004", "비밀번호를 입력해 주세요."),
-
 	// 공통 에러
 	INVALID_REQUEST(HttpStatus.BAD_REQUEST, "VALIDATION-001", "잘못된 요청입니다. 입력 값을 확인해주세요."),
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "RESOURCE-001", "요청하신 리소스를 찾을 수 없습니다."),
@@ -49,6 +43,7 @@ public enum ErrorCode {
 	TOKEN_SIGNATURE_INVALID(HttpStatus.UNAUTHORIZED, "AUTH-012", "잘못된 JWT 서명입니다."),
 	UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-013", "지원되지 않는 JWT 토큰입니다."),
 	TOKEN_TAMPERED(HttpStatus.UNAUTHORIZED, "AUTH-014", "JWT 토큰이 변조되었습니다."),
+	UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "AUTH-015", "권한이 없습니다."),
 
 	// 회원 가입 관련 에러
 	EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SIGNUP-001", "이미 존재하는 이메일입니다."),
@@ -58,16 +53,21 @@ public enum ErrorCode {
 	// 회원(Member) 관련 에러
 	MEMBER_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER-001", "해당 ID를 가진 사용자를 찾을 수 없습니다."),
 	MEMBER_ID_MISSING(HttpStatus.BAD_REQUEST, "MEMBER-002", "사용자 ID가 누락되었습니다."),
-	INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "FCM-001", "유효하지 않은 FCM 토큰 값입니다."),
-	UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "AUTH-010", "권한이 없습니다."),
-
-	FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH-015", "접근이 금지되었습니다."),
+	
+	// 기기 관련 에러
+	DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "DEVICE-001", "해당하는 기기를 찾을 수 없습니다."),
 
 	// 루틴 관련 에러
 	ROUTINE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTINE-001", "해당하는 루틴을 찾을 수 없습니다."),
+	ROUTINE_GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTINE-002", "해당 제스처와 연결된 루틴이 없습니다."),
+	ROUTINE_PARTIAL_FAILURE(HttpStatus.MULTI_STATUS, "ROUTINE-003", "루틴 실행 중 일부 디바이스 제어에 실패했습니다."),
+	ROUTINE_EXECUTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ROUTINE-004", "루틴 기기 제어 중 서버 내부 오류가 발생했습니다."),
 
 	// 제스처 관련 에러
-	GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "GESTURE-001", "해당하는 제스처를 찾을 수 없습니다.");
+	GESTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "GESTURE-001", "해당하는 제스처를 찾을 수 없습니다."),
+
+	// 모델 추론 관련 에러
+	PREDICT_FAIL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PREDICT-001", "모델 추론 서버가 현재 응답하지 않습니다. 서버 상태를 확인해주세요.");
 
 	private final HttpStatus status;
 	private final String errorCode;

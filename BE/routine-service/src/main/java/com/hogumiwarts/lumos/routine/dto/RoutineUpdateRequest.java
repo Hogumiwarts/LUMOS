@@ -10,14 +10,14 @@ import java.util.Optional;
 public class RoutineUpdateRequest {
 
     @Schema(description = "루틴 이름", example = "수면중")
-    private Optional<String> routineName;
+    private Optional<String> routineName = Optional.empty();;
 
     @Schema(description = "루틴 아이콘", example = "취침")
-    private Optional<String> routineIcon;
+    private Optional<String> routineIcon = Optional.empty();;
 
     @Schema(description = "루틴에 추가할 기기 정보", example = "")
-    private Optional<List<DevicesCreateRequest>> devices;
+    private Optional<List<DevicesCreateRequest>> devices = Optional.empty();;
 
     @Schema(description = "제스처 id", example = "1")
-    private Optional<Long> gestureId;
+    private Optional<Long> gestureId = Optional.empty();;
 }

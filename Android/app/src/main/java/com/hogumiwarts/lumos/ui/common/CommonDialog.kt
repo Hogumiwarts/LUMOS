@@ -26,7 +26,8 @@ fun CommonDialog(
             confirmButton = {
                 PrimaryButton(
                     buttonText = "확인",
-                    onClick = onDismiss
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             title = {

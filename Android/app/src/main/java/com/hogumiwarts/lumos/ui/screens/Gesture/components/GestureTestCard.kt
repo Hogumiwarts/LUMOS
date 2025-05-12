@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture.components
+package com.hogumiwarts.lumos.ui.screens.gesture.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,8 +39,8 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.Gesture.network.MessageReceiver
-import com.hogumiwarts.lumos.ui.screens.Gesture.network.sendTextToWatch
+import com.hogumiwarts.lumos.ui.screens.gesture.network.MessageReceiver
+import com.hogumiwarts.lumos.ui.screens.gesture.network.sendTextToWatch
 
 @Composable
 fun GestureTestCard(

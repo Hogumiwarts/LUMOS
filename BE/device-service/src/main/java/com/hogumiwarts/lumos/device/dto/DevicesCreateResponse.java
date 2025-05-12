@@ -13,5 +13,7 @@ public class DevicesCreateResponse {
 	private Long deviceId;
 	private String deviceName;
 	private String deviceType;
+	private String installedAppId;
+	private String controlId;
 	private String deviceImageUrl;
 }

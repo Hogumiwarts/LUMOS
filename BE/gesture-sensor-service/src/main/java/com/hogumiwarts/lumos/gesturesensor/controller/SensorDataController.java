@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.gesturesensor.docs.SensorDataApiSpec;
+import com.hogumiwarts.lumos.gesturesensor.dto.PredictionResult;
 import com.hogumiwarts.lumos.gesturesensor.dto.SensorDataRequest;
 import com.hogumiwarts.lumos.gesturesensor.service.GestureSensorDataService;
 import com.hogumiwarts.lumos.gesturesensor.service.S3DownloadService;
@@ -33,15 +33,12 @@ import lombok.RequiredArgsConstructor;
 public class SensorDataController implements SensorDataApiSpec {
 
 	private final GestureSensorDataService sensorDataService;
-
 	private final S3DownloadService s3DownloadService;
 
 	@PostMapping
-	public ResponseEntity<CommonResponse<Map<String, Boolean>>> saveSensorData(
-		@RequestBody SensorDataRequest request) throws
-		JsonProcessingException {
-		sensorDataService.saveSensorData(request);
-		return ResponseEntity.ok(CommonResponse.ok("데이터가 성공적으로 저장되었습니다.", Map.of("success", true)));
+	public ResponseEntity<CommonResponse<PredictionResult>> saveSensorData(@RequestBody SensorDataRequest request) throws JsonProcessingException {
+		PredictionResult predictionResult = sensorDataService.saveSensorData(request);
+		return ResponseEntity.ok(CommonResponse.ok("데이터가 성공적으로 저장되었습니다.", predictionResult));
 	}
 
 	@GetMapping("/download")
@@ -60,5 +57,11 @@ public class SensorDataController implements SensorDataApiSpec {
 			.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + zipFile.getFileName())
 			.contentType(MediaType.APPLICATION_OCTET_STREAM)
 			.body(stream);
+	}
+
+	@PostMapping("/predict")
+	public ResponseEntity<CommonResponse<PredictionResult>> predictGesture(@RequestBody SensorDataRequest request) throws JsonProcessingException {
+		PredictionResult predictionResult = sensorDataService.predictGesture(request);
+		return ResponseEntity.ok(CommonResponse.ok("성공적으로 추론되었습니다.", predictionResult));
 	}
 }

@@ -10,9 +10,9 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
-node:
-  api:
-    base-url: http://smartthings-service:3000
+smartthings:
+  service:
+    url: http://smartthings-service:3000
 
 gesture:
   service:

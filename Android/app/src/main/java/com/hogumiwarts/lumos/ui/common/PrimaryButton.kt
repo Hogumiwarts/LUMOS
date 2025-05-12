@@ -23,11 +23,11 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun PrimaryButton(
     buttonText: String,
-    onClick:() -> Unit
+    onClick:() -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(45.dp)
             .background(
                 colorResource(id = R.color.main_primary),
@@ -51,5 +51,5 @@ fun PrimaryButton(
 @Preview(showBackground = false)
 @Composable
 private fun PrimaryButtonPreview() {
-    PrimaryButton(buttonText = "수정하기", onClick = {})
+    PrimaryButton(buttonText = "수정하기", onClick = {}, modifier = Modifier.fillMaxWidth())
 }

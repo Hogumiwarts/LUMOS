@@ -46,8 +46,8 @@ fun ControlScreen(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                isAddBtnVisible = false,
-                onAddClick = {}
+                isRightBtnVisible = false,
+                onRightBtnClick = {}
             )
         }
     ) { innerPadding ->

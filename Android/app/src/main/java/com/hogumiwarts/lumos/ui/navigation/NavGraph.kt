@@ -15,22 +15,22 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.screens.devices.DeviceListScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
-import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
-import com.hogumiwarts.lumos.ui.screens.Setting.SettingScreen
-import com.hogumiwarts.lumos.ui.screens.Devices.InfoScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineDevice
-import com.hogumiwarts.lumos.ui.screens.Routine.components.RoutineItem
-import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.routineCreate.RoutineCreateViewModel
-import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.routineDetail.RoutineDetailViewModel
-import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.routineDeviceList.RoutineDeviceListViewModel
-import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditScreen
-import com.hogumiwarts.lumos.ui.screens.Routine.routineEdit.RoutineEditViewModel
-import com.hogumiwarts.lumos.ui.screens.Routine.routineList.RoutineScreen
+import com.hogumiwarts.lumos.ui.screens.home.HomeScreen
+import com.hogumiwarts.lumos.ui.screens.setting.SettingScreen
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineDevice
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
+import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateScreen
+import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateViewModel
+import com.hogumiwarts.lumos.ui.screens.routine.routineDetail.RoutineDetailScreen
+import com.hogumiwarts.lumos.ui.screens.routine.routineDetail.RoutineDetailViewModel
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListViewModel
+import com.hogumiwarts.lumos.ui.screens.routine.routineEdit.RoutineEditScreen
+import com.hogumiwarts.lumos.ui.screens.routine.routineEdit.RoutineEditViewModel
+import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
@@ -174,7 +174,16 @@ fun NavGraph(
                 when (item) {
                     BottomNavItem.Home -> HomeScreen()
 
-                    BottomNavItem.Info -> InfoScreen()
+                    BottomNavItem.Info -> {
+                        val myDeviceList = MyDevice.sample
+
+                        DeviceListScreen(
+                            devices = myDeviceList,
+                            onSelectedComplete = { selectedDevice ->
+                                //todo: 선택 완료 시 동작 정의
+                            }
+                        )
+                    }
 
                     BottomNavItem.Routine -> RoutineScreen(
                         routines = RoutineItem.sample, // todo: 실제 api 필요
@@ -227,8 +236,8 @@ fun NavGraph(
         composable("signup") {
             SignupScreen(
                 onSignupSuccess = {
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true } // 뒤로가기로 돌아가지 않게
+                    navController.navigate("login") {
+                        popUpTo("signup") { inclusive = true }
                     }
                 }
             )
