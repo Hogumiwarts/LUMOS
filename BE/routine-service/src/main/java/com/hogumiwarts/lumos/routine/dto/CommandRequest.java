@@ -25,5 +25,5 @@ public class CommandRequest {
     private String command;
 
     @Schema(description = "명령 인자", example = "[]")
-    private List<String> arguments;
+    private List<Map<String, Object>> arguments;
 }
