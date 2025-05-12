@@ -45,7 +45,7 @@ fun DeviceCard(device: DeviceListData, navController: NavHostController) {
             .clickable {
 
                 // 클릭 이벤트 처리
-                when (DeviceType.fromId(device.deviceId.toInt())) {
+                when (DeviceType.fromId(device.deviceType)) {
 
                     DeviceType.LIGHT -> {
                         navController.navigate("light/${device.tagNumber}") {
@@ -60,7 +60,7 @@ fun DeviceCard(device: DeviceListData, navController: NavHostController) {
                     }
 
                     DeviceType.MINIBIG -> {
-                        navController.navigate("minibig/${device.tagNumber}") {
+                        navController.navigate("minibig/${device.deviceId}") {
                             popUpTo("splash") { inclusive = true }
                         }
                     }

@@ -1,7 +1,9 @@
 package com.hogumiwarts.lumos.di
 
 import com.hogumiwarts.lumos.data.repostitory.DeviceRepositoryImpl
+import com.hogumiwarts.lumos.data.repostitory.SwitchRepositoryImpl
 import com.hogumiwarts.lumos.domain.repository.DeviceRepository
+import com.hogumiwarts.lumos.domain.repository.SwitchRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,6 +19,12 @@ abstract class RepositoryModule {
     abstract fun bindDeviceRepository(
         impl: DeviceRepositoryImpl
     ): DeviceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSwitchRepository(
+        impl: SwitchRepositoryImpl
+    ): SwitchRepository
 
 
 

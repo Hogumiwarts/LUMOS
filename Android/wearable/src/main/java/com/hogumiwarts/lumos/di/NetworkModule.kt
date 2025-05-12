@@ -51,9 +51,5 @@ class NetworkModule {
         .addConverterFactory(GsonConverterFactory.create()) // JSON 변환
         .build()
 
-    // 🔹 Retrofit을 기반으로 한 API 인터페이스 구현체 제공
-    @Provides
-    @Singleton
-    fun provideDevicesApi(retrofit: Retrofit): DevicesApi =
-        retrofit.create(DevicesApi::class.java)
+
 }
