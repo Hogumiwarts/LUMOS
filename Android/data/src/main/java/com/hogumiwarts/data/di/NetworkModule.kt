@@ -1,9 +1,11 @@
 package com.hogumiwarts.data.di
 
 import android.util.Log
+import com.hogumiwarts.data.BuildConfig
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.data.source.remote.WeatherApi
 import com.hogumiwarts.data.source.remote.GestureApi
+import com.hogumiwarts.data.source.remote.SmartThingsApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -79,4 +81,26 @@ object NetworkModule {
     @Singleton
     fun provideGestureApi(retrofit: Retrofit): GestureApi = retrofit.create(GestureApi::class.java)
 
+    // smartThings API 등록
+    @Provides
+    @Singleton
+    @Named("SMART_BASE_URL")
+    fun provideSmartThingsBaseUrl(): String = BuildConfig.SMART_BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("smartThingsRetrofit")
+    fun provideSmartThingsRetrofit(
+        okHttpClient: OkHttpClient,
+        @Named("SMART_BASE_URL") baseUrl: String
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideSmartThingsApi(@Named("smartThingsRetrofit") retrofit: Retrofit): SmartThingsApi =
+        retrofit.create(SmartThingsApi::class.java)
 }

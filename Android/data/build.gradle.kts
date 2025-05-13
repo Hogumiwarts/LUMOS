@@ -1,3 +1,4 @@
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
@@ -7,6 +8,11 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
 }
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
 
 android {
     namespace = "com.hogumiwarts.data"
@@ -19,6 +25,8 @@ android {
         consumerProguardFiles("consumer-rules.pro")
         buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
 
+        buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
+        buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
     }
 
     buildTypes {
