@@ -6,21 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.SignupResult
 import com.hogumiwarts.domain.repository.AuthRepository
-import com.hogumiwarts.lumos.datastore.TokenDataStore
-import com.hogumiwarts.lumos.ui.screens.auth.login.LoginIntent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class SignupViewModel @Inject constructor(

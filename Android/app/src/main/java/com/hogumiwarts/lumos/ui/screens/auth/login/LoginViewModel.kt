@@ -1,13 +1,11 @@
 package com.hogumiwarts.lumos.ui.screens.auth.login
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.LoginResult
 import com.hogumiwarts.domain.repository.AuthRepository
-import com.hogumiwarts.lumos.datastore.TokenDataStore
-import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel

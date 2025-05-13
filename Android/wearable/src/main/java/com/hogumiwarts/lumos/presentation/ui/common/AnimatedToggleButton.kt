@@ -23,7 +23,7 @@ import com.hogumiwarts.lumos.R
 @Composable
 fun AnimatedToggleButton(
     isOn: Boolean,
-    onToggle: (Boolean) -> Unit,
+    onToggle: () -> Unit,
     modifier: Modifier,
 ) {
     // Lottie 애니메이션 로딩
@@ -37,7 +37,7 @@ fun AnimatedToggleButton(
     // 상태 변경 시 애니메이션 실행
     LaunchedEffect(isOn) {
         composition?.let {
-            val (start, end) = if (isOn) {
+            val (start, end) = if (!isOn) {
                 0f to 0.5f // ON → 절반만 재생
             } else {
                 0.5f to 1f // OFF → 절반 이후 재생
@@ -58,7 +58,7 @@ fun AnimatedToggleButton(
                 indication = null, // 기본 ripple 제거
                 interactionSource = remember { MutableInteractionSource() }
             ) {
-                onToggle(!isOn) // 토글 상태 변경
+                onToggle() // 토글 상태 변경
             },
         contentAlignment = Alignment.Center,
         

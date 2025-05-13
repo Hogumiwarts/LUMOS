@@ -4,12 +4,14 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import com.hogumiwarts.lumos.device.ml.LabelMapLoader
 import com.hogumiwarts.lumos.device.ml.TFLiteInterpreterProvider
 import com.hogumiwarts.lumos.device.sensor.SensorCollector
 import com.hogumiwarts.lumos.device.sensor.SensorNormalizer
 import org.tensorflow.lite.Interpreter
+import java.util.Arrays
 
 class SensorService : Service() {
 
@@ -18,10 +20,22 @@ class SensorService : Service() {
     private lateinit var labelMap: Map<Int, String>
     private val handler = Handler(Looper.getMainLooper())
 
+
+    // 워치 화면이 꺼져도 계속 감지 하게 설정
+    private lateinit var wakeLock: PowerManager.WakeLock
+
     private var isTestMode = false // ← 여기 선언
 
     override fun onCreate() {
         super.onCreate()
+
+        // 워치 화면이 꺼져도 계속 감지 하게 설정
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "SensorService::Wakelock"
+        )
+        wakeLock.acquire()
 
         Log.d("SensorService", "onCreate 시작됨")
 
@@ -57,6 +71,12 @@ class SensorService : Service() {
             override fun run() {
                 val data = sensorCollector.currentData
                 Log.d("TAG", "run: ${data.size}")
+                data.forEach{
+
+                        Log.d("TAG", "run: ${Arrays.toString(it)}")
+
+
+                }
                 if (data.size >= 50) {
                     val normalized = SensorNormalizer.normalize(data)
                     val result = predictGesture(interpreter, normalized, labelMap)
@@ -98,6 +118,10 @@ class SensorService : Service() {
         stopForeground(true)
         handler.removeCallbacksAndMessages(null)
         sensorCollector.stop()
+
+        if (::wakeLock.isInitialized && wakeLock.isHeld) {
+            wakeLock.release()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

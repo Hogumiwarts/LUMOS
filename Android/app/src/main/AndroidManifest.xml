@@ -7,7 +7,9 @@
     <!-- BLE 관련 권한 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <!-- 위치 권한 (BLE 스캔에 필요) -->
@@ -18,8 +20,12 @@
     <uses-permission android:name="android.permission.UWB_RANGING" />
 
     <!-- 기능 선언 -->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
-    <uses-feature android:name="android.hardware.uwb" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.uwb"
+        android:required="false" />
 
     <application
         android:name=".LumosApplication"
@@ -40,6 +46,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <!-- SmartThings OAuth redirect URI 처리 -->
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="oauth-callback"
+                    android:scheme="smartthingslogin" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -48,10 +64,13 @@
             android:name=".MobileMessageListenerService"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.BIND_LISTENER"
+                <action
+                    android:name="com.google.android.gms.wearable.BIND_LISTENER"
                     tools:ignore="WearableBindListener" />
             </intent-filter>
         </service>
+
+
     </application>
 
 </manifest>
