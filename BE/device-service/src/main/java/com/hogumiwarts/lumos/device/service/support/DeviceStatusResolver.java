@@ -27,7 +27,7 @@ public class DeviceStatusResolver {
                     };
                 }
                 case "AIRPURIFIER" -> "on".equalsIgnoreCase(main.path("switch").path("switch").path("value").asText(""));
-//                case "AUDIO" -> "playing".equalsIgnoreCase(main.path("audioPlayback").path("playbackStatus").path("value").asText(""));
+                case "LIGHT" -> "on".equalsIgnoreCase(main.path("switch").path("switch").path("value").asText(""));
                 default -> false;
             };
         } catch (Exception e) {
