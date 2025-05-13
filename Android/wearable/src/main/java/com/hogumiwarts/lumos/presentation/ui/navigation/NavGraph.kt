@@ -58,7 +58,7 @@ fun NavGraph(
         }
 
         // 🔸 Light 기기 제어 화면
-        composable("light/{tagNumber}",
+        composable("light/{deviceId}",
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
                         fadeIn(initialAlpha = 1f)
@@ -67,8 +67,13 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
             }
         ) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
-            LightScreen(tagNumber = tagNumber)
+            val deviceId = it.arguments?.getString("deviceId")?.toLongOrNull()
+
+            if(deviceId != null){
+                LightScreen(deviceId = deviceId)
+            }else{
+                Text(text = "오류가 발생했습니다.")
+            }
         }
 
         // 🔸 Minibig 기기 제어 화면

@@ -2,67 +2,82 @@ package com.hogumiwarts.lumos.presentation.ui.screens.control.light
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.wear.compose.material.Text
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieClipSpec
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
-import com.hogumiwarts.lumos.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.data.LightData
+import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
-import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.BedLightSwitch
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerContainer
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerSwitch
+import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
+import com.hogumiwarts.lumos.presentation.ui.screens.control.light.components.ColorWheelPicker
+import com.hogumiwarts.lumos.presentation.ui.screens.control.light.components.LightOtherSetting
+import com.hogumiwarts.lumos.presentation.ui.screens.control.light.components.LightSwitch
+import com.hogumiwarts.lumos.presentation.ui.screens.control.light.components.WatchBrightnessWithPureCompose
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.LightViewModel
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.SwitchViewModel
 
-val exampleLight = LightData(
-    deviceId = 1L,
-    tagNumber = 123456789L,
-    deviceName = "무드등",
-    deviceImg = "icon_light", // 또는 실제 이미지 URL/리소스 키
-    lightColor = "#FFA500",   // 주황색 (ARGB Hex 형식)
-    activated = true
-)
 
 @Composable
-fun LightScreen(tagNumber: Long?) {
-    var state by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
+fun LightScreen(
+    deviceId: Long,
+    viewModel: LightViewModel = hiltViewModel()
+) {
+
+
+    // 최초 진입 시 상태 요청
+    LaunchedEffect(Unit) {
+        viewModel.sendIntent(LightIntent.LoadLightStatus(deviceId))
+    }
+
+    val state by viewModel.state.collectAsState()
+    val isOn by viewModel.isOn.collectAsState()
+
+    when(state){
+        is LightStatusState.Error -> {
+            when ((state as LightStatusState.Error).error) {
+                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
+                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+            }
+        }
+        LightStatusState.Idle -> {}
+        is LightStatusState.Loaded -> {
+            val data = (state as LightStatusState.Loaded).data
+            ScrollScreen(data.deviceName, isOn)
+        }
+        LightStatusState.Loading ->  LoadingDevice()
+    }
+
+
+
+}
+
+@Composable
+private fun ScrollScreen(name : String, isOn: Boolean) {
+    var screen by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
     // 화면 전환 시 애니메이션
     val switchOffsetY by animateDpAsState(
-        targetValue = when (state) {
+        targetValue = when (screen) {
             "switch" -> 0.dp
             "brightness" -> (-300).dp
             "color" -> (-600).dp
@@ -74,7 +89,7 @@ fun LightScreen(tagNumber: Long?) {
     )
 
     val brightnessOffsetY by animateDpAsState(
-        targetValue = when (state) {
+        targetValue = when (screen) {
             "switch" -> 300.dp
             "brightness" -> 0.dp
             "color" -> (-300).dp
@@ -86,7 +101,7 @@ fun LightScreen(tagNumber: Long?) {
     )
 
     val colorOffsetY by animateDpAsState(
-        targetValue = when (state) {
+        targetValue = when (screen) {
             "switch" -> 600.dp
             "brightness" -> 300.dp
             "color" -> 0.dp
@@ -99,7 +114,7 @@ fun LightScreen(tagNumber: Long?) {
 
 
     val otherOffsetY by animateDpAsState(
-        targetValue = when (state) {
+        targetValue = when (screen) {
             "switch" -> 900.dp
             "brightness" -> 600.dp
             "color" -> 300.dp
@@ -111,44 +126,46 @@ fun LightScreen(tagNumber: Long?) {
     )
 
 
-    Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(Color(0xFF111322))) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .clip(CircleShape)
+        .background(Color(0xFF111322))) {
 
         // 1. LightSwitch
         Box(modifier = Modifier.offset(y = switchOffsetY)) {
             LightSwitch(
-                onSwipeUp = { state = "brightness" }
+                isOn = isOn,
+                name = name,
+                onSwipeUp = { screen = "brightness" }
             )
         }
 
         // 2. Brightness Screen
         Box(modifier = Modifier.offset(y = brightnessOffsetY)) {
             WatchBrightnessWithPureCompose(
-                onSwipeDown = { state = "switch" },
-                onSwipeUp = { state = "color" }
+                onSwipeDown = { screen = "switch" },
+                onSwipeUp = { screen = "color" }
             )
         }
 
         // 3. Color Picker
         Box(modifier = Modifier.offset(y = colorOffsetY)) {
             ColorWheelPicker(
-                onSwipeDown = { state = "brightness" },
-                onSwipeUp = {state = "other"}
+                onSwipeDown = { screen = "brightness" },
+                onSwipeUp = { screen = "other" }
             )
         }
 
         // 4. Other Setting
         Box(modifier = Modifier.offset(y = otherOffsetY)) {
             LightOtherSetting(
-                onSwipeDown = { state = "color" }
+                onSwipeDown = { screen = "color" }
             )
         }
 
 
     }
-
 }
-
-
 
 
 // 🧪 Wear OS 에뮬레이터에서 미리보기 지원

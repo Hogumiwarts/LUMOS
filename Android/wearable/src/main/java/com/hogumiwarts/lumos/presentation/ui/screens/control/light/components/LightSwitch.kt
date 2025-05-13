@@ -1,26 +1,20 @@
-package com.hogumiwarts.lumos.presentation.ui.screens.control.light
+package com.hogumiwarts.lumos.presentation.ui.screens.control.light.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Text
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -28,9 +22,10 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.LightViewModel
 
 @Composable
-fun LightSwitch(onSwipeUp: () -> Unit) {
+fun LightSwitch(viewModel: LightViewModel = hiltViewModel(), isOn: Boolean, name: String, onSwipeUp: () -> Unit) {
 //    var isChecked by remember { mutableStateOf(exampleLight.activated) } // 전체 스위치 상태
 
     val composition by rememberLottieComposition(
@@ -62,7 +57,7 @@ fun LightSwitch(onSwipeUp: () -> Unit) {
 
         // 텍스트: 상단 고정
         Text(
-            text = exampleLight.deviceName,
+            text = name,
             style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
             color = Color.White,
             modifier = Modifier.constrainAs(title) {
@@ -73,18 +68,19 @@ fun LightSwitch(onSwipeUp: () -> Unit) {
             }
         )
 
+
+
         // 토글 버튼: 화면 정중앙
-//        AnimatedToggleButton(
-//            isOn = isChecked,
-//            onToggle = { isChecked= it },
-//            deviceId = 1,
-//            modifier = Modifier.constrainAs(toggle) {
-//                top.linkTo(parent.top)
-//                bottom.linkTo(parent.bottom)
-//                start.linkTo(parent.start)
-//                end.linkTo(parent.end)
-//            }
-//        )
+        AnimatedToggleButton(
+            isOn = isOn,
+            onToggle = { isOn},
+            modifier = Modifier.constrainAs(toggle) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+        )
 
         // Lottie 애니메이션: 하단 고정
         LottieAnimation(

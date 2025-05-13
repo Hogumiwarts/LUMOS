@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.presentation.ui.screens.control.light
+package com.hogumiwarts.lumos.presentation.ui.screens.control.light.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

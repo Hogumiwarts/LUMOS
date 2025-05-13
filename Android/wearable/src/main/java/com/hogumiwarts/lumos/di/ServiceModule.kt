@@ -2,6 +2,7 @@ package com.hogumiwarts.lumos.di
 
 
 import com.hogumiwarts.lumos.data.source.remote.DevicesApi
+import com.hogumiwarts.lumos.data.source.remote.LightApi
 import com.hogumiwarts.lumos.data.source.remote.SwitchApi
 import dagger.Module
 import dagger.Provides
@@ -22,5 +23,9 @@ object ServiceModule {
 
     @Singleton
     @Provides
-    fun providesUserService(retrofit: Retrofit) : SwitchApi = retrofit.create(SwitchApi::class.java)
+    fun providesSwitchService(retrofit: Retrofit) : SwitchApi = retrofit.create(SwitchApi::class.java)
+
+    @Singleton
+    @Provides
+    fun providesLightService(retrofit: Retrofit) : LightApi = retrofit.create(LightApi::class.java)
 }
