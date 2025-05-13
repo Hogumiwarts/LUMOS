@@ -18,7 +18,9 @@ public class DeviceStatusResolver {
             JsonNode main = raw.path("status").path("components").path("main");
 
             return switch (device.getDeviceType()) {
-                case "SWITCH" -> "on".equalsIgnoreCase(main.path("switch").path("switch").path("value").asText(""));
+                case "SWITCH", "LIGHT", "AIRPURIFIER" ->
+                        "on".equalsIgnoreCase(main.path("switch").path("switch").path("value").asText(""));
+
                 case "AUDIO" -> {
                     String val = main.path("mediaPlayback").path("playbackStatus").path("value").asText("");
                     yield switch (val.toLowerCase()) {
@@ -26,8 +28,7 @@ public class DeviceStatusResolver {
                         default -> false;
                     };
                 }
-                case "AIRPURIFIER" -> "on".equalsIgnoreCase(main.path("switch").path("switch").path("value").asText(""));
-                case "LIGHT" -> "on".equalsIgnoreCase(main.path("switch").path("switch").path("value").asText(""));
+
                 default -> false;
             };
         } catch (Exception e) {
