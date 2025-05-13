@@ -14,14 +14,10 @@ import javax.inject.Inject
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
-import com.hogumiwarts.data.entity.remote.Response.SmartThingsAuthResponse
-import com.hogumiwarts.data.entity.remote.Response.SmartThingsDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.mapper.toMyDevice
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlinx.serialization.json.*
 
 
 @HiltViewModel
@@ -108,10 +104,25 @@ class DeviceListViewModel @Inject constructor(
                             if (statusResponse.success) {
                                 val mainComponent = statusResponse.status.components["main"]
 
+                                // 기기별 카테고리
+                                val category = device.components.firstOrNull()?.categories?.firstOrNull()?.name.orEmpty()
+
                                 // isOn과 isActive의 경우 JSON에서 바로 알 수 없어서 따로 판단해줌
-                                val isOn = mainComponent?.switch?.switch?.value == "on"
-                                val isActive =
-                                    mainComponent?.healthCheck?.`DeviceWatch-DeviceStatus`?.value == "online"
+                                // todo: 스피커 json 확인하고 마저 처리하기
+                                val isOn = when (category) {
+                                    "AirPurifier" -> mainComponent?.custom_airPurifierOperationMode?.apOperationMode?.value != "off"
+                                    "Switch", "Light" -> mainComponent?.switch?.switch?.value == "on"
+                                    "Hub" -> true
+                                    
+                                    else -> false
+                                }
+
+
+                                val isActive = when (category) {
+                                    "Hub" -> true // Hub는 상태 체크 불필요
+                                    else ->  mainComponent?.healthCheck?.`DeviceWatch-DeviceStatus`?.value == "online"
+                                }
+
 
                                 device.toMyDevice(isOn, isActive)
                             } else {

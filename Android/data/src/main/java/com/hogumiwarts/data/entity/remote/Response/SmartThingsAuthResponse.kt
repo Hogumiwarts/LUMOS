@@ -51,7 +51,12 @@ data class ComponentStatus(
     val switch: SwitchCapability? = null,
     val healthCheck: HealthCheckCapability? = null,
     val battery: BatteryCapability? = null,
-    val refresh: Any? = null // 필요 없으면 생략 가능
+    val custom_airPurifierOperationMode: AirPurifierOperationModeCapability? = null,
+    val refresh: Any? = null
+)
+
+data class AirPurifierOperationModeCapability(
+    val apOperationMode: ValueWithTimestamp? = null
 )
 
 data class SwitchCapability(
