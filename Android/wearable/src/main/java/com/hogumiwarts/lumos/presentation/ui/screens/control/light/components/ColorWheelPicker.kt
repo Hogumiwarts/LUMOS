@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.light.components
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -33,10 +34,21 @@ import kotlin.math.*
 @Composable
 fun ColorWheelPicker(
     onSwipeDown: () -> Unit,
-    onSwipeUp: () -> Unit
+    onSwipeUp: () -> Unit,
+    onColorSelected: (String) -> Unit, // ✅ 손 뗐을 때 색상 전송용 콜백 추가
+    color: Float,
+    onColorChange: (Float) -> Unit,
 ) {
-    var hue by remember { mutableFloatStateOf(0f) } // 0~360
+
+    var hue by remember { mutableFloatStateOf(color) } // 0~360
     val selectedColor = Color.hsv(hue, 1f, 1f)
+    // Color 객체에서 RGB 값 추출
+    val red = (selectedColor.red * 255).toInt()
+    val green = (selectedColor.green * 255).toInt()
+    val blue = (selectedColor.blue * 255).toInt()
+
+    val hexColor = String.format("#%02X%02X%02X", red, green, blue)
+//    Log.d("TAG", "ColorWheelPicker: $hexColor")
 
     Box(
         modifier = Modifier
@@ -50,13 +62,25 @@ fun ColorWheelPicker(
                 val pointerRadius = 40f
                 val touchThreshold = pointerRadius + 50f
 
-                detectDragGestures { change, _ ->
+                detectDragGestures (
+                    onDragEnd = {
+                        val selectedColor = Color.hsv(hue, 1f, 1f)
+                        val red = (selectedColor.red * 255).toInt()
+                        val green = (selectedColor.green * 255).toInt()
+                        val blue = (selectedColor.blue * 255).toInt()
+                        val hexColor = String.format("#%02X%02X%02X", red, green, blue)
+
+                        onColorSelected(hexColor) // ✅ 손 뗐을 때 호출
+                    },
+                    onDrag = { change, _ ->
                     val touchPoint = change.position
 
                     val angleRad = Math.toRadians(hue.toDouble())
                     val pointerX = center.x + cos(angleRad).toFloat() * radius
                     val pointerY = center.y + sin(angleRad).toFloat() * radius
-                    val distance = Offset(pointerX, pointerY).minus(touchPoint).getDistance()
+                    val distance = Offset(pointerX, pointerY)
+                        .minus(touchPoint)
+                        .getDistance()
 
                     if (distance <= touchThreshold) {
                         val dx = touchPoint.x - center.x
@@ -64,8 +88,9 @@ fun ColorWheelPicker(
                         var angle = atan2(dy, dx) * 180f / PI.toFloat()
                         if (angle < 0) angle += 360f
                         hue = angle
+                        onColorChange(hue)
                     }
-                }
+                })
             },
         contentAlignment = Alignment.Center
     ) {
@@ -144,5 +169,5 @@ fun ColorWheelPicker(
 @Preview(showBackground = true, device = Devices.WEAR_OS_SMALL_ROUND)
 @Composable
 fun ColorWheelPickerPreview() {
-    ColorWheelPicker({} ,{})
+//    ColorWheelPicker({} ,{},{})
 }

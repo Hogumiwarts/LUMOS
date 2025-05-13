@@ -56,6 +56,7 @@ class LightViewModel @Inject constructor(
                     is LightIntent.LoadLightStatus -> loadSwitchStatus(intent.deviceId)
                     is LightIntent.ChangeLightPower -> changeSwitchPower(intent.deviceId, intent.activated)
                     is LightIntent.ChangeLightBright -> patchLightBright(intent.deviceId, intent.brightness)
+                    is LightIntent.ChangeLightColor -> patchLightColor(intent.deviceId,intent.color)
                 }
             }
         }
@@ -108,6 +109,22 @@ class LightViewModel @Inject constructor(
             _brightnessState.value = ControlState.Loading
 
             when (val result = lightUseCase.patchLightBright(deviceId = deviceId, brightness = brightness)) {
+                is PatchSwitchPowerResult.Success -> {
+                    _brightnessState.value = ControlState.Loaded(result.data)
+                }
+                is PatchSwitchPowerResult.Error -> {
+                    _brightnessState.value = ControlState.Error(result.error)
+                }
+            }
+        }
+    }
+
+    // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
+    private fun patchLightColor(deviceId: Long, color: String) {
+        viewModelScope.launch {
+            _brightnessState.value = ControlState.Loading
+
+            when (val result = lightUseCase.patchLightColor(deviceId = deviceId, color = color)) {
                 is PatchSwitchPowerResult.Success -> {
                     _brightnessState.value = ControlState.Loaded(result.data)
                 }

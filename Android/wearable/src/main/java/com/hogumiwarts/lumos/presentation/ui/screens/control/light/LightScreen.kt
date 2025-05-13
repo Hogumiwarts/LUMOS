@@ -63,17 +63,25 @@ fun LightScreen(
         LightStatusState.Idle -> {}
         is LightStatusState.Loaded -> {
             val data = (state as LightStatusState.Loaded).data
-            ScrollScreen(data.deviceName, isOn, data.brightness, deviceId=deviceId)
+            ScrollScreen(data.deviceName, isOn, data.brightness, deviceId=deviceId, color =hexToHue(data.lightCode) )
         }
         LightStatusState.Loading ->  LoadingDevice()
     }
 
 }
 
+fun hexToHue(hex: String): Float {
+    val colorInt = android.graphics.Color.parseColor(hex)
+    val hsv = FloatArray(3)
+    android.graphics.Color.colorToHSV(colorInt, hsv)
+    return hsv[0] // hue
+}
+
 @Composable
-private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long,viewModel: LightViewModel = hiltViewModel()) {
+private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long,viewModel: LightViewModel = hiltViewModel(), color:Float) {
     var screen by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
+    var color by remember { mutableStateOf(color) }
     var brightness by remember { mutableStateOf(bright) }
     // 화면 전환 시 애니메이션
     val switchOffsetY by animateDpAsState(
@@ -155,8 +163,11 @@ private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Lo
         // 3. Color Picker
         Box(modifier = Modifier.offset(y = colorOffsetY)) {
             ColorWheelPicker(
+                color = color,
+                onColorChange = {color= it},
                 onSwipeDown = { screen = "brightness" },
-                onSwipeUp = { screen = "other" }
+                onSwipeUp = { screen = "other" },
+                onColorSelected = { sendColorToServer(it,viewModel,deviceId)}
             )
         }
 
@@ -172,6 +183,9 @@ private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Lo
 }
 fun sendBrightnessToServer(brightness: Int, viewModel: LightViewModel, deviceId: Long) {
     viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
+}
+fun sendColorToServer(color: String, viewModel: LightViewModel, deviceId: Long) {
+    viewModel.sendIntent(LightIntent.ChangeLightColor(deviceId, color))
 }
 
 

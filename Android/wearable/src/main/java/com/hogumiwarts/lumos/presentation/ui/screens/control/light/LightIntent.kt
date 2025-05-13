@@ -9,4 +9,6 @@ sealed class LightIntent {
 
     data class ChangeLightBright(val deviceId: Long, val brightness: Int): LightIntent()
 
+    data class ChangeLightColor(val deviceId: Long, val color: String): LightIntent()
+
 }
