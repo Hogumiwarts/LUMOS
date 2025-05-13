@@ -8,4 +8,6 @@ interface LightRepository {
     suspend fun getLightStatus(deviceId: Long): GetLightStatusResult
 
     suspend fun patchLightPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult
+
+//    suspend fun patchLightBright(deviceId: Long, brightness: Int): PatchSwitchPowerResult
 }

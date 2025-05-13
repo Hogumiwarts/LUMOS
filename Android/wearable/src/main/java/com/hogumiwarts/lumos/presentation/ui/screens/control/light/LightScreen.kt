@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.light
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -62,7 +63,7 @@ fun LightScreen(
         LightStatusState.Idle -> {}
         is LightStatusState.Loaded -> {
             val data = (state as LightStatusState.Loaded).data
-            ScrollScreen(data.deviceName, isOn,deviceId=deviceId)
+            ScrollScreen(data.deviceName, isOn, data.lightColor.toInt(), deviceId=deviceId)
         }
         LightStatusState.Loading ->  LoadingDevice()
     }
@@ -70,9 +71,10 @@ fun LightScreen(
 }
 
 @Composable
-private fun ScrollScreen(name : String, isOn: Boolean, deviceId: Long) {
+private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long) {
     var screen by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
+    var brightness by remember { mutableStateOf(bright) }
     // 화면 전환 시 애니메이션
     val switchOffsetY by animateDpAsState(
         targetValue = when (screen) {
@@ -142,6 +144,9 @@ private fun ScrollScreen(name : String, isOn: Boolean, deviceId: Long) {
         // 2. Brightness Screen
         Box(modifier = Modifier.offset(y = brightnessOffsetY)) {
             WatchBrightnessWithPureCompose(
+                brightness = brightness,
+                onBrightnessChange = { brightness = it },
+                onDragEnd = { sendBrightnessToServer(it) },
                 onSwipeDown = { screen = "switch" },
                 onSwipeUp = { screen = "color" }
             )
@@ -164,6 +169,9 @@ private fun ScrollScreen(name : String, isOn: Boolean, deviceId: Long) {
 
 
     }
+}
+fun sendBrightnessToServer(brightness: Int) {
+    Log.d("TAG", "sendBrightnessToServer: $brightness")
 }
 
 

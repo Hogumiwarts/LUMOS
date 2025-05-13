@@ -4,6 +4,7 @@ import com.hogumiwarts.lumos.data.entity.remote.BaseResponse
 import com.hogumiwarts.lumos.data.entity.remote.PatchControlResponse
 import com.hogumiwarts.lumos.data.entity.remote.PowerRequest
 import com.hogumiwarts.lumos.data.entity.remote.light.GetLightStatusResponse
+import com.hogumiwarts.lumos.data.entity.remote.light.PatchLightBrightRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
@@ -15,5 +16,10 @@ interface LightApi {
     suspend fun getLightStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetLightStatusResponse>
 
     @PATCH("/device/api/devices/{deviceId}/switch/power")
-    suspend fun getSwitchPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
+    suspend fun patchLightPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
+
+    @PATCH("/device/api/devices/{deviceId}/switch/bright")
+    suspend fun patchLightBright(@Path("deviceId") deviceId: Long, @Body request: PatchLightBrightRequest): BaseResponse<PatchControlResponse>
+
+
 }
