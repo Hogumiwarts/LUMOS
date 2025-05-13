@@ -12,6 +12,7 @@ plugins {
 val localProperties = Properties().apply {
     load(rootProject.file("local.properties").inputStream())
 }
+
 val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
 
 android {
@@ -23,7 +24,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
 
         buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
         buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
