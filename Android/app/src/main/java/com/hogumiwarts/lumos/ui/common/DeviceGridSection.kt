@@ -23,14 +23,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.hogumiwarts.data.entity.remote.Response.SmartThingsDevice
+import com.hogumiwarts.lumos.mapper.toMyDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 
 @Composable
 fun DeviceGridSection(
-    devices: List<SmartThingsDevice>,
+    devices: List<MyDevice>,
     selectedDeviceId: String? = null,
-    onDeviceClick: (SmartThingsDevice) -> Unit = {}
+    onDeviceClick: (MyDevice) -> Unit = {}
 ) {
 
     LazyVerticalGrid(
@@ -50,15 +51,15 @@ fun DeviceGridSection(
             val rows = (devices.size + 1) / 2
             val currentRow = index / 2
 
-            val categoryName = device.components
-                .firstOrNull()              // 첫 번째 컴포넌트
-                ?.categories
-                ?.firstOrNull()            // 그 컴포넌트의 첫 번째 카테고리
-                ?.name                     // 카테고리 이름
-                ?: "ETC"                   // 없으면 기본값
-
-            val deviceType = DeviceListType.from(categoryName)
-            val iconResId = deviceType.iconResId
+//            val categoryName = device.components
+//                .firstOrNull()              // 첫 번째 컴포넌트
+//                ?.categories
+//                ?.firstOrNull()            // 그 컴포넌트의 첫 번째 카테고리
+//                ?.name                     // 카테고리 이름
+//                ?: "ETC"                   // 없으면 기본값
+//
+//            val deviceType = DeviceListType.from(categoryName)
+//            val iconResId = deviceType.iconResId
 
             val cardContent: @Composable () -> Unit = {
                 DeviceRoutineCard(
@@ -66,13 +67,13 @@ fun DeviceGridSection(
                         .fillMaxSize()
                         .clickable { onDeviceClick(device) },
                     showToggle = false,
-                    cardTitle = device.name,
+                    cardTitle = device.deviceName,
                     cardSubtitle = if (device.isOn) "켜짐" else "꺼짐",
                     isOn = device.isOn,
                     iconSize = DpSize(85.dp, 85.dp),
                     cardIcon = { size ->
                         Image(
-                            painter = painterResource(id = deviceType.iconResId),
+                            painter = painterResource(id = device.deviceType.iconResId),
                             contentDescription = null,
                             modifier = Modifier.size(size)
                         )
@@ -116,20 +117,20 @@ fun DeviceGridSection(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DeviceGridSectionPreview() {
-    val sampleDevices = listOf(
-        MyDevice(1, "내 방 조명 1", isOn = true, isActive = true, deviceType = DeviceListType.LIGHT),
-        MyDevice(
-            2, "거실 공기청정기", isOn = false, isActive = true, deviceType = DeviceListType.AIR_CLEANER
-        ),
-        MyDevice(3, "무드 플레이어", isOn = true, isActive = false, deviceType = DeviceListType.SPEAKER),
-        MyDevice(4, "침대 조명 스위치", isOn = false, isActive = true, deviceType = DeviceListType.SWITCH)
-    )
-
-    DeviceGridSection(
-        devices = sampleDevices,
-        selectedDeviceId = 2,
-        onDeviceClick = { /* no-op for preview */ })
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DeviceGridSectionPreview() {
+//    val sampleDevices = listOf(
+//        MyDevice(1, "내 방 조명 1", isOn = true, isActive = true, deviceType = DeviceListType.LIGHT),
+//        MyDevice(
+//            2, "거실 공기청정기", isOn = false, isActive = true, deviceType = DeviceListType.AIR_CLEANER
+//        ),
+//        MyDevice(3, "무드 플레이어", isOn = true, isActive = false, deviceType = DeviceListType.SPEAKER),
+//        MyDevice(4, "침대 조명 스위치", isOn = false, isActive = true, deviceType = DeviceListType.SWITCH)
+//    )
+//
+//    DeviceGridSection(
+//        devices = sampleDevices,
+//        selectedDeviceId = 2,
+//        onDeviceClick = { /* no-op for preview */ })
+//}

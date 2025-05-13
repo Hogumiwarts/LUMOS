@@ -8,12 +8,13 @@ enum class DeviceListType(
     val categoryName: String,
     val iconResId: Int,
     val color: Color,
+    val deviceName: String
 ) {
-    AIR_CLEANER("AirPurifier", R.drawable.ic_device_list_air_cleaner, Color(0xFF334093)),
-    LIGHT("Light", R.drawable.ic_light_off, Color(0xFF717BBC)),
-    SPEAKER("Speaker", R.drawable.ic_device_list_speaker, Color(0xFF4B5BA9)),
-    SWITCH("Switch", R.drawable.ic_device_list_switch, Color(0xFFA9AFD9)),
-    ETC("Etc", R.drawable.ic_light_off, Color.Gray); // 기본값
+    AIR_CLEANER("AirPurifier", R.drawable.ic_device_list_air_cleaner, Color(0xFF334093), "공기청정기1"),
+    LIGHT("Light", R.drawable.ic_light_off, Color(0xFF717BBC), "내 방 조명"),
+    SPEAKER("Speaker", R.drawable.ic_device_list_speaker, Color(0xFF4B5BA9), "스피커12"),
+    SWITCH("Switch", R.drawable.ic_device_list_switch, Color(0xFFA9AFD9), "거실 스위치"),
+    ETC("Etc", R.drawable.ic_light_off, Color.Gray, "기타"); // 기본값
 
     companion object {
         fun from(category: String): DeviceListType =

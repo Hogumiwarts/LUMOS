@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.mapper.toMyDevice
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
@@ -83,7 +84,10 @@ fun DeviceListScreen(
             barTitle = "나의 기기 목록",
             onBackClick = { /*TODO*/ },
             isRightBtnVisible = true,
-            onRightBtnClick = { /*TODO*/ },
+            onRightBtnClick = {
+                // smartthings 계정 연동 이동
+                viewModel.requestAuthAndOpen(context = context)
+            },
             rightIconResId = R.drawable.ic_refresh,
             barHeight = 20
         )
@@ -102,11 +106,13 @@ fun DeviceListScreen(
                     context
                 )
             } else {
+                val myDevices = deviceList.map { it }
                 DeviceGridSection(
-                    devices = deviceList,
-                    selectedDeviceId = selectedDeviceId,
+                    devices = myDevices,
+                    selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
                     onDeviceClick = { viewModel.onDeviceClicked(it) }
                 )
+
             }
         }
     }

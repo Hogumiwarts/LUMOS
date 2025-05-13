@@ -18,6 +18,8 @@ import android.util.Log
 import com.hogumiwarts.data.entity.remote.Response.SmartThingsAuthResponse
 import com.hogumiwarts.data.entity.remote.Response.SmartThingsDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
+import com.hogumiwarts.lumos.mapper.toMyDevice
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -29,15 +31,16 @@ class DeviceListViewModel @Inject constructor(
     @Inject
     lateinit var tokenDataStore: TokenDataStore
 
-    val selectedDeviceId = mutableStateOf<Int?>(null)
+    val selectedDeviceId = mutableStateOf<String?>(null)
     val showDialog = mutableStateOf(false)
 
     private val _isLinked = MutableStateFlow(false) // SmartThings 계정 연동 여부
     val isLinked: StateFlow<Boolean> = _isLinked
 
     // 디바이스 목록
-    private val _deviceList = MutableStateFlow<List<SmartThingsDevice>>(emptyList())
-    val deviceList: StateFlow<List<SmartThingsDevice>> = _deviceList
+    private val _deviceList = MutableStateFlow<List<MyDevice>>(emptyList())
+    val deviceList: StateFlow<List<MyDevice>> = _deviceList
+
 
     // SmartThings 인증 URL 요청 및 브라우저 이동 함수
     fun requestAuthAndOpen(context: Context) {
@@ -53,18 +56,7 @@ class DeviceListViewModel @Inject constructor(
     }
 
     fun fetchDevices() {
-        viewModelScope.launch {
-            tokenDataStore.getInstalledAppId().collect { installedAppId ->
-                try {
-                    val response = smartThingsApi.getDeviceList(installedAppId)
-                    if (response.success) {
-                        _deviceList.value = response.devices
-                    }
-                } catch (e: Exception) {
-                    Timber.tag("SmartThings").e(e, "⚠️ 기기 목록 가져오기 실패")
-                }
-            }
-        }
+        fetchDevicesWithStatus()
     }
 
     fun checkAccountLinked() {
@@ -72,17 +64,10 @@ class DeviceListViewModel @Inject constructor(
             tokenDataStore.getInstalledAppId().collect { id ->
                 val isAvailable = id.isNotEmpty()
                 _isLinked.value = isAvailable
-                if (isAvailable) fetchDevices() // 연동 확인되면 자동 호출됨
+                if (isAvailable) fetchDevicesWithStatus() // 연동 확인되면 자동 호출됨
             }
         }
-//        _isLinked.value = linkCheckLogic()
     }
-
-    // 임시
-//    private fun linkCheckLogic(): Boolean {
-//        //todo: 임시로 연동되어 있지 않다고 가정 -> 테스트 시 아래 boolean 값 바꾸면 됩니당
-//        return false
-//    }
 
     fun onDeviceClicked(device: MyDevice) {
         if (!device.isActive) {
@@ -99,4 +84,51 @@ class DeviceListViewModel @Inject constructor(
     fun getSelectedDevice(devices: List<MyDevice>): MyDevice? {
         return devices.find { it.deviceId == selectedDeviceId.value }
     }
+
+    // 상태 조회
+    fun fetchDevicesWithStatus() {
+        viewModelScope.launch {
+            try {
+                //todo: 현재 테스트 폰 smartthings에 연결 기기가 없어서 임시로 하드 코딩함
+
+                // val installedAppId = tokenDataStore.getInstalledAppId().first()
+                val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
+                val response = smartThingsApi.getDeviceList(installedAppId)
+
+                Timber.tag("SmartThings").d("✅ installedAppId = $installedAppId")
+                Timber.tag("SmartThings").d("✅ devices response = ${response.devices.size}")
+
+                if (response.success) {
+                    val devices = response.devices
+
+                    val enrichedDevices = devices.map { device ->
+                        try {
+                            val statusResponse =
+                                smartThingsApi.getDeviceStatus(device.deviceId, installedAppId)
+                            if (statusResponse.success) {
+                                val mainComponent = statusResponse.status.components["main"]
+
+                                // isOn과 isActive의 경우 JSON에서 바로 알 수 없어서 따로 판단해줌
+                                val isOn = mainComponent?.switch?.switch?.value == "on"
+                                val isActive =
+                                    mainComponent?.healthCheck?.`DeviceWatch-DeviceStatus`?.value == "online"
+
+                                device.toMyDevice(isOn, isActive)
+                            } else {
+                                device.toMyDevice(isOn = false, isActive = false)
+                            }
+                        } catch (e: Exception) {
+                            Timber.e(e, "기기 상태 조회 실패")
+                            device.toMyDevice(isOn = false, isActive = false)
+                        }
+                    }
+
+                    _deviceList.value = enrichedDevices
+                }
+            } catch (e: Exception) {
+                Timber.tag("SmartThings").e(e, "⚠️ 기기 목록 가져오기 실패")
+            }
+        }
+    }
+
 }
