@@ -33,6 +33,10 @@ class LightViewModel @Inject constructor(
     private val _powerState = MutableStateFlow<ControlState>(ControlState.Idle)
     val powerState: StateFlow<ControlState> = _powerState
 
+    // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
+    private val _brightnessState = MutableStateFlow<ControlState>(ControlState.Idle)
+    val brightnessState: StateFlow<ControlState> = _brightnessState
+
 
     private val _isOn = MutableStateFlow(false)
     val isOn: StateFlow<Boolean> = _isOn
@@ -50,7 +54,8 @@ class LightViewModel @Inject constructor(
             intentFlow.collectLatest { intent ->
                 when (intent) {
                     is LightIntent.LoadLightStatus -> loadSwitchStatus(intent.deviceId)
-                    is LightIntent.ChangeSwitchPower -> changeSwitchPower(intent.deviceId, intent.activated)
+                    is LightIntent.ChangeLightPower -> changeSwitchPower(intent.deviceId, intent.activated)
+                    is LightIntent.ChangeLightBright -> patchLightBright(intent.deviceId, intent.brightness)
                 }
             }
         }
@@ -85,13 +90,29 @@ class LightViewModel @Inject constructor(
         viewModelScope.launch {
             _powerState.value = ControlState.Loading
 
-            when (val result = lightUseCase.patchLightStatus(deviceId = deviceId, activated = activated)) {
+            when (val result = lightUseCase.patchLightPower(deviceId = deviceId, activated = activated)) {
                 is PatchSwitchPowerResult.Success -> {
                     _powerState.value = ControlState.Loaded(result.data)
                     _isOn.value =activated
                 }
                 is PatchSwitchPowerResult.Error -> {
                     _powerState.value = ControlState.Error(result.error)
+                }
+            }
+        }
+    }
+
+    // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
+    private fun patchLightBright(deviceId: Long, brightness: Int) {
+        viewModelScope.launch {
+            _brightnessState.value = ControlState.Loading
+
+            when (val result = lightUseCase.patchLightBright(deviceId = deviceId, brightness = brightness)) {
+                is PatchSwitchPowerResult.Success -> {
+                    _brightnessState.value = ControlState.Loaded(result.data)
+                }
+                is PatchSwitchPowerResult.Error -> {
+                    _brightnessState.value = ControlState.Error(result.error)
                 }
             }
         }

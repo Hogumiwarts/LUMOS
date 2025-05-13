@@ -15,10 +15,10 @@ interface LightApi {
     @GET("/device/api/devices/{deviceId}/light/status")
     suspend fun getLightStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetLightStatusResponse>
 
-    @PATCH("/device/api/devices/{deviceId}/switch/power")
+    @PATCH("/device/api/devices/{deviceId}/light/power")
     suspend fun patchLightPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
 
-    @PATCH("/device/api/devices/{deviceId}/switch/bright")
+    @PATCH("/device/api/devices/{deviceId}/light/bright")
     suspend fun patchLightBright(@Path("deviceId") deviceId: Long, @Body request: PatchLightBrightRequest): BaseResponse<PatchControlResponse>
 
 

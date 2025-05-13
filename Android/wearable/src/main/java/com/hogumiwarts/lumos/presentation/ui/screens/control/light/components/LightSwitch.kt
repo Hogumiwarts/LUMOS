@@ -88,7 +88,7 @@ fun LightSwitch(
         // 토글 버튼: 화면 정중앙
         AnimatedToggleButton(
             isOn = isOn,
-            onToggle = { viewModel.sendIntent(LightIntent.ChangeSwitchPower(deviceId, !isOn))},
+            onToggle = { viewModel.sendIntent(LightIntent.ChangeLightPower(deviceId, !isOn))},
             modifier = Modifier.constrainAs(toggle) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)

@@ -5,6 +5,7 @@ import com.hogumiwarts.lumos.data.entity.mapper.DeviceMapper
 import com.hogumiwarts.lumos.data.entity.mapper.LightMapper
 import com.hogumiwarts.lumos.data.entity.mapper.SwitchMapper
 import com.hogumiwarts.lumos.data.entity.remote.PowerRequest
+import com.hogumiwarts.lumos.data.entity.remote.light.PatchLightBrightRequest
 import com.hogumiwarts.lumos.data.source.remote.LightApi
 import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.domain.model.PatchSwitchPowerResult
@@ -65,29 +66,29 @@ class LightRepositoryImpl@Inject constructor(
         }
     }
 
-//    override suspend fun patchLightBright(deviceId: Long, brightness: Int): PatchSwitchPowerResult {
-//        return try {
-//            // ✅ API 호출
-//            val response = lightApi.patchLightBright(deviceId, PowerRequest(brightness))
-//
-//            Log.d("TAG", "getSwitchStatus: $response")
-//            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
-//            PatchSwitchPowerResult.Success(
-//                data = DeviceMapper.fromSwitchPowerResponse(response.data)
-//            )
-//
-//        } catch (e: retrofit2.HttpException) {
-//            // 🔶 서버 에러 코드별 처리
-//            when (e.code()) {
-//                404 -> PatchSwitchPowerResult.Error(CommonError.UserNotFound)
-//                else -> PatchSwitchPowerResult.Error(CommonError.UnknownError)
-//            }
-//
-//        } catch (e: Exception) {
-//            // 🔶 기타 네트워크/변환 등 예외 처리
-//            PatchSwitchPowerResult.Error(CommonError.NetworkError)
-//        }
-//    }
+    override suspend fun patchLightBright(deviceId: Long, brightness: Int): PatchSwitchPowerResult {
+        return try {
+            // ✅ API 호출
+            val response = lightApi.patchLightBright(deviceId, PatchLightBrightRequest(brightness))
+
+            Log.d("TAG", "getSwitchStatus: $response")
+            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
+            PatchSwitchPowerResult.Success(
+                data = DeviceMapper.fromSwitchPowerResponse(response.data)
+            )
+
+        } catch (e: retrofit2.HttpException) {
+            // 🔶 서버 에러 코드별 처리
+            when (e.code()) {
+                404 -> PatchSwitchPowerResult.Error(CommonError.UserNotFound)
+                else -> PatchSwitchPowerResult.Error(CommonError.UnknownError)
+            }
+
+        } catch (e: Exception) {
+            // 🔶 기타 네트워크/변환 등 예외 처리
+            PatchSwitchPowerResult.Error(CommonError.NetworkError)
+        }
+    }
 
 
 }

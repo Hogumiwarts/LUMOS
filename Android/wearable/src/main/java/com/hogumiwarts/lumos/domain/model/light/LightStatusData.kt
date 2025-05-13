@@ -9,7 +9,7 @@ data class LightStatusData(
     val deviceModel: String,
     val deviceType: String,
     val activated: Boolean,
-    val lightColor: String,
-    val lightTemperature: String,
+    val brightness: Int,
+    val lightTemperature: Int,
     val lightCode: String,
 )

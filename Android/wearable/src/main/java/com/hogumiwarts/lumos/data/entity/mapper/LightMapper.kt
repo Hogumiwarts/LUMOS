@@ -17,7 +17,7 @@ object LightMapper {
             deviceModel = dtoList.deviceModel,
             deviceType = dtoList.deviceType,
             activated = dtoList.activated,
-            lightColor = dtoList.lightColor,
+            brightness = dtoList.brightness,
             lightTemperature = dtoList.lightTemperature,
             lightCode = dtoList.lightCode,
 

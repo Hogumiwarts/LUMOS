@@ -63,7 +63,7 @@ fun LightScreen(
         LightStatusState.Idle -> {}
         is LightStatusState.Loaded -> {
             val data = (state as LightStatusState.Loaded).data
-            ScrollScreen(data.deviceName, isOn, data.lightColor.toInt(), deviceId=deviceId)
+            ScrollScreen(data.deviceName, isOn, data.brightness, deviceId=deviceId)
         }
         LightStatusState.Loading ->  LoadingDevice()
     }
@@ -71,7 +71,7 @@ fun LightScreen(
 }
 
 @Composable
-private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long) {
+private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long,viewModel: LightViewModel = hiltViewModel()) {
     var screen by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
     var brightness by remember { mutableStateOf(bright) }
@@ -146,7 +146,7 @@ private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Lo
             WatchBrightnessWithPureCompose(
                 brightness = brightness,
                 onBrightnessChange = { brightness = it },
-                onDragEnd = { sendBrightnessToServer(it) },
+                onDragEnd = { sendBrightnessToServer(it,viewModel,deviceId) },
                 onSwipeDown = { screen = "switch" },
                 onSwipeUp = { screen = "color" }
             )
@@ -170,8 +170,8 @@ private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Lo
 
     }
 }
-fun sendBrightnessToServer(brightness: Int) {
-    Log.d("TAG", "sendBrightnessToServer: $brightness")
+fun sendBrightnessToServer(brightness: Int, viewModel: LightViewModel, deviceId: Long) {
+    viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
 }
 
 
