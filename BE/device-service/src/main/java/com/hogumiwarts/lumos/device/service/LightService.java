@@ -90,7 +90,7 @@ public class LightService {
             .deviceType(device.getDeviceType())
             .activated("on".equalsIgnoreCase(lightValue))
             .brightness(brightness)
-            .lightTemperature(String.valueOf(colorTemperature))
+            .lightTemperature(colorTemperature)
             .lightCode(hex)
             .build();
     }
