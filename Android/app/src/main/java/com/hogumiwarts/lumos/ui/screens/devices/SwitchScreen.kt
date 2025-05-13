@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.devices
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,16 +22,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.hogumiwarts.lumos.R
 
-data class Device(
+data class SwitchDevice(
     val tagNumber: Int,
     val deviceId: Int,
     val deviceImg: String,
@@ -47,8 +45,8 @@ fun SwitchScreen() {
 
     var checked by remember { mutableStateOf(true) }
     // 더미
-    val device = remember {
-        Device(
+    val switchDevice = remember {
+        SwitchDevice(
             tagNumber = 1,
             deviceId = 123,
             manufactureCode = "MiniBig",
@@ -63,12 +61,13 @@ fun SwitchScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
         Text(
-            text = device.deviceName,
+            text = switchDevice.deviceName,
             fontWeight = FontWeight.ExtraBold,
             fontSize = 20.sp
         )
@@ -130,12 +129,12 @@ fun SwitchScreen() {
             Spacer(modifier = Modifier.height(13.dp))
 
             Text(
-                "제조사 | ${device.manufactureCode}",
+                "제조사 | ${switchDevice.manufactureCode}",
                 fontSize = 12.sp
             )
 
             Text(
-                "모델명 | ${device.deviceModel}",
+                "모델명 | ${switchDevice.deviceModel}",
                 fontSize = 12.sp
             )
             Text(
@@ -143,7 +142,7 @@ fun SwitchScreen() {
                 fontSize = 12.sp
             )
             Text(
-                "기기 타입 | ${device.deviceType}",
+                "기기 타입 | ${switchDevice.deviceType}",
                 fontSize = 12.sp
             )
 

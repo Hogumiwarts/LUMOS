@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
+import com.hogumiwarts.lumos.ui.screens.devices.SpeakerScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -72,8 +73,8 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-
-                    MainScreen()
+                    SpeakerScreen()
+                   // MainScreen()
                 }
             }
         }
