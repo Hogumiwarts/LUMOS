@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.devices
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -32,11 +34,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.hogumiwarts.data.source.remote.SmartThingsApi
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
@@ -50,6 +54,8 @@ fun DeviceListScreen(
 
     val isLinked by viewModel.isLinked.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val context = LocalContext.current
 
     // 화면이 다시 Resume될 때마다 연동 상태 재확인
     DisposableEffect(lifecycleOwner) {
@@ -91,8 +97,11 @@ fun DeviceListScreen(
 
             if (!isLinked) {
                 NotLinkedScreen(
-                    onClickLink = {/* todo: smartThings 연동 창으로 이동 */ },
-                    viewModel
+                    onClickLink = {
+                        viewModel.requestAuthAndOpen(context)
+                    },
+                    viewModel,
+                    context
                 )
             } else {
                 DeviceGridSection(
@@ -113,7 +122,7 @@ fun DeviceListScreen(
 }
 
 @Composable
-fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel) {
+fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel, context: Context) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -153,10 +162,8 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel) {
                     .background(color = Color(0x1A1A1C3A), shape = RoundedCornerShape(size = 10.dp))
                     .padding(horizontal = 8.dp, vertical = 5.dp)
                     .clickable {
-                        // todo: SmartThings 계정 
-
-                        // 연동 끝나면 상태 업데이트
-                        viewModel.checkAccountLinked()
+                        // smartthings 계정 연동 이동
+                        viewModel.requestAuthAndOpen(context = context)
                     }
             ) {
                 Text(
@@ -167,9 +174,9 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel) {
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(800),
                         color = Color(0xFF4B5BA9),
-
                         textAlign = TextAlign.Center,
-                    )
+                    ),
+
                 )
             }
 
@@ -177,15 +184,15 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun DeviceListScreenPreview() {
-    // 가짜 ViewModel 생성
-    val fakeViewModel = object : DeviceListViewModel() {}
-
-    DeviceListScreen(
-        viewModel = fakeViewModel,
-        devices = MyDevice.sample,
-        onSelectedComplete = {}
-    )
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+//@Composable
+//fun DeviceListScreenPreview() {
+//    // 가짜 ViewModel 생성
+//    val fakeViewModel = object : DeviceListViewModel() {}
+//
+//    DeviceListScreen(
+//        viewModel = fakeViewModel,
+//        devices = MyDevice.sample,
+//        onSelectedComplete = {}
+//    )
+//}

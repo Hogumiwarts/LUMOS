@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +31,12 @@ import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 
 @Composable
 fun LightSwitch(onSwipeUp: () -> Unit) {
-    var isChecked by remember { mutableStateOf(exampleLight.activated) } // 전체 스위치 상태
+//    var isChecked by remember { mutableStateOf(exampleLight.activated) } // 전체 스위치 상태
 
     val composition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.animation_down)
     )
+
 
     ConstraintLayout(
         modifier = Modifier
@@ -72,16 +74,17 @@ fun LightSwitch(onSwipeUp: () -> Unit) {
         )
 
         // 토글 버튼: 화면 정중앙
-        AnimatedToggleButton(
-            isOn = isChecked,
-            onToggle = { isChecked= it },
-            modifier = Modifier.constrainAs(toggle) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-        )
+//        AnimatedToggleButton(
+//            isOn = isChecked,
+//            onToggle = { isChecked= it },
+//            deviceId = 1,
+//            modifier = Modifier.constrainAs(toggle) {
+//                top.linkTo(parent.top)
+//                bottom.linkTo(parent.bottom)
+//                start.linkTo(parent.start)
+//                end.linkTo(parent.end)
+//            }
+//        )
 
         // Lottie 애니메이션: 하단 고정
         LottieAnimation(

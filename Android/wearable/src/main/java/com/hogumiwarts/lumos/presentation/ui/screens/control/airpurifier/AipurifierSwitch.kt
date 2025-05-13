@@ -35,7 +35,7 @@ import com.hogumiwarts.lumos.presentation.ui.common.OnOffSwitch
 
 @Composable
 fun AipurifierSwitch(
-    tagNumber: Long,
+    tagNumber: Long?,
     navController: NavHostController
 ) {
     val switchState = remember { mutableStateOf(false) }

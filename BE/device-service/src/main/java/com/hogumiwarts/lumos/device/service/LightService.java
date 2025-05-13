@@ -42,8 +42,6 @@ public class LightService {
         String lightValue = lightNode.path("value").asText(null);
 
 
-
-
         // 색온도 : lightTemperature
         int colorTemperature = main
             .path("colorTemperature")
@@ -91,7 +89,7 @@ public class LightService {
             .deviceModel(device.getDeviceModel())
             .deviceType(device.getDeviceType())
             .activated("on".equalsIgnoreCase(lightValue))
-            .lightColor(String.valueOf(brightness))
+            .brightness(brightness)
             .lightTemperature(String.valueOf(colorTemperature))
             .lightCode(hex)
             .build();

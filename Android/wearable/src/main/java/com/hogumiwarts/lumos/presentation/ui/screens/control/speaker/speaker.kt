@@ -56,7 +56,7 @@ import androidx.wear.compose.material.Icon
 
 // 메인 화면 전환을 위한 상위 컴포저블
 @Composable
-fun MoodPlayerScreen(tagNumber: Long) {
+fun MoodPlayerScreen(tagNumber: Long?) {
     var showNext by remember { mutableStateOf(false) } // 현재 화면/다음 화면 상태
 
     // 화면 전환 시 애니메이션

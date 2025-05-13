@@ -38,7 +38,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.wearable.Wearable
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DevicesScreen
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
@@ -49,7 +48,9 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.light.WatchBrightne
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import com.hogumiwarts.lumos.service.SensorService
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
