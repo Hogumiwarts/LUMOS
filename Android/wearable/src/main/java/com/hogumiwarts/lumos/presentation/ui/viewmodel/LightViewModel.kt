@@ -3,10 +3,12 @@ package com.hogumiwarts.lumos.presentation.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.lumos.domain.model.PatchSwitchPowerResult
 import com.hogumiwarts.lumos.domain.model.light.GetLightStatusResult
 import com.hogumiwarts.lumos.domain.usecase.LightUseCase
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightStatusState
+import com.hogumiwarts.lumos.presentation.ui.screens.control.ControlState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,6 +29,10 @@ class LightViewModel @Inject constructor(
     private val _state = MutableStateFlow<LightStatusState>(LightStatusState.Idle)
     val state: StateFlow<LightStatusState> = _state
 
+    // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
+    private val _powerState = MutableStateFlow<ControlState>(ControlState.Idle)
+    val powerState: StateFlow<ControlState> = _powerState
+
 
     private val _isOn = MutableStateFlow(false)
     val isOn: StateFlow<Boolean> = _isOn
@@ -44,6 +50,7 @@ class LightViewModel @Inject constructor(
             intentFlow.collectLatest { intent ->
                 when (intent) {
                     is LightIntent.LoadLightStatus -> loadSwitchStatus(intent.deviceId)
+                    is LightIntent.ChangeSwitchPower -> changeSwitchPower(intent.deviceId, intent.activated)
                 }
             }
         }
@@ -68,6 +75,23 @@ class LightViewModel @Inject constructor(
                 }
                 is GetLightStatusResult.Error -> {
                     _state.value = LightStatusState.Error(result.error)
+                }
+            }
+        }
+    }
+
+    // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
+    private fun changeSwitchPower(deviceId: Long, activated: Boolean) {
+        viewModelScope.launch {
+            _powerState.value = ControlState.Loading
+
+            when (val result = lightUseCase.patchLightStatus(deviceId = deviceId, activated = activated)) {
+                is PatchSwitchPowerResult.Success -> {
+                    _powerState.value = ControlState.Loaded(result.data)
+                    _isOn.value =activated
+                }
+                is PatchSwitchPowerResult.Error -> {
+                    _powerState.value = ControlState.Error(result.error)
                 }
             }
         }

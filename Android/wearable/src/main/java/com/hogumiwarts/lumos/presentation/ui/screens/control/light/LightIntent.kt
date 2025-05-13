@@ -4,4 +4,6 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchInten
 
 sealed class LightIntent {
     data class LoadLightStatus(val deviceId: Long): LightIntent()
+
+    data class ChangeSwitchPower(val deviceId: Long, val activated: Boolean): LightIntent()
 }

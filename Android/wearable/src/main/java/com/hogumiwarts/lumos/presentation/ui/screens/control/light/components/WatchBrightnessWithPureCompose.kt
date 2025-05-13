@@ -102,7 +102,7 @@ fun WatchBrightnessWithPureCompose(
                     val radius = (minOf(size.width, size.height) - strokeWidth) / 2  // minDimension 대신
 
                     val pointerRadius = 40f
-                    val touchThreshold = pointerRadius + 20f // 여유 거리 포함
+                    val touchThreshold = pointerRadius + 50f // 여유 거리 포함
 
                     detectDragGestures { change, _ ->
                         val touchPoint = change.position

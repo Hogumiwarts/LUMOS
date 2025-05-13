@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,64 +36,60 @@ fun ColorWheelPicker(
     onSwipeUp: () -> Unit
 ) {
     var hue by remember { mutableFloatStateOf(0f) } // 0~360
-    val saturation = 1f
-    val brightness = 1f
-
-    val selectedColor = Color.hsv(hue, saturation, brightness)
+    val selectedColor = Color.hsv(hue, 1f, 1f)
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF111322))
+            .size(250.dp)
             .padding(10.dp)
             .pointerInput(Unit) {
+                val center = Offset(size.width / 2f, size.height / 2f)
+                val strokeWidth = 80f
+                val radius = (minOf(size.width, size.height) - strokeWidth) / 2f
+
+                val pointerRadius = 40f
+                val touchThreshold = pointerRadius + 50f
+
+                detectDragGestures { change, _ ->
+                    val touchPoint = change.position
+
+                    val angleRad = Math.toRadians(hue.toDouble())
+                    val pointerX = center.x + cos(angleRad).toFloat() * radius
+                    val pointerY = center.y + sin(angleRad).toFloat() * radius
+                    val distance = Offset(pointerX, pointerY).minus(touchPoint).getDistance()
+
+                    if (distance <= touchThreshold) {
+                        val dx = touchPoint.x - center.x
+                        val dy = touchPoint.y - center.y
+                        var angle = atan2(dy, dx) * 180f / PI.toFloat()
+                        if (angle < 0) angle += 360f
+                        hue = angle
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
                 var totalDrag = 0f
-                detectDragGestures(
+                detectVerticalDragGestures(
                     onDragEnd = {
-                        if (totalDrag > 50f) {
-                            onSwipeDown()
-                        }
-                        if (totalDrag < -50f) {
-                            onSwipeUp() // 위로 스와이프 시 전환
-                        }
+                        if (totalDrag > 50f) onSwipeDown()
+                        if (totalDrag < -50f) onSwipeUp()
                         totalDrag = 0f
                     },
-                    onDrag = { change, dragAmount ->
-                        totalDrag += dragAmount.y
-
-                        val size = this.size
-                        val center = Offset(size.width / 2f, size.height / 2f)
-                        val position = change.position
-
-                        val strokeWidth = 90f
-                        val radius = (minOf(size.width, size.height) - strokeWidth) / 2f
-
-                        val pointerAngleRad = Math.toRadians(hue.toDouble())
-                        val pointerX = center.x + cos(pointerAngleRad).toFloat() * radius
-                        val pointerY = center.y + sin(pointerAngleRad).toFloat() * radius
-                        val pointerPos = Offset(pointerX, pointerY)
-
-                        val threshold = 50f
-                        val distance = (pointerPos - position).getDistance()
-
-                        if (distance <= threshold) {
-                            val dx = position.x - center.x
-                            val dy = position.y - center.y
-                            var angle = atan2(dy, dx) * 180f / PI.toFloat()
-                            if (angle < 0) angle += 360f
-                            hue = angle
-                        }
+                    onVerticalDrag = { _, dragAmount ->
+                        totalDrag += dragAmount
                     }
                 )
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(modifier = Modifier.size(250.dp)) {
+            }
+        ) {
             val strokeWidth = 120f
-            val radius = (minOf(size.width, size.height) - strokeWidth) / 2
             val center = Offset(size.width / 2, size.height / 2)
+            val radius = (size.minDimension - strokeWidth) / 2f
 
-            // 1. 컬러 휠 (무지개)
+            // 1. 외곽 컬러 휠 (비어있는 중앙을 만들기 위해 Stroke)
             drawCircle(
                 brush = Brush.sweepGradient(
                     listOf(
@@ -111,30 +108,37 @@ fun ColorWheelPicker(
             )
 
             // 2. 포인터 위치
-            val pointerAngleRad = Math.toRadians(hue.toDouble())
-            val pointerX = center.x + cos(pointerAngleRad).toFloat() * radius
-            val pointerY = center.y + sin(pointerAngleRad).toFloat() * radius
+            val angleRad = Math.toRadians(hue.toDouble())
+            val pointerX = center.x + cos(angleRad).toFloat() * radius
+            val pointerY = center.y + sin(angleRad).toFloat() * radius
 
+            // 중앙이 비어있는 흰색 테두리 원
             drawCircle(
                 color = Color.White,
-                radius = 50f,
+                radius = 45f,
                 center = Offset(pointerX, pointerY),
-                style = Stroke(width = 10f)
+                style = Stroke(width = 10f) // 두께는 조절 가능
             )
         }
 
-        // 3. 중앙 색상 미리보기
+        // 중앙은 비워두거나, 아래처럼 강조용 미니 텍스트만 넣어도 좋음
         Box(
             modifier = Modifier
-                .size(90.dp)
+                .size(60.dp)
                 .clip(CircleShape)
-                .background(Color(0xffFFFFFF).copy(alpha = 0.1f)),
+                .background(Color(0xFF111322)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "색상", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(
+                text = "색상",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
+
 
 
 @Preview(showBackground = true, device = Devices.WEAR_OS_SMALL_ROUND)

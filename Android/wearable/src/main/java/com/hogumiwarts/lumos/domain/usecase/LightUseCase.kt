@@ -16,5 +16,11 @@ class LightUseCase @Inject constructor(
         return data
     }
 
+    suspend fun patchLightStatus(deviceId: Long, activated: Boolean): PatchSwitchPowerResult {
+
+        val data = lightRepository.patchLightPower(deviceId =deviceId,activated = activated)
+        return data
+    }
+
 
 }

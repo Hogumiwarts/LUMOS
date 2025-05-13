@@ -62,17 +62,15 @@ fun LightScreen(
         LightStatusState.Idle -> {}
         is LightStatusState.Loaded -> {
             val data = (state as LightStatusState.Loaded).data
-            ScrollScreen(data.deviceName, isOn)
+            ScrollScreen(data.deviceName, isOn,deviceId=deviceId)
         }
         LightStatusState.Loading ->  LoadingDevice()
     }
 
-
-
 }
 
 @Composable
-private fun ScrollScreen(name : String, isOn: Boolean) {
+private fun ScrollScreen(name : String, isOn: Boolean, deviceId: Long) {
     var screen by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
     // 화면 전환 시 애니메이션
@@ -134,6 +132,7 @@ private fun ScrollScreen(name : String, isOn: Boolean) {
         // 1. LightSwitch
         Box(modifier = Modifier.offset(y = switchOffsetY)) {
             LightSwitch(
+                deviceId = deviceId,
                 isOn = isOn,
                 name = name,
                 onSwipeUp = { screen = "brightness" }
