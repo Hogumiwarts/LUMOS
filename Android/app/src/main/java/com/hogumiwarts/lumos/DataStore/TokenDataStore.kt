@@ -1,11 +1,8 @@
-package com.hogumiwarts.lumos.datastore
+package com.hogumiwarts.lumos.DataStore
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.hogumiwarts.lumos.di.BaseUrlModule.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -45,4 +42,24 @@ class TokenDataStore @Inject constructor(
     suspend fun clearTokens() {
         context.dataStore.edit { it.clear() }
     }
+
+    // smartthings 관련
+    private val INSTALLED_APP_ID = stringPreferencesKey("installed_app_id")
+    private val AUTH_TOKEN = stringPreferencesKey("auth_token")
+
+    suspend fun saveSmartThingsTokens(installedAppId: String, authToken: String) {
+        context.dataStore.edit {
+            it[INSTALLED_APP_ID] = installedAppId
+            it[AUTH_TOKEN] = authToken
+        }
+    }
+
+    fun getInstalledAppId(): Flow<String> {
+        return context.dataStore.data.map { it[INSTALLED_APP_ID] ?: "" }
+    }
+
+    fun getSmartThingsAuthToken(): Flow<String> {
+        return context.dataStore.data.map { it[AUTH_TOKEN] ?: "" }
+    }
+
 }
