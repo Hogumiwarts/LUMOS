@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,6 +7,11 @@ plugins {
     alias(libs.plugins.hilt.android)
 }
 
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+val baseUrl = localProperties["AUTH_BASE_URL"] as String
 android {
     namespace = "com.hogumiwarts.lumos"
     compileSdk = 34
@@ -15,6 +22,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "AUTH_BASE_URL", "\"$baseUrl\"")
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -39,6 +48,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -84,9 +94,18 @@ dependencies {
     // Navigation
     implementation(libs.navigation.compose)
 
+    // 네트워크
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.retrofit.moshi)
+    implementation(libs.okhttp.core)
+    implementation(libs.okhttp.logging)
+
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.lottie.compose.v666)
 
@@ -97,6 +116,12 @@ dependencies {
     implementation ("org.tensorflow:tensorflow-lite:2.17.0")
 
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
+
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 
 }

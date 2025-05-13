@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,9 +22,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceListType
-import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceType
-import com.hogumiwarts.lumos.ui.screens.Routine.components.GlowingCard
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
+import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 
 @Composable
 fun DeviceGridSection(

@@ -1,7 +1,6 @@
 package com.hogumiwarts.lumos.ui.common
 
-import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceListType
-import com.hogumiwarts.lumos.ui.screens.Routine.components.DeviceType
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 
 data class MyDevice(
     val deviceId: Int,

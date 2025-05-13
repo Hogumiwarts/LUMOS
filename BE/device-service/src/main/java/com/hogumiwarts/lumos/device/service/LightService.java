@@ -42,8 +42,6 @@ public class LightService {
         String lightValue = lightNode.path("value").asText(null);
 
 
-
-
         // 색온도 : lightTemperature
         int colorTemperature = main
             .path("colorTemperature")
