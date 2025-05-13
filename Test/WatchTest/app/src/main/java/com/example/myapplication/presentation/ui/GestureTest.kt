@@ -45,6 +45,8 @@ fun GestureTest(navController: NavController, activity: MainActivity, index: Str
     // 테스트 완료 여부
     var isTestFinished by remember { mutableStateOf(false) }
 
+    var count by remember { mutableStateOf(4) }
+
     // 코루틴 스코프 (Button 클릭 등에서 사용)
     val scope = rememberCoroutineScope()
 
@@ -107,14 +109,22 @@ fun GestureTest(navController: NavController, activity: MainActivity, index: Str
                         isTestFinished = false
                     },
                     onNext = {
-                        activity.saveAndSendIMUData("$index")
-                        navController.navigate("gesture_screen"){
+                        activity.saveAndSendIMUData("$index",count)
+                        navController.navigate("gesture_result"){
+                            popUpTo("gesture_screen")
+                        }
+                    },
+                    onInference = {
+                        activity.sendIMUData("$index",count)
+                        navController.navigate("gesture_result"){
                             popUpTo("gesture_screen")
                         }
                     },
                     scope = scope,
                     lottieAnimatable = lottieAnimatable
-                    ,activity
+                    ,activity,
+                    count,
+                    onCountChange = { count = it }
                 )
             }
         }
@@ -160,12 +170,19 @@ fun EndScreen(
     onTestFinish: () -> Unit,
     onRestart: () -> Unit,
     onNext: () -> Unit,
+    onInference: () -> Unit,
     scope: CoroutineScope,
     lottieAnimatable: LottieAnimatable,
-    activity: MainActivity
+    activity: MainActivity,
+    count: Int,
+    onCountChange: (Int) -> Unit
 ) {
+
+
     if (!isTestFinished) {
         // 테스트 중 화면
+
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -210,30 +227,69 @@ fun EndScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Button(
-                    onClick = {
-                        scope.launch {
-                            lottieAnimatable.snapTo(progress = 1f)
-                            onRestart()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(Color.Gray)
+            Column (horizontalAlignment = Alignment.CenterHorizontally){
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text(text = "재실행", color = Color.White)
+                    Button(
+                        onClick = {
+                            if (count > 0) onCountChange(count - 1)
+                        },
+                        colors = ButtonDefaults.buttonColors(Color.Gray)
+                    ) {
+                        Text(text = "-", color = Color.White)
+                    }
+
+                    Text(
+                        text = count.toString(),
+                        fontSize = 20.sp,
+                        color = Color.White // 색상을 명시해 주세요
+                    )
+                    Button(
+                        onClick = {
+                            onCountChange(count + 1)
+                        },
+                        colors = ButtonDefaults.buttonColors(Color.Gray)
+                    ) {
+                        Text(text = "+", color = Color.White)
+                    }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                lottieAnimatable.snapTo(progress = 1f)
+                                onRestart()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(Color.Gray)
+                    ) {
+                        Text(text = "재실행", color = Color.White)
+                    }
+
+                    Button(
+                        onClick = onNext,
+                        colors = ButtonDefaults.buttonColors(Color.Gray)
+                    ) {
+                        Text(text = "저장", color = Color.White)
+                    }
                 }
 
                 Button(
-                    onClick = onNext,
+                    onClick = onInference,
                     colors = ButtonDefaults.buttonColors(Color.Gray)
                 ) {
-                    Text(text = "전송", color = Color.White)
+                    Text(text = "추론", color = Color.White)
                 }
             }
+
 
             Spacer(modifier = Modifier.weight(2f))
         }

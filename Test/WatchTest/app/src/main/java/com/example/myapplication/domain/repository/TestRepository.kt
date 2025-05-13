@@ -5,4 +5,6 @@ import com.example.myapplication.data.model.ImuResponse
 
 interface TestRepository {
     suspend fun postTest(data: ImuRequest) : ImuResponse
+
+    suspend fun postPredictTest(data: ImuRequest) : ImuResponse
 }
