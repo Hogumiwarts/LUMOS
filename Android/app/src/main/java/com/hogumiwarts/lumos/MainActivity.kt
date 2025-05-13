@@ -73,8 +73,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-                    SpeakerScreen()
-                   // MainScreen()
+                    MainScreen()
                 }
             }
         }
