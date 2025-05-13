@@ -27,26 +27,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.hogumiwarts.data.source.remote.SmartThingsApi
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
-import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun DeviceListScreen(
     viewModel: DeviceListViewModel = hiltViewModel(),
-    devices: List<MyDevice>,
     onSelectedComplete: (MyDevice) -> Unit
 ) {
     val selectedDeviceId by viewModel.selectedDeviceId
@@ -56,6 +52,8 @@ fun DeviceListScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val context = LocalContext.current
+
+    val deviceList by viewModel.deviceList.collectAsState()
 
     // 화면이 다시 Resume될 때마다 연동 상태 재확인
     DisposableEffect(lifecycleOwner) {
@@ -105,7 +103,7 @@ fun DeviceListScreen(
                 )
             } else {
                 DeviceGridSection(
-                    devices = devices,
+                    devices = deviceList,
                     selectedDeviceId = selectedDeviceId,
                     onDeviceClick = { viewModel.onDeviceClicked(it) }
                 )
@@ -177,7 +175,7 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel, con
                         textAlign = TextAlign.Center,
                     ),
 
-                )
+                    )
             }
 
         }

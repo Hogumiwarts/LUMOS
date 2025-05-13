@@ -22,13 +22,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.hogumiwarts.data.entity.remote.Response.SmartThingsDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 
 @Composable
 fun DeviceGridSection(
-    devices: List<MyDevice>, selectedDeviceId: Int? = null, onDeviceClick: (MyDevice) -> Unit = {}
+    devices: List<SmartThingsDevice>,
+    selectedDeviceId: String? = null,
+    onDeviceClick: (SmartThingsDevice) -> Unit = {}
 ) {
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
@@ -46,22 +50,33 @@ fun DeviceGridSection(
             val rows = (devices.size + 1) / 2
             val currentRow = index / 2
 
+            val categoryName = device.components
+                .firstOrNull()              // 첫 번째 컴포넌트
+                ?.categories
+                ?.firstOrNull()            // 그 컴포넌트의 첫 번째 카테고리
+                ?.name                     // 카테고리 이름
+                ?: "ETC"                   // 없으면 기본값
+
+            val deviceType = DeviceListType.from(categoryName)
+            val iconResId = deviceType.iconResId
+
             val cardContent: @Composable () -> Unit = {
                 DeviceRoutineCard(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable { onDeviceClick(device) },
                     showToggle = false,
-                    cardTitle = device.deviceName,
+                    cardTitle = device.name,
                     cardSubtitle = if (device.isOn) "켜짐" else "꺼짐",
                     isOn = device.isOn,
                     iconSize = DpSize(85.dp, 85.dp),
                     cardIcon = { size ->
                         Image(
-                            painter = painterResource(id = device.deviceType.iconResId),
+                            painter = painterResource(id = deviceType.iconResId),
                             contentDescription = null,
                             modifier = Modifier.size(size)
                         )
+
                     },
                     endPadding = 3.dp,
                     isActive = device.isActive
@@ -113,7 +128,8 @@ fun DeviceGridSectionPreview() {
         MyDevice(4, "침대 조명 스위치", isOn = false, isActive = true, deviceType = DeviceListType.SWITCH)
     )
 
-    DeviceGridSection(devices = sampleDevices,
+    DeviceGridSection(
+        devices = sampleDevices,
         selectedDeviceId = 2,
         onDeviceClick = { /* no-op for preview */ })
 }
