@@ -103,4 +103,6 @@ object NetworkModule {
     @Singleton
     fun provideSmartThingsApi(@Named("smartThingsRetrofit") retrofit: Retrofit): SmartThingsApi =
         retrofit.create(SmartThingsApi::class.java)
+
+
 }

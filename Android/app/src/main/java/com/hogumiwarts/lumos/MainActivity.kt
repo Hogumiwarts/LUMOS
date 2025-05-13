@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,14 +19,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var tokenDataStore: TokenDataStore
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         handleSmartThingsRedirect(intent)
@@ -39,19 +49,29 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleSmartThingsRedirect(intent: Intent?) {
-        intent?.data?.let { uri ->
-            if (uri.scheme == "lumos" && uri.host == "smartthings" && uri.path == "/oauth/success") {
-                // SmartThings 인증 성공 후 처리
-                Toast.makeText(this, "SmartThings 계정이 성공적으로 연동되었습니다!", Toast.LENGTH_LONG).show()
+        val uri = intent?.data ?: return
 
-                // ViewModel 상태 업데이트
-                // viewModel.checkAccountLinked()
+        if (uri.scheme == "smartthingslogin" && uri.host == "oauth-callback") {
+            val installedAppId = uri.getQueryParameter("installedAppId")
+            val authToken = uri.getQueryParameter("authToken")
 
-                // 특정 화면으로 이동
-                // startActivity(Intent(this, DeviceListActivity::class.java))
+            if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
+                lifecycleScope.launch {
+                    // 받아온 토큰 값들 저장
+                    tokenDataStore.saveSmartThingsTokens(installedAppId, authToken)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "SmartThings 연동 완료!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    Timber.tag("smartthings")
+                        .d("🪄 연동 완료!! :: installedAppId - " + installedAppId + ", authToken - " + authToken)
+                }
             }
         }
     }
+
 
     // 여러 권한을 한 번에 요청하는 런처
     private val requestMultiplePermissionsLauncher = registerForActivityResult(

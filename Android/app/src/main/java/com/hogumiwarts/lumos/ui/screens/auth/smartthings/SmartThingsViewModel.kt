@@ -17,18 +17,6 @@ class SmartThingsViewModel @Inject constructor(
     private val _authResult = MutableStateFlow<Result<Unit>?>(null)
     val authResult: StateFlow<Result<Unit>?> = _authResult
 
-    fun handleSmartThingsCallback(code: String?) {
-        viewModelScope.launch {
-            try {
-                if (code != null) {
-                    smartThingsApi.exchangeCodeForToken(code)
-                }
-                _authResult.value = Result.success(Unit)
-            } catch (e: Exception) {
-                _authResult.value = Result.failure(e)
-            }
-        }
-    }
 
     fun clearResult() {
         _authResult.value = null
