@@ -29,6 +29,7 @@ open class DeviceListViewModel @Inject constructor(
     private val _isLinked = MutableStateFlow(false) // SmartThings 계정 연동 여부
     val isLinked: StateFlow<Boolean> = _isLinked
 
+
     // SmartThings 인증 URL 요청 및 브라우저 이동 함수
     fun requestAuthAndOpen(context: Context) {
         viewModelScope.launch {

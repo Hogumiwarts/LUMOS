@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -25,7 +26,32 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleSmartThingsRedirect(intent)
+    }
 
+    override fun onStart() {
+        super.onStart()
+
+        // 앱 cold start 시도 대비
+        handleSmartThingsRedirect(intent)
+    }
+
+    private fun handleSmartThingsRedirect(intent: Intent?) {
+        intent?.data?.let { uri ->
+            if (uri.scheme == "lumos" && uri.host == "smartthings" && uri.path == "/oauth/success") {
+                // SmartThings 인증 성공 후 처리
+                Toast.makeText(this, "SmartThings 계정이 성공적으로 연동되었습니다!", Toast.LENGTH_LONG).show()
+
+                // ViewModel 상태 업데이트
+                // viewModel.checkAccountLinked()
+
+                // 특정 화면으로 이동
+                // startActivity(Intent(this, DeviceListActivity::class.java))
+            }
+        }
+    }
 
     // 여러 권한을 한 번에 요청하는 런처
     private val requestMultiplePermissionsLauncher = registerForActivityResult(
@@ -44,8 +70,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //enableEdgeToEdge()
-
         // 시스템 바 영역까지 앱이 확장되도록
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -57,7 +81,6 @@ class MainActivity : ComponentActivity() {
         val controller = WindowInsetsControllerCompat(window, window.decorView)
         controller.isAppearanceLightStatusBars = true
         controller.isAppearanceLightNavigationBars = true
-
 
 
         // 권한 확인 및 요청
@@ -80,36 +103,59 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
     private fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
         // BLE 권한 확인
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Android 12 이상에서는 BLUETOOTH_SCAN, BLUETOOTH_CONNECT 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_SCAN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN)
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT)
             }
         } else {
             // 이전 버전에서는 BLUETOOTH, BLUETOOTH_ADMIN 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH)
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_ADMIN)
             }
         }
 
         // 위치 권한 확인 (BLE 스캔에 필요)
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         // UWB 권한 확인
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.UWB_RANGING) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.UWB_RANGING
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.UWB_RANGING)
         }
 
@@ -120,8 +166,6 @@ class MainActivity : ComponentActivity() {
 
         }
     }
-
-
 
 
 }
