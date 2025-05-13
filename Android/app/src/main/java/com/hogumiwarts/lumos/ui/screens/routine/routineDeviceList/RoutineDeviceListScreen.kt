@@ -64,7 +64,7 @@ fun RoutineDeviceListScreen(
         // 기기 목록
         DeviceGridSection(
             devices = devices,
-            selectedDeviceId = selectedDeviceId,
+            selectedDeviceId = selectedDeviceId.toString(),
             onDeviceClick = { viewModel.onDeviceClicked(it) }
         )
 
