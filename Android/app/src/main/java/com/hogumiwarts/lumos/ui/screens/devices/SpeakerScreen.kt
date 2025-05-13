@@ -435,6 +435,8 @@ fun SpeakerScreen() {
             fontSize = 14.sp,
             color = Color.DarkGray
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
