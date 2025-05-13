@@ -39,7 +39,7 @@ public class LightDetailResponse {
     private Integer brightness;
 
     @Schema(description = "조명 색 온도")
-    private String lightTemperature;
+    private Integer lightTemperature;
 
     @Schema(description = "조명 색상 코드")
     private String lightCode;
