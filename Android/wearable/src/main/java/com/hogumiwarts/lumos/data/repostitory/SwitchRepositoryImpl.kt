@@ -1,8 +1,9 @@
 package com.hogumiwarts.lumos.data.repostitory
 
 import android.util.Log
+import com.hogumiwarts.lumos.data.entity.mapper.DeviceMapper
 import com.hogumiwarts.lumos.data.entity.mapper.SwitchMapper
-import com.hogumiwarts.lumos.data.entity.remote.SwitchPowerRequest
+import com.hogumiwarts.lumos.data.entity.remote.PowerRequest
 import com.hogumiwarts.lumos.data.source.remote.SwitchApi
 import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.domain.model.PatchSwitchPowerResult
@@ -42,12 +43,12 @@ class SwitchRepositoryImpl@Inject constructor(
     override suspend fun patchSwitchPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult {
         return try {
             // ✅ API 호출
-            val response = switchApi.getSwitchPower(deviceId, SwitchPowerRequest(activated))
+            val response = switchApi.getSwitchPower(deviceId, PowerRequest(activated))
 
             Log.d("TAG", "getSwitchStatus: $response")
             // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
             PatchSwitchPowerResult.Success(
-                data = SwitchMapper.fromSwitchPowerResponse(response.data)
+                data = DeviceMapper.fromSwitchPowerResponse(response.data)
             )
 
         } catch (e: retrofit2.HttpException) {

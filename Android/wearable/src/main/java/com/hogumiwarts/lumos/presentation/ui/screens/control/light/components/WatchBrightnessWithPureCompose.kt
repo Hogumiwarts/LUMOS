@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.presentation.ui.screens.control.light
+package com.hogumiwarts.lumos.presentation.ui.screens.control.light.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -38,10 +38,13 @@ import androidx.compose.ui.graphics.BlendMode
 
 @Composable
 fun WatchBrightnessWithPureCompose(
+    brightness: Int,
+    onBrightnessChange: (Int) -> Unit,
+    onDragEnd: (Int) -> Unit,
     onSwipeDown: () -> Unit,
     onSwipeUp: () -> Unit
 ) {
-    var brightness by remember { mutableStateOf(100f) } // 100%로 시작
+    var brightness by remember { mutableStateOf(brightness.toFloat()) } // 100%로 시작
 
     // 중심점 기준으로 각도를 계산하는 함수 - 수정된 버전
     fun calculateAngle(center: Offset, touchPoint: Offset): Float {
@@ -102,24 +105,31 @@ fun WatchBrightnessWithPureCompose(
                     val radius = (minOf(size.width, size.height) - strokeWidth) / 2  // minDimension 대신
 
                     val pointerRadius = 40f
-                    val touchThreshold = pointerRadius + 20f // 여유 거리 포함
+                    val touchThreshold = pointerRadius + 50f // 여유 거리 포함
 
-                    detectDragGestures { change, _ ->
-                        val touchPoint = change.position
-                        val angle = calculateAngle(center, touchPoint)
-                        val progress = angleToProgress(angle)
+                    detectDragGestures (
+                        onDragEnd = {
+                            onDragEnd(brightness.toInt()) // 여기에서 호출
+                        },
+                        onDrag = {
+                                change, _ ->
+                            val touchPoint = change.position
+                            val angle = calculateAngle(center, touchPoint)
+                            val progress = angleToProgress(angle)
 
-                        // 현재 포인터 위치 계산
-                        val pointerAngleRad = Math.toRadians((270 + 3.6f * brightness).toDouble())
-                        val pointerX = center.x + cos(pointerAngleRad).toFloat() * radius
-                        val pointerY = center.y + sin(pointerAngleRad).toFloat() * radius
-                        val distanceToPointer = Offset(pointerX, pointerY).minus(touchPoint).getDistance()
+                            // 현재 포인터 위치 계산
+                            val pointerAngleRad = Math.toRadians((270 + 3.6f * brightness).toDouble())
+                            val pointerX = center.x + cos(pointerAngleRad).toFloat() * radius
+                            val pointerY = center.y + sin(pointerAngleRad).toFloat() * radius
+                            val distanceToPointer = Offset(pointerX, pointerY).minus(touchPoint).getDistance()
 
-                        // 포인터 근처에서만 조절 허용
-                        if (distanceToPointer <= touchThreshold) {
-                            brightness = progress
+                            // 포인터 근처에서만 조절 허용
+                            if (distanceToPointer <= touchThreshold) {
+                                brightness = progress
+                                onBrightnessChange(brightness.toInt())
+                            }
                         }
-                    }
+                    )
                 }
 
             ,
@@ -230,23 +240,23 @@ fun WatchBrightnessWithPureCompose(
     }
 }
 
-
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun WatchBrightnessWithPureComposePreview() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.Gray
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            WatchBrightnessWithPureCompose({}, onSwipeUp = {})
-
-        }
-    }
-}
+//
+//@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+//@Composable
+//fun WatchBrightnessWithPureComposePreview() {
+//    Surface(
+//        modifier = Modifier.fillMaxSize(),
+//        color = Color.Gray
+//    ) {
+//        Box(
+//            modifier = Modifier.fillMaxSize(),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            WatchBrightnessWithPureCompose(10,{}, onSwipeUp = {})
+//
+//        }
+//    }
+//}
 
 
 @Composable

@@ -27,6 +27,7 @@ import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
+import com.hogumiwarts.lumos.presentation.ui.screens.control.ControlState
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.SwitchViewModel
 
@@ -80,10 +81,10 @@ fun SwitchScreen(
 
     // 전환 중 로딩 표시
     when (powerState) {
-        is SwitchPowerState.Error -> Unit
-        SwitchPowerState.Idle -> Unit
-        is SwitchPowerState.Loaded -> Unit // 상태 전환 후 별도 처리 없음
-        SwitchPowerState.Loading -> {
+        is ControlState.Error -> Unit
+        ControlState.Idle -> Unit
+        is ControlState.Loaded -> Unit // 상태 전환 후 별도 처리 없음
+        ControlState.Loading -> {
             Box(
                 modifier = Modifier
                     .clip(CircleShape)

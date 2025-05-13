@@ -1,5 +1,5 @@
 package com.hogumiwarts.lumos.data.entity.remote
 
-data class PatchSwitchPowerResponse (
+data class PatchControlResponse (
     val success: Boolean
 )
