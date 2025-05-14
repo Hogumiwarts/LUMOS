@@ -125,7 +125,6 @@ object NetworkModule {
     @Singleton
     @Named("BaseRetrofit")
     fun provideBaseRetrofit(
-        o
         okHttpClient: OkHttpClient,
         @Named("DEVICE_BASE_URL") baseUrl: String
     ): Retrofit = Retrofit.Builder()
