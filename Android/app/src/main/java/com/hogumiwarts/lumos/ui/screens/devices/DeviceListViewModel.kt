@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.devices
 
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -89,69 +90,9 @@ class DeviceListViewModel @Inject constructor(
         return devices.find { it.deviceId == selectedDeviceId.value }
     }
 
-    // 상태 조회
-//    fun fetchDevicesWithStatus() {
-//        viewModelScope.launch {
-//            try {
-//                //todo: 현재 테스트 폰 smartthings에 연결 기기가 없어서 임시로 하드 코딩함
-//
-//                // val installedAppId = tokenDataStore.getInstalledAppId().first()
-//                val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
-//                val response = smartThingsApi.getDeviceList(installedAppId)
-//
-//                Timber.tag("SmartThings").d("✅ installedAppId = $installedAppId")
-//                Timber.tag("SmartThings").d("✅ devices response = ${response.devices.size}")
-//
-//                if (response.success) {
-//                    val devices = response.devices
-//
-//                    val enrichedDevices = devices.map { device ->
-//                        try {
-//                            val statusResponse =
-//                                smartThingsApi.getDeviceStatus(device.deviceId, installedAppId)
-//                            if (statusResponse.success) {
-//                                val mainComponent = statusResponse.status.components["main"]
-//
-//                                // 기기별 카테고리
-//                                val category =
-//                                    device.components.firstOrNull()?.categories?.firstOrNull()?.name.orEmpty()
-//
-//                                // isOn과 isActive의 경우 JSON에서 바로 알 수 없어서 따로 판단해줌
-//                                // todo: 스피커 json 확인하고 마저 처리하기
-//                                val isOn = when (category) {
-//                                    "AirPurifier" -> mainComponent?.custom_airPurifierOperationMode?.apOperationMode?.value != "off"
-//                                    "Switch", "Light" -> mainComponent?.switch?.switch?.value == "on"
-//                                    "Hub" -> true
-//
-//                                    else -> false
-//                                }
-//
-//
-//                                val isActive = when (category) {
-//                                    "Hub" -> true // Hub는 상태 체크 불필요
-//                                    else -> mainComponent?.healthCheck?.`DeviceWatch-DeviceStatus`?.value == "online"
-//                                }
-//
-//
-//                                device.toMyDevice(isOn, isActive)
-//                            } else {
-//                                device.toMyDevice(isOn = false, isActive = false)
-//                            }
-//                        } catch (e: Exception) {
-//                            Timber.e(e, "기기 상태 조회 실패")
-//                            device.toMyDevice(isOn = false, isActive = false)
-//                        }
-//                    }
-//
-//                    _deviceList.value = enrichedDevices
-//                }
-//            } catch (e: Exception) {
-//                Timber.tag("SmartThings").e(e, "⚠️ 기기 목록 가져오기 실패")
-//            }
-//        }
-//    }
 
     // db에서 기기 목록 받아오기
+    @SuppressLint("TimberArgTypes")
     fun loadDevicesFromServer() {
         viewModelScope.launch {
             try {
@@ -181,18 +122,19 @@ class DeviceListViewModel @Inject constructor(
     }
 
     // 기기 목록 새로고침
+    @SuppressLint("TimberArgTypes")
     fun refreshDevicesFromDiscover(context: Context) {
         viewModelScope.launch {
             try {
                 val accessToken = tokenDataStore.getAccessToken().first()
                 val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
-
                 // val installedAppId = tokenDataStore.getInstalledAppId().first()
+                val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
 
-                val result = deviceRepository.discoverDevices(accessToken, installedAppId)
+                //val result = deviceRepository.discoverDevices(accessToken, installedAppId)
 
-                Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${result.size}")
-                result.forEachIndexed { index, device ->
+                Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")
+                newDevices.forEachIndexed { index, device ->
                     Timber.tag("DeviceDiscover").d(
                         "[%d] 🛰️ id=%d, name=%s, type=%s, activated=%s",
                         index,
@@ -203,12 +145,21 @@ class DeviceListViewModel @Inject constructor(
                     )
                 }
 
-                _deviceList.value = result.map { it.toMyDevice() }
+                val currentList = _deviceList.value
+                val currentIds = currentList.map { it.deviceId }.toSet()
 
-                Toast.makeText(context, "🪄 기기 목록 새로고침 완료!", Toast.LENGTH_SHORT).show()
+                val additional = newDevices
+                    .filter { it.deviceId !in currentIds }
+                    .map { it.toMyDevice() }
 
-            }
-            catch (e: Exception) {
+                _deviceList.value = currentList + additional
+
+                //_deviceList.value = result.map { it.toMyDevice() }
+
+                Toast.makeText(context, "기기 목록 새로고침 완료 ✨" +
+                        "", Toast.LENGTH_SHORT).show()
+
+            } catch (e: Exception) {
                 Timber.e(e, "❌ 기기 Discover 실패")
             }
         }
