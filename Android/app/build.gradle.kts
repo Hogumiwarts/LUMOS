@@ -167,6 +167,11 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
 
+
+    // color-picker
+    implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") 
+
 
 }
