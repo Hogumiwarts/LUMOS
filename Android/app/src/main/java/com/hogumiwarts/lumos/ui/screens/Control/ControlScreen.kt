@@ -1,16 +1,21 @@
 package com.hogumiwarts.lumos.ui.screens.control
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -26,13 +31,20 @@ import java.util.Locale
 @Composable
 fun ControlScreen(
     navController: NavController,
-    bleViewModel: BleScannerViewModel = hiltViewModel()
+    bleViewModel: BleScannerViewModel = hiltViewModel(),
+    controlViewModel: ControlViewModel = hiltViewModel()
 ) {
-
+    val context = LocalContext.current
     val devices by bleViewModel.devices.collectAsState()
     val savedDevices by bleViewModel.savedDevices.collectAsState()
     val connectionState by bleViewModel.connectionState.collectAsState()
     val selectedDevice by bleViewModel.selectedDevice.collectAsState()
+
+    val scrollState = rememberScrollState()
+
+    // UWB 기기 주소값
+    var destinationAddress by remember { mutableStateOf("00:00") }
+
 
     // 컴포넌트가 처음 표시될 때 저장된 기기 로드
     LaunchedEffect(Unit) {
@@ -57,7 +69,200 @@ fun ControlScreen(
                 .padding(innerPadding)
                 .background(Color.White)
                 .padding(16.dp)
+                .verticalScroll(scrollState)
         ) {
+            // 상단 카드: UWB 상태 정보
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "UWB 장치 연결",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 로컬 주소 표시
+                    Text("Local address: ${controlViewModel.localAddress}")
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(onClick = {
+                            if (controlViewModel.rangingActive) {
+                                Toast.makeText(
+                                    context,
+                                    "Ranging session active!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                controlViewModel.prepareSession()
+                            }
+                        }) {
+                            Text("세션 준비")
+                        }
+                        Button(onClick = {
+                            controlViewModel.cleanupSession()
+                        }) {
+                            Text("세션 초기화")
+                        }
+
+                    }
+
+                }
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "레인징 제어"
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("대상 주소:")
+                    TextField(
+                        value = destinationAddress,
+                        onValueChange = { value -> destinationAddress = value.uppercase() },
+                        placeholder = { Text("00:00") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (controlViewModel.rangingActive) {
+                        Button(
+                            onClick = { controlViewModel.stopRanging() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("레인징 중지")
+                        }
+                    } else {
+                        Button(
+                            onClick = {
+                                val pattern = "[0-9A-F]{2}:[0-9A-F]{2}"
+                                if (destinationAddress.matches(pattern.toRegex())) {
+                                    if (!controlViewModel.startRanging(destinationAddress)) {
+                                        Toast.makeText(
+                                            context,
+                                            "Session not initialized!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Invalid address format",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("레인징 시작")
+                        }
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "레인징 결과",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val position = controlViewModel.rangingPosition
+
+                    // 거리 정보 표시
+                    Row(
+
+                    ) {
+                        Text(
+                            text = "거리(distance):",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.4f)
+                        )
+                        Text(
+                            text = "${position.distance?.value ?: "N/A"} m",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.6f)
+                        )
+                    }
+
+                    // 방위각 정보 표시
+                    Row() {
+                        Text(
+                            text = "방위각(azimuth):",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.4f)
+                        )
+                        Text(
+                            text = "${position.azimuth?.value ?: "N/A"} °",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.6f)
+                        )
+                    }
+
+                    // 고도 정보 표시
+                    Row(
+
+                    ) {
+                        Text(
+                            text = "고도(elevation):",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.4f)
+                        )
+                        Text(
+                            text = "${position.elevation?.value ?: "N/A"} °",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.6f)
+                        )
+                    }
+
+                    // 경과 시간 표시
+                    Row(
+                    ) {
+                        Text(
+                            text = "경과 시간:",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.3f)
+                        )
+                        Text(
+                            text = "${position.elapsedRealtimeNanos} ns",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(0.7f)
+                        )
+                    }
+                }
+            }
             // 스캔 제어 버튼
             Row(
                 Modifier.fillMaxWidth(),
@@ -83,14 +288,19 @@ fun ControlScreen(
             when (connectionState) {
                 GattConnector.ConnectionState.CONNECTING ->
                     Text("연결 중...", color = Color.Yellow)
+
                 GattConnector.ConnectionState.CONNECTED ->
                     Text("연결됨", color = Color.Green)
+
                 GattConnector.ConnectionState.SERVICES_DISCOVERED ->
                     Text("서비스 탐색 완료", color = Color.Green)
+
                 GattConnector.ConnectionState.READY ->
                     Text("UWB 준비 완료", color = Color.Green)
+
                 GattConnector.ConnectionState.FAILED ->
                     Text("연결 실패", color = Color.Red)
+
                 else -> {}
             }
 
@@ -126,7 +336,10 @@ fun ControlScreen(
                     items(savedDevices) { device ->
                         SavedDeviceCard(
                             device = device,
-                            onConnect = { bleViewModel.connectToSavedDevice(device) }
+                            onConnect = {
+                                bleViewModel.stopScan()
+                                bleViewModel.connectToSavedDevice(device)
+                            }
                         )
                     }
                 }
@@ -169,7 +382,6 @@ fun ControlScreen(
         }
     }
 }
-
 
 @Composable
 fun SavedDeviceCard(
