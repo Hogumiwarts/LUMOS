@@ -12,10 +12,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object BaseUrlModule {
-
     @Provides
     @Singleton
-    @Named("AUTH_BASE_URL")
+    @Named("WEARABLE_URL")
     fun provideAuthBaseUrl(): String = BuildConfig.AUTH_BASE_URL
 
 }

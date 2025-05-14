@@ -114,7 +114,7 @@ fun NavGraph(
         }
 
         // 🔸 공기청정기 제어 화면
-        composable("airPurifier/{tagNumber}",
+        composable("airPurifier/{deviceId}",
             enterTransition = {
                 if (initialState.destination.route == "main") {
                     slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
@@ -130,9 +130,13 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
             }
         ) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+            val deviceId = it.arguments?.getString("deviceId")?.toLongOrNull()
 
-                AipurifierSwitch(tagNumber = tagNumber, navController)
+                    if (deviceId != null) {
+                        AipurifierSwitch(deviceId = deviceId.toLong(), navController)
+                    }
+
+
 
         }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,20 +27,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Text
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.ui.common.OnOffSwitch
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.AirpurifierViewModel
 
 @Composable
 fun AipurifierSwitch(
-    tagNumber: Long?,
-    navController: NavHostController
+    deviceId: Long,
+    navController: NavHostController,
+    viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
     val switchState = remember { mutableStateOf(false) }
 
+    // 최초 진입 시 상태 요청
+    LaunchedEffect(Unit) {
+        viewModel.sendIntent(AirpurifierIntent.LoadAirpurifierStatus(deviceId))
+    }
 
     ConstraintLayout(
         modifier = Modifier

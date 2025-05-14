@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.di
+package com.hogumiwarts.data.di
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
