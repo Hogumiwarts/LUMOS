@@ -118,8 +118,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-                    FindDeviceScreen()
-                   // MainScreen()
+                    MainScreen()
                 }
             }
         }
