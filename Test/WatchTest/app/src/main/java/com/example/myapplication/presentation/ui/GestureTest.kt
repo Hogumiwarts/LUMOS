@@ -25,7 +25,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun GestureTest(navController: NavController, activity: MainActivity, index: String) {
+fun GestureTest(navController: NavController, activity: MainActivity, index: Int) {
     // Lottie 애니메이션 리소스 로드
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animation_time))
     val lottieAnimatable = rememberLottieAnimatable()
@@ -45,7 +45,7 @@ fun GestureTest(navController: NavController, activity: MainActivity, index: Str
     // 테스트 완료 여부
     var isTestFinished by remember { mutableStateOf(false) }
 
-    var count by remember { mutableStateOf(4) }
+    var count by remember { mutableStateOf(index) }
 
     // 코루틴 스코프 (Button 클릭 등에서 사용)
     val scope = rememberCoroutineScope()
