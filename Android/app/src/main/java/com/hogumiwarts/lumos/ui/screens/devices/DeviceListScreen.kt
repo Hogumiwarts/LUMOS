@@ -83,7 +83,9 @@ fun DeviceListScreen(
         // topBar
         CommonTopBar(
             barTitle = "나의 기기 목록",
-            onBackClick = { /*TODO*/ },
+            onBackClick = {
+
+            },
             isRightBtnVisible = true,
             onRightBtnClick = {
                 // smartthings 계정 연동 이동
@@ -91,7 +93,8 @@ fun DeviceListScreen(
                 viewModel.refreshDevicesFromDiscover(context)
             },
             rightIconResId = R.drawable.ic_refresh,
-            barHeight = 20
+            barHeight = 20,
+            isBackBtnVisible = false
         )
 
         Box(
