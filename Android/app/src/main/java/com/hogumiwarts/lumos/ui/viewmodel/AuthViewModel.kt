@@ -59,10 +59,13 @@ class AuthViewModel @Inject constructor(
                 val refreshToken = tokenDataStore.getRefreshToken().first()
                 val response = authApi.refresh("Bearer $refreshToken")
 
+                // 서버에서 새로 받아온 토큰
+                val newAccessToken = response.data.accessToken
+
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
-                    accessToken = tokenDataStore.getAccessToken().first(),
-                    refreshToken = response.data.accessToken
+                    accessToken = newAccessToken,
+                    refreshToken = refreshToken
                 )
 
                 _isLogginIn.value = true

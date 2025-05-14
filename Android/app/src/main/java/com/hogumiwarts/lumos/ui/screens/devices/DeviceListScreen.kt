@@ -61,8 +61,7 @@ fun DeviceListScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.checkAccountLinked() // api 연동 확인되면 자동 기기 목록 불렁괴
-                //viewModel.loadDevicesFromServer() // DB에 저장된 기기 목록 불러오기
+                viewModel.checkAccountLinked() // api 연동 확인되면 자동 기기 목록 불러오기
             }
         }
 
@@ -88,8 +87,8 @@ fun DeviceListScreen(
             isRightBtnVisible = true,
             onRightBtnClick = {
                 // smartthings 계정 연동 이동
-                // viewModel.requestAuthAndOpen(context = context)
-                viewModel.fetchDevicesWithStatus() // 기기 목록 다시 불러옴
+                //viewModel.fetchDevicesWithStatus() // 기기 목록 다시 불러옴
+                viewModel.refreshDevicesFromDiscover(context)
             },
             rightIconResId = R.drawable.ic_refresh,
             barHeight = 20
