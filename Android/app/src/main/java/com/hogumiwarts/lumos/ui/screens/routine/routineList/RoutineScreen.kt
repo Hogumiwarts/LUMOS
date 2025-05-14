@@ -76,7 +76,8 @@ fun RoutineScreen(
             barTitle = "나의 루틴",
             onBackClick = { onBackClick },
             isRightBtnVisible = true,
-            onRightBtnClick = onAddClick
+            onRightBtnClick = onAddClick,
+            isBackBtnVisible = false
         )
 
         // 루틴 카드 목록 그리드
