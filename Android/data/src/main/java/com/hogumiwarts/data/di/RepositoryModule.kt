@@ -5,11 +5,17 @@ import com.hogumiwarts.data.repository.weather.WeatherRepositoryImpl
 import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.domain.repository.WeatherRepository
 import com.hogumiwarts.data.repository.GestureRepositoryImpl
+import com.hogumiwarts.data.repository.JwtRepositoryImpl
 import com.hogumiwarts.data.repository.airpurifier.AirpurifierRepositoryImpl
+import com.hogumiwarts.data.source.local.JwtDataStore
+import com.hogumiwarts.data.source.local.JwtLocalDataSource
+import com.hogumiwarts.data.source.local.JwtLocalDataSourceImpl
 import com.hogumiwarts.domain.repository.AirpurifierRepository
 import com.hogumiwarts.domain.repository.GestureRepository
+import com.hogumiwarts.domain.repository.JwtRepository
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -41,5 +47,6 @@ abstract class RepositoryModule {
     abstract fun bindAirpurifierRepository(
         impl: AirpurifierRepositoryImpl
     ): AirpurifierRepository
+
 
 }

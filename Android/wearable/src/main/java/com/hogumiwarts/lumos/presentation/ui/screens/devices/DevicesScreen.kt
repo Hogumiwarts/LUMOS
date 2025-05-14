@@ -34,10 +34,13 @@ fun DevicesScreen(
     // 최초 진입 시 DeviceIntent 전송
     LaunchedEffect(Unit) {
         viewModel.sendIntent(DeviceIntent.LoadDevice)
+        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MjA1NjM0LCJleHAiOjE3NDcyOTIwMzR9.BchXCDa4rs25TzGnJ1ZmPu6_EBzlba6-Odc5fh5MvQM","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MjA1NjM0LCJleHAiOjE3NDc4MTA0MzR9.fcQv2c1yvkcj4GRM_MkRc-XGPfgeU6MLJuv43EVA1aw")
     }
 
     // 상태 관찰
     val state by viewModel.state.collectAsState()
+
+
 
     // Horologist의 ScalingLazyColumn 스크롤 상태 구성
     val listState = rememberResponsiveColumnState(

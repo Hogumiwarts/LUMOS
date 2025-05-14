@@ -1,7 +1,10 @@
 package com.hogumiwarts.data.di
 
 import android.content.Context
+import com.hogumiwarts.data.source.local.JwtLocalDataSourceImpl
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -10,6 +13,7 @@ import javax.inject.Singleton
 // ✅ Hilt DI를 통해 싱글톤으로 제공되는 인증 인터셉터
 @Singleton
 class AddAuthInterceptor @Inject constructor(
+    private val jwtLocalDataSource: JwtLocalDataSourceImpl,
     @ApplicationContext private val context: Context // 앱 전체 context 주입
 ) : Interceptor {
 
@@ -35,7 +39,9 @@ class AddAuthInterceptor @Inject constructor(
 
         // 🔸 예외가 아닌 경우 → 토큰을 헤더에 추가
 //        val tokenManager = TokenManager(context)
-        val accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MTk5MjA5LCJleHAiOjE3NDcyODU2MDl9.-34kSK9D_0RfjwjXtiHvH1nyVNILyyBoScjJ79hsAnY" // 🔺 실제로는 TokenManager 등에서 토큰 받아와야 함
+        val accessToken = runBlocking {
+            jwtLocalDataSource.getAccessToken().first()
+        }
 
         // 🔹 토큰이 존재하면 Authorization 헤더 추가
         val newRequest = if (accessToken?.isNotEmpty() == true) {

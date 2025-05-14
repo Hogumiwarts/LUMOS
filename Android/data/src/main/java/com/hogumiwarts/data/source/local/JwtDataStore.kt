@@ -1,6 +1,7 @@
 package com.hogumiwarts.data.source.local
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,6 +20,7 @@ class JwtDataStore @Inject constructor(
 ) {
     // ✅ 토큰 저장
     suspend fun saveTokens(accessToken: String, refreshToken: String) {
+        Log.d("JwtDataStore", "Saving tokens: accessToken = $accessToken, refreshToken = $refreshToken")
         context.dataStore.edit {
             it[ACCESS_TOKEN_KEY] = accessToken
             it[REFRESH_TOKEN_KEY] = refreshToken
@@ -27,7 +29,11 @@ class JwtDataStore @Inject constructor(
 
     // ✅ 토큰 가져오기
     fun getAccessToken(): Flow<String> =
-        context.dataStore.data.map { it[ACCESS_TOKEN_KEY] ?: "" }
+        context.dataStore.data.map {
+            val token = it[ACCESS_TOKEN_KEY] ?: ""
+            Log.d("JwtDataStore", "Access Token: $token")  // 토큰을 가져올 때 로그 찍기
+            token
+        }
 
     fun getRefreshToken(): Flow<String> =
         context.dataStore.data.map { it[REFRESH_TOKEN_KEY] ?: "" }
