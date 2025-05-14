@@ -66,7 +66,7 @@ fun DeviceCard(device: DeviceListData, navController: NavHostController) {
                     }
 
                     DeviceType.AIR_PURIFIER -> {
-                        navController.navigate("airPurifier/${device.tagNumber}") {
+                        navController.navigate("airPurifier/${device.deviceId}") {
                         }
                     }
 

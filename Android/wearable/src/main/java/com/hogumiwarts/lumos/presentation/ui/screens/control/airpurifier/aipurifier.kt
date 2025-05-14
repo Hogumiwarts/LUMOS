@@ -13,11 +13,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.*
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
+//import com.hogumiwarts.lumos.presentation.ui.viewmodel.AirpurifierViewModel
 
 
 // 메인 화면 전환을 위한 상위 컴포저블
 @Composable
-fun Aipurifier() {
+fun Aipurifier(
+
+) {
+
+
     var showNext by remember { mutableStateOf(false) } // 현재 화면/다음 화면 상태
 
 

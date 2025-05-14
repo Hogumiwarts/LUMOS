@@ -114,7 +114,7 @@ fun NavGraph(
         }
 
         // 🔸 공기청정기 제어 화면
-        composable("airPurifier/{tagNumber}",
+        composable("airPurifier/{deviceId}",
             enterTransition = {
                 if (initialState.destination.route == "main") {
                     slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
@@ -130,14 +130,18 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
             }
         ) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
+            val deviceId = it.arguments?.getString("deviceId")?.toLongOrNull()
 
-                AipurifierSwitch(tagNumber = tagNumber, navController)
+                    if (deviceId != null) {
+                        AipurifierSwitch(deviceId = deviceId.toLong(), navController)
+                    }
+
+
 
         }
 
         // 🔸 공기청정기 세팅 화면 (파라미터 없음)
-        composable("AipurifierSetting",
+        composable("AipurifierSetting/{type}/{deviceId}",
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
                         fadeIn(initialAlpha = 1f)
@@ -146,7 +150,13 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(600))
             }
         ) {
-            AipurifierSetting()
+            val type = it.arguments?.getString("type")
+            val deviceId = it.arguments?.getString("deviceId")
+
+            if (type != null && deviceId != null) {
+                AipurifierSetting(deviceId = deviceId.toLong(), type = type)
+            }
+
         }
     }
 }

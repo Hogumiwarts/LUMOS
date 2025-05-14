@@ -5,6 +5,8 @@ import com.hogumiwarts.data.repository.weather.WeatherRepositoryImpl
 import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.domain.repository.WeatherRepository
 import com.hogumiwarts.data.repository.GestureRepositoryImpl
+import com.hogumiwarts.data.repository.AirpurifierRepositoryImpl
+import com.hogumiwarts.domain.repository.AirpurifierRepository
 import com.hogumiwarts.domain.repository.GestureRepository
 import dagger.Binds
 import dagger.Module
@@ -33,5 +35,12 @@ abstract class RepositoryModule {
     abstract fun bindGestureRepository(
         impl: GestureRepositoryImpl
     ): GestureRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAirpurifierRepository(
+        impl: AirpurifierRepositoryImpl
+    ): AirpurifierRepository
+
 
 }

@@ -1,24 +1,29 @@
 package com.hogumiwarts.lumos.presentation.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.domain.model.GetDevicesResult
 import com.hogumiwarts.lumos.domain.usecase.DeviceUseCase
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class DeviceViewModel @Inject constructor(
     private val deviceUseCase: DeviceUseCase, // 유즈케이스 주입
+    private val jwtUseCase: TokensUseCase,
     @ApplicationContext private val context: Context, // 앱 context (현재는 미사용)
 ) : ViewModel() {
 
@@ -50,6 +55,25 @@ class DeviceViewModel @Inject constructor(
             intentFlow.emit(intent)
         }
     }
+
+    fun saveJwt(accessToken: String, refreshToken: String){
+        viewModelScope.launch {
+            jwtUseCase.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
+        }
+
+    }
+
+    suspend fun getAccess(): String {
+        var accessToken = ""
+
+        // Flow에서 첫 번째 값을 비동기적으로 수집
+        jwtUseCase.getAccessToken().collect { token ->
+            accessToken = token
+        }
+
+        return accessToken
+    }
+
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
     private fun loadDevices() {
