@@ -23,7 +23,6 @@ import javax.inject.Singleton
 @Singleton
 class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
 
-
     private lateinit var rangingJob: Job // 레인징 작업을 위한 코루틴 Job 객체
     private var clientSession: UwbClientSessionScope? = null // UWB 클라이언트 세션 범위
 
@@ -36,6 +35,13 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
     // 상태 변수들 - Compose UI에서 사용 가능하도록 mutableStateOf로 정의
     var localAdr by mutableStateOf("XX:XX") // 로컬 UWB 장치 주소
     var rangingActive by mutableStateOf(false) // 레인징 활성화 상태
+
+    // 멀티 장치 측정 결과를 저장할 맵
+    var rangingPositions by mutableStateOf(mapOf<String, RangingPosition>())
+
+    // 고정된 컨트롤리 주소 목록
+    private val controleeAddresses = listOf("00:01", "00:02", "00:03")
+
     var rangingPosition by mutableStateOf(
         RangingPosition(
             RangingMeasurement(0F), // 거리 초기값
@@ -61,6 +67,8 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
         }
 
         CoroutineScope(Dispatchers.Main.immediate).launch {
+
+            // Session 생성
             clientSession = uwbManager.controllerSessionScope() // 컨트롤러 세션 스코프 생성
 
             // 주소가 아직 초기화되지 않은 경우에만 새 주소 할당
@@ -81,6 +89,80 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
         localAdr = "XX:XX"
     }
 
+
+    /**
+     * 멀티 디바이스 레인징을 시작하는 함수
+     */
+    fun startMultiRanging(): Boolean {
+        if (clientSession == null) {
+            Log.e("UwbRanging", "Session not initialized")
+            return false
+        }
+
+        if (rangingActive) {
+            return true
+        }
+
+        try {
+            // 컨트롤리 UWB 디바이스 목록 생성
+            val uwbDevices = controleeAddresses.map { address ->
+                UwbDevice(UwbAddress(address))
+            }
+
+            val partnerParameters = RangingParameters(
+                uwbConfigType = RangingParameters.CONFIG_UNICAST_DS_TWR,
+                sessionKeyInfo = byteArrayOf(0x08, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
+                complexChannel = UwbComplexChannel(9, 9),
+                peerDevices = uwbDevices,
+                updateRateType = RangingParameters.RANGING_UPDATE_RATE_FREQUENT,
+                sessionId = 42,
+                subSessionId = 0,
+                subSessionKeyInfo = null
+            )
+
+            rangingJob = CoroutineScope(Dispatchers.Main.immediate).launch {
+                try {
+                    val sessionFlow = clientSession?.prepareSession(partnerParameters)
+
+                    if (sessionFlow == null) {
+                        return@launch
+                    }
+
+                    Log.d("UwbRanging", "Session prepared successfully, collecting results...")
+
+                    sessionFlow.collect { result ->
+                        when (result) {
+                            is RangingResult.RangingResultPosition -> {
+                                // 장치 MAC 주소 추출
+                                val deviceAddress = result.device.address.toString()
+
+                                // 결과 저장 - 맵 업데이트
+                                rangingPositions = rangingPositions + (deviceAddress to result.position)
+                            }
+
+                            is RangingResult.RangingResultPeerDisconnected -> {
+                                val deviceAddress = result.device.address.toString()
+                                Log.d("UwbRanging", "Peer disconnected: $deviceAddress")
+
+                                // 연결 해제된 장치 결과 제거
+                                rangingPositions = rangingPositions - deviceAddress
+                            }
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    stopRanging()
+                    cleanupSession()
+                    prepareSession()
+                }
+            }
+
+            rangingActive = true
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
 
     /**
      * 레인징을 시작하는 함수
@@ -137,10 +219,12 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
                                 Log.d("UwbRanging", "Distance: $distance m")
                                 rangingPosition = it.position
                             }
+
                             is RangingResult.RangingResultPeerDisconnected -> {
                                 Log.d("UwbRanging", "Peer disconnected")
                                 stopRanging()
                             }
+
                             else -> {
                                 Log.d("UwbRanging", "Other ranging result: $it")
                             }
@@ -217,6 +301,9 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
         if (::rangingJob.isInitialized) { // rangingJob이 초기화되었는지 확인
             rangingActive = false // 레인징 비활성화 상태로 설정
             rangingJob.cancel() // 레인징 작업 취소
+
+            // 결과 맵 초기화
+            rangingPositions = emptyMap()
         }
     }
 
@@ -239,5 +326,28 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
     fun cleanupAll() {
         cleanupSession()
         resetAddress()
+    }
+
+
+
+    /**
+     * 특정 장치의 레인징 결과 가져오기
+     */
+    fun getDevicePosition(address: String): RangingPosition? {
+        return rangingPositions[address]
+    }
+
+    /**
+     * 연결된 장치 주소 목록 반환
+     */
+    fun getConnectedDevices(): List<String> {
+        return rangingPositions.keys.toList()
+    }
+
+    /**
+     * 컨트롤리 주소 목록 반환
+     */
+    fun getControleeAddresses(): List<String> {
+        return controleeAddresses
     }
 }

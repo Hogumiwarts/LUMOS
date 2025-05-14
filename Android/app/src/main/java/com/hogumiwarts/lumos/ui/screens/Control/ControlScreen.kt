@@ -131,6 +131,8 @@ fun ControlScreen(
 
                 }
             }
+
+            // 레인징 제어
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,13 +147,14 @@ fun ControlScreen(
                 ) {
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("대상 주소:")
-                    TextField(
-                        value = destinationAddress,
-                        onValueChange = { value -> destinationAddress = value.uppercase() },
-                        placeholder = { Text("00:00") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Text("설정된 컨트롤리 주소: ${controlViewModel.controleeAddresses.joinToString(", ")}")
+//                    Text("대상 주소:")
+//                    TextField(
+//                        value = destinationAddress,
+//                        onValueChange = { value -> destinationAddress = value.uppercase() },
+//                        placeholder = { Text("00:00") },
+//                        modifier = Modifier.fillMaxWidth()
+//                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(
@@ -162,10 +165,10 @@ fun ControlScreen(
                             onClick = {
                                 val pattern = "[0-9A-F]{2}:[0-9A-F]{2}"
                                 if (destinationAddress.matches(pattern.toRegex())) {
-                                    if (!controlViewModel.startRanging(destinationAddress)) {
+                                    if (!controlViewModel.startMultiRanging()) {
                                         Toast.makeText(
                                             context,
-                                            "Session not initialized!",
+                                            "세션이 초기화되지 않았습니다!",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -180,7 +183,7 @@ fun ControlScreen(
 //                            modifier = Modifier.fillMaxWidth(),
                             enabled = !(controlViewModel.rangingActive)
                         ) {
-                            Text("레인징 시작")
+                            Text("멀티 레인징 시작")
                         }
 
                         Button(
@@ -194,9 +197,11 @@ fun ControlScreen(
                 }
             }
 
+            // 모든 장치의 레인징 결과
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -211,70 +216,123 @@ fun ControlScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    val position = controlViewModel.rangingPosition
+                    // 연결된 장치 수 표시
+                    Text(
+                        text = if (controlViewModel.connectedDevices.isEmpty())
+                            "연결된 장치가 없습니다"
+                        else
+                            "연결된 장치: ${controlViewModel.connectedDevices.size}개",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (controlViewModel.connectedDevices.isEmpty()) Color.Red else Color.Green
+                    )
 
-                    // 거리 정보 표시
-                    Row(
+                    Spacer(modifier = Modifier.height(8.dp))
 
+                    // 각 장치별 결과 표시 - 항상 모든 장치를 표시
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "거리(distance):",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.4f)
-                        )
-                        Text(
-                            text = "${position.distance?.value ?: "N/A"} m",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.6f)
-                        )
-                    }
+                        controlViewModel.controleeAddresses.forEach { address ->
+                            val position = controlViewModel.getDevicePosition(address)
+                            val isConnected = position != null
 
-                    // 방위각 정보 표시
-                    Row() {
-                        Text(
-                            text = "방위각(azimuth):",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.4f)
-                        )
-                        Text(
-                            text = "${position.azimuth?.value ?: "N/A"} °",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.6f)
-                        )
-                    }
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isConnected)
+                                        Color(0xFFE3F2FD) // 연결됨 - 밝은 파란색
+                                    else
+                                        Color(0xFFEEEEEE) // 연결 안됨 - 회색
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "장치: $address",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        Text(
+                                            text = if (isConnected) "연결됨" else "연결 안됨",
+                                            color = if (isConnected) Color.Green else Color.Red
+                                        )
+                                    }
 
-                    // 고도 정보 표시
-                    Row(
+                                    Spacer(modifier = Modifier.height(4.dp))
 
-                    ) {
-                        Text(
-                            text = "고도(elevation):",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.4f)
-                        )
-                        Text(
-                            text = "${position.elevation?.value ?: "N/A"} °",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.6f)
-                        )
-                    }
+                                    if (position != null) {
+                                        // 거리 정보
+                                        Row {
+                                            Text(
+                                                text = "거리:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.distance?.value ?: "N/A"} m",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
 
-                    // 경과 시간 표시
-                    Row(
-                    ) {
-                        Text(
-                            text = "경과 시간:",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.3f)
-                        )
-                        Text(
-                            text = "${position.elapsedRealtimeNanos} ns",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(0.7f)
-                        )
+                                        // 방위각 정보
+                                        Row {
+                                            Text(
+                                                text = "방위각:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.azimuth?.value ?: "N/A"} °",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 고도 정보
+                                        Row {
+                                            Text(
+                                                text = "고도:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.elevation?.value ?: "N/A"} °",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 경과 시간 정보
+                                        Row {
+                                            Text(
+                                                text = "경과 시간:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.elapsedRealtimeNanos} ns",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                    } else {
+                                        Text(
+                                            text = "데이터 없음",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+
+
             // 스캔 제어 버튼
             Row(
                 Modifier.fillMaxWidth(),
