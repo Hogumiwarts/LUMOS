@@ -14,6 +14,7 @@ import javax.inject.Inject
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.hogumiwarts.domain.repository.DeviceRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.mapper.toMyDevice
 import timber.log.Timber
@@ -22,7 +23,8 @@ import kotlinx.serialization.json.*
 
 @HiltViewModel
 class DeviceListViewModel @Inject constructor(
-    private val smartThingsApi: SmartThingsApi
+    private val smartThingsApi: SmartThingsApi,
+    private val deviceRepository: DeviceRepository
 ) : ViewModel() {
     @Inject
     lateinit var tokenDataStore: TokenDataStore
@@ -38,6 +40,7 @@ class DeviceListViewModel @Inject constructor(
     val deviceList: StateFlow<List<MyDevice>> = _deviceList
 
 
+
     // SmartThings 인증 URL 요청 및 브라우저 이동 함수
     fun requestAuthAndOpen(context: Context) {
         viewModelScope.launch {
@@ -48,19 +51,19 @@ class DeviceListViewModel @Inject constructor(
             } catch (e: Exception) {
                 Timber.tag("SmartThings").e(e, "⚠\uFE0F 인증 URL 요청 실패: " + e.message)
             }
+
+            fetchDevicesWithStatus() // 연동 하고 나서는 기기 목록 한 번 불러옴
         }
     }
 
-    fun fetchDevices() {
-        fetchDevicesWithStatus()
-    }
 
+    // api 연동 확인 시 자동으로 기기 목록 호출
     fun checkAccountLinked() {
         viewModelScope.launch {
             tokenDataStore.getInstalledAppId().collect { id ->
                 val isAvailable = id.isNotEmpty()
                 _isLinked.value = isAvailable
-                if (isAvailable) fetchDevicesWithStatus() // 연동 확인되면 자동 호출됨
+                if (isAvailable) loadDevicesFromServer() // 연동 확인되면 자동 호출됨
             }
         }
     }
@@ -105,7 +108,8 @@ class DeviceListViewModel @Inject constructor(
                                 val mainComponent = statusResponse.status.components["main"]
 
                                 // 기기별 카테고리
-                                val category = device.components.firstOrNull()?.categories?.firstOrNull()?.name.orEmpty()
+                                val category =
+                                    device.components.firstOrNull()?.categories?.firstOrNull()?.name.orEmpty()
 
                                 // isOn과 isActive의 경우 JSON에서 바로 알 수 없어서 따로 판단해줌
                                 // todo: 스피커 json 확인하고 마저 처리하기
@@ -113,14 +117,14 @@ class DeviceListViewModel @Inject constructor(
                                     "AirPurifier" -> mainComponent?.custom_airPurifierOperationMode?.apOperationMode?.value != "off"
                                     "Switch", "Light" -> mainComponent?.switch?.switch?.value == "on"
                                     "Hub" -> true
-                                    
+
                                     else -> false
                                 }
 
 
                                 val isActive = when (category) {
                                     "Hub" -> true // Hub는 상태 체크 불필요
-                                    else ->  mainComponent?.healthCheck?.`DeviceWatch-DeviceStatus`?.value == "online"
+                                    else -> mainComponent?.healthCheck?.`DeviceWatch-DeviceStatus`?.value == "online"
                                 }
 
 
@@ -138,6 +142,34 @@ class DeviceListViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Timber.tag("SmartThings").e(e, "⚠️ 기기 목록 가져오기 실패")
+            }
+        }
+    }
+
+    // db에서 기기 목록 받아오기
+    fun loadDevicesFromServer() {
+        viewModelScope.launch {
+            try {
+                tokenDataStore.getRefreshToken().collect() { token ->
+                    val result = deviceRepository.getDevicesFromServer(token)
+                    Timber.tag("DeviceList").d("🔐 사용한 토큰: Bearer $token")
+
+                    _deviceList.value = result.map { it.toMyDevice() }
+
+                    Timber.tag("DeviceList").d("총 기기 수: ${result.size}")
+                    result.forEachIndexed { index, device ->
+                        Timber.tag("DeviceLog").d(
+                            "[%d] 🧩 id=%d, name=%s, type=%s, activated=%s",
+                            index,
+                            device.deviceId,
+                            device.deviceName,
+                            device.deviceType,
+                            device.activated
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
             }
         }
     }

@@ -51,15 +51,6 @@ fun DeviceGridSection(
             val rows = (devices.size + 1) / 2
             val currentRow = index / 2
 
-//            val categoryName = device.components
-//                .firstOrNull()              // 첫 번째 컴포넌트
-//                ?.categories
-//                ?.firstOrNull()            // 그 컴포넌트의 첫 번째 카테고리
-//                ?.name                     // 카테고리 이름
-//                ?: "ETC"                   // 없으면 기본값
-//
-//            val deviceType = DeviceListType.from(categoryName)
-//            val iconResId = deviceType.iconResId
 
             val cardContent: @Composable () -> Unit = {
                 DeviceRoutineCard(

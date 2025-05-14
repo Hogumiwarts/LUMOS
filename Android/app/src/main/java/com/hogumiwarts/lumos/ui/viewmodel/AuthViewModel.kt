@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val tokenDataStore: TokenDataStore
+    private val tokenDataStore: TokenDataStore,
+    private val authApi: AuthApi
 ) : ViewModel() {
 
     val _isLogginIn = MutableStateFlow<Boolean?>(true)
@@ -42,15 +44,34 @@ class AuthViewModel @Inject constructor(
         _isLogginIn.value = false
     }
 
-    // 회원가입
-//    fun handleIntent(intent: AuthIntent) {
-//        when (intent) {
-//            is AuthIntent.SignUp -> _isLogginIn.value = true
-//        }
-//    }
-
     // 회원탈퇴
     fun signOut(){
         _isSignup.value = false
     }
+
+    // 리프레시 토큰
+    fun refreshToken(
+        onSuccess: () -> Unit = {},
+        onFailure: (Throwable) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                val refreshToken = tokenDataStore.getRefreshToken().first()
+                val response = authApi.refresh("Bearer $refreshToken")
+
+                // 새 토큰 저장
+                tokenDataStore.saveTokens(
+                    accessToken = tokenDataStore.getAccessToken().first(),
+                    refreshToken = response.data.accessToken
+                )
+
+                _isLogginIn.value = true
+                onSuccess()
+            } catch (e: Exception) {
+                _isLogginIn.value = false
+                onFailure(e)
+            }
+        }
+    }
+
 }
