@@ -1,5 +1,6 @@
 package com.hogumiwarts.data.source.remote
 
+import com.hogumiwarts.data.entity.remote.Request.FanModeRequest
 import com.hogumiwarts.data.entity.remote.Request.PowerRequest
 import com.hogumiwarts.data.entity.remote.Response.BaseResponse
 import com.hogumiwarts.data.entity.remote.Response.PatchControlResponse
@@ -16,4 +17,7 @@ interface AirpurifierApi {
 
     @PATCH("/device/api/devices/{deviceId}/airpurifier/power")
     suspend fun patchAirpurifierPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
+
+    @PATCH("/device/api/devices/{deviceId}/airpurifier/fanmode")
+    suspend fun patchAirpurifierFanMode(@Path("deviceId") deviceId: Long, @Body request: FanModeRequest): BaseResponse<PatchControlResponse>
 }

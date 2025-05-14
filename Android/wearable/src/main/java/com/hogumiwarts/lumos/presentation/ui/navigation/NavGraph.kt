@@ -141,7 +141,7 @@ fun NavGraph(
         }
 
         // 🔸 공기청정기 세팅 화면 (파라미터 없음)
-        composable("AipurifierSetting",
+        composable("AipurifierSetting/{type}/{deviceId}",
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
                         fadeIn(initialAlpha = 1f)
@@ -150,7 +150,13 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(600))
             }
         ) {
-            AipurifierSetting()
+            val type = it.arguments?.getString("type")
+            val deviceId = it.arguments?.getString("deviceId")
+
+            if (type != null && deviceId != null) {
+                AipurifierSetting(deviceId = deviceId.toLong(), type = type)
+            }
+
         }
     }
 }

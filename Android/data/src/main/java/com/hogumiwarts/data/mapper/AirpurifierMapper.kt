@@ -30,7 +30,7 @@ object AirpurifierMapper {
 
     }
 
-    fun fromSwitchPowerResponse(dtoList: PatchControlResponse): ControlData {
+    fun fromPowerResponse(dtoList: PatchControlResponse): ControlData {
         return ControlData(
             success = dtoList.success
         )

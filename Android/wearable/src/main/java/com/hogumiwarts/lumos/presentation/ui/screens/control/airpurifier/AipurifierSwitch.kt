@@ -129,7 +129,7 @@ private fun leaded(
                 .background(Color(0x10FFFFFF))
                 .clickable {
                     // 클릭 시 동작
-                    navController.navigate("AipurifierSetting") {
+                    navController.navigate("AipurifierSetting/${data.fanMode}/${deviceId}") {
 
                     }
                 }
