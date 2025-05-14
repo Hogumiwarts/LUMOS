@@ -94,8 +94,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                 GestureScreen(navController)
             }
             composable("gesture_test/{index}") { backStackEntry ->
-                val index = backStackEntry.arguments?.getString("index") ?: "1"
-                GestureTest(navController, activity,index)
+                val index = backStackEntry.arguments?.getString("index") ?: "5"
+                GestureTest(navController, activity,index.toInt())
             }
 
             composable("gesture_result") {
