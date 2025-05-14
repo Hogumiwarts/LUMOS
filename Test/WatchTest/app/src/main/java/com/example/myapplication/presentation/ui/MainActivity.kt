@@ -94,10 +94,14 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                 GestureScreen(navController)
             }
             composable("gesture_test/{index}") { backStackEntry ->
-                val index = backStackEntry.arguments?.getString("index") ?: "1"
-                GestureTest(navController, activity,index)
-
+                val index = backStackEntry.arguments?.getString("index") ?: "5"
+                GestureTest(navController, activity,index.toInt())
             }
+
+            composable("gesture_result") {
+                GestureResult(navController, testViewModel)
+            }
+
         }
     }
 
@@ -180,7 +184,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     // IMU 데이터 저장 및 스마트폰으로 전송
     @SuppressLint("HardwareIds")
-    fun saveAndSendIMUData(name:String) {
+    fun saveAndSendIMUData(name:String, count: Int) {
 
         val androidId = Settings.Secure.getString(
             this.contentResolver,
@@ -189,14 +193,17 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         lifecycleScope.launch{
             val a = testViewModel.postTest(ImuRequest(
-                gestureId = name.toLong(),
+
+                gestureId = count.toLong(),
                 watchDeviceId = androidId,
                 data= imuDataList
             ))
 
             a.onSuccess {
 
-                Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, " predicted: ${it.data.predicted}\n match: ${it.data.match}", Toast.LENGTH_LONG).show()
+
+                testViewModel.add("${testViewModel.isOn.value.size} predicted: ${it.data.predicted} match: ${it.data.match}")
             }.onFailure {
                 Toast.makeText(this@MainActivity, "전송이 실패하였습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -225,6 +232,35 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 //        }.addOnFailureListener { e ->
 //            Log.e("IMU", "\ud83d\udc49 연결된 노드 가져오기 실패", e)
 //        }
+    }
+
+
+    @SuppressLint("HardwareIds")
+    fun sendIMUData(name:String,count: Int) {
+
+        val androidId = Settings.Secure.getString(
+            this.contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
+
+        lifecycleScope.launch{
+            val a = testViewModel.postPredictTest(ImuRequest(
+                gestureId = count.toLong(),
+                watchDeviceId = androidId,
+                data= imuDataList
+            ))
+
+            a.onSuccess {
+
+                Toast.makeText(this@MainActivity, " predicted: ${it.data.predicted}\n match: ${it.data.match}", Toast.LENGTH_LONG).show()
+                testViewModel.add("${testViewModel.isOn.value.size} predicted: ${it.data.predicted} match: ${it.data.match}")
+            }.onFailure {
+                Toast.makeText(this@MainActivity, "전송이 실패하였습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+
     }
 }
 

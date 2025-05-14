@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RoutineDeviceListViewModel @Inject constructor() : ViewModel() {
-    val selectedDeviceId = mutableStateOf<Int?>(null)
+    val selectedDeviceId = mutableStateOf<String?>(null)
     val showDialog = mutableStateOf(false)
 
     fun onDeviceClicked(device: MyDevice) {

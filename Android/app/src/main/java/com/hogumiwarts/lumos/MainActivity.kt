@@ -54,6 +54,8 @@ class MainActivity : ComponentActivity() {
 
         if (uri.scheme == "smartthingslogin" && uri.host == "oauth-callback") {
             val installedAppId = uri.getQueryParameter("installedAppId")
+            Timber.d("🔥 installedAppId = $installedAppId")
+
             val authToken = uri.getQueryParameter("authToken")
 
             if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {

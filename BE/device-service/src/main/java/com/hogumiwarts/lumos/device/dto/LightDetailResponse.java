@@ -39,9 +39,12 @@ public class LightDetailResponse {
     private Integer brightness;
 
     @Schema(description = "조명 색 온도")
-    private String lightTemperature;
+    private Integer lightTemperature;
 
-    @Schema(description = "조명 색상 코드")
-    private String lightCode;
+    @Schema(description = "조명 색조")
+    private Integer hue;
+
+    @Schema(description = "조명 채도")
+    private Float saturation;
 
 }

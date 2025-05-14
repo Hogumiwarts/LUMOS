@@ -27,26 +27,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.hogumiwarts.data.source.remote.SmartThingsApi
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.mapper.toMyDevice
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
-import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun DeviceListScreen(
     viewModel: DeviceListViewModel = hiltViewModel(),
-    devices: List<MyDevice>,
     onSelectedComplete: (MyDevice) -> Unit
 ) {
     val selectedDeviceId by viewModel.selectedDeviceId
@@ -57,11 +54,14 @@ fun DeviceListScreen(
 
     val context = LocalContext.current
 
-    // 화면이 다시 Resume될 때마다 연동 상태 재확인
+    val deviceList by viewModel.deviceList.collectAsState()
+
+    // 화면이 다시 Resume되면 DB 저장 목록을 불러옴
+    // 새로고침 클릭 & 계정 연동 시에만 SmartThings API 사용해서 새로 호출
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.checkAccountLinked()
+                viewModel.checkAccountLinked() // api 연동 확인되면 자동 기기 목록 불러오기
             }
         }
 
@@ -83,11 +83,18 @@ fun DeviceListScreen(
         // topBar
         CommonTopBar(
             barTitle = "나의 기기 목록",
-            onBackClick = { /*TODO*/ },
+            onBackClick = {
+
+            },
             isRightBtnVisible = true,
-            onRightBtnClick = { /*TODO*/ },
+            onRightBtnClick = {
+                // smartthings 계정 연동 이동
+                //viewModel.fetchDevicesWithStatus() // 기기 목록 다시 불러옴
+                viewModel.refreshDevicesFromDiscover(context)
+            },
             rightIconResId = R.drawable.ic_refresh,
-            barHeight = 20
+            barHeight = 20,
+            isBackBtnVisible = false
         )
 
         Box(
@@ -104,11 +111,13 @@ fun DeviceListScreen(
                     context
                 )
             } else {
+                val myDevices = deviceList.map { it }
                 DeviceGridSection(
-                    devices = devices,
-                    selectedDeviceId = selectedDeviceId,
+                    devices = myDevices,
+                    selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
                     onDeviceClick = { viewModel.onDeviceClicked(it) }
                 )
+
             }
         }
     }
@@ -177,7 +186,7 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel, con
                         textAlign = TextAlign.Center,
                     ),
 
-                )
+                    )
             }
 
         }

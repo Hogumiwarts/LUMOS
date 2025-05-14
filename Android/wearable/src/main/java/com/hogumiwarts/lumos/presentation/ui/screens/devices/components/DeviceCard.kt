@@ -48,7 +48,7 @@ fun DeviceCard(device: DeviceListData, navController: NavHostController) {
                 when (DeviceType.fromId(device.deviceType)) {
 
                     DeviceType.LIGHT -> {
-                        navController.navigate("light/${device.tagNumber}") {
+                        navController.navigate("light/${device.deviceId}") {
                             popUpTo("splash") { inclusive = true }
                         }
                     }

@@ -19,7 +19,7 @@ RetrofitUtil {
 
     val smartThingsRetrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BuildConfig.AUTH_BASE_URL)
+            .baseUrl(BuildConfig.SMART_BASE_URL)
             .client(smartThingsClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

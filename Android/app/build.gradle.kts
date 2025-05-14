@@ -13,6 +13,8 @@ val localProperties = Properties().apply {
 }
 val authBaseUrl = localProperties["AUTH_BASE_URL"] as String
 val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
+val deviceBaseUrl = localProperties["DEVICE_BASE_URL"] as String
+
 
 android {
     namespace = "com.hogumiwarts.lumos"
@@ -26,6 +28,7 @@ android {
         versionName = "1.0"
         buildConfigField("String", "AUTH_BASE_URL", "\"$authBaseUrl\"")
         buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
+        buildConfigField("String", "DEVICE_BASE_URL", "\"$deviceBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -164,7 +167,11 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
 
+
     // color-picker
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") 
+
 
 }

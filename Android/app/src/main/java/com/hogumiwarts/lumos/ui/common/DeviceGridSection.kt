@@ -22,13 +22,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.hogumiwarts.data.entity.remote.Response.SmartThingsDevice
+import com.hogumiwarts.lumos.mapper.toMyDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 
 @Composable
 fun DeviceGridSection(
-    devices: List<MyDevice>, selectedDeviceId: Int? = null, onDeviceClick: (MyDevice) -> Unit = {}
+    devices: List<MyDevice>,
+    selectedDeviceId: String? = null,
+    onDeviceClick: (MyDevice) -> Unit = {}
 ) {
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
@@ -46,6 +51,7 @@ fun DeviceGridSection(
             val rows = (devices.size + 1) / 2
             val currentRow = index / 2
 
+
             val cardContent: @Composable () -> Unit = {
                 DeviceRoutineCard(
                     modifier = Modifier
@@ -62,6 +68,7 @@ fun DeviceGridSection(
                             contentDescription = null,
                             modifier = Modifier.size(size)
                         )
+
                     },
                     endPadding = 3.dp,
                     isActive = device.isActive
@@ -101,19 +108,20 @@ fun DeviceGridSection(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DeviceGridSectionPreview() {
-    val sampleDevices = listOf(
-        MyDevice(1, "내 방 조명 1", isOn = true, isActive = true, deviceType = DeviceListType.LIGHT),
-        MyDevice(
-            2, "거실 공기청정기", isOn = false, isActive = true, deviceType = DeviceListType.AIR_CLEANER
-        ),
-        MyDevice(3, "무드 플레이어", isOn = true, isActive = false, deviceType = DeviceListType.SPEAKER),
-        MyDevice(4, "침대 조명 스위치", isOn = false, isActive = true, deviceType = DeviceListType.SWITCH)
-    )
-
-    DeviceGridSection(devices = sampleDevices,
-        selectedDeviceId = 2,
-        onDeviceClick = { /* no-op for preview */ })
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DeviceGridSectionPreview() {
+//    val sampleDevices = listOf(
+//        MyDevice(1, "내 방 조명 1", isOn = true, isActive = true, deviceType = DeviceListType.LIGHT),
+//        MyDevice(
+//            2, "거실 공기청정기", isOn = false, isActive = true, deviceType = DeviceListType.AIR_CLEANER
+//        ),
+//        MyDevice(3, "무드 플레이어", isOn = true, isActive = false, deviceType = DeviceListType.SPEAKER),
+//        MyDevice(4, "침대 조명 스위치", isOn = false, isActive = true, deviceType = DeviceListType.SWITCH)
+//    )
+//
+//    DeviceGridSection(
+//        devices = sampleDevices,
+//        selectedDeviceId = 2,
+//        onDeviceClick = { /* no-op for preview */ })
+//}

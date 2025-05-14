@@ -3,7 +3,7 @@ package com.hogumiwarts.lumos.ui.screens.routine.components
 import com.hogumiwarts.lumos.ui.common.MyDevice
 
 data class RoutineDevice(
-    val deviceId: Int,
+    val deviceId: String,
     val deviceName: String,
     val deviceType: DeviceListType,
     val isOn: Boolean
@@ -15,8 +15,8 @@ data class RoutineDevice(
 
     companion object {
         val sample = listOf(
-            RoutineDevice(1, "거실 공기청정기", DeviceListType.AIR_CLEANER, true),
-            RoutineDevice(3, "내 방 조명", DeviceListType.LIGHT, false)
+            RoutineDevice("1", "거실 공기청정기", DeviceListType.AIR_CLEANER, true),
+            RoutineDevice("3", "내 방 조명", DeviceListType.LIGHT, false)
         )
     }
 
