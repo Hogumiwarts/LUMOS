@@ -1,6 +1,8 @@
 package com.hogumiwarts.data.mapper
 
+import com.hogumiwarts.data.entity.remote.Response.PatchControlResponse
 import com.hogumiwarts.data.entity.remote.Response.airpurifier.GetAirpurifierResponse
+import com.hogumiwarts.domain.model.ControlData
 import com.hogumiwarts.domain.model.airpurifier.AirpurifierData
 
 object AirpurifierMapper {
@@ -26,6 +28,12 @@ object AirpurifierMapper {
             filterUsageTime = response.filterUsageTime,
         )
 
+    }
+
+    fun fromSwitchPowerResponse(dtoList: PatchControlResponse): ControlData {
+        return ControlData(
+            success = dtoList.success
+        )
     }
 
 }

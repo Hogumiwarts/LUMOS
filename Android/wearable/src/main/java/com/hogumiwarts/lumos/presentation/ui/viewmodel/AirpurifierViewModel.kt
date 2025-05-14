@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
+import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierPowerResult
 import com.hogumiwarts.domain.usecase.AirpurifierUseCase
 import com.hogumiwarts.lumos.domain.model.GetSwitchStatusResult
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierIntent
+import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierStatusState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
@@ -28,6 +30,9 @@ class AirpurifierViewModel@Inject constructor(
     private val _state = MutableStateFlow<AirpurifierStatusState>(AirpurifierStatusState.Idle)
     val state: StateFlow<AirpurifierStatusState> = _state
 
+    private val _powerState = MutableStateFlow<AirpurifierPowerState>(AirpurifierPowerState.Idle)
+    val powerState: StateFlow<AirpurifierPowerState> = _powerState
+
     // 🔸 Intent를 받기 위한 SharedFlow (MVI 이벤트 트리거
     val intentFlow = MutableSharedFlow<AirpurifierIntent>()
 
@@ -41,6 +46,7 @@ class AirpurifierViewModel@Inject constructor(
             intentFlow.collectLatest { intent ->
                 when (intent) {
                     is AirpurifierIntent.LoadAirpurifierStatus -> loadAirpurifierStatus(intent.deviceId)
+                    is AirpurifierIntent.ChangeAirpurifierPower -> changeAirpurifierPower(intent.deviceId, intent.activated)
                 }
             }
         }
@@ -63,6 +69,22 @@ class AirpurifierViewModel@Inject constructor(
                 }
                 is AirpurifierResult.Error -> {
                     _state.value = AirpurifierStatusState.Error(result.error)
+                }
+            }
+        }
+    }
+
+    // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
+    private fun changeAirpurifierPower(deviceId: Long, activated: Boolean) {
+        viewModelScope.launch {
+            _powerState.value = AirpurifierPowerState.Loading
+
+            when (val result = airpurifierUseCase.patchAirpurifierPower(deviceId,activated)) {
+                is PatchAirpurifierPowerResult.Success -> {
+                    _powerState.value = AirpurifierPowerState.Loaded(result.data)
+                }
+                is PatchAirpurifierPowerResult.Error -> {
+                    _powerState.value = AirpurifierPowerState.Error(result.error)
                 }
             }
         }

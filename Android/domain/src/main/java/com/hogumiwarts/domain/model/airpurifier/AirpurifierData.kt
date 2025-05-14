@@ -3,7 +3,7 @@ package com.hogumiwarts.domain.model.airpurifier
 data class AirpurifierData(
     val tagNumber: Int,
     val deviceId: Long,                 // SmartThigns 에 저장된 기기명
-    val deviceImg: String,
+    val deviceImg: String?,
     val deviceName: String,
     val manufacturerCode: String,       // 제조사
     val deviceModel: String,            // 모델명
