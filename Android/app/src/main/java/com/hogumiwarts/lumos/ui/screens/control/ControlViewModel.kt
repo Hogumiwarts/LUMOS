@@ -32,6 +32,16 @@ class ControlViewModel @Inject constructor(
         uwbRanging.cleanupSession()
     }
 
+    fun resetAddress() {
+        uwbRanging.resetAddress()
+    }
+
+    fun resetSession() {
+        uwbRanging.cleanupSession()
+        uwbRanging.resetAddress()
+        uwbRanging.prepareSession()
+    }
+
     override fun onCleared() {
         super.onCleared()
         // ViewModel이 소멸될 때 레인징을 중지

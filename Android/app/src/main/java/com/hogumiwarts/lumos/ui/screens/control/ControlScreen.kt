@@ -49,6 +49,15 @@ fun ControlScreen(
     // 컴포넌트가 처음 표시될 때 저장된 기기 로드
     LaunchedEffect(Unit) {
         bleViewModel.loadSavedDevices()
+        if (controlViewModel.rangingActive) {
+            Toast.makeText(
+                context,
+                "Ranging session active!",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            controlViewModel.prepareSession()
+        }
     }
 
     Scaffold(
@@ -114,7 +123,7 @@ fun ControlScreen(
                             Text("세션 준비")
                         }
                         Button(onClick = {
-                            controlViewModel.cleanupSession()
+                            controlViewModel.resetSession()
                         }) {
                             Text("세션 초기화")
                         }
@@ -135,9 +144,7 @@ fun ControlScreen(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    Text(
-                        text = "레인징 제어"
-                    )
+
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("대상 주소:")
                     TextField(
@@ -148,14 +155,10 @@ fun ControlScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    if (controlViewModel.rangingActive) {
-                        Button(
-                            onClick = { controlViewModel.stopRanging() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("레인징 중지")
-                        }
-                    } else {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Button(
                             onClick = {
                                 val pattern = "[0-9A-F]{2}:[0-9A-F]{2}"
@@ -175,9 +178,18 @@ fun ControlScreen(
                                     ).show()
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
+//                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !(controlViewModel.rangingActive)
                         ) {
                             Text("레인징 시작")
+                        }
+
+                        Button(
+                            onClick = { controlViewModel.stopRanging() },
+//                            modifier = Modifier.fillMaxWidth(),
+                            enabled = controlViewModel.rangingActive
+                        ) {
+                            Text("레인징 중지")
                         }
                     }
                 }
