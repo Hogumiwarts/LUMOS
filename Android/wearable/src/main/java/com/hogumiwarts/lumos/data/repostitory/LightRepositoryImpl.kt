@@ -91,14 +91,14 @@ class LightRepositoryImpl@Inject constructor(
         }
     }
 
-    override suspend fun patchLightColor(deviceId: Long, color: String): PatchSwitchPowerResult {
+    override suspend fun patchLightColor(deviceId: Long, color: Int): PatchSwitchPowerResult {
 
         return try {
             // ✅ API 호출
-            val response = lightApi.patchLightColor(deviceId, PatchLightColorRequest(color))
+            val response = lightApi.patchLightColor(deviceId, PatchLightColorRequest(color,1.0f))
 
             Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
+            // ✅ 응답 데이터 매핑 후 성공 결과로 래
             PatchSwitchPowerResult.Success(
                 data = DeviceMapper.fromSwitchPowerResponse(response.data)
             )

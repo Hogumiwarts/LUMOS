@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,13 +36,13 @@ import kotlin.math.*
 fun ColorWheelPicker(
     onSwipeDown: () -> Unit,
     onSwipeUp: () -> Unit,
-    onColorSelected: (String) -> Unit, // ✅ 손 뗐을 때 색상 전송용 콜백 추가
-    color: Float,
-    onColorChange: (Float) -> Unit,
+    onColorSelected: (Int) -> Unit, // ✅ 손 뗐을 때 색상 전송용 콜백 추가
+    color: Int,
+    onColorChange: (Int) -> Unit,
 ) {
 
-    var hue by remember { mutableFloatStateOf(color) } // 0~360
-    val selectedColor = Color.hsv(hue, 1f, 1f)
+    var hue by remember { mutableIntStateOf(color*36/10) } // 0~360
+    val selectedColor = Color.hsv(hue.toFloat(), 1f, 1f)
     // Color 객체에서 RGB 값 추출
     val red = (selectedColor.red * 255).toInt()
     val green = (selectedColor.green * 255).toInt()
@@ -64,13 +65,13 @@ fun ColorWheelPicker(
 
                 detectDragGestures (
                     onDragEnd = {
-                        val selectedColor = Color.hsv(hue, 1f, 1f)
+                        val selectedColor = Color.hsv(hue.toFloat(), 1f, 1f)
                         val red = (selectedColor.red * 255).toInt()
                         val green = (selectedColor.green * 255).toInt()
                         val blue = (selectedColor.blue * 255).toInt()
                         val hexColor = String.format("#%02X%02X%02X", red, green, blue)
 
-                        onColorSelected(hexColor) // ✅ 손 뗐을 때 호출
+                        onColorSelected(hue*10/36) // ✅ 손 뗐을 때 호출
                     },
                     onDrag = { change, _ ->
                     val touchPoint = change.position
@@ -87,7 +88,7 @@ fun ColorWheelPicker(
                         val dy = touchPoint.y - center.y
                         var angle = atan2(dy, dx) * 180f / PI.toFloat()
                         if (angle < 0) angle += 360f
-                        hue = angle
+                        hue = angle.toInt()
                         onColorChange(hue)
                     }
                 })

@@ -11,5 +11,6 @@ data class GetLightStatusResponse(
     val activated: Boolean,
     val brightness: Int,
     val lightTemperature: Int,
-    val lightCode: String,
+    val hue: Int,
+    val saturation: Float,
 )
