@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.devices
+package com.hogumiwarts.lumos.ui.screens.control
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -53,10 +53,10 @@ data class AirPurifierDevice(
     @SerializedName("deviceModel") val deviceModel: String = "",
     @SerializedName("deviceType") val deviceType: String = "",
     @SerializedName("activated") val activated: Boolean = true,
-    @SerializedName("caqi") val caqi: String = "",  // 공기 품질 지수
-    @SerializedName("odorLevel") val odorLevel: Int = 0,  // 냄새 수준
-    @SerializedName("dustLevel") val dustLevel: Int = 0,  // 먼지 수준
-    @SerializedName("fineDustLevel") val fineDustLevel: Int = 0,  // 미세먼지 수준
+    @SerializedName("caqi") val caqi: String = "",  // 공기 품질
+    @SerializedName("odorLevel") val odorLevel: Int = 0,  // 냄새
+    @SerializedName("dustLevel") val dustLevel: Int = 0,  // 미세먼지
+    @SerializedName("fineDustLevel") val fineDustLevel: Int = 0,  // 초미세먼지
     @SerializedName("fanMode") val fanMode: String = "",  // 팬 모드 (예: 자동, 강, 중, 약)
     @SerializedName("filterUsageTime") val filterUsageTime: Int = 0  // 필터 사용 시간(시간)
 )

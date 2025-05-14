@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.devices
+package com.hogumiwarts.lumos.ui.screens.control
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

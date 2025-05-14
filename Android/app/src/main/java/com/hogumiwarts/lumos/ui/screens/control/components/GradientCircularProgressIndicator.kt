@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.devices.components
+package com.hogumiwarts.lumos.ui.screens.control.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
