@@ -178,7 +178,6 @@ fun NavGraph(
                         val myDeviceList = MyDevice.sample
 
                         DeviceListScreen(
-                            devices = myDeviceList,
                             onSelectedComplete = { selectedDevice ->
                                 //todo: 선택 완료 시 동작 정의
                             }

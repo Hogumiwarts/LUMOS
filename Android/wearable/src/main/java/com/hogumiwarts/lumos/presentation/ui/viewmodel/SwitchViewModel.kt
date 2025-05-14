@@ -1,17 +1,12 @@
 package com.hogumiwarts.lumos.presentation.ui.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.lumos.domain.model.GetSwitchStatusResult
 import com.hogumiwarts.lumos.domain.model.PatchSwitchPowerResult
-import com.hogumiwarts.lumos.domain.model.SwitchStatusData
 import com.hogumiwarts.lumos.domain.usecase.SwitchUseCase
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchPowerState
+import com.hogumiwarts.lumos.presentation.ui.screens.control.ControlState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +15,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,8 +32,8 @@ class SwitchViewModel@Inject constructor(
     val state: StateFlow<SwitchStatusState> = _state
 
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
-    private val _powerState = MutableStateFlow<SwitchPowerState>(SwitchPowerState.Idle)
-    val powerState: StateFlow<SwitchPowerState> = _powerState
+    private val _powerState = MutableStateFlow<ControlState>(ControlState.Idle)
+    val powerState: StateFlow<ControlState> = _powerState
 
     // 🔸 Intent를 받기 위한 SharedFlow (MVI 이벤트 트리거
     val intentFlow = MutableSharedFlow<SwitchIntent>()
@@ -87,15 +81,15 @@ class SwitchViewModel@Inject constructor(
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
     private fun changeSwitchPower(deviceId: Long, activated: Boolean) {
         viewModelScope.launch {
-            _powerState.value = SwitchPowerState.Loading
+            _powerState.value = ControlState.Loading
 
             when (val result = switchUseCase.patchSwitchStatus(deviceId = deviceId, activated = activated)) {
                 is PatchSwitchPowerResult.Success -> {
-                    _powerState.value = SwitchPowerState.Loaded(result.data)
+                    _powerState.value = ControlState.Loaded(result.data)
                     _isOn.value =activated
                 }
                 is PatchSwitchPowerResult.Error -> {
-                    _powerState.value = SwitchPowerState.Error(result.error)
+                    _powerState.value = ControlState.Error(result.error)
                 }
             }
         }
