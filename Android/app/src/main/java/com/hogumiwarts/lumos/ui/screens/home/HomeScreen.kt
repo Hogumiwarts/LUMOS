@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.domain.model.WeatherInfo
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.DeviceGridHomeSection
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
@@ -57,6 +58,7 @@ import com.hogumiwarts.lumos.ui.screens.home.components.LightDeviceItem
 import com.hogumiwarts.lumos.ui.screens.home.components.WeatherCardView
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.utils.CommonUtils
 import com.hogumiwarts.lumos.utils.getCurrentLocation
 import org.orbitmvi.orbit.compose.collectAsState
@@ -65,8 +67,9 @@ import timber.log.Timber
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
-    deviceViewModel: DeviceListViewModel = hiltViewModel()
-) {
+    deviceViewModel: DeviceListViewModel = hiltViewModel(),
+   tokenDataStore: TokenDataStore
+    ) {
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
     val isWeatherLoading = weatherState.isLoading
@@ -74,6 +77,7 @@ fun HomeScreen(
     val isLinked by deviceViewModel.isLinked.collectAsState()
     val deviceList by deviceViewModel.deviceList.collectAsState()
 
+    val userName by tokenDataStore.getUserName().collectAsState(initial = "이름없음")
 
     LaunchedEffect(Unit) {
         deviceViewModel.checkAccountLinked()
@@ -135,7 +139,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(36.dp))
 
             Text(
-                text = "XX님\n집에 돌아오신 걸 환영해요.",
+                text = "$userName" +"님\n집에 돌아오신 걸 환영해요.",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
@@ -182,7 +186,7 @@ fun HomeScreen(
                         devices = myDevices,
                         selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
                         onDeviceClick = { deviceViewModel.onDeviceClicked(it) },
-                        onToggleDevice = {device ->
+                        onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
                             deviceViewModel.toggleDeviceState(device.deviceId)
                         }

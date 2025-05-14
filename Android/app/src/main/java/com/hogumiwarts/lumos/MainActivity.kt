@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
+import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -55,12 +56,16 @@ class MainActivity : ComponentActivity() {
             val installedAppId = uri.getQueryParameter("installedAppId")
             Timber.d("🔥 installedAppId = $installedAppId")
 
+            val name = uri.getQueryParameter("name")
+
             val authToken = uri.getQueryParameter("authToken")
 
             if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
                 lifecycleScope.launch {
                     // 받아온 토큰 값들 저장
-                    tokenDataStore.saveSmartThingsTokens(installedAppId, authToken)
+                    if (name != null) {
+                        tokenDataStore.saveSmartThingsTokens(installedAppId, authToken, name)
+                    }
                     Toast.makeText(
                         this@MainActivity,
                         "SmartThings 연동 완료!",
@@ -104,21 +109,18 @@ class MainActivity : ComponentActivity() {
         controller.isAppearanceLightStatusBars = true
         controller.isAppearanceLightNavigationBars = true
 
-
         // 권한 확인 및 요청
         checkAndRequestPermissions()
 
-
         setContent {
             LUMOSTheme {
-
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-
-                    MainScreen()
+                    val navController = rememberNavController()
+                    NavGraph(navController = navController)
                 }
             }
         }
@@ -147,21 +149,37 @@ class MainActivity : ComponentActivity() {
             }
         } else {
             // 이전 버전에서는 BLUETOOTH, BLUETOOTH_ADMIN 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH)
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_ADMIN)
             }
         }
 
         // 위치 권한 확인 (BLE 스캔에 필요)
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         // UWB 권한 확인
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.UWB_RANGING) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.UWB_RANGING
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.UWB_RANGING)
         }
 

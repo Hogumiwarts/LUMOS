@@ -21,7 +21,7 @@ class AuthViewModel @Inject constructor(
     private val authApi: AuthApi
 ) : ViewModel() {
 
-    val _isLogginIn = MutableStateFlow<Boolean?>(true)
+    val _isLogginIn = MutableStateFlow<Boolean?>(null)
     val isLoggedIn: StateFlow<Boolean?> = _isLogginIn
 
     val _isSignup = MutableStateFlow<Boolean?>(null)
@@ -45,7 +45,7 @@ class AuthViewModel @Inject constructor(
     }
 
     // 회원탈퇴
-    fun signOut(){
+    fun signOut() {
         _isSignup.value = false
     }
 
@@ -62,10 +62,13 @@ class AuthViewModel @Inject constructor(
                 // 서버에서 새로 받아온 토큰
                 val newAccessToken = response.data.accessToken
 
+                val name = tokenDataStore.getUserName()
+
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
                     accessToken = newAccessToken,
-                    refreshToken = refreshToken
+                    refreshToken = refreshToken,
+                    name = name.toString()
                 )
 
                 _isLogginIn.value = true
