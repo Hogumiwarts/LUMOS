@@ -26,15 +26,15 @@ public class LightService {
 
         // 1. DB에서 디바이스 조회
         Device device = (Device) deviceRepository.findByDeviceIdAndMemberId(deviceId, memberId)
-            .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "deviceId에 해당하는 디바이스를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "deviceId에 해당하는 디바이스를 찾을 수 없습니다."));
 
         // 2. SmartThings 상태 조회
         JsonNode raw = externalDeviceService.fetchDeviceStatus(deviceId);
 
         // Status 파싱
         JsonNode main = raw.path("status")
-            .path("components")
-            .path("main");
+                .path("components")
+                .path("main");
 
 
         // 조명 상태
@@ -44,16 +44,16 @@ public class LightService {
 
         // 색온도 : lightTemperature
         int colorTemperature = main
-            .path("colorTemperature")
-            .path("colorTemperature")
-            .path("value")
-            .asInt(-1);
+                .path("colorTemperature")
+                .path("colorTemperature")
+                .path("value")
+                .asInt(-1);
 
         // lightColor : 밝기
         JsonNode brightnessNode = main
-            .path("switchLevel")
-            .path("level")
-            .path("value");
+                .path("switchLevel")
+                .path("level")
+                .path("value");
 
         Integer brightness = null;
         if (!brightnessNode.isMissingNode() && !brightnessNode.isNull()) {
@@ -66,33 +66,35 @@ public class LightService {
         // lightCode : hex 값
         JsonNode hueNode = main.path("colorControl").path("hue").path("value");
         JsonNode satNode = main.path("colorControl").path("saturation").path("value");
-        String hex = null;
+        int hue = 0;
+        float saturation = 0.0f;
+
         if (!hueNode.isMissingNode() && !hueNode.isNull()
-            && !satNode.isMissingNode() && !satNode.isNull()) {
+                && !satNode.isMissingNode() && !satNode.isNull()) {
 
-            double hue = hueNode.asDouble();
-            double saturation = satNode.asDouble();
+            hue = hueNode.asInt();
+            saturation = satNode.floatValue();
 
-            hex = ColorUtil.hslToHex(hue, saturation);
-            System.out.println("HEX Color: " + hex);
+            System.out.println("Hue: " + hue + ", Saturation: " + saturation);
         } else {
             System.out.println("색상 정보가 없습니다.");
         }
 
 
         return LightDetailResponse.builder()
-            .tagNumber(device.getTagNumber())
-            .deviceId(device.getDeviceId())
-            .deviceImg(device.getDeviceUrl())
-            .deviceName(device.getDeviceName())
-            .manufacturerCode(device.getDeviceManufacturer())
-            .deviceModel(device.getDeviceModel())
-            .deviceType(device.getDeviceType())
-            .activated("on".equalsIgnoreCase(lightValue))
-            .brightness(brightness)
-            .lightTemperature(colorTemperature)
-            .lightCode(hex)
-            .build();
+                .tagNumber(device.getTagNumber())
+                .deviceId(device.getDeviceId())
+                .deviceImg(device.getDeviceUrl())
+                .deviceName(device.getDeviceName())
+                .manufacturerCode(device.getDeviceManufacturer())
+                .deviceModel(device.getDeviceModel())
+                .deviceType(device.getDeviceType())
+                .activated("on".equalsIgnoreCase(lightValue))
+                .brightness(brightness)
+                .lightTemperature(colorTemperature)
+                .hue(hue)
+                .saturation(saturation)
+                .build();
     }
 
     // 조명 on/off
@@ -103,7 +105,7 @@ public class LightService {
 
     // 조명 색상 변경
     public void updateLightColor(Long deviceId, LightColorRequest request) {
-        CommandRequest command = DeviceCommandUtil.buildLightColorCommand(request.getLightColor());
+        CommandRequest command = DeviceCommandUtil.buildLightColorCommand(request);
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
     }
 
