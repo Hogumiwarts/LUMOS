@@ -11,7 +11,8 @@ plugins {
 val localProperties = Properties().apply {
     load(rootProject.file("local.properties").inputStream())
 }
-val baseUrl = localProperties["AUTH_BASE_URL"] as String
+val authBaseUrl = localProperties["AUTH_BASE_URL"] as String
+val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
 
 android {
     namespace = "com.hogumiwarts.lumos"
@@ -23,7 +24,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "AUTH_BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "AUTH_BASE_URL", "\"$authBaseUrl\"")
+        buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
