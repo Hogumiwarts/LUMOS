@@ -21,7 +21,6 @@ fun VerticalToggle(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 토글 배경
     Box(
         modifier = modifier
             .width(30.dp)
@@ -32,7 +31,6 @@ fun VerticalToggle(
             .padding(4.dp),
         contentAlignment = if (isOn) Alignment.TopCenter else Alignment.BottomCenter
     ) {
-        // 토글 내부 원
         Box(
             modifier = Modifier
                 .size(22.dp)
