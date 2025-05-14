@@ -19,12 +19,14 @@ class TokenDataStore @Inject constructor(
     // 키 정의
     private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
     private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+    private val USER_NAME_KEY = stringPreferencesKey("user_name")
 
     // 저장 함수
-    suspend fun saveTokens(accessToken: String, refreshToken: String) {
+    suspend fun saveTokens(accessToken: String, refreshToken: String, name: String) {
         context.dataStore.edit {
             it[ACCESS_TOKEN_KEY] = accessToken
             it[REFRESH_TOKEN_KEY] = refreshToken
+            it[USER_NAME_KEY] = name
         }
     }
 
@@ -43,14 +45,19 @@ class TokenDataStore @Inject constructor(
         context.dataStore.edit { it.clear() }
     }
 
+    // 사용자 이름 가져오기
+    fun getUserName(): Flow<String> = context.dataStore.data.map { it[USER_NAME_KEY] ?: "" }
+
+
     // smartthings 관련
     private val INSTALLED_APP_ID = stringPreferencesKey("installed_app_id")
     private val AUTH_TOKEN = stringPreferencesKey("auth_token")
 
-    suspend fun saveSmartThingsTokens(installedAppId: String, authToken: String) {
+    suspend fun saveSmartThingsTokens(installedAppId: String, authToken: String, name: String) {
         context.dataStore.edit {
             it[INSTALLED_APP_ID] = installedAppId
             it[AUTH_TOKEN] = authToken
+            it[USER_NAME_KEY] = name
         }
     }
 

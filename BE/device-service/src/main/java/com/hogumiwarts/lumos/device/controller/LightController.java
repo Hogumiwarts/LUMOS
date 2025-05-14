@@ -3,7 +3,6 @@ package com.hogumiwarts.lumos.device.controller;
 import com.hogumiwarts.lumos.device.docs.LightApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.service.LightService;
-import com.hogumiwarts.lumos.device.util.ColorConverter;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

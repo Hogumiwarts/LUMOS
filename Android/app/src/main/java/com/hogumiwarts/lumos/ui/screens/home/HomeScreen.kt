@@ -1,8 +1,10 @@
 package com.hogumiwarts.lumos.ui.screens.home
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,17 +38,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.hogumiwarts.domain.model.WeatherInfo
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.DeviceGridHomeSection
+import com.hogumiwarts.lumos.ui.common.DeviceGridSection
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.SkeletonComponent
+import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
+import com.hogumiwarts.lumos.ui.screens.devices.NotLinkedScreen
 import com.hogumiwarts.lumos.ui.screens.home.components.LightDeviceItem
 import com.hogumiwarts.lumos.ui.screens.home.components.WeatherCardView
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.utils.CommonUtils
 import com.hogumiwarts.lumos.utils.getCurrentLocation
 import org.orbitmvi.orbit.compose.collectAsState
@@ -53,21 +66,29 @@ import timber.log.Timber
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = hiltViewModel()
-) {
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    deviceViewModel: DeviceListViewModel = hiltViewModel(),
+   tokenDataStore: TokenDataStore
+    ) {
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
     val isWeatherLoading = weatherState.isLoading
 
+    val isLinked by deviceViewModel.isLinked.collectAsState()
+    val deviceList by deviceViewModel.deviceList.collectAsState()
+
+    val userName by tokenDataStore.getUserName().collectAsState(initial = "이름없음")
+
     LaunchedEffect(Unit) {
+        deviceViewModel.checkAccountLinked()
+
         val location = getCurrentLocation(context)
 
         if (location != null) {
             Timber.tag("HomeScreen").d("lat: ${location.latitude}, ${location.longitude}")
             homeViewModel.onIntent(
                 HomeIntent.LoadWeather(
-                    latitude = location.latitude,
-                    longitude = location.longitude
+                    latitude = location.latitude, longitude = location.longitude
                 )
             )
         } else {
@@ -118,7 +139,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(36.dp))
 
             Text(
-                text = "XX님\n집에 돌아오신 걸 환영해요.",
+                text = "$userName" +"님\n집에 돌아오신 걸 환영해요.",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
@@ -134,9 +155,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .height(148.dp)
                     .shadow(
-                        elevation = 4.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        clip = true
+                        elevation = 4.dp, shape = RoundedCornerShape(20.dp), clip = true
                     ),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -151,92 +170,94 @@ fun HomeScreen(
                     weatherState.weatherInfo?.let { WeatherCardView(it) }
                 }
             }
-            Spacer(modifier = Modifier.height(28.dp))
-            Text(
-                text = "현재 작동 상태",
-                fontSize = 18.sp,
-                fontFamily = nanum_square_neo,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
 
-
-            // 등록된 장치가 있는지 확인
-            val devices = listOf("거실 조명", "내 방 조명", "주방 조명", "안방 조명")
-
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(
-                    bottom = 12.dp
-                )
+            // 하단 기기 작동 상태 영역
+            Box(
             ) {
-                items(devices) {
-//                    LightDeviceItem()
-                }
-
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Image(
-                        painter = painterResource(R.drawable.img_broken_link),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(200.dp)
-                            .align(Alignment.CenterHorizontally)
+                if (!isLinked) {
+                    NotLinkedHomeScreen(
+                        onClickLink = {
+                            deviceViewModel.requestAuthAndOpen(context)
+                        }, deviceViewModel, context
                     )
-                }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = "SmartThings 계정이 아직 연동되지 않았어요.\n" +
-                                "기기를 불러오기 위해 먼저 계정을 연동해주세요!",
-                        textAlign = TextAlign.Center,
-                        fontFamily = nanum_square_neo,
-                        fontSize = 12.sp,
-                        lineHeight = 18.sp,
-                        color = colorResource(R.color.gray_medium),
-                        fontWeight = FontWeight.Normal
+                } else {
+                    val myDevices = deviceList.map { it }
+                    DeviceGridHomeSection(
+                        devices = myDevices,
+                        selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
+                        onDeviceClick = { deviceViewModel.onDeviceClicked(it) },
+                        onToggleDevice = { device ->
+                            // viewModel에서 상태 반전 요청
+                            deviceViewModel.toggleDeviceState(device.deviceId)
+                        }
                     )
-                }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .height(32.dp)
-                            .wrapContentWidth()
-                            .background(
-                                color = Color(0xFFE9E9EC),
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .align(Alignment.CenterHorizontally),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "계정 연동해서 기기 불러오기",
-                            fontFamily = nanum_square_neo,
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            color = colorResource(id = R.color.point_color)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(192.dp))
-
                 }
             }
-
-
         }
 
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-private fun HomePreview() {
-    HomeScreen()
+fun NotLinkedHomeScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel, context: Context) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 80.dp), // 네비게이션 높이 제외
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_alert_bubble),
+                contentDescription = null
+            )
+
+            Spacer(modifier = Modifier.height(17.dp))
+
+            Text(
+                text = "SmartThings 계정이 아직 연동되지 않았어요.\n기기 작동 상태를 불러오기 위해 먼저 계정을 연동해주세요!",
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFF606060),
+                    textAlign = TextAlign.Center,
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Box(modifier = Modifier
+                .background(
+                    color = Color(0x1A1A1C3A), shape = RoundedCornerShape(size = 10.dp)
+                )
+                .padding(horizontal = 8.dp, vertical = 5.dp)
+                .clickable {
+                    // smartthings 계정 연동 이동
+                    viewModel.requestAuthAndOpen(context = context)
+                }) {
+                Text(
+                    text = "계정 연동하고 기기 불러오기",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 18.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(800),
+                        color = Color(0xFF4B5BA9),
+                        textAlign = TextAlign.Center,
+                    ),
+
+                    )
+            }
+
+        }
+    }
 }
+

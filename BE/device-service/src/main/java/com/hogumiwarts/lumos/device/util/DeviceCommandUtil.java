@@ -2,7 +2,9 @@ package com.hogumiwarts.lumos.device.util;
 
 import com.hogumiwarts.lumos.device.dto.CommandRequest;
 import com.hogumiwarts.lumos.device.dto.FanMode;
+import com.hogumiwarts.lumos.device.dto.LightColorRequest;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,11 +82,7 @@ public class DeviceCommandUtil {
     }
 
     // ============================== Light Color : SSAFY 조명 ==============================
-    public static CommandRequest buildLightColorCommand(String hex) {
-        // todo: 색상 코드 수정 필요
-        float[] hsv = ColorConverter.hexToHSV(hex);
-        int hue = Math.round(hsv[0]);              // 0 ~ 7
-        int saturation = Math.round(hsv[1] * 100); // 0 ~ 100
+    public static CommandRequest buildLightColorCommand(LightColorRequest request) {
 
         return new CommandRequest(List.of(
                 new CommandRequest.Command(
@@ -92,8 +90,8 @@ public class DeviceCommandUtil {
                         "colorControl",
                         "setColor",
                         List.of(Map.of(
-                                "hue", hue,
-                                "saturation", saturation
+                                "hue", request.getHue(),
+                                "saturation", request.getSaturation()
                         ))
                 )
         ));

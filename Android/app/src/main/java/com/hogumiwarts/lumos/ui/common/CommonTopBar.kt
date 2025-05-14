@@ -33,7 +33,8 @@ fun CommonTopBar(
     isRightBtnVisible: Boolean,
     onRightBtnClick: () -> Unit,
     rightIconResId: Int = R.drawable.ic_add,
-    barHeight: Int = 64
+    barHeight: Int = 64,
+    isBackBtnVisible: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -45,15 +46,19 @@ fun CommonTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_arrow_back),
-            contentDescription = null,
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onBackClick
+        if (isBackBtnVisible) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = null,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onBackClick
+                )
             )
-        )
+        }else {
+            Spacer(modifier = Modifier.size(24.dp))
+        }
 
         Text(
             text = barTitle,
@@ -89,6 +94,7 @@ private fun BarPreview() {
         onBackClick = {},
         isRightBtnVisible = false,
         onRightBtnClick = {},
-        barTitle = "나의 루틴"
+        barTitle = "나의 루틴",
+        isBackBtnVisible = false
     )
 }
