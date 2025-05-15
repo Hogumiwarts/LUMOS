@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var tokenDataStore: TokenDataStore
 
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         handleSmartThingsRedirect(intent)
@@ -60,26 +61,35 @@ class MainActivity : ComponentActivity() {
 
         if (uri.scheme == "smartthingslogin" && uri.host == "oauth-callback") {
             val installedAppId = uri.getQueryParameter("installedAppId")
-            Timber.d("🔥 installedAppId = $installedAppId")
+            Timber.tag("smartthings").d("🔥 installedAppId in MainActivity = $installedAppId")
 
             val name = uri.getQueryParameter("name")
 
             val authToken = uri.getQueryParameter("authToken")
 
+            Timber.tag("smartthings").d("🔥 name: $name, authToken: $authToken")
+
+
             if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
                 lifecycleScope.launch {
                     // 받아온 토큰 값들 저장
-                    if (name != null) {
-                        tokenDataStore.saveSmartThingsTokens(installedAppId, authToken, name)
+                    if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
+                        lifecycleScope.launch {
+                            tokenDataStore.saveSmartThingsTokens(
+                                installedAppId,
+                                authToken,
+                                name ?: "Unknown" // name이 null일 경우 기본값 사용
+                            )
+                            Toast.makeText(
+                                this@MainActivity,
+                                "SmartThings 연동 완료!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Timber.tag("smartthings")
+                                .d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
+                        }
                     }
-                    Toast.makeText(
-                        this@MainActivity,
-                        "SmartThings 연동 완료!",
-                        Toast.LENGTH_SHORT
-                    ).show()
 
-                    Timber.tag("smartthings")
-                        .d("🪄 연동 완료!! :: installedAppId - " + installedAppId + ", authToken - " + authToken)
                 }
             }
         }
@@ -156,21 +166,37 @@ class MainActivity : ComponentActivity() {
             }
         } else {
             // 이전 버전에서는 BLUETOOTH, BLUETOOTH_ADMIN 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH)
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_ADMIN)
             }
         }
 
         // 위치 권한 확인 (BLE 스캔에 필요)
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         // UWB 권한 확인
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.UWB_RANGING) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.UWB_RANGING
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.UWB_RANGING)
         }
 

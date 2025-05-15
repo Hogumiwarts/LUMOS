@@ -33,10 +33,8 @@ class DeviceListViewModel @Inject constructor(
     private val smartThingsApi: SmartThingsApi,
     private val deviceRepository: DeviceRepository,
     private val authApi: AuthApi,
-    @ApplicationContext private val context: Context
+    private val tokenDataStore: TokenDataStore,
 ) : ViewModel() {
-
-    private val tokenDataStore = TokenDataStore(context)
 
     val selectedDeviceId = mutableStateOf<String?>(null)
     val showDialog = mutableStateOf(false)
@@ -47,6 +45,10 @@ class DeviceListViewModel @Inject constructor(
     // 디바이스 목록
     private val _deviceList = MutableStateFlow<List<MyDevice>>(emptyList())
     val deviceList: StateFlow<List<MyDevice>> = _deviceList
+
+    init {
+        observeTokenChanges()
+    }
 
 
     // SmartThings 인증 URL 요청 및 브라우저 이동 함수
@@ -71,6 +73,8 @@ class DeviceListViewModel @Inject constructor(
         viewModelScope.launch {
             tokenDataStore.getInstalledAppId().collect { id ->
                 val isAvailable = id.isNotEmpty()
+                Timber.tag("smartthings").d("📡 checkAccountLinked: id=$id → linked=$isAvailable")
+
                 _isLinked.value = isAvailable
                 if (isAvailable) loadDevicesFromServer() // 연동 확인되면 자동 호출됨
             }
@@ -131,7 +135,8 @@ class DeviceListViewModel @Inject constructor(
             try {
                 val accessToken = tokenDataStore.getAccessToken().first()
                 //val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
-                 val installedAppId = tokenDataStore.getInstalledAppId().first()
+
+                val installedAppId = tokenDataStore.getInstalledAppId().first()
                 val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
 
                 //val result = deviceRepository.discoverDevices(accessToken, installedAppId)
@@ -182,4 +187,11 @@ class DeviceListViewModel @Inject constructor(
         }
     }
 
+    private fun observeTokenChanges() {
+        viewModelScope.launch {
+            tokenDataStore.getInstalledAppId().collect { id ->
+                _isLinked.value = id.isNotEmpty()
+            }
+        }
+    }
 }

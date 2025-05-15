@@ -3,10 +3,11 @@ package com.hogumiwarts.lumos.DataStore
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.hogumiwarts.lumos.di.BaseUrlModule.dataStore
+import com.hogumiwarts.lumos.DataStore.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 // hilt 방식으로 변경
@@ -54,6 +55,8 @@ class TokenDataStore @Inject constructor(
     private val AUTH_TOKEN = stringPreferencesKey("auth_token")
 
     suspend fun saveSmartThingsTokens(installedAppId: String, authToken: String, name: String) {
+        Timber.tag("smartthings").d("🧪 TokenDataStore 저장: $installedAppId / $authToken")
+
         context.dataStore.edit {
             it[INSTALLED_APP_ID] = installedAppId
             it[AUTH_TOKEN] = authToken
