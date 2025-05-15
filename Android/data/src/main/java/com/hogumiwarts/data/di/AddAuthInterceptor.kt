@@ -1,6 +1,7 @@
 package com.hogumiwarts.data.di
 
 import android.content.Context
+import android.util.Log
 import com.hogumiwarts.data.source.local.JwtLocalDataSourceImpl
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -41,10 +42,12 @@ class AddAuthInterceptor @Inject constructor(
 //        val tokenManager = TokenManager(context)
         val accessToken = runBlocking {
             jwtLocalDataSource.getAccessToken().first()
+
         }
 
         // 🔹 토큰이 존재하면 Authorization 헤더 추가
         val newRequest = if (accessToken?.isNotEmpty() == true) {
+            Log.d("TAG", "intercept: $accessToken")
             originalRequest.newBuilder()
                 .header("Authorization", "Bearer $accessToken")
                 .build()

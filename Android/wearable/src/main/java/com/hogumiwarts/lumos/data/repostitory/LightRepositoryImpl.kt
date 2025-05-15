@@ -95,7 +95,7 @@ class LightRepositoryImpl@Inject constructor(
 
         return try {
             // ✅ API 호출
-            val response = lightApi.patchLightColor(deviceId, PatchLightColorRequest(color,1.0f))
+            val response = lightApi.patchLightColor(deviceId, PatchLightColorRequest(color,100.0f))
 
             Log.d("TAG", "getSwitchStatus: $response")
             // ✅ 응답 데이터 매핑 후 성공 결과로 래

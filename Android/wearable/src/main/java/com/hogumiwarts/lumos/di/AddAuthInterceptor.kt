@@ -35,7 +35,7 @@ class AddAuthInterceptor @Inject constructor(
 
         // 🔸 예외가 아닌 경우 → 토큰을 헤더에 추가
 //        val tokenManager = TokenManager(context)
-        val accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MTk5MjA5LCJleHAiOjE3NDcyODU2MDl9.-34kSK9D_0RfjwjXtiHvH1nyVNILyyBoScjJ79hsAnY" // 🔺 실제로는 TokenManager 등에서 토큰 받아와야 함
+        val accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDczNzU0MDN9.-4P5o5y9Z5dDVJOJRJ0myMxZToc1JU74NmMyNXU0LAk" // 🔺 실제로는 TokenManager 등에서 토큰 받아와야 함
 
         // 🔹 토큰이 존재하면 Authorization 헤더 추가
         val newRequest = if (accessToken?.isNotEmpty() == true) {
