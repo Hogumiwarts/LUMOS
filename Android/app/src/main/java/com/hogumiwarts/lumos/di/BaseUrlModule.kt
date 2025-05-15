@@ -16,10 +16,5 @@ import com.hogumiwarts.lumos.BuildConfig
 @InstallIn(SingletonComponent::class)
 object BaseUrlModule {
 
-    @Provides
-    @Singleton
-    @Named("AUTH_BASE_URL")
-    fun provideAuthBaseUrl(): String = BuildConfig.AUTH_BASE_URL
-
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "token_prefs")
 }

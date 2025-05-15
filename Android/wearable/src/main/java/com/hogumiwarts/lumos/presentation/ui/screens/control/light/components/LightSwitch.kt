@@ -36,7 +36,8 @@ import com.hogumiwarts.lumos.presentation.ui.viewmodel.LightViewModel
 fun LightSwitch(
     deviceId: Long,
     viewModel: LightViewModel = hiltViewModel(),
-    isOn: Boolean, name: String,
+    isOn: Boolean,
+    name: String,
     onSwipeUp: () -> Unit
 ) {
 //    var isChecked by remember { mutableStateOf(exampleLight.activated) } // 전체 스위치 상태

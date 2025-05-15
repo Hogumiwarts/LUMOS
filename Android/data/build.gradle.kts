@@ -14,6 +14,8 @@ val localProperties = Properties().apply {
 }
 
 val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
+val baseUrl = localProperties["BASE_URL"] as String
+val deviceBaseUrl = localProperties["DEVICE_BASE_URL"] as String
 
 android {
     namespace = "com.hogumiwarts.data"
@@ -27,6 +29,8 @@ android {
 
         buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
         buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "DEVICE_BASE_URL", "\"$deviceBaseUrl\"")
     }
 
     buildTypes {
@@ -85,6 +89,9 @@ dependencies {
 
     // Logging
     implementation(libs.timber)
+
+    // DataStore
+    implementation(libs.datastore.preferences)
 
     // Core
     implementation(libs.androidx.core.ktx)

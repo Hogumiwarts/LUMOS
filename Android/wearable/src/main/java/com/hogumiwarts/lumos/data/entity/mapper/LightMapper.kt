@@ -19,7 +19,8 @@ object LightMapper {
             activated = dtoList.activated,
             brightness = dtoList.brightness,
             lightTemperature = dtoList.lightTemperature,
-            lightCode = dtoList.lightCode,
+            hue = dtoList.hue,
+            saturation = dtoList.saturation,
 
         )
     }

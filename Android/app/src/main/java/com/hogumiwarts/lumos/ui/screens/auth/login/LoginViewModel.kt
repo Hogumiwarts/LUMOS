@@ -96,7 +96,8 @@ class LoginViewModel @Inject constructor(
                     // 토큰 저장
                     tokenDataStore.saveTokens(
                         accessToken = result.accessToken,
-                        refreshToken = result.refreshToken
+                        refreshToken = result.refreshToken,
+                        name = result.name
                     )
                 }
 

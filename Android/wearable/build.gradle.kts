@@ -60,6 +60,10 @@ android {
     }
 }
 dependencies {
+    // 하위 모듈
+    implementation(project(":domain"))
+    implementation(project(":data"))
+
     // Wearable Services
     implementation(libs.play.services.wearable)
 

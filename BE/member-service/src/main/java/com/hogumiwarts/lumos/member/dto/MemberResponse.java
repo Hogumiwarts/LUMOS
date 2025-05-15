@@ -8,12 +8,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MemberResponse {
-	private Long memberId;
-	private String email;
 	private String name;
-	private String password;
 
-	public static MemberResponse fromEntity(Member m) {
-		return new MemberResponse(m.getMemberId(), m.getEmail(), m.getName(), m.getPassword());
+	public static MemberResponse fromEntity(Member member) {
+		return new MemberResponse(member.getName());
 	}
 }

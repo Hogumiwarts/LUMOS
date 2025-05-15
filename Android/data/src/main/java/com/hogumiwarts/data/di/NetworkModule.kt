@@ -2,7 +2,9 @@ package com.hogumiwarts.data.di
 
 import android.util.Log
 import com.hogumiwarts.data.BuildConfig
+import com.hogumiwarts.data.source.remote.AirpurifierApi
 import com.hogumiwarts.data.source.remote.AuthApi
+import com.hogumiwarts.data.source.remote.DeviceApi
 import com.hogumiwarts.data.source.remote.WeatherApi
 import com.hogumiwarts.data.source.remote.GestureApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
@@ -23,7 +25,7 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(addAuthInterceptor: AddAuthInterceptor): OkHttpClient {
         val logging = HttpLoggingInterceptor { message ->
             Log.i("Post", "log: message $message")
         }.apply {
@@ -35,8 +37,15 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(logging)
+            .addInterceptor(addAuthInterceptor)   // 인증 인터셉터 추가
             .build()
     }
+
+
+    @Provides
+    @Singleton
+    @Named("AUTH_BASE_URL")
+    fun providesBaseUrl(): String = BuildConfig.AUTH_BASE_URL
 
     @Provides
     @Singleton
@@ -48,6 +57,8 @@ object NetworkModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+
+
 
     @Provides
     @Singleton
@@ -101,8 +112,51 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSmartThingsApi(@Named("smartThingsRetrofit") retrofit: Retrofit): SmartThingsApi =
+    fun provideDeviceApi(@Named("smartThingsRetrofit") retrofit: Retrofit): SmartThingsApi =
         retrofit.create(SmartThingsApi::class.java)
+
+    @Provides
+    @Singleton
+    @Named("BASE_URL")
+    fun provideBaseUrl(): String = BuildConfig.BASE_URL
+
+
+    @Provides
+    @Singleton
+    @Named("BaseRetrofit")
+    fun provideBaseRetrofit(
+        okHttpClient: OkHttpClient,
+        @Named("DEVICE_BASE_URL") baseUrl: String
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        
+    // 디바이스 관련
+    @Provides
+    @Singleton
+    @Named("DEVICE_BASE_URL")
+    fun provideDeviceApiBaseUrl(): String = BuildConfig.DEVICE_BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("deviceRetrofit")
+    fun provideDeviceApiRetrofit(
+        okHttpClient: OkHttpClient,
+        @Named("DEVICE_BASE_URL") baseUrl: String
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideAripurifierApi(@Named("BaseRetrofit")retrofit: Retrofit): AirpurifierApi =
+        retrofit.create(AirpurifierApi::class.java)
+    fun provideDevicedListApi(@Named("deviceRetrofit") retrofit: Retrofit): DeviceApi =
+        retrofit.create(DeviceApi::class.java)
 
 
 }

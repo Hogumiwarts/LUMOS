@@ -20,6 +20,7 @@ class NetworkModule {
     // 🔹 OkHttpClient 제공 함수
     @Provides
     @Singleton
+    @Named("DefaultOkHttp")
     fun provideOkHttpClient(
         addAuthInterceptor: AddAuthInterceptor // 인증 헤더 추가 인터셉터
     ): OkHttpClient {
@@ -42,9 +43,10 @@ class NetworkModule {
     // 🔹 Retrofit 제공 함수
     @Provides
     @Singleton
+    @Named("WearableRetrofit")
     fun provideRetrofit(
-        okHttpClient: OkHttpClient,
-        @Named("AUTH_BASE_URL") baseUrl: String // baseUrl은 따로 모듈에서 주입
+        @Named("DefaultOkHttp")okHttpClient: OkHttpClient,
+        @Named("WEARABLE_URL") baseUrl: String // baseUrl은 따로 모듈에서 주입
     ): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)

@@ -1,23 +1,28 @@
 package com.hogumiwarts.lumos.member.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.SecurityFilterChain;
 
-import lombok.RequiredArgsConstructor;
+import com.hogumiwarts.lumos.config.AbstractSecurityConfig;
+import com.hogumiwarts.lumos.jwt.CustomAuthenticationEntryPoint;
+import com.hogumiwarts.lumos.jwt.JwtTokenProvider;
+import com.hogumiwarts.lumos.redis.RedisTokenService;
 
 @Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig extends AbstractSecurityConfig {
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-		return http.build();
+	public SecurityConfig(CustomAuthenticationEntryPoint entryPoint,
+		JwtTokenProvider jwtTokenProvider,
+		RedisTokenService redisTokenService) {
+		super(entryPoint, jwtTokenProvider, redisTokenService);
+	}
+
+	@Override
+	protected String[] getPermitAllPaths() {
+		return new String[] {
+			"/api/email-exists",
+			"/api/create",
+			"/api/find-by-email",
+			"/api/members/{memberId}"
+		};
 	}
 }

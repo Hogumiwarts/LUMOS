@@ -11,5 +11,5 @@ interface LightRepository {
 
     suspend fun patchLightBright(deviceId: Long, brightness: Int): PatchSwitchPowerResult
 
-    suspend fun patchLightColor(deviceId: Long, color: String): PatchSwitchPowerResult
+    suspend fun patchLightColor(deviceId: Long, color: Int): PatchSwitchPowerResult
 }
