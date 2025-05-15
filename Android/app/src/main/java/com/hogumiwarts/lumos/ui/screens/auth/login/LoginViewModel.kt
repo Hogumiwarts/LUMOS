@@ -1,13 +1,11 @@
 package com.hogumiwarts.lumos.ui.screens.auth.login
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.LoginResult
 import com.hogumiwarts.domain.repository.AuthRepository
-import com.hogumiwarts.lumos.datastore.TokenDataStore
-import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -83,7 +81,7 @@ class LoginViewModel @Inject constructor(
                     // log로 정보 확인
                     Timber.tag("Login").i(
                         """
-                        ✅ 로그인 성공
+                        ✅ 로그인 성공!!
                         ├─ ID       : ${result.memberId}
                         ├─ Email    : ${result.email}
                         ├─ Name     : ${result.name}
@@ -98,7 +96,8 @@ class LoginViewModel @Inject constructor(
                     // 토큰 저장
                     tokenDataStore.saveTokens(
                         accessToken = result.accessToken,
-                        refreshToken = result.refreshToken
+                        refreshToken = result.refreshToken,
+                        name = result.name
                     )
                 }
 

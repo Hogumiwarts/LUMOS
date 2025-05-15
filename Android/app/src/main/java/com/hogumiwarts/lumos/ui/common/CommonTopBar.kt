@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,27 +30,35 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun CommonTopBar(
     barTitle: String,
     onBackClick: () -> Unit,
-    isAddBtnVisible: Boolean,
-    onAddClick: () -> Unit,
+    isRightBtnVisible: Boolean,
+    onRightBtnClick: () -> Unit,
+    rightIconResId: Int = R.drawable.ic_add,
+    barHeight: Int = 64,
+    isBackBtnVisible: Boolean
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(barHeight.dp)
             .background(Color.White)
-            .padding(horizontal = 28.dp),
+            .statusBarsPadding()
+            .padding(horizontal = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_arrow_back),
-            contentDescription = null,
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onBackClick
+        if (isBackBtnVisible) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = null,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onBackClick
+                )
             )
-        )
+        }else {
+            Spacer(modifier = Modifier.size(24.dp))
+        }
 
         Text(
             text = barTitle,
@@ -58,16 +67,16 @@ fun CommonTopBar(
             fontFamily = nanum_square_neo
         )
 
-        if (isAddBtnVisible) {
+        if (isRightBtnVisible) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_add),
+                painter = painterResource(id = rightIconResId),
                 contentDescription = null,
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = onAddClick
+                        onClick = onRightBtnClick
                     )
             )
         } else {
@@ -83,8 +92,9 @@ fun CommonTopBar(
 private fun BarPreview() {
     CommonTopBar(
         onBackClick = {},
-        isAddBtnVisible = false,
-        onAddClick = {},
-        barTitle = "나의 루틴"
+        isRightBtnVisible = false,
+        onRightBtnClick = {},
+        barTitle = "나의 루틴",
+        isBackBtnVisible = false
     )
 }

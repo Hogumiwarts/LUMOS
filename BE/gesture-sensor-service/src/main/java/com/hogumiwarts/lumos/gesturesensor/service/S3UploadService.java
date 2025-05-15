@@ -26,9 +26,9 @@ public class S3UploadService {
 
 	private final S3Client s3Client;
 
-	public String saveCsvAndUpload(SensorDataRequest request) {
+	public String saveCsvAndUpload(SensorDataRequest request, Long id) {
 		try {
-			String filename = System.currentTimeMillis() + ".csv";
+			String filename = id + "_" + System.currentTimeMillis() + ".csv";
 			Path tempPath = Files.createTempFile("sensor_", ".csv");
 
 			try (CSVWriter writer = new CSVWriter(

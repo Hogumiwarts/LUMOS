@@ -11,8 +11,8 @@ spring:
       port: ${REDIS_PORT}
 
 smartthings:
-  api:
-    base-url: http://smartthings-service:3000
+  service:
+    url: http://smartthings-service:3000
 
 gesture:
   service:

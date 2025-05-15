@@ -29,6 +29,8 @@ springdoc:
     urls:
       - name: auth-service
         url: /auth/v3/api-docs
+      - name: member-service
+        url: /member/v3/api-docs
       - name: device-service
         url: /device/v3/api-docs
       - name: gesture-service

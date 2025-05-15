@@ -1,3 +1,4 @@
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
@@ -8,6 +9,14 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+
+val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
+val baseUrl = localProperties["BASE_URL"] as String
+val deviceBaseUrl = localProperties["DEVICE_BASE_URL"] as String
+
 android {
     namespace = "com.hogumiwarts.data"
     compileSdk = 34
@@ -17,8 +26,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
 
+        buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
+        buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "DEVICE_BASE_URL", "\"$deviceBaseUrl\"")
     }
 
     buildTypes {
@@ -78,6 +90,9 @@ dependencies {
     // Logging
     implementation(libs.timber)
 
+    // DataStore
+    implementation(libs.datastore.preferences)
+
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -87,11 +102,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
-
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 }

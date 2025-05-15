@@ -1,8 +1,6 @@
 package com.hogumiwarts.lumos
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,11 +9,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,19 +21,62 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.hogumiwarts.lumos.datastore.TokenDataStore
-import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
-import com.hogumiwarts.lumos.ui.screens.Home.HomeScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var tokenDataStore: TokenDataStore
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleSmartThingsRedirect(intent)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // 앱 cold start 시도 대비
+        handleSmartThingsRedirect(intent)
+    }
+
+    private fun handleSmartThingsRedirect(intent: Intent?) {
+        val uri = intent?.data ?: return
+
+        if (uri.scheme == "smartthingslogin" && uri.host == "oauth-callback") {
+            val installedAppId = uri.getQueryParameter("installedAppId")
+            Timber.d("🔥 installedAppId = $installedAppId")
+
+            val name = uri.getQueryParameter("name")
+
+            val authToken = uri.getQueryParameter("authToken")
+
+            if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
+                lifecycleScope.launch {
+                    // 받아온 토큰 값들 저장
+                    if (name != null) {
+                        tokenDataStore.saveSmartThingsTokens(installedAppId, authToken, name)
+                    }
+                    Toast.makeText(
+                        this@MainActivity,
+                        "SmartThings 연동 완료!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    Timber.tag("smartthings")
+                        .d("🪄 연동 완료!! :: installedAppId - " + installedAppId + ", authToken - " + authToken)
+                }
+            }
+        }
+    }
 
 
     // 여러 권한을 한 번에 요청하는 런처
@@ -58,8 +96,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //enableEdgeToEdge()
-
         // 시스템 바 영역까지 앱이 확장되도록
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -72,27 +108,23 @@ class MainActivity : ComponentActivity() {
         controller.isAppearanceLightStatusBars = true
         controller.isAppearanceLightNavigationBars = true
 
-
-
         // 권한 확인 및 요청
         checkAndRequestPermissions()
 
-
         setContent {
             LUMOSTheme {
-
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
 
-                    MainScreen()
+                    val navController = rememberNavController()
+                    NavGraph(navController = navController)
                 }
             }
         }
     }
-
 
 
     private fun checkAndRequestPermissions() {
@@ -101,10 +133,18 @@ class MainActivity : ComponentActivity() {
         // BLE 권한 확인
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Android 12 이상에서는 BLUETOOTH_SCAN, BLUETOOTH_CONNECT 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_SCAN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN)
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT)
             }
         } else {
@@ -134,8 +174,6 @@ class MainActivity : ComponentActivity() {
 
         }
     }
-
-
 
 
 }

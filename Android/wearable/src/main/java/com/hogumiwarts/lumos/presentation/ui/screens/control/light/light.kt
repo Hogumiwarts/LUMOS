@@ -44,7 +44,6 @@ import com.hogumiwarts.lumos.data.LightData
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.BedLightSwitch
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.MinibigScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerContainer
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerSwitch
 
@@ -58,7 +57,7 @@ val exampleLight = LightData(
 )
 
 @Composable
-fun LightScreen(tagNumber: Long) {
+fun LightScreen(tagNumber: Long?) {
     var state by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
     // 화면 전환 시 애니메이션
@@ -152,11 +151,11 @@ fun LightScreen(tagNumber: Long) {
 
 
 
-// 🧪 Wear OS 에뮬레이터에서 미리보기 지원
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    LUMOSTheme {
-        LightScreen(1L)
-    }
-}
+//// 🧪 Wear OS 에뮬레이터에서 미리보기 지원
+//@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+//@Composable
+//fun DefaultPreview() {
+//    LUMOSTheme {
+//        LightScreen(1L)
+//    }
+//}
