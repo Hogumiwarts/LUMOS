@@ -5,15 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hogumiwarts.lumos.device.client.SmartThingsClient;
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.device.DeviceListResponse;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
-import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
