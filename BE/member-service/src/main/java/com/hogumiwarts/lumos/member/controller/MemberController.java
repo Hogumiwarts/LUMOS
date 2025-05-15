@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hogumiwarts.lumos.member.dto.CreateUserRequest;
+import com.hogumiwarts.lumos.dto.CommonResponse;
+import com.hogumiwarts.lumos.member.docs.MemberApiSpec;
+import com.hogumiwarts.lumos.member.dto.CreateMemberRequest;
+import com.hogumiwarts.lumos.member.dto.CreateMemberResponse;
 import com.hogumiwarts.lumos.member.dto.MemberResponse;
 import com.hogumiwarts.lumos.member.service.MemberService;
 
@@ -18,9 +21,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class MemberController {
+public class MemberController implements MemberApiSpec {
 
 	private final MemberService memberService;
+
+	@GetMapping("/member")
+	public ResponseEntity<CommonResponse<MemberResponse>> getMemberById() {
+		return ResponseEntity.ok(CommonResponse.ok("회원 정보가 성공적으로 조회되었습니다.", (memberService.getMemberById())));
+	}
 
 	@GetMapping("/email-exists")
 	public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
@@ -28,18 +36,18 @@ public class MemberController {
 	}
 
 	@PostMapping("/create")
-	public ResponseEntity<MemberResponse> createMember(@RequestBody CreateUserRequest request) {
-		MemberResponse response = memberService.createMember(request);
+	public ResponseEntity<CreateMemberResponse> createMember(@RequestBody CreateMemberRequest request) {
+		CreateMemberResponse response = memberService.createMember(request);
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/find-by-email")
-	public ResponseEntity<MemberResponse> findByEmail(@RequestParam String email) {
+	public ResponseEntity<CreateMemberResponse> findByEmail(@RequestParam String email) {
 		return ResponseEntity.ok(memberService.findByEmail(email));
 	}
 
 	@GetMapping("/members/{memberId}")
-	public ResponseEntity<MemberResponse> getMember(@PathVariable Long memberId) {
+	public ResponseEntity<CreateMemberResponse> getMember(@PathVariable Long memberId) {
 		return ResponseEntity.ok(memberService.findById(memberId));
 	}
 }
