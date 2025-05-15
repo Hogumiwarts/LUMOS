@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,15 +24,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Text
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.AirpurifierViewModel
 
 @Composable
 fun OnOffSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
-    val transition = updateTransition(targetState = checked, label = "switchTransition")
+
+    val isOn by viewModel.isOn.collectAsState()
+    val transition = updateTransition(targetState = isOn, label = "switchTransition")
+
 
     // thumb 이동 애니메이션
     val thumbOffset by transition.animateDp(label = "thumbOffset") { isChecked ->
@@ -49,18 +56,18 @@ fun OnOffSwitch(
             .height(25.dp)
             .clip(RoundedCornerShape(50))
             .background(trackColor)
-            .clickable { onCheckedChange(!checked) },
+            .clickable { onCheckedChange(!isOn) },
         contentAlignment = Alignment.CenterStart
     ) {
         // ON/OFF 텍스트
         Text(
-            text = if (checked) "ON" else "OFF",
+            text = if (isOn) "ON" else "OFF",
             color = Color.White,
             fontSize = 10.sp,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
-            textAlign = if (checked) TextAlign.Start else TextAlign.End
+            textAlign = if (isOn) TextAlign.Start else TextAlign.End
         )
 
         // 스위치 thumb

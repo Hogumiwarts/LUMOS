@@ -61,7 +61,7 @@ fun ColorWheelPicker(
                 val radius = (minOf(size.width, size.height) - strokeWidth) / 2f
 
                 val pointerRadius = 40f
-                val touchThreshold = pointerRadius + 50f
+                val touchThreshold = pointerRadius + 1000f
 
                 detectDragGestures (
                     onDragEnd = {
