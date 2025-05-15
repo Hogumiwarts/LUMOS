@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
@@ -30,6 +31,7 @@ import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -42,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var tokenDataStore: TokenDataStore
+    private val deviceListViewModel: DeviceListViewModel by viewModels()
 
 
     override fun onNewIntent(intent: Intent?) {
@@ -59,37 +62,32 @@ class MainActivity : ComponentActivity() {
     private fun handleSmartThingsRedirect(intent: Intent?) {
         val uri = intent?.data ?: return
 
+        Timber.tag("smartthings").d("🧭 Redirect URI = $uri")
+
         if (uri.scheme == "smartthingslogin" && uri.host == "oauth-callback") {
             val installedAppId = uri.getQueryParameter("installedAppId")
-            Timber.tag("smartthings").d("🔥 installedAppId in MainActivity = $installedAppId")
-
             val name = uri.getQueryParameter("name")
-
             val authToken = uri.getQueryParameter("authToken")
 
+            Timber.tag("smartthings").d("🔥 installedAppId in MainActivity = $installedAppId")
             Timber.tag("smartthings").d("🔥 name: $name, authToken: $authToken")
-
 
             if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
                 lifecycleScope.launch {
-                    // 받아온 토큰 값들 저장
-                    if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
-                        lifecycleScope.launch {
-                            tokenDataStore.saveSmartThingsTokens(
-                                installedAppId,
-                                authToken,
-                                name ?: "Unknown" // name이 null일 경우 기본값 사용
-                            )
-                            Toast.makeText(
-                                this@MainActivity,
-                                "SmartThings 연동 완료!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            Timber.tag("smartthings")
-                                .d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
-                        }
-                    }
+                    tokenDataStore.saveSmartThingsTokens(
+                        installedAppId,
+                        authToken,
+                        name ?: "Unknown"
+                    )
 
+                    deviceListViewModel.checkAccountLinked()
+
+                    Toast.makeText(
+                        this@MainActivity,
+                        "SmartThings 연동 완료!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Timber.tag("smartthings").d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
                 }
             }
         }

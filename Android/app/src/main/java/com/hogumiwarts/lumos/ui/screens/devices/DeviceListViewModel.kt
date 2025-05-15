@@ -46,9 +46,6 @@ class DeviceListViewModel @Inject constructor(
     private val _deviceList = MutableStateFlow<List<MyDevice>>(emptyList())
     val deviceList: StateFlow<List<MyDevice>> = _deviceList
 
-    init {
-        observeTokenChanges()
-    }
 
 
     // SmartThings 인증 URL 요청 및 브라우저 이동 함수
@@ -62,7 +59,6 @@ class DeviceListViewModel @Inject constructor(
                 Timber.tag("SmartThings").e(e, "⚠\uFE0F 인증 URL 요청 실패: " + e.message)
             }
 
-            //fetchDevicesWithStatus() // 연동 하고 나서는 기기 목록 한 번 불러옴 - smartthings api 직접 사용
             refreshDevicesFromDiscover(context) // backend api 통해서 불러옴
         }
     }
@@ -133,9 +129,9 @@ class DeviceListViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val accessToken = tokenDataStore.getAccessToken().first()
-                    //val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
+                    val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
 
-                    val installedAppId = tokenDataStore.getInstalledAppId().first()
+                    //val installedAppId = tokenDataStore.getInstalledAppId().first()
                     val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
 
                     Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")
