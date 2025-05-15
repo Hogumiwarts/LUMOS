@@ -53,7 +53,7 @@ fun MainScreen() {
             if (isNavOn) {
                 FloatingActionButton(
                     onClick = {
-                        navController.navigate("controlScreen")
+                        navController.navigate("findDeviceScreen")
 
                     },
                     modifier = Modifier

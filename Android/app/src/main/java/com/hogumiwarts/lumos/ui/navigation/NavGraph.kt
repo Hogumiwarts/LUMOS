@@ -19,11 +19,9 @@ import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
-import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.home.HomeScreen
 import com.hogumiwarts.lumos.ui.screens.setting.SettingScreen
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineDevice
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateViewModel
 import com.hogumiwarts.lumos.ui.screens.routine.routineDetail.RoutineDetailScreen
@@ -36,8 +34,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
-import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
-import com.hogumiwarts.lumos.ui.screens.home.HomeViewModel
+import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
 
 @Composable
 fun NavGraph(
@@ -109,9 +106,9 @@ fun NavGraph(
                     exitTransition = {
                         val toRoute = targetState.destination.route
 
-                        // ControlScreen으로 이동할 때
+                        // findDeviceScreen으로 이동할 때
                         // 현재 화면이 위로 올라가는 애니메이션
-                        if (toRoute == "controlScreen") {
+                        if (toRoute == "findDeviceScreen") {
 
                             slideOutOfContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Up,
@@ -144,7 +141,7 @@ fun NavGraph(
                         val fromRoute = initialState.destination.route
 
                         // ControlScreen에서 돌아올 때
-                        if (fromRoute == "controlScreen") {
+                        if (fromRoute == "findDeviceScreen") {
 
                             slideIntoContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Up,
@@ -200,7 +197,7 @@ fun NavGraph(
             }
 
             composable(
-                route = "controlScreen",
+                route = "findDeviceScreen",
                 // ControlScreen 진입 시 - 아래에서 위로 올라옴
                 enterTransition = {
                     // 아래에서 위로 올라오는 애니메이션
@@ -218,7 +215,7 @@ fun NavGraph(
                     )
                 },
             ) {
-                ControlScreen(navController = navController)
+                FindDeviceScreen(navController = navController)
             }
 
             // Auth
