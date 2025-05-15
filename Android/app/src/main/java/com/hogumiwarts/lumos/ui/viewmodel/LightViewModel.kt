@@ -7,11 +7,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.PatchSwitchPowerResult
 import com.hogumiwarts.domain.model.light.GetLightStatusResult
+import com.hogumiwarts.domain.model.light.LightBrightResult
+import com.hogumiwarts.domain.model.light.LightColorResult
+import com.hogumiwarts.domain.model.light.LightTemperatureResult
 import com.hogumiwarts.domain.usecase.LightUseCase
 import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.ui.screens.control.light.ControlState
+import com.hogumiwarts.lumos.ui.screens.control.light.LightBrightState
+import com.hogumiwarts.lumos.ui.screens.control.light.LightColorState
 import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.ui.screens.control.light.LightStatusState
+import com.hogumiwarts.lumos.ui.screens.control.light.LightTemperatureState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,6 +38,9 @@ class LightViewModel @Inject constructor(
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
     private val _state = MutableStateFlow<LightStatusState>(LightStatusState.Idle)
     val state: StateFlow<LightStatusState> = _state
+
+    private val _brightState = MutableStateFlow<LightBrightState>(LightBrightState.Idle)
+    val brightState: StateFlow<LightBrightState> = _brightState
 
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
     private val _color = MutableStateFlow("String")
@@ -54,8 +63,14 @@ class LightViewModel @Inject constructor(
     val powerState: StateFlow<ControlState> = _powerState
 
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
-    private val _brightnessState = MutableStateFlow<ControlState>(ControlState.Idle)
-    val brightnessState: StateFlow<ControlState> = _brightnessState
+    private val _brightnessState = MutableStateFlow<LightBrightState>(LightBrightState.Idle)
+    val brightnessState: StateFlow<LightBrightState> = _brightnessState
+
+    private val _colorState = MutableStateFlow<LightColorState>(LightColorState.Idle)
+    val colorState: StateFlow<LightColorState> = _colorState
+
+    private val _temperatureState = MutableStateFlow<LightTemperatureState>(LightTemperatureState.Idle)
+    val temperatureState: StateFlow<LightTemperatureState> = _temperatureState
 
 
     private val _isOn = MutableStateFlow(false)
@@ -87,7 +102,8 @@ class LightViewModel @Inject constructor(
                     is LightIntent.LoadLightStatus -> loadSwitchStatus(intent.deviceId)
                     is LightIntent.ChangeLightPower -> changeSwitchPower(intent.deviceId, intent.activated)
                     is LightIntent.ChangeLightBright -> patchLightBright(intent.deviceId, intent.brightness)
-                    is LightIntent.ChangeLightColor -> patchLightColor(intent.deviceId,intent.color)
+                    is LightIntent.ChangeLightColor -> patchLightColor(intent.deviceId,intent.color,intent.saturation)
+                    is LightIntent.ChangeLightTemperature -> patchLightTemperature(intent.deviceId,intent.temperature)
                 }
             }
         }
@@ -144,14 +160,15 @@ class LightViewModel @Inject constructor(
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
     private fun patchLightBright(deviceId: Long, brightness: Int) {
         viewModelScope.launch {
-            _brightnessState.value = ControlState.Loading
+            _brightnessState.value = LightBrightState.Loading
 
             when (val result = lightUseCase.patchLightBright(deviceId = deviceId, brightness = brightness)) {
-                is PatchSwitchPowerResult.Success -> {
-                    _brightnessState.value = ControlState.Loaded(result.data)
+
+                is LightBrightResult.Error -> {
+                    _brightnessState.value = LightBrightState.Error(result.error)
                 }
-                is PatchSwitchPowerResult.Error -> {
-                    _brightnessState.value = ControlState.Error(result.error)
+                is LightBrightResult.Success -> {
+                    _brightnessState.value = LightBrightState.Loaded(result.data)
                 }
             }
         }
@@ -165,17 +182,35 @@ class LightViewModel @Inject constructor(
     }
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun patchLightColor(deviceId: Long, color: Int) {
+    private fun patchLightColor(deviceId: Long, color: Int,saturation: Float) {
         viewModelScope.launch {
-            _brightnessState.value = ControlState.Loading
+            _colorState.value = LightColorState.Loading
 
-            when (val result = lightUseCase.patchLightColor(deviceId = deviceId, color = color)) {
-                is PatchSwitchPowerResult.Success -> {
-                    _brightnessState.value = ControlState.Loaded(result.data)
+            when (val result = lightUseCase.patchLightColor(deviceId = deviceId, color = color, saturation)) {
+                is LightColorResult.Success -> {
+                    _colorState.value = LightColorState.Loaded(result.data)
                 }
-                is PatchSwitchPowerResult.Error -> {
-                    _brightnessState.value = ControlState.Error(result.error)
+                is LightColorResult.Error -> {
+                    _colorState.value = LightColorState.Error(result.error)
                 }
+
+            }
+        }
+    }
+
+    private fun patchLightTemperature(deviceId: Long, temperature: Int) {
+        viewModelScope.launch {
+            _temperatureState.value = LightTemperatureState.Loading
+
+            when (val result = lightUseCase.patchLightTemperature(deviceId = deviceId, temperature = temperature)) {
+                is LightTemperatureResult.Success -> {
+                    _temperatureState.value = LightTemperatureState.Loaded(result.data)
+                    _temperature.value = result.data.temperature
+                }
+                is LightTemperatureResult.Error -> {
+                    _temperatureState.value = LightTemperatureState.Error(result.error)
+                }
+
             }
         }
     }

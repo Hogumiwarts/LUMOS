@@ -23,6 +23,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.LoadingComponent
+import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
+import com.hogumiwarts.lumos.ui.screens.control.light.LightTemperatureState
 import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 @Composable
@@ -32,9 +35,22 @@ fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel 
     val endColor = Color(0xFF98A7F2)   // 끝 색상
 
     val temperature by viewModel.temperature.collectAsState()
+    val temperatureState by viewModel.temperatureState.collectAsState()
+    var brightness by remember { mutableIntStateOf(0) }
+    when(temperatureState){
+        is LightTemperatureState.Error -> {}
+        LightTemperatureState.Idle -> {}
+        is LightTemperatureState.Loaded ->{
+            val t= (temperatureState as LightTemperatureState.Loaded).data.temperature
+            brightness= ((t-2200)*100/(6500-2200))
+        }
+        LightTemperatureState.Loading -> {
+
+        }
+    }
 
     // 슬라이더 값 상태
-    var brightness by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(temperature) {
         brightness = ((temperature-2200)*100/(6500-2200))
     }
@@ -66,6 +82,10 @@ fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel 
                 .padding(horizontal = 8.dp),
             onValueChange = {
                 brightness = it.toInt()
+
+            },
+            onValueChangeFinished = {
+                viewModel.sendIntent(LightIntent.ChangeLightTemperature(4,brightness.toInt()))
             },
             valueRange = 0f..100f,
             steps = 0,

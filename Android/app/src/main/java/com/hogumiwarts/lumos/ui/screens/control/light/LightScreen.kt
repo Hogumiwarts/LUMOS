@@ -30,16 +30,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
@@ -48,8 +51,12 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.google.gson.annotations.SerializedName
 import com.hogumiwarts.domain.model.light.LightStatusData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.LoadingComponent
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
 import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 data class LightDevice(
     @SerializedName("tagNumber") val tagNumber: Int,
@@ -62,7 +69,7 @@ data class LightDevice(
     @SerializedName("activated") val activated: Boolean,
     @SerializedName("brightness") val brightness: Int,
     @SerializedName("lightTemperature") val lightTemperature: String,
-    @SerializedName("lightCode") val lightCode: String
+    @SerializedName("lightCode") val lightCode: String,
 )
 
 @Composable
@@ -70,11 +77,18 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
-        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc0MDI3MDh9.EV6G_bku_EsHvXGIViGVrqH_kdWw9Tvj6g9VE1k_kgw","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc5MjExMDh9.ECpyX4l16VV5jnd0bPtR31yKQmV8CpALN1uJifMvdDc")
+        viewModel.saveJwt(
+            "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc0MDI3MDh9.EV6G_bku_EsHvXGIViGVrqH_kdWw9Tvj6g9VE1k_kgw",
+            "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc5MjExMDh9.ECpyX4l16VV5jnd0bPtR31yKQmV8CpALN1uJifMvdDc"
+        )
         viewModel.sendIntent(LightIntent.LoadLightStatus(4))
     }
 
     val state by viewModel.state.collectAsState()
+    val powerState by viewModel.powerState.collectAsState()
+    val brightnessState by viewModel.brightnessState.collectAsState()
+    val colorState by viewModel.colorState.collectAsState()
+    val temperatureState by viewModel.temperatureState.collectAsState()
 
     var checked by remember { mutableStateOf(false) }
     var lightDevice by remember { mutableStateOf<LightStatusData?>(null) }
@@ -84,18 +98,25 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
     val controller = rememberColorPickerController()
 
-    when(state){
+    when (state) {
         is LightStatusState.Error -> {}
         LightStatusState.Idle -> {}
         is LightStatusState.Loaded -> {
             LaunchedEffect(state) {
                 val data = (state as LightStatusState.Loaded).data
                 checked = data.activated
-                brightness= data.brightness
-                controller.selectByHsv((data.hue*36/10).toFloat(), data.saturation/100, 1f, 1f, false)
+                brightness = data.brightness
+                controller.selectByHsv(
+                    (data.hue * 36 / 10).toFloat(),
+                    data.saturation / 100,
+                    1f,
+                    1f,
+                    false
+                )
                 lightDevice = data
             }
         }
+
         LightStatusState.Loading -> {}
     }
 
@@ -110,7 +131,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = lightDevice?.deviceName?:"",
+            text = lightDevice?.deviceName ?: "",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 20.sp
         )
@@ -131,7 +152,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
             Switch(
                 checked = checked,
                 onCheckedChange = {
-                    checked = it
+                    viewModel.sendIntent(LightIntent.ChangeLightPower(4, it))
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
@@ -164,6 +185,9 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
                 value = brightness.toFloat(),
                 onValueChange = {
                     brightness = it.toInt()
+                },
+                onValueChangeFinished = {
+                    viewModel.sendIntent(LightIntent.ChangeLightBright(4, brightness))
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -227,23 +251,48 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
         Spacer(modifier = Modifier.height(41.dp))
         // 색상 설정
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 text = "색상 설정",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                modifier = Modifier.align(Alignment.Start)
             )
+
+            val coroutineScope = rememberCoroutineScope()
+            var debounceJob by remember { mutableStateOf<Job?>(null) }
 
             HsvColorPicker(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .height(200.dp)
+                    .width(200.dp)
                     .padding(10.dp),
                 controller = controller,
                 onColorChanged = { colorEnvelope: ColorEnvelope ->
                     selectedColorCode = "#" + colorEnvelope.hexCode.substring(2)
                     selectedColor = colorEnvelope.color
+
+                    // Color -> HSV 변환
+                    val hsv = FloatArray(3)
+                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
+
+                    val hue = hsv[0]
+                    val saturation = hsv[1]
+
+                    debounceJob?.cancel()
+                    debounceJob = coroutineScope.launch {
+                        delay(300)
+                        Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
+                        viewModel.sendIntent(
+                            LightIntent.ChangeLightColor(
+                                4,
+                                (hue * 10 / 36).toInt(),
+                                saturation * 100
+                            )
+                        )
+                    }
                 }
             )
         }
@@ -296,6 +345,63 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
         }
 
         Spacer(modifier = Modifier.height(100.dp))
+    }
+
+    when (powerState) {
+        is ControlState.Error -> {}
+        ControlState.Idle -> {
+
+        }
+
+        is ControlState.Loaded -> {
+            checked = (powerState as ControlState.Loaded).data.activated
+        }
+
+        ControlState.Loading -> {
+            LoadingComponent()
+        }
+    }
+
+    when (brightnessState) {
+        is LightBrightState.Error -> {}
+        LightBrightState.Idle -> {}
+        is LightBrightState.Loaded -> {
+            brightness = (brightnessState as LightBrightState.Loaded).data.brightness
+        }
+
+        LightBrightState.Loading -> LoadingComponent()
+    }
+
+    when (colorState) {
+
+
+        is LightColorState.Error -> {}
+        LightColorState.Idle -> {}
+        is LightColorState.Loaded -> {
+            LaunchedEffect(colorState) {
+                val data = (colorState as LightColorState.Loaded).data
+                controller.selectByHsv(
+                    (data.hue * 36 / 10).toFloat(),
+                    data.saturation / 100,
+                    1f,
+                    1f,
+                    false
+                )
+
+            }
+        }
+
+        LightColorState.Loading -> LoadingComponent()
+    }
+    when(temperatureState){
+        is LightTemperatureState.Error -> {}
+        LightTemperatureState.Idle -> {}
+        is LightTemperatureState.Loaded ->{
+
+        }
+        LightTemperatureState.Loading -> {
+            LoadingComponent()
+        }
     }
 
 }

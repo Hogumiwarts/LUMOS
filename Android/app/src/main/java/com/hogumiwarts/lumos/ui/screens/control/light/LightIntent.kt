@@ -8,6 +8,8 @@ sealed class LightIntent {
 
     data class ChangeLightBright(val deviceId: Long, val brightness: Int): LightIntent()
 
-    data class ChangeLightColor(val deviceId: Long, val color: Int): LightIntent()
+    data class ChangeLightColor(val deviceId: Long, val color: Int, val saturation:Float=100f): LightIntent()
+
+    data class ChangeLightTemperature(val deviceId: Long, val temperature: Int): LightIntent()
 
 }
