@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.hogumiwarts.myapplication.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import okhttp3.*
 import org.json.JSONObject
@@ -21,8 +22,10 @@ class GestureViewModel @Inject constructor() : ViewModel() {
     private var webSocket: WebSocket? = null
 
     fun connectWebSocket() {
+
+        val ip = BuildConfig.ipAddress
         val client = OkHttpClient()
-        val request = Request.Builder().url("ws://[IP-주소]:8000/ws/gesture").build()
+        val request = Request.Builder().url("ws://${ip}:8000/ws/gesture").build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {

@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -19,6 +21,12 @@ android {
             useSupportLibrary = true
         }
 
+        buildConfigField(
+            "String",
+            "ipAddress",
+            gradleLocalProperties(rootDir, providers).getProperty("ipAddress")
+        )
+
     }
 
     buildTypes {
@@ -39,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -64,15 +73,15 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
-    implementation ("com.google.accompanist:accompanist-pager:0.30.1")  // 최신 버전
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1") // (선택) 아래 점 인디케이터
-    implementation ("com.google.android.gms:play-services-wearable:18.1.0")
+    implementation("com.google.accompanist:accompanist-pager:0.30.1")  // 최신 버전
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1") // (선택) 아래 점 인디케이터
+    implementation("com.google.android.gms:play-services-wearable:18.1.0")
 
     // 네비게이션
-    implementation ("androidx.navigation:navigation-compose:2.8.9")
+    implementation("androidx.navigation:navigation-compose:2.8.9")
 
     // 로티
-    implementation ("com.airbnb.android:lottie-compose:6.6.6")
+    implementation("com.airbnb.android:lottie-compose:6.6.6")
 
 
     implementation(files("libs/samsung-health-sensor-api-v1.3.0.aar"))
