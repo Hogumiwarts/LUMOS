@@ -95,7 +95,7 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         int[] hueSat = lightUtil.parseHueSaturation(main);
         int hue = hueSat[0];
-        float saturation = (float) hueSat[1];
+        float saturation = (float) hueSat[1] / 100f;
 
         boolean success = request.getHue() == hue && request.getSaturation() == saturation;
 
