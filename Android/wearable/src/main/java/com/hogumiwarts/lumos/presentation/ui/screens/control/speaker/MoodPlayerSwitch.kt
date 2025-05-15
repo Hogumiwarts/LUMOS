@@ -1,8 +1,11 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.speaker
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,11 +56,8 @@ fun MoodPlayerSwitch(
     onToggle: (Boolean) -> Unit,
     onSwipeUp: () -> Unit
 ) {
-    val switchState = remember { mutableStateOf(isOn) }
 
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.animation_down)
-    )
+    var isPlaying by remember { mutableStateOf(false) }
 
     ConstraintLayout(
         modifier = Modifier
@@ -155,11 +156,34 @@ fun MoodPlayerSwitch(
                     )
                 }
 
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
+                // 재생/일시정지 버튼
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            isPlaying = !isPlaying
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    if (isPlaying) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "일시정지",
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_pause),
+                            contentDescription = "재생",
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
             }
         }
 
@@ -183,19 +207,4 @@ fun MoodPlayerSwitch(
             )
         }
     }
-}
-
-@Preview(
-    name = "무드 플레이어 스위치",
-    showBackground = true,
-    backgroundColor = 0xFF121212
-)
-@Composable
-fun MoodPlayerSwitchPreview() {
-    MoodPlayerSwitch(
-        volumePercent = 40,
-        isOn = true,
-        onToggle = {},
-        onSwipeUp = {}
-    )
 }
