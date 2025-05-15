@@ -99,7 +99,8 @@ fun HeaderSection() {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_clova),
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
                 )
 
                 Text(
@@ -122,9 +123,14 @@ fun MenuItems() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Image(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null)
+            Image(
+                painter = painterResource(id = R.drawable.ic_edit),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Text(
                 text = "SmartThings 계정 연결",
                 fontSize = 18.sp
@@ -138,9 +144,11 @@ fun MenuItems() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Image(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null)
+            Image(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null,
+                modifier = Modifier.size(20.dp))
             Text(
                 text = "로그아웃",
                 fontSize = 18.sp
