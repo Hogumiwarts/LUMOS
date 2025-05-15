@@ -2,6 +2,7 @@ package com.hogumiwarts.lumos.ui.screens.setting
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,10 +25,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
+import timber.log.Timber
 
 @Composable
-fun SettingScreen() {
+fun SettingScreen(
+    authViewModel: AuthViewModel,
+    navController: NavController
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +48,7 @@ fun SettingScreen() {
             HeaderSection()
 
             // Menu items
-            MenuItems()
+            MenuItems(authViewModel, navController)
         }
     }
 }
@@ -114,7 +117,7 @@ fun HeaderSection() {
 }
 
 @Composable
-fun MenuItems() {
+fun MenuItems(authViewModel: AuthViewModel, navController: NavController) {
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
@@ -143,12 +146,24 @@ fun MenuItems() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(vertical = 16.dp)
+                .clickable {
+                    authViewModel.logOut(
+                        onSuccess = { navController.navigate("login") },
+                        onFailure = {
+                            Timber
+                                .tag("auth")
+                                .d("⚠️ 로그아웃 실패")
+                        }
+                    )
+                },
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Image(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null,
-                modifier = Modifier.size(20.dp))
+            Image(
+                painter = painterResource(id = R.drawable.ic_edit), contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Text(
                 text = "로그아웃",
                 fontSize = 18.sp
@@ -158,9 +173,9 @@ fun MenuItems() {
 }
 
 
-@Composable
-@Preview(showBackground = true)
-fun SettingPreview() {
-    SettingScreen()
-
-}
+//@Composable
+//@Preview(showBackground = true)
+//fun SettingPreview() {
+//    SettingScreen()
+//
+//}

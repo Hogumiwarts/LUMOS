@@ -103,48 +103,16 @@ class DeviceListViewModel @Inject constructor(
     fun loadDevicesFromServer() {
         viewModelScope.launch {
             try {
-                tokenDataStore.getRefreshToken().collect() { token ->
-                    val result = deviceRepository.getDevicesFromServer(token)
-                    Timber.tag("DeviceList").d("🔐 사용한 토큰: Bearer $token")
+                val token = tokenDataStore.getRefreshToken().first()
+                val result = deviceRepository.getDevicesFromServer(token)
+                Timber.tag("DeviceList").d("🔐 사용한 토큰: Bearer $token")
 
+                _deviceList.value = result.map { it.toMyDevice() } // 이전 목록 완전히 덮기
 
-                    _deviceList.value = result.map { it.toMyDevice() }
-
-                    Timber.tag("DeviceList").d("총 기기 수: ${result.size}")
-                    result.forEachIndexed { index, device ->
-                        Timber.tag("DeviceLog").d(
-                            "[%s] 🧩 id=%s, name=%s, type=%s, activated=%s",
-                            index,
-                            device.deviceId,
-                            device.deviceName,
-                            device.deviceType,
-                            device.activated
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                Timber.e(e)
-            }
-        }
-    }
-
-    // 기기 목록 새로고침
-    @SuppressLint("TimberArgTypes")
-    fun refreshDevicesFromDiscover(context: Context) {
-        viewModelScope.launch {
-            try {
-                val accessToken = tokenDataStore.getAccessToken().first()
-                //val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
-
-                val installedAppId = tokenDataStore.getInstalledAppId().first()
-                val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
-
-                //val result = deviceRepository.discoverDevices(accessToken, installedAppId)
-
-                Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")
-                newDevices.forEachIndexed { index, device ->
-                    Timber.tag("DeviceDiscover").d(
-                        "[%d] 🛰️ id=%d, name=%s, type=%s, activated=%s",
+                Timber.tag("DeviceList").d("총 기기 수: ${result.size}")
+                result.forEachIndexed { index, device ->
+                    Timber.tag("DeviceLog").d(
+                        "[%s] 🧩 id=%s, name=%s, type=%s, activated=%s",
                         index,
                         device.deviceId,
                         device.deviceName,
@@ -152,46 +120,75 @@ class DeviceListViewModel @Inject constructor(
                         device.activated
                     )
                 }
-
-                val currentList = _deviceList.value
-                val currentIds = currentList.map { it.deviceId }.toSet()
-
-                val additional = newDevices
-                    .filter { it.deviceId !in currentIds }
-                    .map { it.toMyDevice() }
-
-                _deviceList.value = currentList + additional
-
-                //_deviceList.value = result.map { it.toMyDevice() }
-
-                Toast.makeText(
-                    context, "기기 목록 새로고침 완료 ✨" +
-                            "", Toast.LENGTH_SHORT
-                ).show()
-
             } catch (e: Exception) {
-                Timber.e(e, "❌ 기기 Discover 실패")
+                Timber.e(e)
             }
         }
     }
 
-    fun toggleDeviceState(deviceId: String) {
-        val currentList = _deviceList.value.toMutableList()
 
-        val index = currentList.indexOfFirst { it.deviceId == deviceId }
-        if (index != -1) {
-            val target = currentList[index]
-            val updated = target.copy(isOn = !target.isOn) // isOn 토글
-            currentList[index] = updated
-            _deviceList.value = currentList
+    // 기기 목록 새로고침
+        @SuppressLint("TimberArgTypes")
+        fun refreshDevicesFromDiscover(context: Context) {
+            viewModelScope.launch {
+                try {
+                    val accessToken = tokenDataStore.getAccessToken().first()
+                    //val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
+
+                    val installedAppId = tokenDataStore.getInstalledAppId().first()
+                    val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
+
+                    Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")
+                    newDevices.forEachIndexed { index, device ->
+                        Timber.tag("DeviceDiscover").d(
+                            "[%d] 🛰️ id=%d, name=%s, type=%s, activated=%s",
+                            index,
+                            device.deviceId,
+                            device.deviceName,
+                            device.deviceType,
+                            device.activated
+                        )
+                    }
+
+                    val currentList = _deviceList.value
+                    val currentIds = currentList.map { it.deviceId }.toSet()
+
+                    val additional = newDevices
+                        .filter { it.deviceId !in currentIds }
+                        .map { it.toMyDevice() }
+
+                    _deviceList.value = currentList + additional
+
+                    //_deviceList.value = result.map { it.toMyDevice() }
+
+                    Toast.makeText(
+                        context, "기기 목록 새로고침 완료 ✨" +
+                                "", Toast.LENGTH_SHORT
+                    ).show()
+
+                } catch (e: Exception) {
+                    Timber.e(e, "❌ 기기 Discover 실패")
+                }
+            }
         }
-    }
 
-    private fun observeTokenChanges() {
-        viewModelScope.launch {
-            tokenDataStore.getInstalledAppId().collect { id ->
-                _isLinked.value = id.isNotEmpty()
+        fun toggleDeviceState(deviceId: String) {
+            val currentList = _deviceList.value.toMutableList()
+
+            val index = currentList.indexOfFirst { it.deviceId == deviceId }
+            if (index != -1) {
+                val target = currentList[index]
+                val updated = target.copy(isOn = !target.isOn) // isOn 토글
+                currentList[index] = updated
+                _deviceList.value = currentList
+            }
+        }
+
+        private fun observeTokenChanges() {
+            viewModelScope.launch {
+                tokenDataStore.getInstalledAppId().collect { id ->
+                    _isLinked.value = id.isNotEmpty()
+                }
             }
         }
     }
-}

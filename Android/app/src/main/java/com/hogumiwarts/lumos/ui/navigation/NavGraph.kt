@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -191,7 +192,10 @@ fun NavGraph(
                         )
 
 
-                        BottomNavItem.Settings -> SettingScreen()
+                        BottomNavItem.Settings -> SettingScreen(
+                            authViewModel = viewModel,
+                            navController = navController
+                        )
                     }
                 }
             }
@@ -223,7 +227,8 @@ fun NavGraph(
                 LoginScreen(
                     onLoginSuccess = {
                         navController.navigate("home") {
-                            popUpTo("login") { inclusive = true } // 뒤로가기로 돌아가지 않게
+                            popUpTo("login") { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )

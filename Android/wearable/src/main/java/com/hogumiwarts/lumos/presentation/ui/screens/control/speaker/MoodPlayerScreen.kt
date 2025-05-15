@@ -35,25 +35,25 @@ fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()
         viewModel.sendIntent(AudioIntent.LoadAudioStatus(deviceId))
     }
 
-    val state by viewModel.state.collectAsState()
+//    val state by viewModel.state.collectAsState()
 
-    when(state){
-        is AudioStatusState.Error -> {
-            when ((state as AudioStatusState.Error).error) {
-                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
-                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
-                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
-            }
-        }
-        AudioStatusState.Idle -> {}
-        is AudioStatusState.Loaded -> {
-            LoadedScreen()
-        }
-        AudioStatusState.Loading -> {
-            LoadingDevice()
-        }
-    }
-
+//    when(state){
+//        is AudioStatusState.Error -> {
+//            when ((state as AudioStatusState.Error).error) {
+//                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
+//                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+//                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+//            }
+//        }
+//        AudioStatusState.Idle -> {}
+//        is AudioStatusState.Loaded -> {
+//            LoadedScreen()
+//        }
+//        AudioStatusState.Loading -> {
+//            LoadingDevice()
+//        }
+//    }
+    LoadedScreen()
 
 }
 
@@ -101,11 +101,4 @@ private fun LoadedScreen() {
 
 // ON/OFF 스위치 구현
 
-
-// 미리보기 (NextScreen 기준)
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun MoodPlayerPreview() {
-    MoodPlayerScreen(1L)
-}
 

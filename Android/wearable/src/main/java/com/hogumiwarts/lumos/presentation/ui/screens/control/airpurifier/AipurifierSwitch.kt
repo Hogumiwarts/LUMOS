@@ -52,17 +52,16 @@ fun AipurifierSwitch(
     navController: NavHostController,
     viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
-    val switchState = remember { mutableStateOf(false) }
-
-
+    val switchState = remember { mutableStateOf(true) }
 
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
         viewModel.sendIntent(AirpurifierIntent.LoadAirpurifierStatus(deviceId))
     }
+
     // ViewModel 상태 수신
     val state by viewModel.state.collectAsState()
-
+    val isOn by viewModel.isOn.collectAsState()
 
     when(state){
         is AirpurifierStatusState.Error -> {
@@ -75,7 +74,9 @@ fun AipurifierSwitch(
         AirpurifierStatusState.Idle -> {}
         is AirpurifierStatusState.Loaded -> {
             val data = (state as AirpurifierStatusState.Loaded).data
-            leaded(navController, switchState,data,deviceId)
+            switchState.value=data.activated
+            leaded(navController, isOn,data,deviceId)
+
         }
         AirpurifierStatusState.Loading -> {
             LoadingDevice()
@@ -88,12 +89,13 @@ fun AipurifierSwitch(
 @Composable
 private fun leaded(
     navController: NavHostController,
-    switchState: MutableState<Boolean>,
+    switchState: Boolean,
     data: AirpurifierData,
     deviceId: Long,
     viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
 
+    val isOn by viewModel.isOn.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
     ConstraintLayout(
         modifier = Modifier
@@ -172,20 +174,11 @@ private fun leaded(
 
 
                 OnOffSwitch(
-                    checked = switchState.value,
+                    checked = isOn,
                     onCheckedChange = {
 //                        switchState.value = it
                         viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId = deviceId , activated = it ))
-                        when(powerState){
-                            is AirpurifierPowerState.Error -> {}
-                            AirpurifierPowerState.Idle -> {}
-                            is AirpurifierPowerState.Loaded -> {
-                                switchState.value = it
-                            }
-                            AirpurifierPowerState.Loading -> {
 
-                            }
-                        }
 //                        onToggle(it)
                     }
                 )
@@ -213,8 +206,7 @@ private fun leaded(
     when(powerState){
         is AirpurifierPowerState.Error -> {}
         AirpurifierPowerState.Idle -> {}
-        is AirpurifierPowerState.Loaded -> {
-        }
+        is AirpurifierPowerState.Loaded -> {}
         AirpurifierPowerState.Loading -> {
             Box(
                 modifier = Modifier
