@@ -32,7 +32,8 @@ object AirpurifierMapper {
 
     fun fromPowerResponse(dtoList: PatchControlResponse): ControlData {
         return ControlData(
-            success = dtoList.success
+            success = dtoList.success,
+            activated = dtoList.activated
         )
     }
 

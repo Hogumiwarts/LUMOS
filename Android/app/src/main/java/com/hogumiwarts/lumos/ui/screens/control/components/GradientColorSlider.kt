@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -19,16 +21,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.LoadingComponent
+import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
+import com.hogumiwarts.lumos.ui.screens.control.light.LightTemperatureState
+import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 @Composable
-fun GradientColorSlider(modifier: Modifier = Modifier) {
+fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel = hiltViewModel()) {
     // 시작 색상 (F99D9D) 및 끝 색상 (98A7F2) 정의
     val startColor = Color(0xFFF99D9D) // 시작 색상
     val endColor = Color(0xFF98A7F2)   // 끝 색상
 
+    val temperature by viewModel.temperature.collectAsState()
+    val temperatureState by viewModel.temperatureState.collectAsState()
+    var brightness by remember { mutableIntStateOf(0) }
+    when(temperatureState){
+        is LightTemperatureState.Error -> {}
+        LightTemperatureState.Idle -> {}
+        is LightTemperatureState.Loaded ->{
+            val t= (temperatureState as LightTemperatureState.Loaded).data.temperature
+            brightness= ((t-2200)*100/(6500-2200))
+        }
+        LightTemperatureState.Loading -> {
+
+        }
+    }
+
     // 슬라이더 값 상태
-    var brightness by remember { mutableIntStateOf(50) }
+
+    LaunchedEffect(temperature) {
+        brightness = ((temperature-2200)*100/(6500-2200))
+    }
 
     // 현재 슬라이더 값에 따른 색상 계산
     val currentColor by remember(brightness) {
@@ -57,6 +82,10 @@ fun GradientColorSlider(modifier: Modifier = Modifier) {
                 .padding(horizontal = 8.dp),
             onValueChange = {
                 brightness = it.toInt()
+
+            },
+            onValueChangeFinished = {
+                viewModel.sendIntent(LightIntent.ChangeLightTemperature(4,brightness.toInt()))
             },
             valueRange = 0f..100f,
             steps = 0,
