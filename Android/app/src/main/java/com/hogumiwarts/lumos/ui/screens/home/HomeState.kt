@@ -15,5 +15,6 @@ import com.hogumiwarts.domain.model.WeatherInfo
 data class HomeState(
     val isLoading: Boolean = false,
     val weatherInfo: WeatherInfo? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val userName: String? = null
 )
