@@ -1,5 +1,6 @@
-package com.hogumiwarts.lumos.ui.screens.control
+package com.hogumiwarts.lumos.ui.screens.control.light
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,12 +40,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.google.gson.annotations.SerializedName
+import com.hogumiwarts.domain.model.light.LightStatusData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
+import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 data class LightDevice(
     @SerializedName("tagNumber") val tagNumber: Int,
@@ -59,28 +66,38 @@ data class LightDevice(
 )
 
 @Composable
-fun LightScreen() {
+fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
-    var checked by remember { mutableStateOf(true) }
-    val lightDevice = LightDevice(
-        tagNumber = 1,
-        deviceId = 45678,
-        deviceImg = "https://storage.googleapis.com/lumos-assets/devices/smart_light.png",
-        deviceName = "거실 무드등",
-        manufacturerCode = "WiZ Connected",
-        deviceModel = "WiZ Colors RGB",
-        deviceType = "컬러 조명",
-        activated = true,
-        brightness = 10,
-        lightTemperature = "3000K",
-        lightCode = "#FF5733"
-    )
+    // 최초 진입 시 상태 요청
+    LaunchedEffect(Unit) {
+        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc0MDI3MDh9.EV6G_bku_EsHvXGIViGVrqH_kdWw9Tvj6g9VE1k_kgw","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc5MjExMDh9.ECpyX4l16VV5jnd0bPtR31yKQmV8CpALN1uJifMvdDc")
+        viewModel.sendIntent(LightIntent.LoadLightStatus(4))
+    }
 
-    var brightness by remember { mutableIntStateOf(lightDevice.brightness) }
-    val controller = rememberColorPickerController()
+    val state by viewModel.state.collectAsState()
 
+    var checked by remember { mutableStateOf(false) }
+    var lightDevice by remember { mutableStateOf<LightStatusData?>(null) }
+    var brightness by remember { mutableIntStateOf(0) }
     var selectedColorCode by remember { mutableStateOf("#FFFFFF") }
     var selectedColor by remember { mutableStateOf(Color.White) }
+
+    val controller = rememberColorPickerController()
+
+    when(state){
+        is LightStatusState.Error -> {}
+        LightStatusState.Idle -> {}
+        is LightStatusState.Loaded -> {
+            LaunchedEffect(state) {
+                val data = (state as LightStatusState.Loaded).data
+                checked = data.activated
+                brightness= data.brightness
+                controller.selectByHsv((data.hue*36/10).toFloat(), data.saturation/100, 1f, 1f, false)
+                lightDevice = data
+            }
+        }
+        LightStatusState.Loading -> {}
+    }
 
     Column(
         modifier = Modifier
@@ -93,7 +110,7 @@ fun LightScreen() {
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = lightDevice.deviceName,
+            text = lightDevice?.deviceName?:"",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 20.sp
         )
@@ -264,7 +281,7 @@ fun LightScreen() {
             Spacer(modifier = Modifier.height(13.dp))
 
             Text(
-                "제조사 | ${lightDevice.manufacturerCode}",
+                "제조사 | ${lightDevice?.manufacturerCode}",
                 fontSize = 12.sp
             )
             Text(
@@ -272,7 +289,7 @@ fun LightScreen() {
                 fontSize = 12.sp
             )
             Text(
-                "기기 타입 | ${lightDevice.deviceType}",
+                "기기 타입 | ${lightDevice?.deviceType}",
                 fontSize = 12.sp
             )
 

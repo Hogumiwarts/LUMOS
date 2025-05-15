@@ -30,6 +30,7 @@ import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -127,7 +128,8 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent
                 ) {
 
-                    MainScreen()
+//                    MainScreen()
+                    LightScreen()
                 }
             }
         }

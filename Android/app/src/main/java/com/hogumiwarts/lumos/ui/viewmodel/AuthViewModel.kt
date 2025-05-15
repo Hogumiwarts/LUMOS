@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.data.source.remote.AuthApi
+import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenDataStore: TokenDataStore,
+    private val jwtUseCase: TokensUseCase,
     private val authApi: AuthApi
 ) : ViewModel() {
 
@@ -67,6 +69,13 @@ class AuthViewModel @Inject constructor(
         _isSignup.value = false
     }
 
+    fun saveJwt(accessToken: String, refreshToken: String){
+        viewModelScope.launch {
+            jwtUseCase.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
+        }
+
+    }
+
     // 리프레시 토큰
     fun refreshToken(
         onSuccess: () -> Unit = {},
@@ -81,6 +90,8 @@ class AuthViewModel @Inject constructor(
                 val newAccessToken = response.data.accessToken
 
                 val name = tokenDataStore.getUserName().first()
+
+                saveJwt(newAccessToken,refreshToken)
 
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
