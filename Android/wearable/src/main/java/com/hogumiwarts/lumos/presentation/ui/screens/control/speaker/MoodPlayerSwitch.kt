@@ -1,16 +1,22 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.speaker
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,11 +24,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -78,13 +91,12 @@ fun MoodPlayerSwitch(
             }
         )
 
-        // 볼륨 및 스위치 토글
+        // 플레이어 제어
         Box(
             modifier = Modifier
                 .width(180.dp)
                 .height(70.dp)
                 .clip(RoundedCornerShape(30.dp))
-                .background(Color(0x10FFFFFF))
                 .constrainAs(toggle) {
                     top.linkTo(parent.top, margin = 18.dp)
                     start.linkTo(parent.start)
@@ -93,40 +105,97 @@ fun MoodPlayerSwitch(
                 },
             contentAlignment = Alignment.CenterStart
         ) {
-            Row(
+
+            Image(
+                painter = painterResource(id = R.drawable.wish),
+                contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .clip(RoundedCornerShape(30.dp)),
+                contentScale = ContentScale.Crop,
+                alpha = 0.70f
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0.5f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "볼륨  $volumePercent%",
-                    color = Color.White,
-                    fontSize = 16.sp
-                )
-                OnOffSwitch(
-                    checked = switchState.value,
-                    onCheckedChange = {
-                        switchState.value = it
-                        onToggle(it)
-                    }
+                Column(
+                    modifier = Modifier.padding(start = 6.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "WISH",
+                        color = Color.White,
+                        fontSize = 22.sp
+                    )
+
+                    Text(
+                        text = "NCT WISH",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light
+                    )
+                }
+
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp)
                 )
             }
         }
 
-        // 아래쪽 애니메이션 (예: 스와이프 유도 화살표)
-        LottieAnimation(
-            composition = composition,
-            iterations = LottieConstants.IterateForever,
+        // 아래 버튼
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color(0x10FFFFFF),
             modifier = Modifier
-                .size(100.dp)
                 .constrainAs(arrow) {
-                    bottom.linkTo(parent.bottom)
+                    bottom.linkTo(parent.bottom, margin = 10.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     top.linkTo(toggle.bottom)
                 }
-        )
+        ) {
+            Text(
+                text = "폰에서 세부 제어",
+                color = Color.White,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                style = TextStyle(fontSize = 14.sp)
+            )
+        }
     }
+}
+
+@Preview(
+    name = "무드 플레이어 스위치",
+    showBackground = true,
+    backgroundColor = 0xFF121212
+)
+@Composable
+fun MoodPlayerSwitchPreview() {
+    MoodPlayerSwitch(
+        volumePercent = 40,
+        isOn = true,
+        onToggle = {},
+        onSwipeUp = {}
+    )
 }
