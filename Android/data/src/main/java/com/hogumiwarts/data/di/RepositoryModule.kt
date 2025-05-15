@@ -7,9 +7,13 @@ import com.hogumiwarts.domain.repository.WeatherRepository
 import com.hogumiwarts.data.repository.GestureRepositoryImpl
 import com.hogumiwarts.data.repository.AirpurifierRepositoryImpl
 import com.hogumiwarts.data.repository.AudioRepositoryImpl
+import com.hogumiwarts.data.repository.MemberRepositoryImpl
+import com.hogumiwarts.data.repository.routine.RoutineRepositoryImpl
 import com.hogumiwarts.domain.repository.AirpurifierRepository
 import com.hogumiwarts.domain.repository.AudioRepository
 import com.hogumiwarts.domain.repository.GestureRepository
+import com.hogumiwarts.domain.repository.MemberRepository
+import com.hogumiwarts.domain.repository.RoutineRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -50,5 +54,15 @@ abstract class RepositoryModule {
         impl: AudioRepositoryImpl
     ): AudioRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindMemberRepository(
+        memberRepositoryImpl: MemberRepositoryImpl
+    ): MemberRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindRoutineRepository(
+        routineRepositoryImpl: RoutineRepositoryImpl
+    ): RoutineRepository
 }

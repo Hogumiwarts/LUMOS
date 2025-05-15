@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 // 전체 로그인 여부 관리
@@ -21,8 +22,8 @@ class AuthViewModel @Inject constructor(
     private val authApi: AuthApi
 ) : ViewModel() {
 
-    val _isLogginIn = MutableStateFlow<Boolean?>(null)
-    val isLoggedIn: StateFlow<Boolean?> = _isLogginIn
+    val _isLoggedIn = MutableStateFlow<Boolean?>(null)
+    val isLoggedIn: StateFlow<Boolean?> = _isLoggedIn
 
     val _isSignup = MutableStateFlow<Boolean?>(null)
     val isSignup: StateFlow<Boolean?> = _isSignup
@@ -30,18 +31,35 @@ class AuthViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val token = tokenDataStore.getAccessToken().first()
-            _isLogginIn.value = token.isNotEmpty()
+            _isLoggedIn.value = token.isNotEmpty()
+
+            if (token.isNotEmpty()) {
+                // 서버 요청 전에 accessToken이 만료되었을 수 있으므로 refresh 시도
+//                refreshToken(
+//                    onSuccess = {
+//                        _isLogginIn.value = true
+//                        Timber.tag("Auth").d("✅ 토큰 갱신 완료: $token")
+//                    },
+//                    onFailure = {
+//                        _isLogginIn.value = false
+//                    }
+//                )
+
+            } else {
+                _isLoggedIn.value = false
+            }
         }
     }
 
     // 로그인
     fun logIn() {
-        _isLogginIn.value = true
+        _isLoggedIn.value = true
     }
 
     // 로그아웃
     fun logOut() {
-        _isLogginIn.value = false
+        _isLoggedIn.value = false
+        viewModelScope.launch { tokenDataStore.clearTokens() }
     }
 
     // 회원탈퇴
@@ -62,19 +80,19 @@ class AuthViewModel @Inject constructor(
                 // 서버에서 새로 받아온 토큰
                 val newAccessToken = response.data.accessToken
 
-                val name = tokenDataStore.getUserName()
+                val name = tokenDataStore.getUserName().first()
 
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
                     accessToken = newAccessToken,
                     refreshToken = refreshToken,
-                    name = name.toString()
+                    name = name
                 )
 
-                _isLogginIn.value = true
+                _isLoggedIn.value = true
                 onSuccess()
             } catch (e: Exception) {
-                _isLogginIn.value = false
+                _isLoggedIn.value = false
                 onFailure(e)
             }
         }

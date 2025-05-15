@@ -181,20 +181,16 @@ fun NavGraph(
                             val myDeviceList = MyDevice.sample
 
                             DeviceListScreen(
-                                onSelectedComplete = { selectedDevice ->
-                                    //todo: 선택 완료 시 동작 정의
-                                }
                             )
                         }
 
                         BottomNavItem.Routine -> RoutineScreen(
-                            routines = RoutineItem.sample, // todo: 실제 api 필요
                             onRoutineClick = { routine ->
-                                navController.navigate("routine_detail/${routine.id}")
+                                navController.navigate("routine_detail/${routine.routineId}")
                             },
                             onAddClick = {
                                 navController.navigate("routine_create")
-                            }
+                            },
                         )
 
 

@@ -2,13 +2,18 @@ package com.hogumiwarts.data.di
 
 import android.util.Log
 import com.hogumiwarts.data.BuildConfig
+import com.hogumiwarts.data.repository.MemberRepositoryImpl
 import com.hogumiwarts.data.source.remote.AirpurifierApi
 import com.hogumiwarts.data.source.remote.AudioApi
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.data.source.remote.DeviceApi
 import com.hogumiwarts.data.source.remote.WeatherApi
 import com.hogumiwarts.data.source.remote.GestureApi
+import com.hogumiwarts.data.source.remote.MemberApi
+import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
+import com.hogumiwarts.domain.repository.MemberRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,7 +31,9 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideOkHttpClient(addAuthInterceptor: AddAuthInterceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        addAuthInterceptor: AddAuthInterceptor
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor { message ->
             Log.i("Post", "log: message $message")
         }.apply {
@@ -38,7 +45,7 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(logging)
-            .addInterceptor(addAuthInterceptor)   // 인증 인터셉터 추가
+            .addInterceptor(addAuthInterceptor)
             .build()
     }
 
@@ -58,7 +65,6 @@ object NetworkModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-
 
 
     @Provides
@@ -133,7 +139,7 @@ object NetworkModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        
+
     // 디바이스 관련
     @Provides
     @Singleton
@@ -154,18 +160,39 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAripurifierApi(@Named("BaseRetrofit")retrofit: Retrofit): AirpurifierApi =
+    fun provideAripurifierApi(@Named("BaseRetrofit") retrofit: Retrofit): AirpurifierApi =
         retrofit.create(AirpurifierApi::class.java)
 
     @Provides
     @Singleton
-    fun provideAudioApi(@Named("BaseRetrofit")retrofit: Retrofit): AudioApi =
+    fun provideAudioApi(@Named("BaseRetrofit") retrofit: Retrofit): AudioApi =
         retrofit.create(AudioApi::class.java)
 
     @Provides
     @Singleton
     fun provideDevicedListApi(@Named("deviceRetrofit") retrofit: Retrofit): DeviceApi =
         retrofit.create(DeviceApi::class.java)
+
+    @Provides
+    @Singleton
+    @Named("memberRetrofit")
+    fun provideMemberRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun memberApi(@Named("BaseRetrofit") retrofit: Retrofit): MemberApi =
+        retrofit.create(MemberApi::class.java)
+
+
+    @Provides
+    @Singleton
+    fun routineApi(@Named("BaseRetrofit") retrofit: Retrofit): RoutineApi =
+        retrofit.create(RoutineApi::class.java)
 
 
 }

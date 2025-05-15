@@ -1,12 +1,96 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.Api
+import com.hogumiwarts.data.entity.remote.Response.RoutineData
+import com.hogumiwarts.data.source.remote.AuthApi
+import com.hogumiwarts.domain.model.RoutineResult
+import com.hogumiwarts.domain.model.Routine
+import com.hogumiwarts.domain.repository.RoutineRepository
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
-class RoutineViewModel : ViewModel() {
+@HiltViewModel
+class RoutineViewModel @Inject constructor(
+    private val routineRepository: RoutineRepository,
+    private val tokenDataStore: TokenDataStore,
+    private val authApi: AuthApi
+
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(RoutineState())
     val uiState: StateFlow<RoutineState> = _uiState
 
-    // TODO: 루틴 로딩 로직 및 사용자 이벤트 처리 함수 추가
+    // 루틴 목록
+    private val _routineList = MutableStateFlow<List<Routine>>(emptyList())
+    val routineList: StateFlow<List<Routine>> = _routineList
+
+    // 루틴 목록 불러오기
+    fun getRoutineList() {
+        viewModelScope.launch {
+            val accessToken = tokenDataStore.getAccessToken().first()
+            Timber.tag("RoutineViewModel").d("📦 액세스 토큰: $accessToken")
+
+            when (val result = routineRepository.getRoutineList(accessToken)) {
+                is RoutineResult.Success -> {
+                    Timber.tag("RoutineViewModel").d("✅ 루틴 개수: ${result.routines.size}")
+                    result.routines.forEach {
+                        Timber.tag("RoutineViewModel")
+                            .d("🔹 ${it.routineId} / ${it.routineName} / ${it.routineIcon}")
+                    }
+                    _routineList.value = result.routines
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = null
+                    )
+                }
+
+                is RoutineResult.Failure -> {
+                    Timber.tag("RoutineViewModel").d("RoutineResult 실패")
+
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = result.message
+                    )
+                }
+
+                is RoutineResult.Unauthorized -> {
+                    Timber.tag("RoutineViewModel").d("❗ 401 발생 - 토큰 갱신 시도")
+                    refreshAndRetry()
+                }
+            }
+        }
+    }
+
+    private fun refreshAndRetry() {
+        viewModelScope.launch {
+            try {
+                val refreshToken = tokenDataStore.getRefreshToken().first()
+                val response = authApi.refresh("Bearer $refreshToken")
+                val newAccessToken = response.data.accessToken
+                val name = tokenDataStore.getUserName().firstOrNull() ?: ""
+
+                tokenDataStore.saveTokens(newAccessToken, refreshToken, name)
+
+                Timber.tag("RoutineViewModel").d("🔄 토큰 갱신 성공, 루틴 재요청 시도")
+                getRoutineList()
+
+            } catch (e: Exception) {
+                Timber.tag("RoutineViewModel").e(e, "❌ 토큰 갱신 실패")
+                _uiState.value = _uiState.value.copy(errorMessage = "로그인 정보가 만료되었습니다.")
+            }
+        }
+    }
+
 }
