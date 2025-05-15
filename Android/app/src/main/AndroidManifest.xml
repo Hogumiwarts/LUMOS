@@ -45,7 +45,11 @@
             android:theme="@style/Theme.LUMOS">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
 
+            </intent-filter>
+
+            <intent-filter>
                 <!-- SmartThings OAuth redirect URI 처리 -->
                 <action android:name="android.intent.action.VIEW" />
 
@@ -55,8 +59,6 @@
                 <data
                     android:host="oauth-callback"
                     android:scheme="smartthingslogin" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
