@@ -1,6 +1,6 @@
 package com.hogumiwarts.data.mapper
 
-import com.hogumiwarts.data.entity.remote.Response.RoutineData
+import com.hogumiwarts.data.entity.remote.Response.routine.RoutineData
 import com.hogumiwarts.domain.model.Routine
 
 fun List<RoutineData>.toDomain(): List<Routine> {

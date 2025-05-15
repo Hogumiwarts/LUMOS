@@ -13,6 +13,7 @@ import com.hogumiwarts.data.source.remote.LightApi
 import com.hogumiwarts.data.source.remote.MemberApi
 import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
+import com.hogumiwarts.data.token.TokenStorage
 import com.hogumiwarts.domain.repository.MemberRepository
 import dagger.Binds
 import dagger.Module
@@ -33,7 +34,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        addAuthInterceptor: AddAuthInterceptor
+        addAuthInterceptor: AddAuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator
     ): OkHttpClient {
         val logging = HttpLoggingInterceptor { message ->
             Log.i("Post", "log: message $message")
@@ -47,6 +49,7 @@ object NetworkModule {
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(logging)
             .addInterceptor(addAuthInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 
@@ -200,5 +203,16 @@ object NetworkModule {
     fun routineApi(@Named("BaseRetrofit") retrofit: Retrofit): RoutineApi =
         retrofit.create(RoutineApi::class.java)
 
-
+    @Provides
+    @Singleton
+    @Named("refresh")
+    fun provideRefreshAuthApi(
+        @Named("AUTH_BASE_URL") baseUrl: String
+    ): AuthApi {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AuthApi::class.java)
+    }
 }

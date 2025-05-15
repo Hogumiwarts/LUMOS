@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.data.source.remote.AuthApi
-import com.hogumiwarts.domain.usecase.TokensUseCase
+import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenDataStore: TokenDataStore,
-    private val jwtUseCase: TokensUseCase,
+    private val authRepository: AuthRepository,
     private val authApi: AuthApi
 ) : ViewModel() {
 
@@ -34,22 +34,6 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             val token = tokenDataStore.getAccessToken().first()
             _isLoggedIn.value = token.isNotEmpty()
-
-            if (token.isNotEmpty()) {
-                // 서버 요청 전에 accessToken이 만료되었을 수 있으므로 refresh 시도
-//                refreshToken(
-//                    onSuccess = {
-//                        _isLogginIn.value = true
-//                        Timber.tag("Auth").d("✅ 토큰 갱신 완료: $token")
-//                    },
-//                    onFailure = {
-//                        _isLogginIn.value = false
-//                    }
-//                )
-
-            } else {
-                _isLoggedIn.value = false
-            }
         }
     }
 
@@ -59,10 +43,59 @@ class AuthViewModel @Inject constructor(
     }
 
     // 로그아웃
-    fun logOut() {
-        _isLoggedIn.value = false
-        viewModelScope.launch { tokenDataStore.clearTokens() }
+    fun logOut(onSuccess: () -> Unit = {}, onFailure: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val accessToken = tokenDataStore.getAccessToken().first()
+                val refreshToken = tokenDataStore.getRefreshToken().first()
+
+                // 1. 로그아웃 시도
+                val logoutSuccess = authRepository.logout(accessToken)
+
+                if (logoutSuccess) {
+                    tokenDataStore.clearTokens()
+                    _isLoggedIn.value = false
+                    onSuccess()
+                } else {
+                    Timber.tag("auth").d("⚠️ 로그아웃 실패 → 토큰 갱신 시도")
+
+                    // 2. 토큰 갱신 시도
+                    try {
+                        val refreshResponse = authApi.refresh("Bearer $refreshToken")
+                        val newAccessToken = refreshResponse.data.accessToken
+                        val name = tokenDataStore.getUserName().first()
+
+                        tokenDataStore.saveTokens(
+                            accessToken = newAccessToken,
+                            refreshToken = refreshToken,
+                            name = name
+                        )
+
+                        // 3. 갱신된 토큰으로 재시도
+                        val retryLogout = authRepository.logout(newAccessToken)
+                        if (retryLogout) {
+                            tokenDataStore.clearTokens()
+                            _isLoggedIn.value = false
+                            onSuccess()
+                        } else {
+                            Timber.tag("auth").e("🚫 토큰 갱신 후 로그아웃도 실패")
+                            onFailure()
+                        }
+                    } catch (e: Exception) {
+                        Timber.tag("auth").e("🚫 Refresh 실패: ${e.message}")
+                        tokenDataStore.clearTokens()
+                        _isLoggedIn.value = false
+                        onFailure()
+                    }
+                }
+
+            } catch (e: Exception) {
+                Timber.tag("auth").e("🚫 Logout 예외 발생: ${e.message}")
+                onFailure()
+            }
+        }
     }
+
 
     // 회원탈퇴
     fun signOut() {
@@ -78,8 +111,7 @@ class AuthViewModel @Inject constructor(
 
     // 리프레시 토큰
     fun refreshToken(
-        onSuccess: () -> Unit = {},
-        onFailure: (Throwable) -> Unit = {}
+        onSuccess: () -> Unit = {}, onFailure: (Throwable) -> Unit = {}
     ) {
         viewModelScope.launch {
             try {
@@ -95,9 +127,7 @@ class AuthViewModel @Inject constructor(
 
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
-                    accessToken = newAccessToken,
-                    refreshToken = refreshToken,
-                    name = name
+                    accessToken = newAccessToken, refreshToken = refreshToken, name = name
                 )
 
                 _isLoggedIn.value = true

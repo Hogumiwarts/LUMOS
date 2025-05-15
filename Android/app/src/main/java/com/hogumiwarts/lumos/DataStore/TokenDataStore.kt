@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.DataStore
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.hogumiwarts.data.token.TokenStorage
 import com.hogumiwarts.lumos.di.BaseUrlModule.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ import javax.inject.Inject
 // hilt 방식으로 변경
 class TokenDataStore @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+): TokenStorage {
     val accessTokenFlow: Flow<String> = context.dataStore.data
         .map { it[ACCESS_TOKEN_KEY] ?: "" }
 
@@ -22,7 +23,7 @@ class TokenDataStore @Inject constructor(
     private val USER_NAME_KEY = stringPreferencesKey("user_name")
 
     // 저장 함수
-    suspend fun saveTokens(accessToken: String, refreshToken: String, name: String) {
+    override suspend fun saveTokens(accessToken: String, refreshToken: String, name: String) {
         context.dataStore.edit {
             it[ACCESS_TOKEN_KEY] = accessToken
             it[REFRESH_TOKEN_KEY] = refreshToken
@@ -31,22 +32,22 @@ class TokenDataStore @Inject constructor(
     }
 
     // AccessToken 가져오기
-    fun getAccessToken(): Flow<String> {
+    override suspend fun getAccessToken(): Flow<String> {
         return context.dataStore.data.map { it[ACCESS_TOKEN_KEY] ?: "" }
     }
 
     // RefreshToken 가져오기
-    fun getRefreshToken(): Flow<String> {
+    override suspend fun getRefreshToken(): Flow<String> {
         return context.dataStore.data.map { it[REFRESH_TOKEN_KEY] ?: "" }
     }
 
     // 삭제 함수 (선택)
-    suspend fun clearTokens() {
+    override suspend fun clearTokens() {
         context.dataStore.edit { it.clear() }
     }
 
     // 사용자 이름 가져오기
-    fun getUserName(): Flow<String> = context.dataStore.data.map { it[USER_NAME_KEY] ?: "" }
+    override suspend fun getUserName(): Flow<String> = context.dataStore.data.map { it[USER_NAME_KEY] ?: "" }
 
 
     // smartthings 관련
@@ -61,11 +62,11 @@ class TokenDataStore @Inject constructor(
         }
     }
 
-    fun getInstalledAppId(): Flow<String> {
+    suspend fun getInstalledAppId(): Flow<String> {
         return context.dataStore.data.map { it[INSTALLED_APP_ID] ?: "" }
     }
 
-    fun getSmartThingsAuthToken(): Flow<String> {
+    suspend fun getSmartThingsAuthToken(): Flow<String> {
         return context.dataStore.data.map { it[AUTH_TOKEN] ?: "" }
     }
 
