@@ -1,17 +1,14 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.audio.VolumeControlRequest;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 public interface AudioApiSpec {
 

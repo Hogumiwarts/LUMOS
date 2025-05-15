@@ -2,9 +2,13 @@ package com.hogumiwarts.lumos.device.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
+import com.hogumiwarts.lumos.device.dto.light.LightBrightRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightColorRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightDetailResponse;
+import com.hogumiwarts.lumos.device.dto.light.LightTemperatureRequest;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
-import com.hogumiwarts.lumos.device.util.ColorUtil;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
 import com.hogumiwarts.lumos.exception.CustomException;
 import com.hogumiwarts.lumos.exception.ErrorCode;

@@ -1,10 +1,9 @@
 package com.hogumiwarts.lumos.device.util;
 
 import com.hogumiwarts.lumos.device.dto.CommandRequest;
-import com.hogumiwarts.lumos.device.dto.FanMode;
-import com.hogumiwarts.lumos.device.dto.LightColorRequest;
+import com.hogumiwarts.lumos.device.dto.airpurifier.FanMode;
+import com.hogumiwarts.lumos.device.dto.light.LightColorRequest;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

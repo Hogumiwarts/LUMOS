@@ -1,6 +1,8 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.airpurifier.AirPurifierDetailResponse;
+import com.hogumiwarts.lumos.device.dto.airpurifier.FanModeControlRequest;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
