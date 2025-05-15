@@ -1,0 +1,84 @@
+from fastapi import APIRouter
+from app.schema.request import SensorDataRequest
+from app.schema.response import PredictionResult
+import numpy as np
+
+from app.util.gesture_cache import gesture_cache
+from app.util.idle_check import is_idle
+
+router = APIRouter()
+
+
+@router.post("/register")
+def register_gesture(request: SensorDataRequest):
+    # 시계열 → numpy 변환
+    seq = np.array(
+        [
+            [
+                getattr(d, f)
+                for f in ["acc_x", "acc_y", "acc_z", "gryo_x", "gryo_y", "gryo_z"]
+            ]
+            for d in request.data
+        ]
+    )
+
+    # 길이 보정
+    if len(seq) != 50:
+        indices = np.linspace(0, len(seq) - 1, 50)
+        resized = np.zeros((50, seq.shape[1]))
+        for i in range(seq.shape[1]):
+            resized[:, i] = np.interp(indices, np.arange(len(seq)), seq[:, i])
+        seq = resized
+
+    # 등록
+    gesture_cache.register(seq)
+
+    return {"message": "윈도우 1개 등록됨. finalize 호출 전까지 계속 호출 가능."}
+
+
+@router.post("/finalize")
+def finalize_gesture():
+    gesture_cache.finalize()
+    return {"message": "제스처 클래스가 등록되어 prototype 생성 완료됨."}
+
+
+@router.post("/reset")
+def reset_gestures():
+    gesture_cache.reset()
+    return {"message": "모든 제스처 데이터가 초기화되었습니다."}
+
+
+@router.post("/predict", response_model=PredictionResult)
+def predict_from_registered(request: SensorDataRequest):
+    seq = np.array(
+        [
+            [
+                getattr(d, f)
+                for f in ["acc_x", "acc_y", "acc_z", "gryo_x", "gryo_y", "gryo_z"]
+            ]
+            for d in request.data
+        ]
+    )
+
+    # 길이 보정
+    if len(seq) != 50:
+        indices = np.linspace(0, len(seq) - 1, 50)
+        resized = np.zeros((50, seq.shape[1]))
+        for i in range(seq.shape[1]):
+            resized[:, i] = np.interp(indices, np.arange(len(seq)), seq[:, i])
+        seq = resized
+
+    # idle 상태라면 -1 리턴
+    if is_idle(seq):
+        return PredictionResult(
+            ground_truth=request.gesture_id, predicted=-1, match=False
+        )
+
+    # 제스처 예측
+    pred_label = gesture_cache.predict(seq)
+
+    return PredictionResult(
+        ground_truth=request.gesture_id,
+        predicted=pred_label,
+        match=(pred_label == request.gesture_id),
+    )
