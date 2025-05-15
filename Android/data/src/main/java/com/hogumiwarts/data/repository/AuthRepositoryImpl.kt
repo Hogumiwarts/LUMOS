@@ -3,8 +3,8 @@ package com.hogumiwarts.data.repository
 import android.util.Log
 import com.hogumiwarts.data.entity.remote.Request.LoginRequest
 import com.hogumiwarts.data.entity.remote.Request.SignupRequest
-import com.hogumiwarts.data.entity.remote.Response.LoginResponse
-import com.hogumiwarts.data.entity.remote.Response.SignupResponse
+import com.hogumiwarts.data.entity.remote.Response.auth.LoginResponse
+import com.hogumiwarts.data.entity.remote.Response.auth.SignupResponse
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.model.LoginResult
 import com.hogumiwarts.domain.model.SignupResult
@@ -13,7 +13,6 @@ import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.math.sign
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi
@@ -85,6 +84,17 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("SignupRepository", "Unexpected error", e)
             SignupResult.UnknownError
+        }
+    }
+
+    // 로그아웃
+    override suspend fun logout(accessToken: String): Boolean {
+        return try {
+            val response = authApi.logout("Bearer $accessToken")
+            response.isSuccessful && response.body()?.data?.success == true
+        } catch (e: Exception) {
+            Timber.e("Logout failed: ${e.message}")
+            false
         }
     }
 }
