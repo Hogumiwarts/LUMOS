@@ -21,21 +21,25 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.It
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
+import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadedDevice
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun DevicesScreen(
     navController: NavHostController,
-    viewModel: DeviceViewModel = hiltViewModel()
+    viewModel: DeviceViewModel = hiltViewModel(),
 ) {
+
     // 최초 진입 시 DeviceIntent 전송
     LaunchedEffect(Unit) {
         viewModel.sendIntent(DeviceIntent.LoadDevice)
         viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MjA1NjM0LCJleHAiOjE3NDcyOTIwMzR9.BchXCDa4rs25TzGnJ1ZmPu6_EBzlba6-Odc5fh5MvQM","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MjA1NjM0LCJleHAiOjE3NDc4MTA0MzR9.fcQv2c1yvkcj4GRM_MkRc-XGPfgeU6MLJuv43EVA1aw")
     }
+
 
     // 상태 관찰
     val state by viewModel.state.collectAsState()
