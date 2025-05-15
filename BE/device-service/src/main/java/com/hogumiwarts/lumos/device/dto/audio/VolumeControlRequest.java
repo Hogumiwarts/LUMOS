@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.device.dto;
+package com.hogumiwarts.lumos.device.dto.audio;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

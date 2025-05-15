@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.device.dto;
+package com.hogumiwarts.lumos.device.dto.device;
 
 import lombok.Builder;
 import lombok.Getter;

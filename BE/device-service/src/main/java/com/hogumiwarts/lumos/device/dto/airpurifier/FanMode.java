@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.device.dto;
+package com.hogumiwarts.lumos.device.dto.airpurifier;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

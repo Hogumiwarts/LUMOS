@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.device.dto;
+package com.hogumiwarts.lumos.device.dto.device;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;

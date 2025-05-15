@@ -2,6 +2,9 @@ package com.hogumiwarts.lumos.device.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.airpurifier.AirPurifierDetailResponse;
+import com.hogumiwarts.lumos.device.dto.airpurifier.FanModeControlRequest;
+import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
 import com.hogumiwarts.lumos.device.util.AirQualityLevelUtil;
