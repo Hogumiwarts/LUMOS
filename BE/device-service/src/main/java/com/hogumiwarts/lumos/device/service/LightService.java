@@ -37,6 +37,9 @@ public class LightService {
         int colorTemperature = lightUtil.parseColorTemperature(main);
         int[] hueSat = lightUtil.parseHueSaturation(main);
 
+        int hue = hueSat[0];
+        float saturation = (float) hueSat[1] / 100f;
+
         return LightDetailResponse.builder()
                 .tagNumber(device.getTagNumber())
                 .deviceId(device.getDeviceId())
@@ -48,8 +51,8 @@ public class LightService {
                 .activated("on".equalsIgnoreCase(lightValue))
                 .brightness(brightness)
                 .lightTemperature(colorTemperature)
-                .hue(hueSat[0])
-                .saturation((float) hueSat[1])
+                .hue(hue)
+                .saturation(saturation)
                 .build();
     }
 
