@@ -23,12 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
-<<<<<<< Android/app/src/main/java/com/hogumiwarts/lumos/MainActivity.kt
-=======
-import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
-import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
-import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
->>>>>>> Android/app/src/main/java/com/hogumiwarts/lumos/MainActivity.kt
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
