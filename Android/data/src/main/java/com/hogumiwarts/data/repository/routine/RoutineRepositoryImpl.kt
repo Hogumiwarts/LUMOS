@@ -5,6 +5,7 @@ import com.hogumiwarts.domain.model.RoutineResult
 import com.hogumiwarts.domain.repository.RoutineRepository
 import javax.inject.Inject
 import com.hogumiwarts.data.mapper.toDomain
+import retrofit2.HttpException
 
 
 class RoutineRepositoryImpl @Inject constructor(
@@ -17,8 +18,14 @@ class RoutineRepositoryImpl @Inject constructor(
 
             RoutineResult.Success(routines)
 
+        } catch (e: HttpException) {
+            if (e.code() == 401) {
+                RoutineResult.Unauthorized
+            } else {
+                RoutineResult.Failure(e.message ?: "루틴 리스트 불러오기 실패")
+            }
         } catch (e: Exception) {
-            RoutineResult.Failure(e.message ?: "⚠️ 루틴 리스트 불러오기 실패")
+            RoutineResult.Failure(e.message ?: "루틴 리스트 불러오기 실패")
         }
     }
 }

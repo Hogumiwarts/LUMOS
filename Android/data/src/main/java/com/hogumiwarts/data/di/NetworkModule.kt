@@ -31,7 +31,9 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideOkHttpClient(addAuthInterceptor: AddAuthInterceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        addAuthInterceptor: AddAuthInterceptor
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor { message ->
             Log.i("Post", "log: message $message")
         }.apply {
@@ -43,7 +45,7 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(logging)
-            .addInterceptor(addAuthInterceptor)   // 인증 인터셉터 추가
+            .addInterceptor(addAuthInterceptor)
             .build()
     }
 

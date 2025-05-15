@@ -6,6 +6,8 @@ sealed class RoutineResult {
     ) : RoutineResult()
 
     data class Failure(val message: String) : RoutineResult()
+
+    object Unauthorized : RoutineResult()
 }
 
 data class Routine(

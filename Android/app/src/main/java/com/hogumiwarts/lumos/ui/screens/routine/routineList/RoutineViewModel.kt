@@ -3,7 +3,9 @@ package com.hogumiwarts.lumos.ui.screens.routine.routineList
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.Api
 import com.hogumiwarts.data.entity.remote.Response.RoutineData
+import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.model.RoutineResult
 import com.hogumiwarts.domain.model.Routine
 import com.hogumiwarts.domain.repository.RoutineRepository
@@ -14,6 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RoutineViewModel @Inject constructor(
     private val routineRepository: RoutineRepository,
-    private val tokenDataStore: TokenDataStore
+    private val tokenDataStore: TokenDataStore,
+    private val authApi: AuthApi
 
 ) : ViewModel() {
 
@@ -60,6 +64,31 @@ class RoutineViewModel @Inject constructor(
                         errorMessage = result.message
                     )
                 }
+
+                is RoutineResult.Unauthorized -> {
+                    Timber.tag("RoutineViewModel").d("❗ 401 발생 - 토큰 갱신 시도")
+                    refreshAndRetry()
+                }
+            }
+        }
+    }
+
+    private fun refreshAndRetry() {
+        viewModelScope.launch {
+            try {
+                val refreshToken = tokenDataStore.getRefreshToken().first()
+                val response = authApi.refresh("Bearer $refreshToken")
+                val newAccessToken = response.data.accessToken
+                val name = tokenDataStore.getUserName().firstOrNull() ?: ""
+
+                tokenDataStore.saveTokens(newAccessToken, refreshToken, name)
+
+                Timber.tag("RoutineViewModel").d("🔄 토큰 갱신 성공, 루틴 재요청 시도")
+                getRoutineList()
+
+            } catch (e: Exception) {
+                Timber.tag("RoutineViewModel").e(e, "❌ 토큰 갱신 실패")
+                _uiState.value = _uiState.value.copy(errorMessage = "로그인 정보가 만료되었습니다.")
             }
         }
     }

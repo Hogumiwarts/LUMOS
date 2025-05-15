@@ -22,8 +22,8 @@ class AuthViewModel @Inject constructor(
     private val authApi: AuthApi
 ) : ViewModel() {
 
-    val _isLogginIn = MutableStateFlow<Boolean?>(null)
-    val isLoggedIn: StateFlow<Boolean?> = _isLogginIn
+    val _isLoggedIn = MutableStateFlow<Boolean?>(null)
+    val isLoggedIn: StateFlow<Boolean?> = _isLoggedIn
 
     val _isSignup = MutableStateFlow<Boolean?>(null)
     val isSignup: StateFlow<Boolean?> = _isSignup
@@ -31,34 +31,35 @@ class AuthViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val token = tokenDataStore.getAccessToken().first()
+            _isLoggedIn.value = token.isNotEmpty()
 
             if (token.isNotEmpty()) {
                 // 서버 요청 전에 accessToken이 만료되었을 수 있으므로 refresh 시도
-                refreshToken(
-                    onSuccess = {
-                        _isLogginIn.value = true
-                        Timber.tag("Auth").d("✅ 토큰 갱신 완료: $token")
-                    },
-                    onFailure = {
-                        _isLogginIn.value = false
-                    }
-                )
+//                refreshToken(
+//                    onSuccess = {
+//                        _isLogginIn.value = true
+//                        Timber.tag("Auth").d("✅ 토큰 갱신 완료: $token")
+//                    },
+//                    onFailure = {
+//                        _isLogginIn.value = false
+//                    }
+//                )
 
             } else {
-                _isLogginIn.value = false
+                _isLoggedIn.value = false
             }
-            // _isLogginIn.value = token.isNotEmpty()
         }
     }
 
     // 로그인
     fun logIn() {
-        _isLogginIn.value = true
+        _isLoggedIn.value = true
     }
 
     // 로그아웃
     fun logOut() {
-        _isLogginIn.value = false
+        _isLoggedIn.value = false
+        viewModelScope.launch { tokenDataStore.clearTokens() }
     }
 
     // 회원탈퇴
@@ -88,10 +89,10 @@ class AuthViewModel @Inject constructor(
                     name = name
                 )
 
-                _isLogginIn.value = true
+                _isLoggedIn.value = true
                 onSuccess()
             } catch (e: Exception) {
-                _isLogginIn.value = false
+                _isLoggedIn.value = false
                 onFailure(e)
             }
         }
