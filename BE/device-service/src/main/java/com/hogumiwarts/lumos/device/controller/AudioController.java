@@ -3,6 +3,8 @@ package com.hogumiwarts.lumos.device.controller;
 import com.hogumiwarts.lumos.device.docs.AudioApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.dto.audio.AudioDetailResponse;
+import com.hogumiwarts.lumos.device.dto.audio.VolumeControlRequest;
+import com.hogumiwarts.lumos.device.dto.audio.AudioDetailResponse;
 import com.hogumiwarts.lumos.device.dto.audio.AudioPlaybackResponse;
 import com.hogumiwarts.lumos.device.dto.audio.AudioVolumnResponse;
 import com.hogumiwarts.lumos.device.dto.audio.VolumeControlRequest;

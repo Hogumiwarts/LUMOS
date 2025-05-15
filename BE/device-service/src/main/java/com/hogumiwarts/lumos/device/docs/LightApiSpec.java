@@ -1,6 +1,10 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.light.LightBrightRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightColorRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightDetailResponse;
+import com.hogumiwarts.lumos.device.dto.light.LightTemperatureRequest;
 import com.hogumiwarts.lumos.device.dto.light.*;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;

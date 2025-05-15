@@ -4,6 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
 import com.hogumiwarts.lumos.device.dto.light.*;
+import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
+import com.hogumiwarts.lumos.device.dto.light.LightBrightRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightColorRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightDetailResponse;
+import com.hogumiwarts.lumos.device.dto.light.LightTemperatureRequest;
 import com.hogumiwarts.lumos.device.entity.Device;
 import com.hogumiwarts.lumos.device.repository.DeviceRepository;
 import com.hogumiwarts.lumos.device.util.DeviceCommandUtil;
@@ -32,6 +37,9 @@ public class LightService {
         int colorTemperature = lightUtil.parseColorTemperature(main);
         int[] hueSat = lightUtil.parseHueSaturation(main);
 
+        int hue = hueSat[0];
+        float saturation = (float) hueSat[1] / 100f;
+
         return LightDetailResponse.builder()
                 .tagNumber(device.getTagNumber())
                 .deviceId(device.getDeviceId())
@@ -43,8 +51,8 @@ public class LightService {
                 .activated("on".equalsIgnoreCase(lightValue))
                 .brightness(brightness)
                 .lightTemperature(colorTemperature)
-                .hue(hueSat[0])
-                .saturation((float) hueSat[1])
+                .hue(hue)
+                .saturation(saturation)
                 .build();
     }
 
@@ -71,8 +79,8 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         String lightValue = lightUtil.parseLightSwitch(main);
 
-        Boolean activated = "on".equalsIgnoreCase(lightValue);
-        Boolean success = request.getActivated() == activated;
+        boolean activated = "on".equalsIgnoreCase(lightValue);
+        boolean success = request.getActivated() == activated;
 
         // 3. 결과 반환
         return LightPowerResponse.builder()
@@ -90,9 +98,9 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         int[] hueSat = lightUtil.parseHueSaturation(main);
         int hue = hueSat[0];
-        float saturation = (float) hueSat[1];
+        float saturation = (float) hueSat[1] / 100f;
 
-        Boolean success = request.getHue() == hue && request.getSaturation() == saturation;
+        boolean success = request.getHue() == hue && request.getSaturation() == saturation;
 
         return LightColorResponse.builder()
                 .hue(hue)
@@ -126,7 +134,7 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         Integer brightness = lightUtil.parseBrightness(main);
 
-        Boolean success = request.getBrightness() == brightness;
+        boolean success = request.getBrightness() == brightness;
 
         return LightBrightnessResponse.builder()
                 .brightness(brightness)

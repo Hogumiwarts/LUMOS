@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.device.controller;
 import com.hogumiwarts.lumos.device.docs.SwitchApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.dto.minibig.SwitchDetailResponse;
+import com.hogumiwarts.lumos.device.dto.minibig.SwitchDetailResponse;
 import com.hogumiwarts.lumos.device.dto.minibig.SwitchStatusResponse;
 import com.hogumiwarts.lumos.device.service.SwitchService;
 import com.hogumiwarts.lumos.dto.CommonResponse;

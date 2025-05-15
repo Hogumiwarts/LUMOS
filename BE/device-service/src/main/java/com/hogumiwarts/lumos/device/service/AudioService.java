@@ -2,6 +2,9 @@ package com.hogumiwarts.lumos.device.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.audio.AudioDetailResponse;
+import com.hogumiwarts.lumos.device.dto.audio.VolumeControlRequest;
+import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
 import com.hogumiwarts.lumos.device.dto.audio.*;
 import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
 import com.hogumiwarts.lumos.device.entity.Device;
@@ -66,7 +69,7 @@ public class AudioService {
         String albumArtUrl = AudioUtil.parseAlbumArtUrl(main);
         String artist = AudioUtil.parseArtist(main);
         String albumTitle = AudioUtil.parseAlbumTitle(main);
-        Integer volume = AudioUtil.parseVolume(main);
+        int volume = AudioUtil.parseVolume(main);
 
 
         return AudioDetailResponse.builder()
@@ -98,7 +101,7 @@ public class AudioService {
         JsonNode main = raw.path("status").path("components").path("main");
 
         Integer volume = AudioUtil.parseVolume(main);
-        Boolean success = null;
+        boolean success = false;
         if (volume != null) {
             success = request.getVolume() == volume;
         }
