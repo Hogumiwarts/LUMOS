@@ -59,7 +59,7 @@ public class AirPurifierService {
 
         // 팬 속도
         String fanMode = AirPurifierUtil.parseFanMode(main);
-        Boolean success = request.getFanMode().getMode().equals(fanMode);
+        boolean success = request.getFanMode().getMode().equals(fanMode);
 
         return AirPurifierFanModeResponse.builder()
                 .fanMode(fanMode)

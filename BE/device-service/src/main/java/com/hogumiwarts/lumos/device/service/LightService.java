@@ -76,8 +76,8 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         String lightValue = lightUtil.parseLightSwitch(main);
 
-        Boolean activated = "on".equalsIgnoreCase(lightValue);
-        Boolean success = request.getActivated() == activated;
+        boolean activated = "on".equalsIgnoreCase(lightValue);
+        boolean success = request.getActivated() == activated;
 
         // 3. 결과 반환
         return LightPowerResponse.builder()
@@ -97,7 +97,7 @@ public class LightService {
         int hue = hueSat[0];
         float saturation = (float) hueSat[1];
 
-        Boolean success = request.getHue() == hue && request.getSaturation() == saturation;
+        boolean success = request.getHue() == hue && request.getSaturation() == saturation;
 
         return LightColorResponse.builder()
                 .hue(hue)
@@ -131,7 +131,7 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         Integer brightness = lightUtil.parseBrightness(main);
 
-        Boolean success = request.getBrightness() == brightness;
+        boolean success = request.getBrightness() == brightness;
 
         return LightBrightnessResponse.builder()
                 .brightness(brightness)

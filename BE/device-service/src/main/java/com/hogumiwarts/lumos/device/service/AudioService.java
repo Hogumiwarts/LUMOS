@@ -69,7 +69,7 @@ public class AudioService {
         String albumArtUrl = AudioUtil.parseAlbumArtUrl(main);
         String artist = AudioUtil.parseArtist(main);
         String albumTitle = AudioUtil.parseAlbumTitle(main);
-        Integer volume = AudioUtil.parseVolume(main);
+        int volume = AudioUtil.parseVolume(main);
 
 
         return AudioDetailResponse.builder()
@@ -101,7 +101,7 @@ public class AudioService {
         JsonNode main = raw.path("status").path("components").path("main");
 
         Integer volume = AudioUtil.parseVolume(main);
-        Boolean success = null;
+        boolean success = false;
         if (volume != null) {
             success = request.getVolume() == volume;
         }
