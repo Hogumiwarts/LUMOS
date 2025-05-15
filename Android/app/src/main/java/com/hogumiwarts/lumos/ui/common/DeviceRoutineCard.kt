@@ -125,10 +125,10 @@ fun DeviceRoutineCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 18.dp, bottom = 18.dp, start = 15.dp), // end 패딩은 없음
+                .padding(top = 12.dp, bottom = 18.dp, start = 15.dp), // end 패딩은 없음
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if (showToggle) {
+            if (showToggle && isActive) {
                 VerticalToggle(
                     isOn = isOn,
                     onToggle = { onToggle?.invoke() }

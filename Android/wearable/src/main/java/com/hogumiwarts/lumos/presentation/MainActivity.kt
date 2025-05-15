@@ -60,16 +60,18 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                 ) {
 
+
                     Image(
                         painter = painterResource(id = R.drawable.device_background),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                     )
+
+
                     val navController = rememberNavController()
                     if(text ==""){
                         NavGraph(navController)
 //                        LightOtherSetting()
-
                     }else{
                         GestureTestScreen(text) {
                             sendTextToMobile(this@MainActivity, it)

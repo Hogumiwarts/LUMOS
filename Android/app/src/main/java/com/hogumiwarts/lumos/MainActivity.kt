@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
+<<<<<<< Android/app/src/main/java/com/hogumiwarts/lumos/MainActivity.kt
+=======
+import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
+import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
+import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+>>>>>>> Android/app/src/main/java/com/hogumiwarts/lumos/MainActivity.kt
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -54,12 +61,16 @@ class MainActivity : ComponentActivity() {
             val installedAppId = uri.getQueryParameter("installedAppId")
             Timber.d("🔥 installedAppId = $installedAppId")
 
+            val name = uri.getQueryParameter("name")
+
             val authToken = uri.getQueryParameter("authToken")
 
             if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
                 lifecycleScope.launch {
                     // 받아온 토큰 값들 저장
-                    tokenDataStore.saveSmartThingsTokens(installedAppId, authToken)
+                    if (name != null) {
+                        tokenDataStore.saveSmartThingsTokens(installedAppId, authToken, name)
+                    }
                     Toast.makeText(
                         this@MainActivity,
                         "SmartThings 연동 완료!",
@@ -103,20 +114,19 @@ class MainActivity : ComponentActivity() {
         controller.isAppearanceLightStatusBars = true
         controller.isAppearanceLightNavigationBars = true
 
-
         // 권한 확인 및 요청
         checkAndRequestPermissions()
 
-
         setContent {
             LUMOSTheme {
-
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-                   MainScreen()
+
+                    val navController = rememberNavController()
+                    NavGraph(navController = navController)
                 }
             }
         }

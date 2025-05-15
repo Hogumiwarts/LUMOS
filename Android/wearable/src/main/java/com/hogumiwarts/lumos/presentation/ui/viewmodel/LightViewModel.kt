@@ -120,7 +120,7 @@ class LightViewModel @Inject constructor(
     }
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun patchLightColor(deviceId: Long, color: String) {
+    private fun patchLightColor(deviceId: Long, color: Int) {
         viewModelScope.launch {
             _brightnessState.value = ControlState.Loading
 

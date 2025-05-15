@@ -25,7 +25,7 @@ class LightUseCase @Inject constructor(
         return data
     }
 
-    suspend fun patchLightColor(deviceId: Long, color: String): PatchSwitchPowerResult {
+    suspend fun patchLightColor(deviceId: Long, color: Int): PatchSwitchPowerResult {
         val data = lightRepository.patchLightColor(deviceId =deviceId,color = color)
         return data
     }

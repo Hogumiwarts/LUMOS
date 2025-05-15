@@ -151,11 +151,11 @@ fun LightScreen(tagNumber: Long?) {
 
 
 
-// 🧪 Wear OS 에뮬레이터에서 미리보기 지원
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    LUMOSTheme {
-        LightScreen(1L)
-    }
-}
+//// 🧪 Wear OS 에뮬레이터에서 미리보기 지원
+//@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+//@Composable
+//fun DefaultPreview() {
+//    LUMOSTheme {
+//        LightScreen(1L)
+//    }
+//}
