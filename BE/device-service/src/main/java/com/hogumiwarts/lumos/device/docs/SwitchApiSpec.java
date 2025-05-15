@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.minibig.SwitchStatusResponse;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +24,7 @@ public interface SwitchApiSpec {
                     """,
             tags = {"스위치"})
     @PatchMapping("/{deviceId}/switch/power")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateSwitchPower(
+    ResponseEntity<CommonResponse<SwitchStatusResponse>> updateSwitchPower(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
