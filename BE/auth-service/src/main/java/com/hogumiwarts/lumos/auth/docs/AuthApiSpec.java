@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "인증", description = "인증 및 회원관리 API")
+@Tag(name = "인증", description = "인증 API")
 public interface AuthApiSpec {
 
 	@Operation(
