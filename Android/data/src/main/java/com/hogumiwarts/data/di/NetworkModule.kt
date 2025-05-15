@@ -10,6 +10,7 @@ import com.hogumiwarts.data.source.remote.DeviceApi
 import com.hogumiwarts.data.source.remote.WeatherApi
 import com.hogumiwarts.data.source.remote.GestureApi
 import com.hogumiwarts.data.source.remote.MemberApi
+import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
 import com.hogumiwarts.domain.repository.MemberRepository
 import dagger.Binds
@@ -182,6 +183,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun memberApi(@Named("memberRetrofit") retrofit: Retrofit): MemberApi =
+    fun memberApi(@Named("BaseRetrofit") retrofit: Retrofit): MemberApi =
         retrofit.create(MemberApi::class.java)
+
+
+    @Provides
+    @Singleton
+    fun routineApi(@Named("BaseRetrofit") retrofit: Retrofit): RoutineApi =
+        retrofit.create(RoutineApi::class.java)
+
+
 }

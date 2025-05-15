@@ -48,22 +48,34 @@ import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.hogumiwarts.domain.model.Routine
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineScreen(
-    routines: List<RoutineItem> = RoutineItem.sample,
     onBackClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
-    onRoutineClick: (RoutineItem) -> Unit = {}
+    onRoutineClick: (Routine) -> Unit = {},
+    viewModel: RoutineViewModel = hiltViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     val coroutineScope = rememberCoroutineScope()
-    val (selectedRoutine, setSelectedRoutine) = remember { mutableStateOf<RoutineItem?>(null) }
+    val (selectedRoutine, setSelectedRoutine) = remember { mutableStateOf<Routine?>(null) }
     var isSheetVisible by remember { mutableStateOf(false) }
+
+    val routineList by viewModel.routineList.collectAsState()
+
+    // 루틴 불러오기 한 번 실행
+    LaunchedEffect(Unit) {
+        viewModel.getRoutineList()
+    }
 
     Column(
         modifier = Modifier
@@ -74,7 +86,7 @@ fun RoutineScreen(
         //상단 TopBar
         CommonTopBar(
             barTitle = "나의 루틴",
-            onBackClick = { onBackClick },
+            onBackClick = { onBackClick() },
             isRightBtnVisible = true,
             onRightBtnClick = onAddClick,
             isBackBtnVisible = false
@@ -89,7 +101,7 @@ fun RoutineScreen(
             modifier = Modifier
                 .fillMaxHeight()
         ) {
-            items(routines) { routine ->
+            items(routineList) { routine ->
                 DeviceRoutineCard(
                     modifier = Modifier
                         .aspectRatio(1.05f)
@@ -102,13 +114,15 @@ fun RoutineScreen(
                             }
                         ),
                     showToggle = false, // 토글 X
-                    cardTitle = routine.title,
-                    cardSubtitle = routine.subtitle,
+                    cardTitle = routine.routineName,
+                    cardSubtitle = routine.gestureName,
                     isOn = false,
                     iconSize = DpSize(80.dp, 80.dp),
                     cardIcon = { size ->
                         Image(
-                            painter = painterResource(id = routine.iconResId),
+                            painter = painterResource(
+                                id = RoutineIconType.getResIdByName(routine.routineIcon)
+                            ),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(top = 5.dp)
@@ -154,7 +168,7 @@ fun RoutineScreen(
                         )
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(27.dp))
 
                 Row(
