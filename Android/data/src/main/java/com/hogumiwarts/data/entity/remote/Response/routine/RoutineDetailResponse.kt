@@ -1,5 +1,7 @@
 package com.hogumiwarts.data.entity.remote.Response.routine
 
+import kotlinx.serialization.json.JsonElement
+
 data class RoutineDetailResponse(
     val status: Int,
     val message: String,
@@ -21,12 +23,6 @@ data class RoutineDeviceData (
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String,
-    val commands: SwitchSettingData
+    val commands: JsonElement // 기기별 제어
 )
 
-data class SwitchSettingData (
-    val component: String,
-    val capability: String,
-    val command: String,
-
-)
