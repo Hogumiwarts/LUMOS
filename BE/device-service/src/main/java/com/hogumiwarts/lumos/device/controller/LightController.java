@@ -2,10 +2,7 @@ package com.hogumiwarts.lumos.device.controller;
 
 import com.hogumiwarts.lumos.device.docs.LightApiSpec;
 import com.hogumiwarts.lumos.device.dto.*;
-import com.hogumiwarts.lumos.device.dto.light.LightBrightRequest;
-import com.hogumiwarts.lumos.device.dto.light.LightColorRequest;
-import com.hogumiwarts.lumos.device.dto.light.LightDetailResponse;
-import com.hogumiwarts.lumos.device.dto.light.LightTemperatureRequest;
+import com.hogumiwarts.lumos.device.dto.light.*;
 import com.hogumiwarts.lumos.device.service.LightService;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,30 +19,30 @@ public class LightController implements LightApiSpec {
 
     // onoff 변환
     @Override
-    public ResponseEntity<CommonResponse<SuccessResponse>> updateLightStatus(Long deviceId, PowerControlRequest request) {
-        lightService.updateLightStatus(deviceId, request);
-        return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
+    public ResponseEntity<CommonResponse<LightPowerResponse>> updateLightStatus(Long deviceId, PowerControlRequest request) {
+        LightPowerResponse response = lightService.updateLightStatus(deviceId, request);
+        return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     // 색상 변환
     @Override
-    public ResponseEntity<CommonResponse<SuccessResponse>> updateLightColor(Long deviceId, LightColorRequest request) {
-        lightService.updateLightColor(deviceId, request);
-        return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
+    public ResponseEntity<CommonResponse<LightColorResponse>> updateLightColor(Long deviceId, LightColorRequest request) {
+        LightColorResponse response = lightService.updateLightColor(deviceId, request);
+        return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     // 색온도 변환
     @Override
-    public ResponseEntity<CommonResponse<SuccessResponse>> updateLightTemperature(Long deviceId, LightTemperatureRequest request) {
-        lightService.updateLightTemperature(deviceId, request);
-        return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
+    public ResponseEntity<CommonResponse<LightTemperatureResponse>> updateLightTemperature(Long deviceId, LightTemperatureRequest request) {
+        LightTemperatureResponse response = lightService.updateLightTemperature(deviceId, request);
+        return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     // 밝기 변환
     @Override
-    public ResponseEntity<CommonResponse<SuccessResponse>> updateLightBright(Long deviceId, LightBrightRequest request) {
-        lightService.updateLightBrightness(deviceId, request);
-        return ResponseEntity.ok(CommonResponse.ok(SuccessResponse.success()));
+    public ResponseEntity<CommonResponse<LightBrightnessResponse>> updateLightBright(Long deviceId, LightBrightRequest request) {
+        LightBrightnessResponse response = lightService.updateLightBrightness(deviceId, request);
+        return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     // 조명 상태 조회
