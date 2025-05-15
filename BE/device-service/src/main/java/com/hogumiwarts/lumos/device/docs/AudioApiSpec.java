@@ -2,6 +2,9 @@ package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.dto.audio.VolumeControlRequest;
+import com.hogumiwarts.lumos.device.dto.audio.AudioPlaybackResponse;
+import com.hogumiwarts.lumos.device.dto.audio.AudioVolumnResponse;
+import com.hogumiwarts.lumos.device.dto.audio.VolumeControlRequest;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +19,7 @@ public interface AudioApiSpec {
             description = "스피커의 볼륨을 0~100 사이의 값으로 설정합니다.",
             tags = {"스피커"})
     @PatchMapping("/{deviceId}/audio/volume")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateAudioVolume(
+    ResponseEntity<CommonResponse<AudioVolumnResponse>> updateAudioVolume(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -36,7 +39,7 @@ public interface AudioApiSpec {
                     """,
             tags = {"스피커"})
     @PatchMapping("/{deviceId}/audio/playback")
-    ResponseEntity<CommonResponse<SuccessResponse>>  updateAudioPlayback(
+    ResponseEntity<CommonResponse<AudioPlaybackResponse>>  updateAudioPlayback(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
