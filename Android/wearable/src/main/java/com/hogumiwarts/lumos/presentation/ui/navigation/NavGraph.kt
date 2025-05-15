@@ -98,7 +98,7 @@ fun NavGraph(
         }
 
         // 🔸 Speaker 제어 화면
-        composable("speaker/{tagNumber}",
+        composable("speaker/{deviceId}",
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(600)) +
                         fadeIn(initialAlpha = 1f)
@@ -107,10 +107,10 @@ fun NavGraph(
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(1000))
             }
         ) {
-            val tagNumber = it.arguments?.getString("tagNumber")?.toLongOrNull()
-
-                MoodPlayerScreen(tagNumber = tagNumber)
-
+            val deviceId = it.arguments?.getString("deviceId")?.toLongOrNull()
+            if (deviceId != null) {
+                MoodPlayerScreen(deviceId = deviceId)
+            }
         }
 
         // 🔸 공기청정기 제어 화면

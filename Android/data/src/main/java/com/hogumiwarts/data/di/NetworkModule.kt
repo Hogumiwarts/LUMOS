@@ -3,6 +3,7 @@ package com.hogumiwarts.data.di
 import android.util.Log
 import com.hogumiwarts.data.BuildConfig
 import com.hogumiwarts.data.source.remote.AirpurifierApi
+import com.hogumiwarts.data.source.remote.AudioApi
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.data.source.remote.DeviceApi
 import com.hogumiwarts.data.source.remote.WeatherApi
@@ -155,6 +156,14 @@ object NetworkModule {
     @Singleton
     fun provideAripurifierApi(@Named("BaseRetrofit")retrofit: Retrofit): AirpurifierApi =
         retrofit.create(AirpurifierApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAudioApi(@Named("BaseRetrofit")retrofit: Retrofit): AudioApi =
+        retrofit.create(AudioApi::class.java)
+
+    @Provides
+    @Singleton
     fun provideDevicedListApi(@Named("deviceRetrofit") retrofit: Retrofit): DeviceApi =
         retrofit.create(DeviceApi::class.java)
 
