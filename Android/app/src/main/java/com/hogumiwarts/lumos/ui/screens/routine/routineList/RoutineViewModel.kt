@@ -1,18 +1,13 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.api.Api
-import com.hogumiwarts.data.entity.remote.Response.RoutineData
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.model.RoutineResult
 import com.hogumiwarts.domain.model.Routine
 import com.hogumiwarts.domain.repository.RoutineRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first

@@ -145,7 +145,7 @@ fun HomeScreen(
 
 
             Text(
-                text = "${HomeState.userName ?: "이름없음"}님\n집에 돌아오신 걸 환영해요.",
+                text = "${HomeState.userName ?: "루모스"}님\n집에 돌아오신 걸 환영해요.",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,

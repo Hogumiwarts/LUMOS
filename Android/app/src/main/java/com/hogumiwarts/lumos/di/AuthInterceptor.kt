@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AddAuthInterceptor @Inject constructor(
+class AuthInterceptor @Inject constructor(
     private val tokenDataStore: TokenDataStore
 ) : Interceptor {
 
