@@ -38,9 +38,13 @@ class RoutineViewModel @Inject constructor(
             val accessToken = tokenDataStore.getAccessToken().first()
             Timber.tag("RoutineViewModel").d("📦 액세스 토큰: $accessToken")
 
-
             when (val result = routineRepository.getRoutineList(accessToken)) {
                 is RoutineResult.Success -> {
+                    Timber.tag("RoutineViewModel").d("✅ 루틴 개수: ${result.routines.size}")
+                    result.routines.forEach {
+                        Timber.tag("RoutineViewModel")
+                            .d("🔹 ${it.routineId} / ${it.routineName} / ${it.routineIcon}")
+                    }
                     _routineList.value = result.routines
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -49,6 +53,8 @@ class RoutineViewModel @Inject constructor(
                 }
 
                 is RoutineResult.Failure -> {
+                    Timber.tag("RoutineViewModel").d("RoutineResult 실패")
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = result.message

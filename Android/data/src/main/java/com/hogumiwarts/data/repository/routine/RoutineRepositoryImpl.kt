@@ -13,9 +13,9 @@ class RoutineRepositoryImpl @Inject constructor(
     override suspend fun getRoutineList(accessToken: String): RoutineResult {
         return try {
             val response = routineApi.getRoutineList("Bearer $accessToken")
-            val routine = response.data.toDomain()
+            val routines = response.data.toDomain()
 
-            RoutineResult.Success(listOf(routine))
+            RoutineResult.Success(routines)
 
         } catch (e: Exception) {
             RoutineResult.Failure(e.message ?: "⚠️ 루틴 리스트 불러오기 실패")

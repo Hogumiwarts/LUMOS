@@ -3,7 +3,7 @@ package com.hogumiwarts.data.entity.remote.Response
 data class RoutineResponse(
     val status: Int,
     val message: String,
-    val data: RoutineData
+    val data: List<RoutineData>
 )
 
 data class RoutineData(

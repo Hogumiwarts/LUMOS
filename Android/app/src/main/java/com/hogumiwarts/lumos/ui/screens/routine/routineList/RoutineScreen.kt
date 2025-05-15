@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -54,6 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.domain.model.Routine
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
+import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -76,6 +78,12 @@ fun RoutineScreen(
     LaunchedEffect(Unit) {
         viewModel.getRoutineList()
     }
+
+    routineList.forEach {
+        Timber.tag("routine").d("✅ 루틴 확인: ${it.routineName}")
+    }
+
+
 
     Column(
         modifier = Modifier
