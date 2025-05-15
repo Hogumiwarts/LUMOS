@@ -3,7 +3,7 @@ uvicorn[standard]
 torch
 pydantic
 numpy
-tensorflow
+# tensorflow
 scikit-learn
 PyWavelets
 pandas

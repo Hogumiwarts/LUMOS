@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
         android:name=".util.TestApplication"
         android:allowBackup="true"
@@ -15,6 +18,13 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault"
         android:usesCleartextTraffic="true">
+
+        <service
+            android:name=".util.SensorService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -37,6 +47,7 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
+
         <activity
             android:name="com.hogumiwarts.myapplication.presentation.ui.MainActivity"
             android:exported="true"
@@ -48,6 +59,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
     </application>
 
 </manifest>

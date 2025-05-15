@@ -1,12 +1,15 @@
 package com.hogumiwarts.myapplication.presentation.ui
 
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
+import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -20,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
@@ -29,8 +33,10 @@ import com.hogumiwarts.myapplication.presentation.viewmodel.GestureViewModel
 import com.hogumiwarts.myapplication.theme.MyApplicationTheme
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.hogumiwarts.myapplication.util.SensorService
 import org.json.JSONArray
 import org.json.JSONObject
+import androidx.compose.ui.platform.LocalContext
 
 
 @AndroidEntryPoint
@@ -58,6 +64,21 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         setTheme(android.R.style.Theme_DeviceDefault)
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+//        val startButton = findViewById<Button>(R.id.start_button)
+//        val stopButton = findViewById<Button>(R.id.stop_button)
+//
+//        startButton.setOnClickListener {
+//            val intent = Intent(this, SensorService::class.java)
+//            startService(intent)
+//        }
+//
+//        stopButton.setOnClickListener {
+//            val intent = Intent(this, SensorService::class.java)
+//            stopService(intent)
+//        }
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -219,6 +240,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         history: List<String>,
         onToggleMeasurement: () -> Unit
     ) {
+        val context = LocalContext.current
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -231,7 +254,6 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             Text(prediction, color = Color.White, style = MaterialTheme.typography.display1)
 
             Spacer(modifier = Modifier.height(12.dp))
-
             androidx.wear.compose.material.Button(
                 onClick = onToggleMeasurement,
                 modifier = Modifier.fillMaxWidth(0.8f)
@@ -241,6 +263,30 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     style = MaterialTheme.typography.title3
                 )
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            androidx.wear.compose.material.Button(
+                onClick = {
+                    val intent = Intent(context, SensorService::class.java)
+                    context.startService(intent)
+                },
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text("서비스 시작", style = MaterialTheme.typography.title3)
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            androidx.wear.compose.material.Button(
+                onClick = {
+                    val intent = Intent(context, SensorService::class.java)
+                    context.stopService(intent)
+                },
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text("서비스 중지", style = MaterialTheme.typography.title3)
+            }
+
 
 //            Spacer(modifier = Modifier.height(8.dp))
 //
