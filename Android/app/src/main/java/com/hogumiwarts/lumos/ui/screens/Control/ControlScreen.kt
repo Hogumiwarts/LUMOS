@@ -40,6 +40,9 @@ fun ControlScreen(
     val connectionState by bleViewModel.connectionState.collectAsState()
     val selectedDevice by bleViewModel.selectedDevice.collectAsState()
 
+
+    val sessionReady = controlViewModel.sessionReady
+
     val scrollState = rememberScrollState()
 
     // UWB 기기 주소값
@@ -148,13 +151,6 @@ fun ControlScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("설정된 컨트롤리 주소: ${controlViewModel.controleeAddresses.joinToString(", ")}")
-//                    Text("대상 주소:")
-//                    TextField(
-//                        value = destinationAddress,
-//                        onValueChange = { value -> destinationAddress = value.uppercase() },
-//                        placeholder = { Text("00:00") },
-//                        modifier = Modifier.fillMaxWidth()
-//                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(
@@ -163,32 +159,24 @@ fun ControlScreen(
                     ) {
                         Button(
                             onClick = {
-                                val pattern = "[0-9A-F]{2}:[0-9A-F]{2}"
-                                if (destinationAddress.matches(pattern.toRegex())) {
-                                    if (!controlViewModel.startMultiRanging()) {
-                                        Toast.makeText(
-                                            context,
-                                            "세션이 초기화되지 않았습니다!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                } else {
+                                if (
+                                    !controlViewModel.startSingleRanging()
+//                                    !controlViewModel.startRanging()
+                                ) {
                                     Toast.makeText(
                                         context,
-                                        "Invalid address format",
+                                        "세션이 초기화되지 않았습니다!",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             },
-//                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !(controlViewModel.rangingActive)
+                            enabled = sessionReady && !controlViewModel.rangingActive
                         ) {
                             Text("멀티 레인징 시작")
                         }
 
                         Button(
                             onClick = { controlViewModel.stopRanging() },
-//                            modifier = Modifier.fillMaxWidth(),
                             enabled = controlViewModel.rangingActive
                         ) {
                             Text("레인징 중지")
@@ -330,7 +318,6 @@ fun ControlScreen(
                     }
                 }
             }
-
 
 
             // 스캔 제어 버튼

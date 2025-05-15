@@ -19,21 +19,28 @@ class ControlViewModel @Inject constructor(
     val controleeAddresses get() = uwbRanging.getControleeAddresses()
     val connectedDevices get() = uwbRanging.getConnectedDevices()
 
+    // 세션 준비
+    val sessionReady get() = uwbRanging.sessionReady
+
     fun getDevicePosition(address: String) = uwbRanging.getDevicePosition(address)
 
     fun prepareSession() {
         uwbRanging.prepareSession()
     }
 
-    fun startMultiRanging(): Boolean {
-        return uwbRanging.startMultiRanging()
+    fun startSingleRanging(): Boolean {
+        return uwbRanging.startSingleRanging()
     }
 
-//    fun startRanging(remoteAdr: String): Boolean {
-//        // 이미 활성화된 경우 중복 호출 방지
-//        if (rangingActive) return true
-//        return uwbRanging.startRanging(remoteAdr)
-//    }
+    fun startMultiRanging(): Boolean {
+        return uwbRanging.startMultiDeviceRanging()
+    }
+
+    fun startRanging(): Boolean {
+        // 이미 활성화된 경우 중복 호출 방지
+        if (rangingActive) return true
+        return uwbRanging.startRanging()
+    }
 
     fun stopRanging() {
         uwbRanging.stopRanging()
