@@ -86,7 +86,7 @@ class HomeViewModel @Inject constructor(
     // 사용자 정보 조회 -> 이름
     fun getMemberInfo() {
         viewModelScope.launch {
-            tokenDataStore.getRefreshToken().collect() { token ->
+            tokenDataStore.getAccessToken().collect() { token ->
                 when (val result = memberRepository.member(token)) {
                     is MemberResult.Success -> {
                         val name = result.name
