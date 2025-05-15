@@ -1,7 +1,8 @@
 package com.hogumiwarts.lumos.device.controller;
 
 import com.hogumiwarts.lumos.device.docs.DeviceApiSpec;
-import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.device.DeviceStatusResponse;
+import com.hogumiwarts.lumos.device.dto.device.DevicesCreateResponse;
 import com.hogumiwarts.lumos.device.service.DeviceService;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;

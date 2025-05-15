@@ -1,6 +1,11 @@
 package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
+import com.hogumiwarts.lumos.device.dto.light.LightBrightRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightColorRequest;
+import com.hogumiwarts.lumos.device.dto.light.LightDetailResponse;
+import com.hogumiwarts.lumos.device.dto.light.LightTemperatureRequest;
+import com.hogumiwarts.lumos.device.dto.light.*;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +24,7 @@ public interface LightApiSpec {
              - `activated` : 전원 상태 (`true` = 켜짐, `false` = 꺼짐)
             """, tags = {"조명"})
     @PatchMapping("/{deviceId}/light/power")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateLightStatus(
+    ResponseEntity<CommonResponse<LightPowerResponse>> updateLightStatus(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @Parameter(
@@ -43,7 +48,7 @@ public interface LightApiSpec {
             tags = {"조명"}
     )
     @PatchMapping("/{deviceId}/light/color")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateLightColor(
+    ResponseEntity<CommonResponse<LightColorResponse>> updateLightColor(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @Parameter(
@@ -61,7 +66,7 @@ public interface LightApiSpec {
             
             """, tags = {"조명"})
     @PatchMapping("/{deviceId}/light/temperature")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateLightTemperature(
+    ResponseEntity<CommonResponse<LightTemperatureResponse>> updateLightTemperature(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @Parameter(
@@ -80,7 +85,7 @@ public interface LightApiSpec {
             
             """, tags = {"조명"})
     @PatchMapping("/{deviceId}/light/bright")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateLightBright(
+    ResponseEntity<CommonResponse<LightBrightnessResponse>> updateLightBright(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @Parameter(

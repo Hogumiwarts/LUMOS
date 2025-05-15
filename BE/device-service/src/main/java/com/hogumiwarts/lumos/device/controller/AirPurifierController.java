@@ -1,8 +1,8 @@
 package com.hogumiwarts.lumos.device.controller;
 
 import com.hogumiwarts.lumos.device.docs.AirPurifierApiSpec;
-import com.hogumiwarts.lumos.device.dto.AirPurifierDetailResponse;
-import com.hogumiwarts.lumos.device.dto.FanModeControlRequest;
+import com.hogumiwarts.lumos.device.dto.airpurifier.AirPurifierDetailResponse;
+import com.hogumiwarts.lumos.device.dto.airpurifier.FanModeControlRequest;
 import com.hogumiwarts.lumos.device.dto.PowerControlRequest;
 import com.hogumiwarts.lumos.device.dto.SuccessResponse;
 import com.hogumiwarts.lumos.device.service.AirPurifierService;

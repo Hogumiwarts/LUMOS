@@ -53,6 +53,7 @@ public enum ErrorCode {
 	// 회원(Member) 관련 에러
 	MEMBER_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER-001", "해당 ID를 가진 사용자를 찾을 수 없습니다."),
 	MEMBER_ID_MISSING(HttpStatus.BAD_REQUEST, "MEMBER-002", "사용자 ID가 누락되었습니다."),
+	MEMBER_SERVER_ERROR(HttpStatus.BAD_REQUEST, "MEMBER-003", "회원 조회 중 서버 내부 오류가 발생했습니다."),
 	
 	// 기기 관련 에러
 	DEVICE_NOT_FOUND(HttpStatus.NOT_FOUND, "DEVICE-001", "해당하는 기기를 찾을 수 없습니다."),
