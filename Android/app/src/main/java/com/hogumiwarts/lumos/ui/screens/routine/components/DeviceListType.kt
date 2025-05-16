@@ -18,6 +18,6 @@ enum class DeviceListType(
 
     companion object {
         fun from(category: String): DeviceListType =
-            values().find { it.categoryName.equals(category, ignoreCase = true) } ?: ETC
+            values().find { it.name.equals(category.trim(), ignoreCase = true) } ?: ETC
     }
 }

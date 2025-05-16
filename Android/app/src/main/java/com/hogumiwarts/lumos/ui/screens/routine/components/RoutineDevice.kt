@@ -10,7 +10,7 @@ data class RoutineDevice(
 ) {
     val iconResId get() = deviceType.iconResId
     val color get() = deviceType.color
-    val deviceTypeName get() = deviceType.deviceName
+    val deviceTypeName get() = deviceType.categoryName
 
 
     companion object {

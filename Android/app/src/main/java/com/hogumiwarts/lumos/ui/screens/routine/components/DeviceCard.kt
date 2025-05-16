@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -92,6 +93,8 @@ fun DeviceCard(
                         color = Color(0xFFA1A1A1)
                     )
                 )
+
+                Timber.tag("routine").d("✨✨기기 타입 : ${routineDevice.deviceTypeName}")
 
                 Spacer(modifier = Modifier.weight(1f))
 
