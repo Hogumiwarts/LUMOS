@@ -45,7 +45,7 @@ public class LightUtil {
 
         if (!hueNode.isMissingNode() && !hueNode.isNull()
                 && !satNode.isMissingNode() && !satNode.isNull()) {
-            return new float[]{hueNode.asInt(), (int) (satNode.floatValue() * 100)};
+            return new float[]{ hueNode.floatValue(), satNode.floatValue() };
         }
         return new float[]{-1f, -1f};
     }

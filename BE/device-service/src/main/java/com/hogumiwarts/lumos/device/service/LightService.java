@@ -38,7 +38,7 @@ public class LightService {
         float[] hueSat = lightUtil.parseHueSaturation(main);
 
         float hue = hueSat[0];
-        float saturation = (float) hueSat[1] / 100f;
+        float saturation = hueSat[1];
 
         return LightDetailResponse.builder()
                 .tagNumber(device.getTagNumber())
@@ -98,7 +98,7 @@ public class LightService {
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         float[] hueSat = lightUtil.parseHueSaturation(main);
         float hue = hueSat[0];
-        float saturation = hueSat[1] / 100f;
+        float saturation = hueSat[1];
 
         boolean success = request.getHue() == hue && request.getSaturation() == saturation;
 
