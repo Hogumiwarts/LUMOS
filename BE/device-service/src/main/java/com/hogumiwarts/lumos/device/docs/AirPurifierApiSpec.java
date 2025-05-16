@@ -2,6 +2,8 @@ package com.hogumiwarts.lumos.device.docs;
 
 import com.hogumiwarts.lumos.device.dto.*;
 import com.hogumiwarts.lumos.device.dto.airpurifier.AirPurifierDetailResponse;
+import com.hogumiwarts.lumos.device.dto.airpurifier.AirPurifierFanModeResponse;
+import com.hogumiwarts.lumos.device.dto.airpurifier.AirPurifierStatusResponse;
 import com.hogumiwarts.lumos.device.dto.airpurifier.FanModeControlRequest;
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +25,7 @@ public interface AirPurifierApiSpec {
             tags = {"공기청정기"}
     )
     @PatchMapping("/{deviceId}/airpurifier/power")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateAirPurifierPower(
+    ResponseEntity<CommonResponse<AirPurifierStatusResponse>> updateAirPurifierPower(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -37,12 +39,12 @@ public interface AirPurifierApiSpec {
             summary = "공기청정기 FanMode 변경",
             description = """
                     FanMode 설정값은 다음 중 하나입니다 (5개): 
-                    - `auto`: 자동 / `low`: 약풍 / `medium`: 중간풍 / `high`: 강풍 / `quiet`: 조용한 모드  
+                    - `Auto`: 자동 / `Low`: 약풍 / `Medium`: 중간풍 / `High`: 강풍 / `Quiet`: 조용한 모드  
                     """,
             tags = {"공기청정기"}
     )
     @PatchMapping("/{deviceId}/airpurifier/fanmode")
-    ResponseEntity<CommonResponse<SuccessResponse>> updateAirPurifierFanMode(
+    ResponseEntity<CommonResponse<AirPurifierFanModeResponse>> updateAirPurifierFanMode(
             @Parameter(description = "디바이스 ID", required = true)
             @PathVariable("deviceId") Long deviceId,
             @RequestBody FanModeControlRequest request
@@ -64,7 +66,7 @@ public interface AirPurifierApiSpec {
                     
                     - `activated` : 전원 상태 (true = 켜짐, false = 꺼짐)  
                     
-                    - `fanMode` : 팬 속도 (auto / low / medium / high / quiet)  
+                    - `fanMode` : 팬 속도 (Auto / Low / Medium / High / Quiet)  
                     
                     - `caqi` : 공기질 등급 (VeryLow / Low / Medium / High / VeryHigh / UNKNOWN)  
                     

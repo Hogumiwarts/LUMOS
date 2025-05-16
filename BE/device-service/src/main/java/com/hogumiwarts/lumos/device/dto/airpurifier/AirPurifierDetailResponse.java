@@ -47,7 +47,7 @@ public class AirPurifierDetailResponse {
     @Schema(description = "초미세먼지 농도 (단위: ㎍/m³)")
     private Integer fineDustLevel;
 
-    @Schema(description = "팬 속도 (예: auto, low, medium, high, quiet)")
+    @Schema(description = "팬 속도 (예: Auto, Low, Medium, High, Quiet)")
     private String fanMode;
 
     @Schema(description = "필터 누적 사용 시간 (단위: 시간)")
