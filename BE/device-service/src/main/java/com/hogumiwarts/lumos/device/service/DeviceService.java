@@ -47,11 +47,13 @@ public class DeviceService {
 
 		// 2. DB에서 DeviceId 추출 (새로 검색된 디바이스, 이미 등록되어있는 디바이스 비교를 위해)
 		Long memberId = AuthUtil.getMemberId();
-		Set<String> existingControlIds = deviceRepository.findByMemberId(memberId)
-			.orElse(new ArrayList<>())
-			.stream()
-			.map(Device::getControlId)
-			.collect(Collectors.toSet());
+//		Set<String> existingControlIds = deviceRepository.findByMemberId(memberId)
+//			.orElse(new ArrayList<>())
+//			.stream()
+//			.map(Device::getControlId)
+//			.collect(Collectors.toSet());
+		List<Device> existingDevices = deviceRepository.findByMemberId(memberId)
+				.orElse(new ArrayList<>());
 
 		// 3. 신규 디바이스 조회
 		List<DeviceStatusResponse> newlyAdded = new ArrayList<>();
@@ -70,10 +72,26 @@ public class DeviceService {
 				}
 			}
 
-
-
 			// 3-3. 이미 등록된 controlId 이면 스킵
-			if (existingControlIds.contains(controlId)) continue;
+			// if (existingControlIds.contains(controlId)) continue;
+			// 단, 아래 코드는 manufactureCode 값이 기기마다 고유한 경우일 때 유효. 기기 재등록시 값이 변하게될 경우 다른 고유한 값을 찾아야함
+			// 예를 들어 조명 2개가 존재하는데, 각 조명의 manufacturerCode 값이 동일 할 경우 겹치지 않는 다른 변수 값을 활용해야 함
+			String manufacturerCode = dto.getDeviceManufacturerCode();
+			Device matchedDevice = existingDevices.stream()
+					.filter(dev -> manufacturerCode != null && manufacturerCode.equals(dev.getDeviceManufacturer()))
+					.findFirst()
+					.orElse(null);
+
+			if (matchedDevice != null) {
+				// 기존 디바이스인데 controlId가 달라졌다면 갱신
+				if (!matchedDevice.getControlId().equals(controlId)) {
+					matchedDevice.setControlId(controlId);
+					matchedDevice.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+					deviceRepository.save(matchedDevice);
+				}
+
+				continue; // 이미 등록된 디바이스 → 스킵
+			}
 
 			// 3-4. deviceModel에 "smartTag" (대소문자 무관) 포함되면 스킵
 			//		smartTag 는 UWB 활용을 위해 등록한 것이기 때문에 관리대상 디바이스가 아님
