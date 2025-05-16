@@ -78,7 +78,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
 
-        viewModel.sendIntent(LightIntent.LoadLightStatus(4))
+        viewModel.sendIntent(LightIntent.LoadLightStatus(9))
     }
 
     val state by viewModel.state.collectAsState()
@@ -151,7 +151,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
             Switch(
                 checked = checked,
                 onCheckedChange = {
-                    viewModel.sendIntent(LightIntent.ChangeLightPower(4, it))
+                    viewModel.sendIntent(LightIntent.ChangeLightPower(9, it))
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
@@ -186,7 +186,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
                     brightness = it.toInt()
                 },
                 onValueChangeFinished = {
-                    viewModel.sendIntent(LightIntent.ChangeLightBright(4, brightness))
+                    viewModel.sendIntent(LightIntent.ChangeLightBright(9, brightness))
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -289,7 +289,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
                             Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
                             viewModel.sendIntent(
                                 LightIntent.ChangeLightColor(
-                                    4,
+                                    9,
                                     (hue * 10 / 36).toInt(),
                                     saturation * 100
                                 )
@@ -297,7 +297,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
                         }
                     }
 
-                    isColor == false
+                    isColor = false
                 }
             )
         }
