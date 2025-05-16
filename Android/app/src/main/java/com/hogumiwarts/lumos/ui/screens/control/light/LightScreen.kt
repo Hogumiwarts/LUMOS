@@ -77,10 +77,7 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
-        viewModel.saveJwt(
-            "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc0MDI3MDh9.EV6G_bku_EsHvXGIViGVrqH_kdWw9Tvj6g9VE1k_kgw",
-            "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MzE2MzA4LCJleHAiOjE3NDc5MjExMDh9.ECpyX4l16VV5jnd0bPtR31yKQmV8CpALN1uJifMvdDc"
-        )
+
         viewModel.sendIntent(LightIntent.LoadLightStatus(4))
     }
 
@@ -89,6 +86,8 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
     val brightnessState by viewModel.brightnessState.collectAsState()
     val colorState by viewModel.colorState.collectAsState()
     val temperatureState by viewModel.temperatureState.collectAsState()
+
+    var isColor by remember { mutableStateOf(false) }
 
     var checked by remember { mutableStateOf(false) }
     var lightDevice by remember { mutableStateOf<LightStatusData?>(null) }
@@ -281,18 +280,24 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
                     val hue = hsv[0]
                     val saturation = hsv[1]
 
-                    debounceJob?.cancel()
-                    debounceJob = coroutineScope.launch {
-                        delay(300)
-                        Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
-                        viewModel.sendIntent(
-                            LightIntent.ChangeLightColor(
-                                4,
-                                (hue * 10 / 36).toInt(),
-                                saturation * 100
+                    if(isColor == true){
+
+                    } else{
+                        debounceJob?.cancel()
+                        debounceJob = coroutineScope.launch {
+                            delay(300)
+                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
+                            viewModel.sendIntent(
+                                LightIntent.ChangeLightColor(
+                                    4,
+                                    (hue * 10 / 36).toInt(),
+                                    saturation * 100
+                                )
                             )
-                        )
+                        }
                     }
+
+                    isColor == false
                 }
             )
         }
@@ -373,12 +378,11 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
     }
 
     when (colorState) {
-
-
         is LightColorState.Error -> {}
         LightColorState.Idle -> {}
         is LightColorState.Loaded -> {
             LaunchedEffect(colorState) {
+                isColor = true
                 val data = (colorState as LightColorState.Loaded).data
                 controller.selectByHsv(
                     (data.hue * 36 / 10).toFloat(),
