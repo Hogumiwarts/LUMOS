@@ -40,9 +40,9 @@ public interface LightApiSpec {
             description = """
                     조명의 색상을 변경합니다. 
                     
-                    - `hue` : 색조 (0 ~ 100)
+                    - `hue` : 색조 (0.0 ~ 100.0)
                     
-                    - `saturation` : 채도 (0.0 ~ 100.0)
+                    - `saturation` : 채도 (100.0)
                     
                     """,
             tags = {"조명"}
