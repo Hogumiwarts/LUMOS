@@ -51,7 +51,7 @@ fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()
         AudioStatusState.Idle -> {}
         is AudioStatusState.Loaded -> {
             val data = (state as AudioStatusState.Loaded).data
-            LoadedScreen(data)
+            LoadedScreen(data, deviceId)
         }
         AudioStatusState.Loading -> {
             LoadingDevice()
@@ -62,7 +62,7 @@ fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()
 }
 
 @Composable
-private fun LoadedScreen(data: AudioStatusData) {
+private fun LoadedScreen(data: AudioStatusData, deviceId: Long) {
     var showNext by remember { mutableStateOf(false) } // 현재 화면/다음 화면 상태
     // 화면 전환 시 애니메이션
     val currentOffsetY by animateDpAsState(
@@ -90,14 +90,15 @@ private fun LoadedScreen(data: AudioStatusData) {
                 volumePercent = 40,
                 isOn = true,
                 onToggle = {},
-                onSwipeUp = { showNext = true }
+                onSwipeUp = { showNext = true },
+                deviceId = deviceId
             )
         }
 
         // 음악 플레이어 화면
         if (showNext || nextOffsetY < 300.dp) {
             Box(modifier = Modifier.offset(y = nextOffsetY)) {
-                 MoodPlayerContainer(onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
+                 MoodPlayerContainer(deviceId = deviceId,data = data,onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
             }
         }
     }

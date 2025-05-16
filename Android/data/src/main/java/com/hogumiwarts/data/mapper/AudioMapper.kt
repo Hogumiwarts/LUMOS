@@ -1,8 +1,10 @@
 package com.hogumiwarts.data.mapper
 
 import com.hogumiwarts.data.entity.remote.Response.airpurifier.GetAirpurifierResponse
+import com.hogumiwarts.data.entity.remote.Response.audio.AudioPowerResponse
 import com.hogumiwarts.data.entity.remote.Response.audio.GetAudioStatusResponse
 import com.hogumiwarts.domain.model.airpurifier.AirpurifierData
+import com.hogumiwarts.domain.model.audio.AudioPowerData
 import com.hogumiwarts.domain.model.audio.AudioStatusData
 
 object AudioMapper {
@@ -22,6 +24,18 @@ object AudioMapper {
             audioName = response.audioName,
             audioArtist = response.audioArtist,
             audioVolume = response.audioVolume,
+        )
+
+    }
+
+    fun fromAudioPowerDataResponse(response: AudioPowerResponse): AudioPowerData {
+        return AudioPowerData(
+
+            activated = response.activated,
+            tagNumber = response.tagNumber,
+            deviceId = response.deviceId,
+            deviceImg = response.deviceImg,
+            deviceName = response.deviceName,
         )
 
     }
