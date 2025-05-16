@@ -51,25 +51,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.toRoutineDevice
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Collections.addAll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineEditScreen(
     viewModel: RoutineEditViewModel,
-    devices: List<RoutineDevice>,
+    devices: List<CommandDevice>,
     onRoutineEditComplete: () -> Unit,
     navController: NavController
 ) {
@@ -84,7 +84,7 @@ fun RoutineEditScreen(
     var isSheetOpen by remember { mutableStateOf(false) }
 
     // 기기 리스트 관리
-    val deviceList = remember { mutableStateListOf<RoutineDevice>().apply { addAll(devices) } }
+    val deviceList = remember { mutableStateListOf<CommandDevice>().apply { addAll(devices) } }
     val myDeviceList = remember {
         mutableStateListOf<MyDevice>().apply {
             addAll(MyDevice.sample.map {
@@ -112,14 +112,14 @@ fun RoutineEditScreen(
                 devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
                     // 같은 기기 + 같은 상태라면 추가 안함
-                    val newDevice = selectedDevice.toRoutineDevice()
-
-                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
-                        showDuplicateDialog.value = true
-                    } else {
-                        deviceList.add(newDevice)
-                        isSheetOpen = false
-                    }
+//                    val newDevice = selectedDevice.toRoutineDevice()
+//
+//                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
+//                        showDuplicateDialog.value = true
+//                    } else {
+//                        deviceList.add(newDevice)
+//                        isSheetOpen = false
+//                    }
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false }
@@ -398,20 +398,20 @@ fun String.appendSubject(): String {
 }
 
 
-@Composable
-fun SelectIcon() {
-    TODO("Not yet implemented")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RoutineEditScreenPreview() {
-    val fakeViewModel = remember { RoutineEditViewModel() }
-
-    RoutineEditScreen(
-        viewModel = fakeViewModel,
-        devices = RoutineDevice.sample,
-        onRoutineEditComplete = {},
-        navController = rememberNavController()
-    )
-}
+//@Composable
+//fun SelectIcon() {
+//    TODO("Not yet implemented")
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun RoutineEditScreenPreview() {
+//    val fakeViewModel = remember { RoutineEditViewModel() }
+//
+//    RoutineEditScreen(
+//        viewModel = fakeViewModel,
+//        devices = RoutineDevice.sample,
+//        onRoutineEditComplete = {},
+//        navController = rememberNavController()
+//    )
+//}

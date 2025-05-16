@@ -17,11 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.hogumiwarts.domain.model.CommandDevice
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SwipeableDeviceCard(
-    device: RoutineDevice,
+    device: CommandDevice,
     onDelete: () -> Unit
 ) {
 
@@ -58,7 +59,9 @@ fun SwipeableDeviceCard(
             }
         },
         dismissContent = {
-            DeviceCard(routineDevice = device)
+            DeviceCard(
+                commandDevice = device, deviceType = DeviceListType.from(device.deviceType)
+            )
         }
     )
 }

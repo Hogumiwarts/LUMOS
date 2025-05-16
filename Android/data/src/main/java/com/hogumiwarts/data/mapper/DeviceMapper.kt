@@ -42,13 +42,6 @@ fun parseCommands(commands: String): List<CommandData> {
     }
 }
 
-data class CommandData(
-    val component: String,
-    val capability: String,
-    val command: String,
-    val arguments: List<String>
-)
-
 fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.RoutineDetailData {
     return com.hogumiwarts.domain.model.RoutineDetailData(
         routineName = routineName,
@@ -57,7 +50,7 @@ fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.RoutineDetailData
         gestureName = gestureName,
         gestureImageUrl = gestureImageUrl,
         gestureDescription = gestureDescription,
-        devices = devices.map { it.toRoutineDevice() }
+        devices = devices.map { it.toDomain() }
     )
 }
 
@@ -67,18 +60,7 @@ fun RoutineDeviceData.toDomain(): CommandDevice {
         deviceName = deviceName,
         deviceType = deviceType,
         deviceImageUrl = deviceImageUrl,
-        commands = commands  // 이미 만든 JsonElement 파서 활용
+        commands = commands
     )
 }
-
-fun RoutineDeviceData.toRoutineDevice(): com.hogumiwarts.domain.model.RoutineDeviceData {
-    return com.hogumiwarts.domain.model.RoutineDeviceData(
-        deviceId = deviceId,
-        deviceName = deviceName,
-        deviceType = deviceType,
-        deviceImageUrl = deviceImageUrl,
-        commands = commands.toString()
-    )
-}
-
 

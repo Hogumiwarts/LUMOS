@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -39,9 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceCard
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -107,7 +108,7 @@ fun RoutineDetailScreen(
 @Composable
 fun RoutineDetailContent(
     routine: RoutineItem,
-    devices: List<RoutineDevice>,
+    devices: List<CommandDevice>,
     onEdit: () -> Unit,
     onRequestDelete: () -> Unit
 ) {
@@ -191,7 +192,9 @@ fun RoutineDetailContent(
         }
 
         items(devices) { device ->
-            DeviceCard(routineDevice = device)
+            DeviceCard(
+                commandDevice = device, deviceType = DeviceListType.from(device.deviceType)
+            )
         }
 
         item {

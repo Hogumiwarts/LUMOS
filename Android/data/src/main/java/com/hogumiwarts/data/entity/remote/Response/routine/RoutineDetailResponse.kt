@@ -27,5 +27,5 @@ data class RoutineDeviceData(
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,
-    val commands: List<CommandData>
+    val commands: List<com.hogumiwarts.domain.model.CommandData>
 )

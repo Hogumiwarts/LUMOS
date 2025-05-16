@@ -25,7 +25,7 @@ data class Routine(
 data class RoutineDetailData(
     val routineName: String,
     val routineIcon: String,
-    val devices: List<RoutineDeviceData>,
+    val devices: List<CommandDevice>,
     val gestureId: Int,
     val gestureName: String,
     val gestureImageUrl: String,
@@ -46,12 +46,3 @@ data class CommandData(
     val command: String,
     val arguments: List<Any>
 )
-
-data class RoutineDeviceData(
-    val deviceId: Int,
-    val deviceName: String,
-    val deviceType: String,
-    val deviceImageUrl: String?,
-    val commands: String // 기기별 제어
-)
-

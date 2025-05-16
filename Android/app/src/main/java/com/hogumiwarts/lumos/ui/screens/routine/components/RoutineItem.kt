@@ -1,11 +1,12 @@
 package com.hogumiwarts.lumos.ui.screens.routine.components
 
+import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.lumos.R
 
 data class RoutineItem(
     val routineName: String,
     val routineIcon: String,
-    val devices: List<RoutineDevice>,
+    val devices: List<CommandDevice>,
     val gestureId: Int,
     val gestureName: String,
     val gestureImageUrl: String,
