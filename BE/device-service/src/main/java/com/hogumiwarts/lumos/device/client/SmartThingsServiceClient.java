@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @FeignClient(name = "smartthings-service", url = "${smartthings.service.url}")
-public interface SmartThingsClient {
+public interface SmartThingsServiceClient {
 
     @GetMapping("/devices")
     JsonNode getAllDevices(
