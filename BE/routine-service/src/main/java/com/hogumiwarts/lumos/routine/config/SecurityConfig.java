@@ -18,8 +18,6 @@ public class SecurityConfig extends AbstractSecurityConfig {
 
     @Override
     protected String[] getPermitAllPaths() {
-        return new String[]{
-            "/api/routine/by-gesture"
-        };
+        return new String[] {};
     }
 }
