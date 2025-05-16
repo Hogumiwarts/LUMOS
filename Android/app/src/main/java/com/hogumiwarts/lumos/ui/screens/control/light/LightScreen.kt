@@ -275,10 +275,13 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
                     // Color -> HSV 변환
                     val hsv = FloatArray(3)
-                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
+//                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
+                    android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(),hsv)
+
 
                     val hue = hsv[0]
                     val saturation = hsv[1]
+                    val saturation1 = hsv[2]
 
                     if(isColor == true){
 
@@ -286,11 +289,12 @@ fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
                         debounceJob?.cancel()
                         debounceJob = coroutineScope.launch {
                             delay(300)
-                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
+                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation, saturation1: $saturation1")
+                            Log.d("ColorPicker", "Hue: $selectedColorCode")
                             viewModel.sendIntent(
                                 LightIntent.ChangeLightColor(
                                     9,
-                                    (hue * 10 / 36).toInt(),
+                                    (hue * 10 / 36),
                                     saturation * 100
                                 )
                             )
