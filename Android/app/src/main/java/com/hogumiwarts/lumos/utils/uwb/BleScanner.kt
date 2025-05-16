@@ -13,12 +13,15 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.util.UUID
 import javax.inject.Inject
 
 class BleScanner @Inject constructor(
@@ -27,17 +30,22 @@ class BleScanner @Inject constructor(
 
     companion object {
         private const val TAG = "BLEScanner"
-        private const val QORVO_COMPANY_ID = 0x02E2      // DWM3001CDK
+        private val SERVICE_UUID: UUID = UUID.fromString("2b8d0001-6828-46af-98aa-557761b15400")
+
+//        private const val QORVO_COMPANY_ID = 0x02E2      // DWM3001CDK
         private const val DEFAULT_SCAN_PERIOD = 10_000L  // 10초
     }
     private val bluetoothAdapter: BluetoothAdapter? =
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
     private val bluetoothLeScanner: BluetoothLeScanner? = bluetoothAdapter?.bluetoothLeScanner
 
+    private val _scanResult = MutableStateFlow<List<BleDevice>>(emptyList())
+    val scanResult = _scanResult.asStateFlow()
 
-    private val discovered = mutableMapOf<String, BleDevice>()
-    private val _devices = MutableStateFlow<List<BleDevice>>(emptyList())
-    val devices: StateFlow<List<BleDevice>> = _devices
+    private val scanner by lazy {
+        (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+            .adapter.bluetoothLeScanner
+    }
 
     private var scanning = false
     private var scanCallback: ScanCallback? = null
@@ -56,16 +64,15 @@ class BleScanner @Inject constructor(
             return
         }
 
-        discovered.clear()
-        _devices.value = emptyList()
 
         val filters = if (onlyDwm) {
             listOf(
                 ScanFilter.Builder()
-                    .setManufacturerData(QORVO_COMPANY_ID, byteArrayOf())
+                    .setServiceUuid(ParcelUuid(SERVICE_UUID))      // ★
+                    // 예) .setDeviceName("CLHMP") 로 더 좁힐 수도 있음
                     .build()
             )
-        } else emptyList()
+        } else listOf()
 
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -102,13 +109,28 @@ class BleScanner @Inject constructor(
         // @SuppressLint 최소 범위: 이름 읽기 한 줄
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val device = result.device ?: return
-            val address = device.address
+            val list = _scanResult.value.toMutableList()
 
-            val name: String? = if (hasConnectPermission()) device.name else null
+            // ① 주소 문자열로 중복 검사
+            val index = list.indexOfFirst { it.address == result.device.address }
 
-            discovered[address] = BleDevice(address, name, result.rssi)
-            _devices.value = discovered.values.sortedByDescending { it.rssi }
+            // ② 새 항목 생성  ─ address / name / rssi
+            val newEntry = BleDevice(
+                address = result.device.address,
+                name    = result.device.name,   // null 허용
+                rssi    = result.rssi
+            )
+
+            if (index >= 0) {
+                // 기존 항목 업데이트 (RSSI·이름 갱신)
+                list[index] = newEntry
+            } else {
+                // 새 기기 추가
+                list.add(newEntry)
+            }
+            _scanResult.value = list          // StateFlow 갱신
+
+            Log.d(TAG, "발견 → ${newEntry.address}  RSSI=${newEntry.rssi}")
         }
 
         override fun onScanFailed(errorCode: Int) {
