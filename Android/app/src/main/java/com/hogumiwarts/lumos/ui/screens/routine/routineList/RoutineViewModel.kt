@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.model.RoutineResult
 import com.hogumiwarts.domain.model.Routine
+import com.hogumiwarts.domain.model.RoutineDetailData
 import com.hogumiwarts.domain.repository.RoutineRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,10 @@ class RoutineViewModel @Inject constructor(
     // 루틴 목록
     private val _routineList = MutableStateFlow<List<Routine>>(emptyList())
     val routineList: StateFlow<List<Routine>> = _routineList
+
+    private val _routineDetail = MutableStateFlow<RoutineDetailData?>(null)
+    val routineDetail: StateFlow<RoutineDetailData?> = _routineDetail
+
 
     // 루틴 목록 불러오기
     fun getRoutineList() {
@@ -64,6 +69,12 @@ class RoutineViewModel @Inject constructor(
                     Timber.tag("RoutineViewModel").d("❗ 401 발생 - 토큰 갱신 시도")
                     refreshAndRetry()
                 }
+
+                is RoutineResult.DetailSuccess -> {
+                    Timber.tag("RoutineViewModel").d("📋 루틴 상세 응답: ${result.detail}")
+                    _routineDetail.value = result.detail
+                }
+
             }
         }
     }

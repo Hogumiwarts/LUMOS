@@ -57,7 +57,6 @@ import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.devices.NotLinkedScreen
 import com.hogumiwarts.lumos.ui.screens.home.components.LightDeviceItem
 import com.hogumiwarts.lumos.ui.screens.home.components.WeatherCardView
-import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.utils.CommonUtils

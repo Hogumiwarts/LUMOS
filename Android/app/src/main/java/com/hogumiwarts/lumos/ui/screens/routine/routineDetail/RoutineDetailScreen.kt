@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -39,18 +38,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.hogumiwarts.domain.model.CommandDevice
+import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceCard
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.GestureType
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun RoutineDetailScreen(
     routineId: String?,
-    routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
-    routineItem: List<RoutineItem> = RoutineItem.sample, // 루틴 리스트
-    onBack: () -> Unit = {},
     viewModel: RoutineDetailViewModel,
     onEdit: () -> Unit = {}
 ) {
@@ -109,7 +108,7 @@ fun RoutineDetailScreen(
 @Composable
 fun RoutineDetailContent(
     routine: RoutineItem,
-    devices: List<RoutineDevice>,
+    devices: List<CommandDevice>,
     onEdit: () -> Unit,
     onRequestDelete: () -> Unit
 ) {
@@ -135,7 +134,7 @@ fun RoutineDetailContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_moon_sleep),
+                        painter = painterResource(id = RoutineIconType.getResIdByName(routine.routineIcon)),
                         contentDescription = null,
                         modifier = Modifier.size(27.dp)
                     )
@@ -143,7 +142,7 @@ fun RoutineDetailContent(
                     Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
-                        text = routine.title,
+                        text = routine.routineName,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
                         fontFamily = nanum_square_neo
@@ -193,7 +192,9 @@ fun RoutineDetailContent(
         }
 
         items(devices) { device ->
-            DeviceCard(routineDevice = device)
+            DeviceCard(
+                commandDevice = device, deviceType = DeviceListType.from(device.deviceType)
+            )
         }
 
         item {
@@ -201,16 +202,20 @@ fun RoutineDetailContent(
         }
 
         item {
-            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, false)
+            val gesture = GestureData(
+                memberGestureId = routine.gestureId.toLong(),
+                gestureName = routine.gestureName,
+                description = routine.gestureDescription,
+                gestureImg = routine.gestureImageUrl,
+                routineName = routine.routineName
+            )
+            GestureCard(
+                selectedGesture = gesture,
+                isEditMode = false
+            )
         }
     }
 
 
 }
 
-
-//@Preview(showBackground = true)
-//@Composable
-//fun RoutineDetailScreenPreview() {
-//    RoutineDetailScreen()
-//}

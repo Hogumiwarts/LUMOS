@@ -28,4 +28,21 @@ class RoutineRepositoryImpl @Inject constructor(
             RoutineResult.Failure(e.message ?: "루틴 리스트 불러오기 실패")
         }
     }
+
+    // 루틴 상세 조회
+    override suspend fun getRoutineDetail(accessToken: String, routineId: Int): RoutineResult {
+        return try {
+            val response = routineApi.getRoutineDetail("Bearer $accessToken", routineId)
+            RoutineResult.DetailSuccess(response.data.toDomain())
+        } catch (e: HttpException) {
+            if (e.code() == 401) {
+                RoutineResult.Unauthorized
+            } else {
+                RoutineResult.Failure(e.message ?: "루틴 상세 조회 실패")
+            }
+        } catch (e: Exception) {
+            RoutineResult.Failure(e.message ?: "루틴 상세 조회 실패")
+        }
+    }
+
 }
