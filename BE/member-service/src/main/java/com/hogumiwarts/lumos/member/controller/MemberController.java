@@ -31,14 +31,8 @@ public class MemberController implements MemberApiSpec {
 	}
 
 	@GetMapping("/email-exists")
-	public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+	public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
 		return ResponseEntity.ok(memberService.isEmailExists(email));
-	}
-
-	@PostMapping("/create")
-	public ResponseEntity<CreateMemberResponse> createMember(@RequestBody CreateMemberRequest request) {
-		CreateMemberResponse response = memberService.createMember(request);
-		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/find-by-email")
@@ -46,8 +40,14 @@ public class MemberController implements MemberApiSpec {
 		return ResponseEntity.ok(memberService.findByEmail(email));
 	}
 
-	@GetMapping("/members/{memberId}")
-	public ResponseEntity<CreateMemberResponse> getMember(@PathVariable Long memberId) {
-		return ResponseEntity.ok(memberService.findById(memberId));
+	@GetMapping("/member-exists")
+	public ResponseEntity<Boolean> checkMemberExists(@RequestParam Long memberId) {
+		return ResponseEntity.ok(memberService.isMemberExists(memberId));
+	}
+
+	@PostMapping("/create")
+	public ResponseEntity<CreateMemberResponse> createMember(@RequestBody CreateMemberRequest request) {
+		CreateMemberResponse response = memberService.createMember(request);
+		return ResponseEntity.ok(response);
 	}
 }
