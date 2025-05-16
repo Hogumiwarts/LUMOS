@@ -56,8 +56,8 @@ class LightViewModel @Inject constructor(
     private val _temperature = MutableStateFlow(0)
     val temperature: StateFlow<Int> = _temperature
 
-    private val _hue = MutableStateFlow(0)
-    val hue: StateFlow<Int> = _hue
+    private val _hue = MutableStateFlow(0f)
+    val hue: StateFlow<Float> = _hue
 
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
     private val _powerState = MutableStateFlow<ControlState>(ControlState.Idle)
@@ -85,7 +85,7 @@ class LightViewModel @Inject constructor(
     }
 
     // hue -> Color
-    fun toColor(hue: Int, saturation: Float):String{
+    fun toColor(hue: Float, saturation: Float):String{
         val hsv = floatArrayOf((hue*36/10).toFloat(), saturation/100, 1.toFloat()) // hue 0~360, sat/val 0~1
         val argb = android.graphics.Color.HSVToColor(hsv)
         val composeColor = Color(argb)
@@ -178,7 +178,7 @@ class LightViewModel @Inject constructor(
 
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun patchLightColor(deviceId: Long, color: Int,saturation: Float) {
+    private fun patchLightColor(deviceId: Long, color: Float,saturation: Float) {
         viewModelScope.launch {
             _colorState.value = LightColorState.Loading
 

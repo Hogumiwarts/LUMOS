@@ -11,6 +11,6 @@ data class LightStatusData(
     val activated: Boolean,
     val brightness: Int,
     val lightTemperature: Int,
-    val hue: Int,
+    val hue: Float,
     val saturation: Float,
 )
