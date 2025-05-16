@@ -54,7 +54,7 @@ fun DeviceCard(device: DeviceListData, navController: NavHostController) {
                     }
 
                     DeviceType.SPEAKER -> {
-                        navController.navigate("speaker/${device.tagNumber}") {
+                        navController.navigate("speaker/${device.deviceId}") {
                             popUpTo("splash") { inclusive = true }
                         }
                     }

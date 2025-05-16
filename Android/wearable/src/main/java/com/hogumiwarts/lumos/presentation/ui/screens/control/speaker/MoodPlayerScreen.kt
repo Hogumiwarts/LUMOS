@@ -30,6 +30,8 @@ import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
 fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
 
+
+
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
         viewModel.sendIntent(AudioIntent.LoadAudioStatus(deviceId))
@@ -92,7 +94,7 @@ private fun LoadedScreen() {
         // 음악 플레이어 화면
         if (showNext || nextOffsetY < 300.dp) {
             Box(modifier = Modifier.offset(y = nextOffsetY)) {
-                MoodPlayerContainer(onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
+                 MoodPlayerContainer(onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
             }
         }
     }

@@ -12,7 +12,7 @@ import retrofit2.http.Path
 
 interface AudioApi {
 
-    @GET("/device/api/devices/{deviceId}/audi/status")
+    @GET("/device/api/devices/{deviceId}/audio/status")
     suspend fun getAudioStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetAudioStatusResponse>
 
     @PATCH("/device/api/devices/{deviceId}/audio/power")
