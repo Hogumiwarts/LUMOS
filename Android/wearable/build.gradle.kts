@@ -64,6 +64,12 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
 
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
     // Wearable Services
     implementation(libs.play.services.wearable)
 
