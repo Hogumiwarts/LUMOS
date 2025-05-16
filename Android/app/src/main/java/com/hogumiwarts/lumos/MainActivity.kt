@@ -128,8 +128,8 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent
                 ) {
 
-//                    MainScreen()
-                    LightScreen()
+                    MainScreen()
+//                    LightScreen()
                 }
             }
         }
