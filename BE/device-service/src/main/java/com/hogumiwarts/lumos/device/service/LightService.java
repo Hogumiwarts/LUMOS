@@ -17,11 +17,12 @@ import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.util.AuthUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-
+@Slf4j
 public class LightService {
 
     private final LightUtil lightUtil;
@@ -83,6 +84,8 @@ public class LightService {
     // 조명 색상 변경
     public LightColorResponse updateLightColor(Long deviceId, LightColorRequest request) {
 
+        log.info("request: {}, {}", request.getHue(), request.getSaturation());
+
         CommandRequest command = DeviceCommandUtil.buildLightColorCommand(request);
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 
@@ -91,11 +94,16 @@ public class LightService {
         float hue = hueSat[0];
         float saturation = hueSat[1];
 
-        boolean success = floatEquals(request.getHue(), hue) && floatEquals(request.getSaturation(), saturation);
+        log.info("request: {}, {}", hue, saturation);
+
+        boolean success =
+                Math.round(request.getHue()) == Math.round(hue) &&
+                        Math.round(request.getSaturation()) == Math.round(saturation);
+
 
         return LightColorResponse.builder()
-                .hue(hue)
-                .saturation(saturation)
+                .hue(request.getHue())
+                .saturation(request.getSaturation())
                 .success(success)
                 .build();
     }

@@ -1,8 +1,6 @@
 package com.hogumiwarts.lumos.routine.client;
 
-import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.routine.config.FeignAuthConfig;
-import com.hogumiwarts.lumos.routine.dto.DevicesCreateResponse;
 import com.hogumiwarts.lumos.routine.dto.DevicesResponse;
 
 import org.springframework.cloud.openfeign.FeignClient;

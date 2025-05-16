@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -30,11 +31,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlinx.coroutines.selects.select
 
 @Composable
 fun GestureCard(
-    selectedGesture: GestureType,
+    selectedGesture: GestureData,
     isEditMode: Boolean
 ) {
     Box(
@@ -69,11 +73,12 @@ fun GestureCard(
                         Color(0xFFEBEEF8),
                         shape = RoundedCornerShape(50.dp)
                     )
-                    .padding(5.dp)
+                    .padding(2.dp)
+                    .size(50.dp)
             ) {
                 // 제스처 아이콘
-                Image(
-                    painter = painterResource(id = selectedGesture.gestureiconResId),
+                AsyncImage(
+                    model = selectedGesture.gestureImg,
                     contentDescription = null
                 )
             }
@@ -147,21 +152,21 @@ fun GestureCard(
     }
 }
 
-@Preview(
-    showBackground = true,
-    widthDp = 380,
-    heightDp = 862
-)
-@Composable
-fun GestureCardPreview() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(20.dp)
-    ) {
-        GestureCard(
-            selectedGesture = GestureType.FIST_ROTATE_180,
-            true
-        )
-    }
-}
+//@Preview(
+//    showBackground = true,
+//    widthDp = 380,
+//    heightDp = 862
+//)
+//@Composable
+//fun GestureCardPreview() {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(20.dp)
+//    ) {
+//        GestureCard(
+//            selectedGesture = GestureData(),
+//            true
+//        )
+//    }
+//}

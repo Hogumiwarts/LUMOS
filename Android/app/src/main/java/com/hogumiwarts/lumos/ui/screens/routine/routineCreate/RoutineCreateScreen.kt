@@ -55,10 +55,8 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.GestureType
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.toRoutineDevice
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -113,14 +111,14 @@ fun RoutineCreateScreen(
                 devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
                     // 같은 기기 + 같은 상태라면 추가 안함
-                    val newDevice = selectedDevice.toRoutineDevice()
-
-                    if (devices.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
-                        showDuplicateDialog.value = true
-                    } else {
-                        viewModel.addDevice(newDevice)
-                        isSheetOpen = false
-                    }
+//                    val newDevice = selectedDevice.toRoutineDevice()
+//
+//                    if (devices.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
+//                        showDuplicateDialog.value = true
+//                    } else {
+//                        viewModel.addDevice(newDevice)
+//                        isSheetOpen = false
+//                    }
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false }
@@ -386,9 +384,9 @@ fun RoutineCreateScreen(
             }
 
             // 제스처 카드
-            item {
-                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
-            }
+//            item {
+//                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
+//            }
 
 
             item {

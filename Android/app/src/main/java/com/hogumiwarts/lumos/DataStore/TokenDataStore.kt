@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.hogumiwarts.data.token.TokenStorage
-import com.hogumiwarts.lumos.di.BaseUrlModule.dataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -44,6 +43,7 @@ class TokenDataStore @Inject constructor(
     // 삭제 함수 (선택)
     override suspend fun clearTokens() {
         context.dataStore.edit { it.clear() }
+
     }
 
     // 사용자 이름 가져오기

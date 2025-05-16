@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.routine.docs;
 
-import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.routine.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,7 +75,7 @@ public interface RoutineApiSpec {
     ResponseEntity<?> deleteRoutine(@PathVariable Long routineId);
 
     @Operation(
-        summary = "루틴 실행",
+        summary = "제스처로 루틴 실행",
         description = """
         💡 제스처와 연결된 루틴을 실행합니다.
 
@@ -90,7 +89,24 @@ public interface RoutineApiSpec {
         @ApiResponse(responseCode = "404", description = "해당 제스처와 연결된 루틴이 없습니다.", content = @Content),
         @ApiResponse(responseCode = "500", description = "루틴 기기 제어 중 서버 내부 오류가 발생했습니다.", content = @Content)
     })
-    ResponseEntity<?> executeRoutine(@RequestParam Long gestureId);
+    ResponseEntity<?> executeRoutineByGestureId(@RequestParam Long gestureId);
+
+    @Operation(
+        summary = "버튼으로 루틴 실행",
+        description = """
+        💡 routineId로 루틴을 실행합니다.
+
+        - 루틴 ID를 통해 루틴을 찾고
+        
+        - 해당 루틴에 등록된 디바이스와 제어 명령을 SmartThings에 전송합니다.
+        """
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "루틴 실행 성공"),
+        @ApiResponse(responseCode = "404", description = "해당하는 루틴을 찾을 수 없습니다.", content = @Content),
+        @ApiResponse(responseCode = "500", description = "루틴 기기 제어 중 서버 내부 오류가 발생했습니다.", content = @Content)
+    })
+    ResponseEntity<?> executeRoutineById(@PathVariable Long routineId);
 
     @Operation(summary = "X", description = """
             💡 `memberId`와 `gestureId`에 해당하는 루틴의 id와 이름을 반환합니다.

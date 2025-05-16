@@ -110,36 +110,38 @@ fun RoutineScreen(
                 .fillMaxHeight()
         ) {
             items(routineList) { routine ->
-                DeviceRoutineCard(
-                    modifier = Modifier
-                        .aspectRatio(1.05f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .combinedClickable(
-                            onClick = { onRoutineClick(routine) },
-                            onLongClick = {
-                                setSelectedRoutine(routine)
-                                coroutineScope.launch { isSheetVisible = true }
-                            }
-                        ),
-                    showToggle = false, // 토글 X
-                    cardTitle = routine.routineName,
-                    cardSubtitle = routine.gestureName,
-                    isOn = false,
-                    iconSize = DpSize(80.dp, 80.dp),
-                    cardIcon = { size ->
-                        Image(
-                            painter = painterResource(
-                                id = RoutineIconType.getResIdByName(routine.routineIcon)
+                routine.gestureName?.let {
+                    DeviceRoutineCard(
+                        modifier = Modifier
+                            .aspectRatio(1.05f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .combinedClickable(
+                                onClick = { onRoutineClick(routine) },
+                                onLongClick = {
+                                    setSelectedRoutine(routine)
+                                    coroutineScope.launch { isSheetVisible = true }
+                                }
                             ),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(top = 5.dp)
-                                .size(size)
-                        )
-                    },
-                    endPadding = 3.dp,
-                    isActive = true,
-                )
+                        showToggle = false, // 토글 X
+                        cardTitle = routine.routineName,
+                        cardSubtitle = it,
+                        isOn = false,
+                        iconSize = DpSize(80.dp, 80.dp),
+                        cardIcon = { size ->
+                            Image(
+                                painter = painterResource(
+                                    id = RoutineIconType.getResIdByName(routine.routineIcon)
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 5.dp)
+                                    .size(size)
+                            )
+                        },
+                        endPadding = 3.dp,
+                        isActive = true,
+                    )
+                }
             }
         }
     }

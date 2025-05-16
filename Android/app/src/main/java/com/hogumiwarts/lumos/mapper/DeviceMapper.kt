@@ -18,8 +18,8 @@ fun String.toDeviceListType(): DeviceListType {
     return when (this.uppercase()) {
         "SWITCH" -> DeviceListType.SWITCH
         "LIGHT" -> DeviceListType.LIGHT
-        "AIRPURIFIER" -> DeviceListType.AIR_CLEANER
-        "SPEAKER" -> DeviceListType.SPEAKER
+        "AIRPURIFIER" -> DeviceListType.AIRPURIFIER
+        "SPEAKER" -> DeviceListType.AUDIO
         else -> DeviceListType.ETC // enum에 없는 경우 대비
     }
 }

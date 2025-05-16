@@ -16,10 +16,10 @@ public class LightColorRequest {
     @Schema(description = "색조(Hue) 값 (0.0~100.0)", example = "75.6")
     @DecimalMin("0.0")
     @DecimalMax("100.0")
-    private Float hue;
+    private float hue;
 
     @Schema(description = "채도(Saturation) 값 (100.0)", example = "100.0")
     @DecimalMin("0.0")
     @DecimalMax("100.0")
-    private Float saturation = 100f;
+    private float saturation = 100f;
 }
