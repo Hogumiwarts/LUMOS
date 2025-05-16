@@ -1,6 +1,7 @@
 package com.hogumiwarts.data.repository
 
 import android.util.Log
+import com.hogumiwarts.data.entity.remote.Request.AudioVolumeRequest
 import com.hogumiwarts.data.entity.remote.Request.PowerRequest
 import com.hogumiwarts.data.mapper.AirpurifierMapper
 import com.hogumiwarts.data.mapper.AudioMapper
@@ -10,6 +11,7 @@ import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierPowerResult
 import com.hogumiwarts.domain.model.audio.AudioPowerResult
 import com.hogumiwarts.domain.model.audio.AudioStatusResult
+import com.hogumiwarts.domain.model.audio.AudioVolumeResult
 import com.hogumiwarts.domain.repository.AirpurifierRepository
 import com.hogumiwarts.domain.repository.AudioRepository
 import javax.inject.Inject
@@ -45,7 +47,7 @@ class AudioRepositoryImpl@Inject constructor(
 
         return try {
             // ✅ API 호출
-            val response = audioApi.patchAirpurifierPower(deviceId, PowerRequest(activated))
+            val response = audioApi.patchAudioPower(deviceId, PowerRequest(activated))
 
             Log.d("TAG", "getSwitchStatus: $response")
             // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
@@ -63,6 +65,30 @@ class AudioRepositoryImpl@Inject constructor(
         } catch (e: Exception) {
             // 🔶 기타 네트워크/변환 등 예외 처리
             AudioPowerResult.Error(CommonError.NetworkError)
+        }
+    }
+
+    override suspend fun patchAudioVolume(deviceId: Long, volume: Int): AudioVolumeResult {
+        return try {
+            // ✅ API 호출
+            val response = audioApi.patchAudioVolume(deviceId, AudioVolumeRequest(volume))
+
+            Log.d("TAG", "getSwitchStatus: $response")
+            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
+            AudioVolumeResult.Success(
+                data = AudioMapper.fromAudioVolumeDataResponse(response.data)
+            )
+
+        } catch (e: retrofit2.HttpException) {
+            // 🔶 서버 에러 코드별 처리
+            when (e.code()) {
+                404 -> AudioVolumeResult.Error(CommonError.UserNotFound)
+                else -> AudioVolumeResult.Error(CommonError.UnknownError)
+            }
+
+        } catch (e: Exception) {
+            // 🔶 기타 네트워크/변환 등 예외 처리
+            AudioVolumeResult.Error(CommonError.NetworkError)
         }
     }
 

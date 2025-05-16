@@ -7,6 +7,7 @@ import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
 import com.hogumiwarts.domain.model.audio.AudioPowerResult
 import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.domain.model.audio.AudioStatusResult
+import com.hogumiwarts.domain.model.audio.AudioVolumeResult
 import com.hogumiwarts.domain.usecase.AirpurifierUseCase
 import com.hogumiwarts.domain.usecase.AudioUseCase
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierIntent
@@ -14,6 +15,7 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.Airpuri
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioPowerState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioStatusState
+import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioVolumeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,6 +36,9 @@ class AudioViewModel@Inject constructor(
     private val _powerState = MutableStateFlow<AudioPowerState>(AudioPowerState.Idle)
     val powerState: StateFlow<AudioPowerState> = _powerState
 
+    private val _volumeState = MutableStateFlow<AudioVolumeState>(AudioVolumeState.Idle)
+    val volumeState: StateFlow<AudioVolumeState> = _volumeState
+
 
     val intentFlow = MutableSharedFlow<AudioIntent>()
 
@@ -47,6 +52,7 @@ class AudioViewModel@Inject constructor(
                 when (intent) {
                     is AudioIntent.LoadAudioStatus -> loadAudioStatus(intent.deviceId)
                     is AudioIntent.LoadAudioPower -> loadAudioPower(intent.deviceId, intent.activated)
+                    is AudioIntent.LoadAudioVolume -> loadAudioVolume(intent.deviceId, intent.volume)
                 }
             }
         }
@@ -83,6 +89,21 @@ class AudioViewModel@Inject constructor(
                 }
                 is AudioPowerResult.Error -> {
                     _powerState.value = AudioPowerState.Error(result.error)
+                }
+            }
+        }
+    }
+
+    private fun loadAudioVolume(deviceId: Long, volume: Int) {
+        viewModelScope.launch {
+            _volumeState.value = AudioVolumeState.Loading
+
+            when (val result = audioUseCase.patchAudioVolume(deviceId, volume = volume)) {
+                is AudioVolumeResult.Success -> {
+                    _volumeState.value = AudioVolumeState.Loaded(result.data)
+                }
+                is AudioVolumeResult.Error -> {
+                    _volumeState.value = AudioVolumeState.Error(result.error)
                 }
             }
         }

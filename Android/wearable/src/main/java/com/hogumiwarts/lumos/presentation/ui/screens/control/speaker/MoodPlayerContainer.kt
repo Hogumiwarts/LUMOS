@@ -56,6 +56,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
+import coil.compose.AsyncImage
 import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
@@ -66,11 +67,15 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
 
     var volumePercent by remember { mutableIntStateOf(data.audioVolume) }
     var isDraggingVolume by remember { mutableStateOf(false) }
+
     var dragStartPosition by remember { mutableStateOf(Offset.Zero) }
     var totalVerticalDrag by remember { mutableFloatStateOf(0f) }
+
+    var imageUrl by remember { mutableStateOf(data.deviceImg) }
     var name by remember { mutableStateOf(data.audioName) }
     var artists by remember { mutableStateOf(data.audioArtist) }
     val powerState by viewModel.powerState.collectAsState()
+    val volumeState by viewModel.volumeState.collectAsState()
 
 
     // 햅틱 피드백을 위한 현재 뷰 가져오기
@@ -106,6 +111,7 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
                         }
                         if (isDraggingVolume) {
                             Log.d("VolumeControl", "Volume changed to: $volumePercent")
+                            viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId,volumePercent))
                         }
                         isDraggingVolume = false
                         totalVerticalDrag = 0f
@@ -153,8 +159,8 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
     ) {
 
         // 배경
-        Image(
-            painter = painterResource(id = R.drawable.wish),
+        AsyncImage(
+            model = imageUrl,
             contentDescription = null,
             alpha = 0.6f,
             modifier = Modifier.fillMaxSize()
@@ -265,6 +271,15 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
             }
             is AudioPowerState.Loaded -> {isPlaying = (powerState as AudioPowerState.Loaded).data.activated}
             AudioPowerState.Loading -> {}
+        }
+
+        when(volumeState){
+            is AudioVolumeState.Error -> {}
+            AudioVolumeState.Idle -> {}
+            is AudioVolumeState.Loaded -> {
+                volumePercent= (volumeState as AudioVolumeState.Loaded).data.volume
+            }
+            AudioVolumeState.Loading -> {}
         }
     }
 }

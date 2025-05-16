@@ -5,4 +5,5 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightIntent
 sealed class AudioIntent {
     data class LoadAudioStatus(val deviceId: Long): AudioIntent()
     data class LoadAudioPower(val deviceId: Long, val activated: Boolean): AudioIntent()
+    data class LoadAudioVolume(val deviceId: Long, val volume: Int): AudioIntent()
 }
