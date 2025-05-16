@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.LoginResult
 import com.hogumiwarts.domain.repository.AuthRepository
+import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,6 +22,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenDataStore: TokenDataStore,
+    private val jwtUseCase: TokensUseCase,
+
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
@@ -52,6 +55,13 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun saveJwt(accessToken: String, refreshToken: String){
+        viewModelScope.launch {
+            jwtUseCase.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
+        }
+
+    }
+
     private fun validateAndLogin(context: Context) {
         val id = _state.value.id
         val pw = _state.value.pw
@@ -73,6 +83,7 @@ class LoginViewModel @Inject constructor(
                 return
             }
         }
+
 
         // api 호출
         viewModelScope.launch {
@@ -99,6 +110,8 @@ class LoginViewModel @Inject constructor(
                         refreshToken = result.refreshToken,
                         name = result.name
                     )
+
+                    saveJwt(result.accessToken,result.refreshToken)
                 }
 
                 // 에러 처리

@@ -39,15 +39,15 @@ public class LightUtil {
         return main.path("colorTemperature").path("colorTemperature").path("value").asInt(-1);
     }
 
-    public int[] parseHueSaturation(JsonNode main) {
+    public float[] parseHueSaturation(JsonNode main) {
         JsonNode hueNode = main.path("colorControl").path("hue").path("value");
         JsonNode satNode = main.path("colorControl").path("saturation").path("value");
 
         if (!hueNode.isMissingNode() && !hueNode.isNull()
                 && !satNode.isMissingNode() && !satNode.isNull()) {
-            return new int[]{hueNode.asInt(), (int) (satNode.floatValue() * 100)};
+            return new float[]{ hueNode.floatValue(), satNode.floatValue() };
         }
-        return new int[]{-1, -1};
+        return new float[]{-1f, -1f};
     }
 }
 

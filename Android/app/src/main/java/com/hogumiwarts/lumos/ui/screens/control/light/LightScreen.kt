@@ -1,5 +1,6 @@
-package com.hogumiwarts.lumos.ui.screens.control
+package com.hogumiwarts.lumos.ui.screens.control.light
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,26 +24,39 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColorInt
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.google.gson.annotations.SerializedName
+import com.hogumiwarts.domain.model.light.LightStatusData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.LoadingComponent
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
+import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 data class LightDevice(
     @SerializedName("tagNumber") val tagNumber: Int,
@@ -55,32 +69,55 @@ data class LightDevice(
     @SerializedName("activated") val activated: Boolean,
     @SerializedName("brightness") val brightness: Int,
     @SerializedName("lightTemperature") val lightTemperature: String,
-    @SerializedName("lightCode") val lightCode: String
+    @SerializedName("lightCode") val lightCode: String,
 )
 
 @Composable
-fun LightScreen() {
+fun LightScreen(viewModel: LightViewModel = hiltViewModel()) {
 
-    var checked by remember { mutableStateOf(true) }
-    val lightDevice = LightDevice(
-        tagNumber = 1,
-        deviceId = 45678,
-        deviceImg = "https://storage.googleapis.com/lumos-assets/devices/smart_light.png",
-        deviceName = "거실 무드등",
-        manufacturerCode = "WiZ Connected",
-        deviceModel = "WiZ Colors RGB",
-        deviceType = "컬러 조명",
-        activated = true,
-        brightness = 10,
-        lightTemperature = "3000K",
-        lightCode = "#FF5733"
-    )
+    // 최초 진입 시 상태 요청
+    LaunchedEffect(Unit) {
 
-    var brightness by remember { mutableIntStateOf(lightDevice.brightness) }
-    val controller = rememberColorPickerController()
+        viewModel.sendIntent(LightIntent.LoadLightStatus(9))
+    }
 
+    val state by viewModel.state.collectAsState()
+    val powerState by viewModel.powerState.collectAsState()
+    val brightnessState by viewModel.brightnessState.collectAsState()
+    val colorState by viewModel.colorState.collectAsState()
+    val temperatureState by viewModel.temperatureState.collectAsState()
+
+    var isColor by remember { mutableStateOf(false) }
+
+    var checked by remember { mutableStateOf(false) }
+    var lightDevice by remember { mutableStateOf<LightStatusData?>(null) }
+    var brightness by remember { mutableIntStateOf(0) }
     var selectedColorCode by remember { mutableStateOf("#FFFFFF") }
     var selectedColor by remember { mutableStateOf(Color.White) }
+
+    val controller = rememberColorPickerController()
+
+    when (state) {
+        is LightStatusState.Error -> {}
+        LightStatusState.Idle -> {}
+        is LightStatusState.Loaded -> {
+            LaunchedEffect(state) {
+                val data = (state as LightStatusState.Loaded).data
+                checked = data.activated
+                brightness = data.brightness
+                controller.selectByHsv(
+                    (data.hue * 36 / 10).toFloat(),
+                    data.saturation / 100,
+                    1f,
+                    1f,
+                    false
+                )
+                lightDevice = data
+            }
+        }
+
+        LightStatusState.Loading -> {}
+    }
 
     Column(
         modifier = Modifier
@@ -93,7 +130,7 @@ fun LightScreen() {
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = lightDevice.deviceName,
+            text = lightDevice?.deviceName ?: "",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 20.sp
         )
@@ -114,7 +151,7 @@ fun LightScreen() {
             Switch(
                 checked = checked,
                 onCheckedChange = {
-                    checked = it
+                    viewModel.sendIntent(LightIntent.ChangeLightPower(9, it))
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
@@ -147,6 +184,9 @@ fun LightScreen() {
                 value = brightness.toFloat(),
                 onValueChange = {
                     brightness = it.toInt()
+                },
+                onValueChangeFinished = {
+                    viewModel.sendIntent(LightIntent.ChangeLightBright(9, brightness))
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -210,23 +250,54 @@ fun LightScreen() {
         Spacer(modifier = Modifier.height(41.dp))
         // 색상 설정
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 text = "색상 설정",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                modifier = Modifier.align(Alignment.Start)
             )
+
+            val coroutineScope = rememberCoroutineScope()
+            var debounceJob by remember { mutableStateOf<Job?>(null) }
 
             HsvColorPicker(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .height(200.dp)
+                    .width(200.dp)
                     .padding(10.dp),
                 controller = controller,
                 onColorChanged = { colorEnvelope: ColorEnvelope ->
                     selectedColorCode = "#" + colorEnvelope.hexCode.substring(2)
                     selectedColor = colorEnvelope.color
+
+                    // Color -> HSV 변환
+                    val hsv = FloatArray(3)
+                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
+
+                    val hue = hsv[0]
+                    val saturation = hsv[1]
+
+                    if(isColor == true){
+
+                    } else{
+                        debounceJob?.cancel()
+                        debounceJob = coroutineScope.launch {
+                            delay(300)
+                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
+                            viewModel.sendIntent(
+                                LightIntent.ChangeLightColor(
+                                    9,
+                                    (hue * 10 / 36).toInt(),
+                                    saturation * 100
+                                )
+                            )
+                        }
+                    }
+
+                    isColor = false
                 }
             )
         }
@@ -264,7 +335,7 @@ fun LightScreen() {
             Spacer(modifier = Modifier.height(13.dp))
 
             Text(
-                "제조사 | ${lightDevice.manufacturerCode}",
+                "제조사 | ${lightDevice?.manufacturerCode}",
                 fontSize = 12.sp
             )
             Text(
@@ -272,13 +343,69 @@ fun LightScreen() {
                 fontSize = 12.sp
             )
             Text(
-                "기기 타입 | ${lightDevice.deviceType}",
+                "기기 타입 | ${lightDevice?.deviceType}",
                 fontSize = 12.sp
             )
 
         }
 
         Spacer(modifier = Modifier.height(100.dp))
+    }
+
+    when (powerState) {
+        is ControlState.Error -> {}
+        ControlState.Idle -> {
+
+        }
+
+        is ControlState.Loaded -> {
+            checked = (powerState as ControlState.Loaded).data.activated
+        }
+
+        ControlState.Loading -> {
+            LoadingComponent()
+        }
+    }
+
+    when (brightnessState) {
+        is LightBrightState.Error -> {}
+        LightBrightState.Idle -> {}
+        is LightBrightState.Loaded -> {
+            brightness = (brightnessState as LightBrightState.Loaded).data.brightness
+        }
+
+        LightBrightState.Loading -> LoadingComponent()
+    }
+
+    when (colorState) {
+        is LightColorState.Error -> {}
+        LightColorState.Idle -> {}
+        is LightColorState.Loaded -> {
+            LaunchedEffect(colorState) {
+                isColor = true
+                val data = (colorState as LightColorState.Loaded).data
+                controller.selectByHsv(
+                    (data.hue * 36 / 10).toFloat(),
+                    data.saturation / 100,
+                    1f,
+                    1f,
+                    false
+                )
+
+            }
+        }
+
+        LightColorState.Loading -> LoadingComponent()
+    }
+    when(temperatureState){
+        is LightTemperatureState.Error -> {}
+        LightTemperatureState.Idle -> {}
+        is LightTemperatureState.Loaded ->{
+
+        }
+        LightTemperatureState.Loading -> {
+            LoadingComponent()
+        }
     }
 
 }

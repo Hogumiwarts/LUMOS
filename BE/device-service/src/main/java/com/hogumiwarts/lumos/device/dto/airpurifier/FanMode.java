@@ -8,11 +8,11 @@ import java.util.Arrays;
 
 @Schema(description = "공기청정기 팬 모드")
 public enum FanMode {
-    @Schema(description = "자동 모드") AUTO("auto"),
-    @Schema(description = "약풍") LOW("low"),
-    @Schema(description = "중간풍") MEDIUM("medium"),
-    @Schema(description = "강풍") HIGH("high"),
-    @Schema(description = "조용한 모드") QUIET("quiet");
+    @Schema(description = "자동 모드") AUTO("Auto"),
+    @Schema(description = "약풍") LOW("Low"),
+    @Schema(description = "중간풍") MEDIUM("Medium"),
+    @Schema(description = "강풍") HIGH("High"),
+    @Schema(description = "조용한 모드") QUIET("Quiet");
 
     private final String mode;
 

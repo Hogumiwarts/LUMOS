@@ -25,4 +25,8 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
 	void clearGestureBinding(@Param("memberId") Long memberId, @Param("gestureId") Long gestureId);
 
 	List<Routine> findByMemberIdOrderByRoutineIdAsc(Long memberId);
+
+	@Modifying
+	@Query("UPDATE Routine r SET r.gestureId = null WHERE r.memberId = :memberId AND r.gestureId = :gestureId AND r.routineId != :routineId")
+	void clearGestureBindingExcludeCurrent(@Param("memberId") Long memberId, @Param("gestureId") Long gestureId, @Param("routineId") Long routineId);
 }

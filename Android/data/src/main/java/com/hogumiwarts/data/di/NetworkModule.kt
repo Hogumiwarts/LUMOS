@@ -9,6 +9,7 @@ import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.data.source.remote.DeviceApi
 import com.hogumiwarts.data.source.remote.WeatherApi
 import com.hogumiwarts.data.source.remote.GestureApi
+import com.hogumiwarts.data.source.remote.LightApi
 import com.hogumiwarts.data.source.remote.MemberApi
 import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
@@ -136,7 +137,7 @@ object NetworkModule {
     @Named("BaseRetrofit")
     fun provideBaseRetrofit(
         okHttpClient: OkHttpClient,
-        @Named("DEVICE_BASE_URL") baseUrl: String
+        @Named("BASE_URL") baseUrl: String
     ): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)
@@ -170,6 +171,11 @@ object NetworkModule {
     @Singleton
     fun provideAudioApi(@Named("BaseRetrofit") retrofit: Retrofit): AudioApi =
         retrofit.create(AudioApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideLightApi(@Named("BaseRetrofit") retrofit: Retrofit): LightApi =
+        retrofit.create(LightApi::class.java)
 
     @Provides
     @Singleton

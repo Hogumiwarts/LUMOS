@@ -71,8 +71,8 @@ class MainActivity : ComponentActivity() {
 
                     val navController = rememberNavController()
                     if(text ==""){
-//                        NavGraph(navController)
-                        MoodPlayerScreen(1L)
+                        NavGraph(navController)
+//                        MoodPlayerScreen(1L)
 //                        LightOtherSetting()
                     }else{
                         GestureTestScreen(text) {

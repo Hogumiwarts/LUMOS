@@ -43,15 +43,7 @@ public interface MemberApiSpec {
         💡 회원 존재 여부를 확인합니다.
         """
 	)
-	ResponseEntity<?> checkEmail(@RequestParam String email);
-
-	@Operation(
-		summary = "X",
-		description = """
-        💡 회원  가입을 진행합니다.
-        """
-	)
-	ResponseEntity<?> createMember(@RequestBody CreateMemberRequest request);
+	ResponseEntity<?> checkEmailExists(@RequestParam String email);
 
 	@Operation(
 		summary = "X",
@@ -64,8 +56,18 @@ public interface MemberApiSpec {
 	@Operation(
 		summary = "X",
 		description = """
-        💡 memberId로 회원 정보를 조회합니다.
+        💡 memberId로 회원 존재 여부를 확인합니다.
+        
+        - 존재하지 않는 사용자에 대한 Refresh Token 요청 방지
         """
 	)
-	ResponseEntity<?> getMember(@PathVariable Long memberId);
+	ResponseEntity<?> checkMemberExists(@RequestParam Long memberId);
+
+	@Operation(
+		summary = "X",
+		description = """
+        💡 회원  가입을 진행합니다.
+        """
+	)
+	ResponseEntity<?> createMember(@RequestBody CreateMemberRequest request);
 }

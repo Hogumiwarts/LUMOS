@@ -12,8 +12,10 @@ import com.hogumiwarts.lumos.util.AuthUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AirPurifierService {
@@ -36,7 +38,7 @@ public class AirPurifierService {
 
         // 전원 상태
         boolean activated = AirPurifierUtil.parsePower(main);
-        boolean success = activated == request.getActivated();
+        boolean success = (activated == request.getActivated());
 
         return AirPurifierStatusResponse.builder()
                 .activated(activated)
@@ -59,13 +61,23 @@ public class AirPurifierService {
 
         // 팬 속도
         String fanMode = AirPurifierUtil.parseFanMode(main);
+        fanMode = capitalizeFirstLetter(fanMode);
+
         boolean success = request.getFanMode().getMode().equals(fanMode);
+        log.info("Fan mode changed to {}, {}", fanMode, success);
 
         return AirPurifierFanModeResponse.builder()
                 .fanMode(fanMode)
                 .success(success)
                 .build();
 
+    }
+
+    private String capitalizeFirstLetter(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 
 

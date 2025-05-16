@@ -17,14 +17,18 @@ import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.util.AuthUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LightService {
 
     private final LightUtil lightUtil;
     private final ExternalDeviceService externalDeviceService;
+    private static final float EPSILON = 0.01f;
+
 
     public LightDetailResponse getLightStatus(Long deviceId) {
 
@@ -35,10 +39,10 @@ public class LightService {
         String lightValue = lightUtil.parseLightSwitch(main);
         Integer brightness = lightUtil.parseBrightness(main);
         int colorTemperature = lightUtil.parseColorTemperature(main);
-        int[] hueSat = lightUtil.parseHueSaturation(main);
+        float[] hueSat = lightUtil.parseHueSaturation(main);
 
-        int hue = hueSat[0];
-        float saturation = (float) hueSat[1] / 100f;
+        float hue = hueSat[0];
+        float saturation = hueSat[1];
 
         return LightDetailResponse.builder()
                 .tagNumber(device.getTagNumber())
@@ -63,18 +67,6 @@ public class LightService {
         CommandRequest command = DeviceCommandUtil.buildLightOnOffCommand(request.getActivated());
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 
-//        // 2. SmartThings 상태 조회
-//        JsonNode raw = externalDeviceService.fetchDeviceStatus(deviceId);
-//
-//        // Status 파싱
-//        JsonNode main = raw.path("status")
-//                .path("components")
-//                .path("main");
-//
-//
-//        // 조명 상태
-//        JsonNode lightNode = main.path("switch").path("switch");
-//        String lightValue = lightNode.path("value").asText(null);
 
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         String lightValue = lightUtil.parseLightSwitch(main);
@@ -92,22 +84,34 @@ public class LightService {
     // 조명 색상 변경
     public LightColorResponse updateLightColor(Long deviceId, LightColorRequest request) {
 
+        log.info("request: {}, {}", request.getHue(), request.getSaturation());
+
         CommandRequest command = DeviceCommandUtil.buildLightColorCommand(request);
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
-        int[] hueSat = lightUtil.parseHueSaturation(main);
-        int hue = hueSat[0];
-        float saturation = (float) hueSat[1] / 100f;
+        float[] hueSat = lightUtil.parseHueSaturation(main);
+        float hue = hueSat[0];
+        float saturation = hueSat[1];
 
-        boolean success = request.getHue() == hue && request.getSaturation() == saturation;
+        log.info("request: {}, {}", hue, saturation);
+
+        boolean success =
+                Math.round(request.getHue()) == Math.round(hue) &&
+                        Math.round(request.getSaturation()) == Math.round(saturation);
+
 
         return LightColorResponse.builder()
-                .hue(hue)
-                .saturation(saturation)
+                .hue(request.getHue())
+                .saturation(request.getSaturation())
                 .success(success)
                 .build();
     }
+    private boolean floatEquals(float a, float b) {
+        return Math.abs(a - b) < EPSILON;
+    }
+
+
 
     // 조명 색 온도 변경
     public LightTemperatureResponse updateLightTemperature(Long deviceId, LightTemperatureRequest request) {
