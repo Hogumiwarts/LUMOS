@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,11 +22,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +55,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +72,15 @@ fun FindDeviceScreen(
     )
 
     val sessionReady = controlViewModel.sessionReady
-
+    
+    var showSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    
+    // skipPartiallyExpanded: 중간 상태 생략 여부
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+    )
+    
     LaunchedEffect(Unit) {
         controlViewModel.prepareSession()
     }
@@ -86,9 +98,9 @@ fun FindDeviceScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
                 .height(64.dp)
                 .background(Color.Transparent)
-                .statusBarsPadding()
                 .align(Alignment.TopCenter)
         ) {
             Row(
@@ -198,6 +210,10 @@ fun FindDeviceScreen(
                 ) {
                     Text("탐지시작")
                 }
+                
+                Button(onClick = { showSheet = true }) {
+                    Text("시트")
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -238,17 +254,42 @@ fun FindDeviceScreen(
                     val position = controlViewModel.getDevicePosition(address)
                     val isConnected = position != null
 
-                    RangingResultText(
-                        address = address,
-                        isConnected = isConnected,
-                        position = position,
-                        findType = controlViewModel.detectedDeviceName
-                    )
+//                    RangingResultText(
+//                        address = address,
+//                        isConnected = isConnected,
+//                        position = position,
+//                        findType = controlViewModel.detectedDeviceName
+//                    )
                 }
             }
         }
 
     }
+
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSheet = false },
+            sheetState = sheetState,
+            shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
+            // 네비·제스처 바 뒤로 콘텐츠가 들어가도록 (선택 사항)
+            windowInsets = WindowInsets(0, 0, 0, 0),
+            containerColor = Color.White,
+            dragHandle = null
+        ) {
+            // 시트 콘텐츠: 화면 높이만큼 채우기
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                LightScreen()
+            }
+        }
+        LaunchedEffect(Unit) {
+            scope.launch { sheetState.show() }
+        }
+    }
+
 }
 
 @Composable
