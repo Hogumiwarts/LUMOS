@@ -14,8 +14,8 @@ public class LightColorResponse {
     private Boolean success;
 
     @Schema(description = "색조(Hue) 값 (0.0~100.0)", example = "75.5")
-    private Float hue;
+    private float hue;
 
     @Schema(description = "채도(Saturation) 값 (0.0~100.0)", example = "100.0")
-    private Float saturation;
+    private float saturation;
 }
