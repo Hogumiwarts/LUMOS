@@ -38,11 +38,15 @@ fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel 
     val temperatureState by viewModel.temperatureState.collectAsState()
     var brightness by remember { mutableIntStateOf(0) }
     when(temperatureState){
+
         is LightTemperatureState.Error -> {}
         LightTemperatureState.Idle -> {}
         is LightTemperatureState.Loaded ->{
-            val t= (temperatureState as LightTemperatureState.Loaded).data.temperature
-            brightness= ((t-2200)*100/(6500-2200))
+            LaunchedEffect(temperatureState) {
+                val t= (temperatureState as LightTemperatureState.Loaded).data.temperature
+                brightness= ((t-2200)*100/(6500-2200))
+            }
+
         }
         LightTemperatureState.Loading -> {
 
@@ -85,7 +89,7 @@ fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel 
 
             },
             onValueChangeFinished = {
-                viewModel.sendIntent(LightIntent.ChangeLightTemperature(4,brightness.toInt()))
+                viewModel.sendIntent(LightIntent.ChangeLightTemperature(9,brightness*(6500-2200)/100+2200.toInt()))
             },
             valueRange = 0f..100f,
             steps = 0,

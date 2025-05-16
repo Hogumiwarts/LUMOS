@@ -31,6 +31,7 @@ import javax.inject.Inject
 class LightViewModel @Inject constructor(
     private val lightUseCase: LightUseCase, // 유즈케이스 주입
     private val jwtUseCase: TokensUseCase,
+
     @ApplicationContext private val context: Context, // 앱 context (현재는 미사용)
 ) : ViewModel() {
 
@@ -174,12 +175,7 @@ class LightViewModel @Inject constructor(
         }
     }
 
-    fun saveJwt(accessToken: String, refreshToken: String){
-        viewModelScope.launch {
-            jwtUseCase.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
-        }
 
-    }
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
     private fun patchLightColor(deviceId: Long, color: Int,saturation: Float) {
