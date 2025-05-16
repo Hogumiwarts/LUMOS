@@ -325,6 +325,28 @@ fun ControlScreen(
                                     }
                                 }
                             }
+                            Spacer(Modifier.height(8.dp))
+
+                            Button(
+                                onClick = {
+                                    if (controlViewModel.rangingActive)
+                                        controlViewModel.startDetection()
+                                },
+                                enabled = controlViewModel.rangingActive
+                            ) {
+                                Text("탐지시작")
+                            }
+
+                            controlViewModel.detectedDeviceName?.let { name ->
+                                Text(
+                                    text = "탐지 결과: $name",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Color.Magenta,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                )
+                            }
                         }
                     }
                 }
