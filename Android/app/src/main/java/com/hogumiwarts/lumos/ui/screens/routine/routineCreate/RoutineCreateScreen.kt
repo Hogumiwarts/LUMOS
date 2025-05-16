@@ -342,7 +342,6 @@ fun RoutineCreateScreen(
             }
 
 
-
             // 기기 리스트
             items(devices, key = { it.deviceId }) { device ->
                 var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
@@ -383,6 +382,30 @@ fun RoutineCreateScreen(
                 )
             }
 
+            if (devices.isEmpty()) {
+                // 비어있으면 하단에 기기 추가 버튼 생성
+                item {
+                    AddDeviceCard(
+                        onClick = {
+                            coroutineScope.launch {
+                                isSheetOpen = true
+                                sheetState.show()
+                            }
+                        }
+                    )
+
+                    if (state.deviceEmptyMessage != null) {
+                        Text(
+                            text = state.deviceEmptyMessage!!,
+                            color = Color(0xFFF26D6D),
+                            fontSize = 12.sp,
+                            fontFamily = nanum_square_neo,
+                            modifier = Modifier.padding(top = 6.dp, start = 4.dp)
+                        )
+                    }
+                }
+            }
+
             // 제스처 카드
 //            item {
 //                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
@@ -407,7 +430,6 @@ fun RoutineCreateScreen(
             PrimaryButton(
                 buttonText = "생성하기",
                 onClick = {
-
                     if (routineName.isBlank()) {
                         viewModel.setNameBlankError("루틴 이름은 필수 항목입니다.")
                     } else if (devices.isEmpty()) {
@@ -418,7 +440,8 @@ fun RoutineCreateScreen(
                         onRoutineCreateComplete()
                     }
 
-                }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -452,7 +475,7 @@ fun AddDeviceCard(onClick: () -> Unit) {
         Spacer(modifier = Modifier.height(2.dp))
 
         Text(
-            text = "기기 추가",
+            text = "제스처 추가",
             style = TextStyle(
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
