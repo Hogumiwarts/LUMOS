@@ -48,8 +48,8 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun RoutineDetailScreen(
     routineId: String?,
-    routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
-    routineItem: List<RoutineItem> = RoutineItem.sample, // 루틴 리스트
+//    routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
+//    routineItem: List<RoutineItem> = RoutineItem.sample, // 루틴 리스트
     onBack: () -> Unit = {},
     viewModel: RoutineDetailViewModel,
     onEdit: () -> Unit = {}
@@ -143,7 +143,7 @@ fun RoutineDetailContent(
                     Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
-                        text = routine.title,
+                        text = routine.routineName,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
                         fontFamily = nanum_square_neo

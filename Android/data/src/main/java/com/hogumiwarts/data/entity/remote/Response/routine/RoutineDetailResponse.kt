@@ -11,7 +11,7 @@ data class RoutineDetailResponse(
 data class RoutineDetailData(
     val routineName: String,
     val routineIcon: String,
-    val devices: RoutineDeviceData,
+    val devices: List<RoutineDeviceData>,
     val gestureId: Int,
     val gestureName: String,
     val gestureImageUrl: String,

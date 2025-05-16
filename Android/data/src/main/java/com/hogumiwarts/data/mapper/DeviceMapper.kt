@@ -1,6 +1,11 @@
 package com.hogumiwarts.data.mapper
 
+import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDetailData
+import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDeviceData
+import com.hogumiwarts.domain.model.CommandData
+import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.domain.model.DeviceResult
+import com.hogumiwarts.domain.model.RoutineDetail
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -41,3 +46,37 @@ data class CommandData(
     val command: String,
     val arguments: List<String>
 )
+
+fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.RoutineDetailData {
+    return com.hogumiwarts.domain.model.RoutineDetailData(
+        routineName = routineName,
+        routineIcon = routineIcon,
+        gestureId = gestureId,
+        gestureName = gestureName,
+        gestureImageUrl = gestureImageUrl,
+        gestureDescription = gestureDescription,
+        devices = devices.map { it.toRoutineDevice() }
+    )
+}
+
+fun RoutineDeviceData.toDomain(): CommandDevice {
+    return CommandDevice(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType,
+        deviceImageUrl = deviceImageUrl,
+        commands = parseCommands(commands) // 이미 만든 JsonElement 파서 활용
+    )
+}
+
+fun RoutineDeviceData.toRoutineDevice(): com.hogumiwarts.domain.model.RoutineDeviceData {
+    return com.hogumiwarts.domain.model.RoutineDeviceData(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType,
+        deviceImageUrl = deviceImageUrl,
+        commands = commands
+    )
+}
+
+
