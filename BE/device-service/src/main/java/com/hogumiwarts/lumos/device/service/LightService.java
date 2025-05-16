@@ -35,10 +35,10 @@ public class LightService {
         String lightValue = lightUtil.parseLightSwitch(main);
         Integer brightness = lightUtil.parseBrightness(main);
         int colorTemperature = lightUtil.parseColorTemperature(main);
-        int[] hueSat = lightUtil.parseHueSaturation(main);
+        float[] hueSat = lightUtil.parseHueSaturation(main);
 
-        int hue = hueSat[0];
-        float saturation = (float) hueSat[1] / 100f;
+        float hue = hueSat[0];
+        float saturation = hueSat[1];
 
         return LightDetailResponse.builder()
                 .tagNumber(device.getTagNumber())
@@ -96,9 +96,9 @@ public class LightService {
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
-        int[] hueSat = lightUtil.parseHueSaturation(main);
-        int hue = hueSat[0];
-        float saturation = (float) hueSat[1] / 100f;
+        float[] hueSat = lightUtil.parseHueSaturation(main);
+        float hue = hueSat[0];
+        float saturation = hueSat[1];
 
         boolean success = request.getHue() == hue && request.getSaturation() == saturation;
 
