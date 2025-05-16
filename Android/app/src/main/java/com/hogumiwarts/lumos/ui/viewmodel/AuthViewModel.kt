@@ -102,12 +102,12 @@ class AuthViewModel @Inject constructor(
         _isSignup.value = false
     }
 
-    fun saveJwt(accessToken: String, refreshToken: String){
-        viewModelScope.launch {
-            jwtUseCase.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
-        }
-
-    }
+//    fun saveJwt(accessToken: String, refreshToken: String){
+//        viewModelScope.launch {
+//            jwtUseCase.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
+//        }
+//
+//    }
 
     // 리프레시 토큰
     fun refreshToken(
@@ -123,7 +123,7 @@ class AuthViewModel @Inject constructor(
 
                 val name = tokenDataStore.getUserName().first()
 
-                saveJwt(newAccessToken,refreshToken)
+//                saveJwt(newAccessToken,refreshToken)
 
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
