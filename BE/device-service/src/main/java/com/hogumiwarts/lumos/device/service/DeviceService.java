@@ -143,7 +143,7 @@ public class DeviceService {
 
 		return devices.stream()
 			.map(device -> {
-				boolean activated = deviceStatusResolver.getActivatedStatus(device); // ⭐️ 이게 핵심
+				boolean activated = deviceStatusResolver.getActivatedStatus(device);
 				return DeviceStatusResponse.builder()
 					.tagNumber(device.getTagNumber())
 					.deviceId(device.getDeviceId())
@@ -188,14 +188,7 @@ public class DeviceService {
 		List<Device> devices = deviceRepository.findAllById(deviceIds);
 
 		return devices.stream()
-			.map(device -> DevicesCreateResponse.builder()
-				.deviceId(device.getDeviceId())
-				.deviceName(device.getDeviceName())
-				.deviceType(device.getDeviceType())
-				.deviceImageUrl(device.getDeviceUrl())
-				.installedAppId(device.getInstalledAppId())
-				.controlId(device.getControlId())
-				.build())
+			.map(DevicesCreateResponse::from)
 			.toList();
 	}
 }

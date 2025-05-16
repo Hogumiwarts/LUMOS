@@ -48,8 +48,7 @@ public class DeviceController implements DeviceApiSpec {
 	}
 
 	@GetMapping("/details")
-	public List<DevicesCreateResponse> getDeviceDetailsByIds(
-		@RequestParam("deviceIds") List<Long> deviceIds) {
+	public List<DevicesCreateResponse> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds) {
 		return deviceService.getDeviceDetailsByIds(deviceIds);
 	}
 }

@@ -19,4 +19,8 @@ public class DevicesCreateRequest {
 
     @Schema(description = "디바이스 제어 명령 목록")
     private List<CommandRequest> commands;
+
+    public static DevicesCreateRequest of(Long deviceId, List<CommandRequest> commands) {
+        return new DevicesCreateRequest(deviceId, commands);
+    }
 }
