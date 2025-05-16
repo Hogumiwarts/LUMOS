@@ -26,6 +26,6 @@ data class RoutineDeviceData(
     val deviceId: Int,
     val deviceName: String,
     val deviceType: String,
-    val deviceImageUrl: String,
+    val deviceImageUrl: String?,
     val commands: List<CommandData>
 )
