@@ -240,7 +240,7 @@ fun NavGraph(
                 },
             ) {
                 FindDeviceScreen(
-//                    navController = navController
+                    navController = navController
                 )
             }
 

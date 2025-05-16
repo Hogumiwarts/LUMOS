@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,14 +13,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
@@ -27,6 +32,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -39,10 +45,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.uwb.RangingPosition
@@ -62,7 +74,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindDeviceScreen(
-//    navController: NavHostController,
+    navController: NavHostController,
     controlViewModel: ControlViewModel = hiltViewModel()
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.wave))
@@ -72,15 +84,36 @@ fun FindDeviceScreen(
     )
 
     val sessionReady = controlViewModel.sessionReady
-    
+
     var showSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    
+
     // skipPartiallyExpanded: 중간 상태 생략 여부
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
+        confirmValueChange = { it != SheetValue.Hidden }
     )
-    
+
+    val blockSheetDrag = remember {
+        object : NestedScrollConnection {
+            // 자식이 소비한 뒤 남은 스크롤
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset =
+                if (available.y > 0f) available   // ↓방향 잔여량 전부 소비 → 시트로 못 내려감
+                else Offset.Zero                  // ↑방향 or 없음 → 통과
+
+            override suspend fun onPostFling(
+                consumed: Velocity,
+                available: Velocity
+            ): Velocity =
+                if (available.y > 0f) available   // ↓방향 플링 잔여량도 소비
+                else Velocity.Zero
+        }
+    }
+
     LaunchedEffect(Unit) {
         controlViewModel.prepareSession()
     }
@@ -121,7 +154,7 @@ fun FindDeviceScreen(
                         indication = null,
                         onClick = {
                             // 뒤로 가기
-//                            navController.popBackStack()
+                            navController.popBackStack()
                         }
                     ),
                     tint = Color.White
@@ -210,7 +243,7 @@ fun FindDeviceScreen(
                 ) {
                     Text("탐지시작")
                 }
-                
+
                 Button(onClick = { showSheet = true }) {
                     Text("시트")
                 }
@@ -253,7 +286,6 @@ fun FindDeviceScreen(
                 controlViewModel.controleeAddresses.forEach { address ->
                     val position = controlViewModel.getDevicePosition(address)
                     val isConnected = position != null
-
 //                    RangingResultText(
 //                        address = address,
 //                        isConnected = isConnected,
@@ -272,24 +304,22 @@ fun FindDeviceScreen(
             sheetState = sheetState,
             shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
             // 네비·제스처 바 뒤로 콘텐츠가 들어가도록 (선택 사항)
-            windowInsets = WindowInsets(0, 0, 0, 0),
+            windowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Bottom),
             containerColor = Color.White,
-            dragHandle = null
+            dragHandle = null,
         ) {
             // 시트 콘텐츠: 화면 높이만큼 채우기
             Box(
                 Modifier
+                    .nestedScroll(blockSheetDrag)
                     .fillMaxWidth()
                     .fillMaxHeight()
+                    .statusBarsPadding()
             ) {
                 LightScreen()
             }
         }
-        LaunchedEffect(Unit) {
-            scope.launch { sheetState.show() }
-        }
     }
-
 }
 
 @Composable
@@ -393,9 +423,9 @@ private fun RangingResultText(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun FindDeviceScreenPreview() {
-    FindDeviceScreen()
-
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun FindDeviceScreenPreview() {
+//    FindDeviceScreen()
+//
+//}
