@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,10 +18,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
+import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.utils.uwb.BleDevice
 import com.hogumiwarts.lumos.utils.uwb.GattConnector
 import com.hogumiwarts.lumos.utils.uwb.SavedUwbDevice
@@ -66,15 +72,30 @@ fun ControlScreen(
 
     Scaffold(
         topBar = {
-            CommonTopBar(
-                barTitle = "UWB 제어",
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                isRightBtnVisible = false,
-                onRightBtnClick = {},
-                isBackBtnVisible = true
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(Color.Transparent)
+                    .statusBarsPadding()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_back),
+                    contentDescription = null,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ),
+                    tint = Color.White
+                )
+            }
+
         }
     ) { innerPadding ->
         Column(

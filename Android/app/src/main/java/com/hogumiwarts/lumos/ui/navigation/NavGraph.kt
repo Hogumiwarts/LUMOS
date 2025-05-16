@@ -219,7 +219,9 @@ fun NavGraph(
                     )
                 },
             ) {
-                FindDeviceScreen(navController = navController)
+                FindDeviceScreen(
+//                    navController = navController
+                )
             }
 
             // Auth
