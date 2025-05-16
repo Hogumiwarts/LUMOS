@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.control
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,6 +26,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,8 +43,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.gson.annotations.SerializedName
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.LoadingComponent
+import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
+import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierPowerState
+import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
+import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
+import com.hogumiwarts.lumos.ui.viewmodel.AirpurifierViewModel
+import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 
 data class AirPurifierDevice(
@@ -81,7 +92,16 @@ fun String?.toAirQuality(): AirQuality {
 }
 
 @Composable
-fun AirpurifierScreen() {
+fun AirpurifierScreen(viewModel: AirpurifierViewModel = hiltViewModel()) {
+    var deviceId by remember { mutableStateOf(7L) }
+    // 최초 진입 시 상태 요청
+    LaunchedEffect(Unit) {
+
+        viewModel.sendIntent(AirpurifierIntent.LoadAirpurifierStatus(deviceId))
+    }
+
+    val state by viewModel.state.collectAsState()
+    val powerState by viewModel.powerState.collectAsState()
 
     val airPurifier = AirPurifierDevice(
         tagNumber = 2,
@@ -100,28 +120,75 @@ fun AirpurifierScreen() {
         filterUsageTime = 720  // 30일(720시간) 사용
     )
 
-    val airQualityEnum = airPurifier.caqi.toAirQuality()
+
 
     // 공기 질 enum을 한국어 텍스트로 변환
-    val airQualityText = when (airQualityEnum) {
-        AirQuality.VeryLow -> "매우 좋음"
-        AirQuality.Low -> "좋음"
-        AirQuality.Medium -> "보통"
-        AirQuality.High -> "나쁨"
-        AirQuality.VeryHigh -> "매우 나쁨"
-    }
+    var airQualityText by remember { mutableStateOf("") }
 
+    val airQualityEnum = airPurifier.caqi.toAirQuality()
     // 공기 질에 따른 색상 설정
-    val airQualityColor = when (airQualityEnum) {
-        AirQuality.VeryLow -> Color(0xFF4CD137)    // 밝은 초록색
-        AirQuality.Low -> Color(0xFF7FBA00)        // 초록색
-        AirQuality.Medium -> Color(0xFFFBC531)     // 노란색
-        AirQuality.High -> Color(0xFFE84118)       // 주황색
-        AirQuality.VeryHigh -> Color(0xFFC23616)   // 빨간색
-    }
+
+    var airQualityColor by remember { mutableStateOf(Color.White) }
+
 
     var selectedFanMode by remember { mutableStateOf(airPurifier.fanMode) }
-    var checked by remember { mutableStateOf(true) }
+    var checked by remember { mutableStateOf(false) }
+    var dustLevel by remember { mutableStateOf(0) }
+    var fineDustLevel by remember { mutableStateOf(0) }
+    var odorLevel by remember { mutableStateOf(0) }
+    var filterUsageTime by remember { mutableStateOf(0) }
+    var deviceModel by remember { mutableStateOf(" " )}
+    var manufacturerCode by remember { mutableStateOf(" " )}
+    var name by remember { mutableStateOf("공기청정기" )}
+
+    when(state){
+        is AirpurifierStatusState.Error -> {}
+        AirpurifierStatusState.Idle -> {}
+        is AirpurifierStatusState.Loaded -> {
+            LaunchedEffect(state) {
+
+
+            val data = (state as AirpurifierStatusState.Loaded).data
+            checked= data.activated
+
+            airQualityText = when (data.caqi.toAirQuality()) {
+                AirQuality.VeryLow -> "매우 좋음"
+                AirQuality.Low -> "좋음"
+                AirQuality.Medium -> "보통"
+                AirQuality.High -> "나쁨"
+                AirQuality.VeryHigh -> "매우 나쁨"
+            }
+
+            airQualityColor = when (data.caqi.toAirQuality()) {
+                AirQuality.VeryLow -> Color(0xFF4CD137)    // 밝은 초록색
+                AirQuality.Low -> Color(0xFF7FBA00)        // 초록색
+                AirQuality.Medium -> Color(0xFFFBC531)     // 노란색
+                AirQuality.High -> Color(0xFFE84118)       // 주황색
+                AirQuality.VeryHigh -> Color(0xFFC23616)   // 빨간색
+            }
+
+            dustLevel = data.dustLevel
+
+            fineDustLevel = data.fineDustLevel
+
+            odorLevel = data.odorLevel
+
+            selectedFanMode = data.fanMode
+
+            deviceModel = data.deviceModel
+
+            manufacturerCode = data.manufacturerCode
+
+            filterUsageTime = data.filterUsageTime
+
+            name = data.deviceName
+
+            }
+        }
+        AirpurifierStatusState.Loading -> {}
+    }
+
+
 
     Column(
         modifier = Modifier
@@ -138,7 +205,7 @@ fun AirpurifierScreen() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = airPurifier.deviceName,
+                text = name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
                 textAlign = TextAlign.Center
@@ -153,7 +220,7 @@ fun AirpurifierScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "공기 청정기",
+                "공기청정기",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 18.sp
             )
@@ -161,7 +228,8 @@ fun AirpurifierScreen() {
             Switch(
                 checked = checked,
                 onCheckedChange = {
-                    checked = it
+                    viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId,it))
+//                    checked = it
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
@@ -246,7 +314,7 @@ fun AirpurifierScreen() {
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "미세먼지 농도 ${airPurifier.dustLevel} μg/m³",
+                        text = "미세먼지 농도 ${dustLevel} μg/m³",
                         color = Color.Gray,
                         fontSize = 14.sp
                     )
@@ -264,7 +332,7 @@ fun AirpurifierScreen() {
                     )
 
                     Text(
-                        text = "초미세먼지 농도 ${airPurifier.fineDustLevel} μg/m³",
+                        text = "초미세먼지 농도 ${fineDustLevel} μg/m³",
                         color = Color.Gray,
                         fontSize = 14.sp
                     )
@@ -296,9 +364,7 @@ fun AirpurifierScreen() {
                     )
                     .padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
-
-                // TODO: 냄새값 정수 -> 보통/좋음/나쁨 치환 필요
-                Text("냄새 보통")
+                Text("냄새 ${mapNumberToText(odorLevel)}")
             }
         }
 
@@ -320,7 +386,7 @@ fun AirpurifierScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 팬 속도 옵션 배열
-            val fanModes = listOf("Auto", "Low", "Medium", "High", "Quiet")
+            val fanModes = listOf("auto", "low", "medium", "high", "quiet")
 
             // 각 팬 속도 옵션에 대한 버튼 생성
             fanModes.forEach { mode ->
@@ -329,6 +395,8 @@ fun AirpurifierScreen() {
                     isSelected = selectedFanMode == mode,
                     onClick = {
                         selectedFanMode = mode
+                        Log.d("TAG", "AirpurifierScreen: $selectedFanMode  $mode")
+                        viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierFenMode(deviceId,selectedFanMode))
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -350,27 +418,54 @@ fun AirpurifierScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "필터 사용 시간 | ${airPurifier.filterUsageTime}일",
+            text = "필터 사용 시간 | ${filterUsageTime}시간",
             fontSize = 14.sp,
             color = Color.DarkGray
         )
 
         Text(
-            text = "모델명 | ${airPurifier.deviceModel}",
+            text = "모델명 | ${deviceModel}",
             fontSize = 14.sp,
             color = Color.DarkGray
         )
 
         Text(
-            text = "제조사 | ${airPurifier.manufacturerCode}",
+            text = "제조사 | ${manufacturerCode}",
             fontSize = 14.sp,
             color = Color.DarkGray
         )
 
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(150.dp))
 
     }
+
+    when(powerState){
+        is AirpurifierPowerState.Error -> {}
+        AirpurifierPowerState.Idle -> {}
+        is AirpurifierPowerState.Loaded -> {
+
+                checked = (powerState as AirpurifierPowerState.Loaded).data.activated
+            Log.d("TAG", "AirpurifierScreen: $checked")
+
+        }
+        AirpurifierPowerState.Loading -> {
+            LoadingComponent()
+        }
+    }
+
 }
+
+fun mapNumberToText(value: Int): String {
+    return when (value) {
+        1 -> "매우 좋음"
+        2 -> "좋음"
+        3 -> "보통"
+        4 -> "안좋음"
+        5 -> "매우 안좋음"
+        else -> "알 수 없음"
+    }
+}
+
 
 @Composable
 fun FanButton(
