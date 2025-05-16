@@ -41,23 +41,26 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
+import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.ui.common.OnOffSwitch
 
 // 무드 플레이어 화면 (첫 번째 화면)
 @Composable
 fun MoodPlayerSwitch(
+    data: AudioStatusData,
     volumePercent: Int = 40,
     isOn: Boolean = true,
     onToggle: (Boolean) -> Unit,
     onSwipeUp: () -> Unit
 ) {
 
-    var isPlaying by remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(data.activated) }
 
     ConstraintLayout(
         modifier = Modifier
@@ -81,7 +84,7 @@ fun MoodPlayerSwitch(
 
         // 제목
         Text(
-            text = "무드 플레이어",
+            text = data.deviceName,
             color = Color.White,
             fontSize = 18.sp,
             modifier = Modifier.constrainAs(title) {
@@ -107,8 +110,8 @@ fun MoodPlayerSwitch(
             contentAlignment = Alignment.CenterStart
         ) {
 
-            Image(
-                painter = painterResource(id = R.drawable.wish),
+            AsyncImage(
+                model = data.audioImg,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
@@ -143,13 +146,13 @@ fun MoodPlayerSwitch(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "WISH",
+                        text = data.audioName,
                         color = Color.White,
                         fontSize = 22.sp
                     )
 
                     Text(
-                        text = "NCT WISH",
+                        text = data.audioArtist,
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Light
