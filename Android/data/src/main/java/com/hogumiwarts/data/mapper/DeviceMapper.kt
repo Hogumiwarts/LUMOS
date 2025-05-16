@@ -6,6 +6,7 @@ import com.hogumiwarts.domain.model.CommandData
 import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.domain.model.DeviceResult
 import com.hogumiwarts.domain.model.RoutineDetail
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -23,16 +24,17 @@ fun DeviceResult.toDomain(): DeviceResult {
     )
 }
 
-fun parseCommands(commands: JsonElement): List<CommandData> {
+fun parseCommands(commands: String): List<CommandData> {
     return try {
-        val commandArray = commands.jsonArray
-        commandArray.map { element ->
-            val obj = element.jsonObject
+        val element = Json.parseToJsonElement(commands)
+        val commandArray = element.jsonArray
+        commandArray.map { obj ->
+            val commandObj = obj.jsonObject
             CommandData(
-                component = obj["component"]?.jsonPrimitive?.content ?: "",
-                capability = obj["capability"]?.jsonPrimitive?.content ?: "",
-                command = obj["command"]?.jsonPrimitive?.content ?: "",
-                arguments = obj["arguments"]?.jsonArray?.mapNotNull { it.toString() } ?: emptyList()
+                component = commandObj["component"]?.jsonPrimitive?.content.orEmpty(),
+                capability = commandObj["capability"]?.jsonPrimitive?.content.orEmpty(),
+                command = commandObj["command"]?.jsonPrimitive?.content.orEmpty(),
+                arguments = commandObj["arguments"]?.jsonArray?.map { it.toString() } ?: emptyList()
             )
         }
     } catch (e: Exception) {
@@ -65,7 +67,7 @@ fun RoutineDeviceData.toDomain(): CommandDevice {
         deviceName = deviceName,
         deviceType = deviceType,
         deviceImageUrl = deviceImageUrl,
-        commands = parseCommands(commands) // 이미 만든 JsonElement 파서 활용
+        commands = commands  // 이미 만든 JsonElement 파서 활용
     )
 }
 
@@ -75,7 +77,7 @@ fun RoutineDeviceData.toRoutineDevice(): com.hogumiwarts.domain.model.RoutineDev
         deviceName = deviceName,
         deviceType = deviceType,
         deviceImageUrl = deviceImageUrl,
-        commands = commands
+        commands = commands.toString()
     )
 }
 

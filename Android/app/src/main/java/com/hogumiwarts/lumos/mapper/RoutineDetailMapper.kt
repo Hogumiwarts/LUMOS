@@ -26,3 +26,5 @@ fun RoutineDeviceData.toRoutineDevice(): RoutineDevice {
         isOn = true
     )
 }
+
+

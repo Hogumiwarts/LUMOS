@@ -39,18 +39,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.GestureType
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun RoutineDetailScreen(
     routineId: String?,
-//    routineDevices: List<RoutineDevice> = RoutineDevice.sample, // 루틴별 기기 정보
-//    routineItem: List<RoutineItem> = RoutineItem.sample, // 루틴 리스트
-    onBack: () -> Unit = {},
     viewModel: RoutineDetailViewModel,
     onEdit: () -> Unit = {}
 ) {
@@ -135,7 +133,7 @@ fun RoutineDetailContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_moon_sleep),
+                        painter = painterResource(id = RoutineIconType.getResIdByName(routine.routineIcon)),
                         contentDescription = null,
                         modifier = Modifier.size(27.dp)
                     )
@@ -201,16 +199,20 @@ fun RoutineDetailContent(
         }
 
         item {
-            GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, false)
+            val gesture = GestureData(
+                memberGestureId = routine.gestureId.toLong(),
+                gestureName = routine.gestureName,
+                description = routine.gestureDescription,
+                gestureImg = routine.gestureImageUrl,
+                routineName = routine.routineName
+            )
+            GestureCard(
+                selectedGesture = gesture,
+                isEditMode = false
+            )
         }
     }
 
 
 }
 
-
-//@Preview(showBackground = true)
-//@Composable
-//fun RoutineDetailScreenPreview() {
-//    RoutineDetailScreen()
-//}

@@ -1,6 +1,10 @@
 package com.hogumiwarts.data.entity.remote.Response.routine
 
+import com.hogumiwarts.domain.model.CommandData
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 data class RoutineDetailResponse(
     val status: Int,
@@ -18,11 +22,10 @@ data class RoutineDetailData(
     val gestureDescription: String
 )
 
-data class RoutineDeviceData (
+data class RoutineDeviceData(
     val deviceId: Int,
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String,
-    val commands: JsonElement // 기기별 제어
+    val commands: List<CommandData>
 )
-

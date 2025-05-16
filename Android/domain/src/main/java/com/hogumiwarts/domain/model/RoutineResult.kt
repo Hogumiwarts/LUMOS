@@ -44,14 +44,14 @@ data class CommandData(
     val component: String,
     val capability: String,
     val command: String,
-    val arguments: List<String>
+    val arguments: List<Any>
 )
 
 data class RoutineDeviceData(
     val deviceId: Int,
     val deviceName: String,
     val deviceType: String,
-    val deviceImageUrl: String,
-    val commands: JsonElement // 기기별 제어
+    val deviceImageUrl: String?,
+    val commands: String // 기기별 제어
 )
 

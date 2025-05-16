@@ -55,7 +55,6 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.GestureType
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.toRoutineDevice
@@ -386,9 +385,9 @@ fun RoutineCreateScreen(
             }
 
             // 제스처 카드
-            item {
-                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
-            }
+//            item {
+//                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
+//            }
 
 
             item {
