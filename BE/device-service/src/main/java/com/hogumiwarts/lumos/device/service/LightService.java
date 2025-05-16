@@ -21,10 +21,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+
 public class LightService {
 
     private final LightUtil lightUtil;
     private final ExternalDeviceService externalDeviceService;
+    private static final float EPSILON = 0.01f;
+
 
     public LightDetailResponse getLightStatus(Long deviceId) {
 
@@ -63,18 +66,6 @@ public class LightService {
         CommandRequest command = DeviceCommandUtil.buildLightOnOffCommand(request.getActivated());
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 
-//        // 2. SmartThings 상태 조회
-//        JsonNode raw = externalDeviceService.fetchDeviceStatus(deviceId);
-//
-//        // Status 파싱
-//        JsonNode main = raw.path("status")
-//                .path("components")
-//                .path("main");
-//
-//
-//        // 조명 상태
-//        JsonNode lightNode = main.path("switch").path("switch");
-//        String lightValue = lightNode.path("value").asText(null);
 
         JsonNode main = lightUtil.getMainStatusNode(deviceId);
         String lightValue = lightUtil.parseLightSwitch(main);
@@ -100,7 +91,7 @@ public class LightService {
         float hue = hueSat[0];
         float saturation = hueSat[1];
 
-        boolean success = request.getHue() == hue && request.getSaturation() == saturation;
+        boolean success = floatEquals(request.getHue(), hue) && floatEquals(request.getSaturation(), saturation);
 
         return LightColorResponse.builder()
                 .hue(hue)
@@ -108,6 +99,11 @@ public class LightService {
                 .success(success)
                 .build();
     }
+    private boolean floatEquals(float a, float b) {
+        return Math.abs(a - b) < EPSILON;
+    }
+
+
 
     // 조명 색 온도 변경
     public LightTemperatureResponse updateLightTemperature(Long deviceId, LightTemperatureRequest request) {
