@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -216,7 +217,7 @@ fun ControlScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // 각 장치별 결과 표시 - 항상 모든 장치를 표시
+                    // 장치 결과 표시
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -303,6 +304,15 @@ fun ControlScreen(
                                             Text(
                                                 text = "${position.elapsedRealtimeNanos} ns",
                                                 style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        Spacer(Modifier.height(12.dp))
+
+                                        position.azimuth?.value?.let { azimuth ->
+                                            ArrowIndicator(
+                                                azimuthDeg = azimuth*(-1),
+                                                modifier = Modifier.align(Alignment.CenterHorizontally)
                                             )
                                         }
                                     } else {
