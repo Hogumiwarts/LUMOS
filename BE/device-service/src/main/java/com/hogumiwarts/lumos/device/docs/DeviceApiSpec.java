@@ -23,7 +23,7 @@ public interface DeviceApiSpec {
                     - 이미 등록된 디바이스 정보만 조회 됩니다.
                     - 'installedAppId' 값은 디버깅 용으로 출력한 값 입니다. (추후 제거 예정. Client 쪽에서 값을 받지 않아도 됩니다)
                     """,
-        tags = {"기기정보 조회"}
+        tags = {"기기 정보 조회"}
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "디바이스 목록 조회 성공"),})
     @GetMapping
@@ -48,7 +48,7 @@ public interface DeviceApiSpec {
                     - 위 과정에서 받은 installedAppId로 현재 API 요청
                     - SmartThings 연동 기기 정보를 DB와 동기화
                     """,
-        tags = {"기기정보 조회"}
+        tags = {"기기 정보 조회"}
     )
     @ApiResponses({@ApiResponse(responseCode = "200", description = "기기 탐색 성공"),})
     @GetMapping("/discover")
@@ -80,9 +80,9 @@ public interface DeviceApiSpec {
 
 
     @Operation(summary = "X", description = """
-            💡 deviceId 리스트를 통해 디바이스 조회 후 각 디바이스의 정보를 리스트로 반환
+            💡 deviceId 리스트를 통해 디바이스 조회 후 각 디바이스의 정보를 리스트로 반환합니다.
             """,
-        tags = {"기기정보 조회"}
+        tags = {"기기 정보 조회"}
     )
     List<DevicesCreateResponse> getDeviceDetailsByIds(@RequestParam("deviceIds") List<Long> deviceIds);
 }
