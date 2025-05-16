@@ -120,7 +120,6 @@ fun DeviceCard(
                     )
                 )
 
-                Timber.tag("routine").d("✨✨기기 조건 : ${commandText}")
 
             }
 
@@ -145,6 +144,7 @@ fun DeviceCard(
 }
 
 
+// command 내용에서 사용자가 지정한 행동 한국어로 추출
 fun getKoreanDescription(command: CommandData): String {
     return when (command.capability to command.command) {
         "switch" to "on" -> "전원 켜기"
@@ -153,6 +153,7 @@ fun getKoreanDescription(command: CommandData): String {
         "switchLevel" to "setLevel" -> "밝기 조절"
         "mediaPlayback" to "play" -> "재생"
         "mediaPlayback" to "stop" -> "정지"
+        "AUDIO" to "setVolumn" -> "볼륨 조절"
         "airConditionerFanMode" to "setFanMode" -> "팬 속도: ${command.arguments.firstOrNull() ?: "알 수 없음"}"
         else -> "${command.capability}.${command.command}"
     }
