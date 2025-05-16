@@ -22,6 +22,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.uwb.UwbManager
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
@@ -29,6 +30,8 @@ import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.screens.control.UwbRanging
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 
