@@ -42,7 +42,7 @@ fun DeviceCard(
 
     val iconResId = deviceType.iconResId
     val color = deviceType.color
-    val deviceTypeName = deviceType.deviceName
+    val deviceTypeName = deviceType.categoryName
 
     Box(
         modifier = Modifier
