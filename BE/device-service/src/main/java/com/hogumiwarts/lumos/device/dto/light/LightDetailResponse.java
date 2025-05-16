@@ -42,7 +42,7 @@ public class LightDetailResponse {
     private Integer lightTemperature;
 
     @Schema(description = "조명 색조")
-    private Integer hue;
+    private Float hue;
 
     @Schema(description = "조명 채도")
     private Float saturation;
