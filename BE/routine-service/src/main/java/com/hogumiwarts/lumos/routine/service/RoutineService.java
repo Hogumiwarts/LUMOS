@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -246,7 +245,7 @@ public class RoutineService {
         routineRepository.delete(routine);
     }
 
-    // 루틴 실행
+    // 제스처로 루틴 실행
     @Transactional
     public void executeRoutineByGestureId(Long gestureId) {
         Long memberId = AuthUtil.getMemberId();
@@ -254,6 +253,59 @@ public class RoutineService {
         // 1. 루틴 조회
         Routine routine = routineRepository.findByMemberIdAndGestureId(memberId, gestureId)
             .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_GESTURE_NOT_FOUND));
+
+        // 2. deviceId 리스트 추출
+        List<Long> deviceIds = routine.getDevices().stream()
+            .map(DevicesCreateRequest::getDeviceId)
+            .toList();
+
+        // 3. 디바이스 정보 조회
+        List<DevicesResponse> devicesInfo = deviceServiceClient.getDeviceDetailsByIds(deviceIds);
+
+        // 4. deviceId → DevicesResponse 맵핑
+        Map<Long, DevicesResponse> deviceMap = devicesInfo.stream()
+            .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
+
+        // 5. 실패 디바이스 리스트
+        List<Long> failedDeviceIds = new ArrayList<>();
+
+        // 6. 디바이스별 명령 실행
+        for (DevicesCreateRequest device : routine.getDevices()) {
+            try {
+                DevicesResponse deviceInfo = deviceMap.get(device.getDeviceId());
+
+                if (deviceInfo == null) {
+                    log.error("💥 디바이스 정보 누락: deviceId={}", device.getDeviceId());
+                    failedDeviceIds.add(device.getDeviceId());
+                    continue;
+                }
+
+                CommandExecuteRequest commandRequest = new CommandExecuteRequest(device.getCommands());
+
+                smartThingsClient.executeCommand(
+                    deviceInfo.getControlId(),
+                    deviceInfo.getInstalledAppId(),
+                    commandRequest
+                );
+
+            } catch (Exception e) {
+                failedDeviceIds.add(device.getDeviceId());
+                log.error("💥 스마트싱스 제어 실패: deviceId={}, error={}", device.getDeviceId(), e.getMessage());
+            }
+        }
+
+        // 7. 일부 실패 시 예외 던짐
+        if (!failedDeviceIds.isEmpty()) {
+            log.warn("⚠️ 일부 디바이스 제어 실패: {}", failedDeviceIds);
+            throw new CustomException(ErrorCode.ROUTINE_PARTIAL_FAILURE);
+        }
+    }
+
+    // 버튼으로 루틴 실행
+    public void executeRoutineById(Long routineId) {
+        // 1. 루틴 조회
+        Routine routine = routineRepository.findById(routineId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND));
 
         // 2. deviceId 리스트 추출
         List<Long> deviceIds = routine.getDevices().stream()

@@ -1,7 +1,5 @@
 package com.hogumiwarts.lumos.routine.client;
 
-import java.util.List;
-
 import com.hogumiwarts.lumos.dto.CommonResponse;
 import com.hogumiwarts.lumos.routine.config.FeignAuthConfig;
 import com.hogumiwarts.lumos.routine.dto.GestureResponse;
