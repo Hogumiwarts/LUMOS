@@ -20,9 +20,9 @@ public class SecurityConfig extends AbstractSecurityConfig {
 	protected String[] getPermitAllPaths() {
 		return new String[] {
 			"/api/email-exists",
-			"/api/create",
 			"/api/find-by-email",
-			"/api/members/{memberId}"
+			"/api/member-exists",
+			"/api/create",
 		};
 	}
 }

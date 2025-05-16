@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hogumiwarts.lumos.auth.client.MemberClient;
+import com.hogumiwarts.lumos.auth.controller.AuthController;
 import com.hogumiwarts.lumos.auth.dto.CreateMemberRequest;
 import com.hogumiwarts.lumos.auth.dto.LoginRequest;
 import com.hogumiwarts.lumos.auth.dto.LoginResponse;
@@ -118,8 +119,8 @@ public class AuthService {
 		Long memberId = jwtTokenProvider.getMemberIdFromToken(refreshToken);
 
 		// 3. FeignClient 통해 member 존재 여부 확인
-		MemberResponse member = memberClient.getMember(memberId);
-		if (member == null) {
+		// 존재하지 않는 사용자에 대한 Refresh Token 요청 방지
+		if (!memberClient.checkMemberExists(memberId)) {
 			throw new CustomException(ErrorCode.MEMBER_ID_NOT_FOUND);
 		}
 
