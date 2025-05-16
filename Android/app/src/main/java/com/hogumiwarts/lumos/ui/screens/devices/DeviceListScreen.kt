@@ -44,9 +44,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun DeviceListScreen(
     viewModel: DeviceListViewModel = hiltViewModel(),
-    onSelectedComplete: (MyDevice) -> Unit
 ) {
-    val selectedDeviceId by viewModel.selectedDeviceId
     val showDialog by viewModel.showDialog
 
     val isLinked by viewModel.isLinked.collectAsState()
@@ -57,7 +55,7 @@ fun DeviceListScreen(
     val deviceList by viewModel.deviceList.collectAsState()
 
     // 화면이 다시 Resume되면 DB 저장 목록을 불러옴
-    // 새로고침 클릭 & 계정 연동 시에만 SmartThings API 사용해서 새로 호출
+    // 새로고침 클릭 & 계정 연동 시에만 새로운 기기 추가 가능
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {

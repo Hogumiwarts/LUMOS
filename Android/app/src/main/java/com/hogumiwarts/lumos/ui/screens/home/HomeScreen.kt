@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hogumiwarts.domain.model.WeatherInfo
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
@@ -77,7 +78,8 @@ fun HomeScreen(
     val isLinked by deviceViewModel.isLinked.collectAsState()
     val deviceList by deviceViewModel.deviceList.collectAsState()
 
-    val userName by tokenDataStore.getUserName().collectAsState(initial = "이름없음")
+    val HomeState by homeViewModel.collectAsState()
+
 
     LaunchedEffect(Unit) {
         deviceViewModel.checkAccountLinked()
@@ -94,6 +96,9 @@ fun HomeScreen(
         } else {
             Toast.makeText(context, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
         }
+
+        // 멤버 정보 호출
+        homeViewModel.getMemberInfo()
     }
 
     Box(
@@ -138,8 +143,9 @@ fun HomeScreen(
             )
             Spacer(modifier = Modifier.height(36.dp))
 
+
             Text(
-                text = "$userName" +"님\n집에 돌아오신 걸 환영해요.",
+                text = "${HomeState.userName ?: "루모스"}님\n집에 돌아오신 걸 환영해요.",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,

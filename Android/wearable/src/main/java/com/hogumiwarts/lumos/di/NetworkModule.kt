@@ -22,7 +22,7 @@ class NetworkModule {
     @Singleton
     @Named("DefaultOkHttp")
     fun provideOkHttpClient(
-        addAuthInterceptor: AddAuthInterceptor // 인증 헤더 추가 인터셉터
+        addAuthInterceptor: AddAuthInterceptor, // 인증 헤더 추가 인터셉터
     ): OkHttpClient {
         // 📘 로그 출력을 위한 HttpLoggingInterceptor 구성
         val logging = HttpLoggingInterceptor { message ->

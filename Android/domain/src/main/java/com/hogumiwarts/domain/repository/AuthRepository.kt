@@ -13,4 +13,6 @@ interface AuthRepository {
         password2: String,
         name: String
     ): SignupResult
+
+    suspend fun logout(accessToken: String): Boolean
 }

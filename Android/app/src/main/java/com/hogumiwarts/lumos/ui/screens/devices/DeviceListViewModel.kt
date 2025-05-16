@@ -22,6 +22,7 @@ import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.repository.DeviceRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.mapper.toMyDevice
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import kotlinx.serialization.json.*
@@ -31,10 +32,11 @@ import kotlinx.serialization.json.*
 class DeviceListViewModel @Inject constructor(
     private val smartThingsApi: SmartThingsApi,
     private val deviceRepository: DeviceRepository,
-    private val authApi: AuthApi
+    private val authApi: AuthApi,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
-    @Inject
-    lateinit var tokenDataStore: TokenDataStore
+
+    private val tokenDataStore = TokenDataStore(context)
 
     val selectedDeviceId = mutableStateOf<String?>(null)
     val showDialog = mutableStateOf(false)
@@ -107,7 +109,7 @@ class DeviceListViewModel @Inject constructor(
                     Timber.tag("DeviceList").d("총 기기 수: ${result.size}")
                     result.forEachIndexed { index, device ->
                         Timber.tag("DeviceLog").d(
-                            "[%d] 🧩 id=%d, name=%s, type=%s, activated=%s",
+                            "[%s] 🧩 id=%s, name=%s, type=%s, activated=%s",
                             index,
                             device.deviceId,
                             device.deviceName,
@@ -128,8 +130,8 @@ class DeviceListViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val accessToken = tokenDataStore.getAccessToken().first()
-                val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
-                // val installedAppId = tokenDataStore.getInstalledAppId().first()
+                //val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
+                 val installedAppId = tokenDataStore.getInstalledAppId().first()
                 val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
 
                 //val result = deviceRepository.discoverDevices(accessToken, installedAppId)

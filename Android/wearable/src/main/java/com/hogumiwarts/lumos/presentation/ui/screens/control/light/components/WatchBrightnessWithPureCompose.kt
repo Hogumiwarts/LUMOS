@@ -104,8 +104,8 @@ fun WatchBrightnessWithPureCompose(
                     val strokeWidth = 120f
                     val radius = (minOf(size.width, size.height) - strokeWidth) / 2  // minDimension 대신
 
-                    val pointerRadius = 40f
-                    val touchThreshold = pointerRadius + 50f // 여유 거리 포함
+                    val pointerRadius = 50f
+                    val touchThreshold = pointerRadius + 1000f // 여유 거리 포함
 
                     detectDragGestures (
                         onDragEnd = {
@@ -122,11 +122,11 @@ fun WatchBrightnessWithPureCompose(
                             val pointerX = center.x + cos(pointerAngleRad).toFloat() * radius
                             val pointerY = center.y + sin(pointerAngleRad).toFloat() * radius
                             val distanceToPointer = Offset(pointerX, pointerY).minus(touchPoint).getDistance()
-
+                            brightness = progress
+                            onBrightnessChange(brightness.toInt())
                             // 포인터 근처에서만 조절 허용
                             if (distanceToPointer <= touchThreshold) {
-                                brightness = progress
-                                onBrightnessChange(brightness.toInt())
+
                             }
                         }
                     )

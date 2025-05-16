@@ -28,6 +28,10 @@ class AirpurifierViewModel@Inject constructor(
     @ApplicationContext private val context: Context, // 앱 context (현재는 미사용)
 ) : ViewModel() {
 
+
+    private val _isOn = MutableStateFlow(false)
+    val isOn: StateFlow<Boolean> = _isOn
+
     // 🔹 상태(State)를 담는 StateFlow (Idle, Loading, Loaded, Error)
     private val _state = MutableStateFlow<AirpurifierStatusState>(AirpurifierStatusState.Idle)
     val state: StateFlow<AirpurifierStatusState> = _state
@@ -64,6 +68,8 @@ class AirpurifierViewModel@Inject constructor(
             intentFlow.emit(intent)
         }
     }
+
+
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
     private fun loadAirpurifierStatus(deviceId: Long) {
         viewModelScope.launch {
@@ -72,6 +78,7 @@ class AirpurifierViewModel@Inject constructor(
             when (val result = airpurifierUseCase.getAirpurifierStatus(deviceId)) {
                 is AirpurifierResult.Success -> {
                     _state.value = AirpurifierStatusState.Loaded(result.data)
+                    _isOn.value = result.data.activated
                 }
                 is AirpurifierResult.Error -> {
                     _state.value = AirpurifierStatusState.Error(result.error)
@@ -88,6 +95,7 @@ class AirpurifierViewModel@Inject constructor(
             when (val result = airpurifierUseCase.patchAirpurifierPower(deviceId,activated)) {
                 is PatchAirpurifierPowerResult.Success -> {
                     _powerState.value = AirpurifierPowerState.Loaded(result.data)
+                    _isOn.value =activated
                 }
                 is PatchAirpurifierPowerResult.Error -> {
                     _powerState.value = AirpurifierPowerState.Error(result.error)

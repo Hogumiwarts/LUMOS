@@ -23,8 +23,6 @@ import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchInten
 fun Aipurifier(
 
 ) {
-
-
     var showNext by remember { mutableStateOf(false) } // 현재 화면/다음 화면 상태
 
 

@@ -163,8 +163,6 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
-    implementation(libs.datastore.preferences)
-    implementation(libs.datastore.core)
     implementation("androidx.compose.foundation:foundation:1.4.3")
 
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
@@ -173,7 +171,6 @@ dependencies {
     // color-picker
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") 
 
 
 }
