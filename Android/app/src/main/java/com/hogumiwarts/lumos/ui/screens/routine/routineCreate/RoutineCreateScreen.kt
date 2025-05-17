@@ -407,7 +407,8 @@ fun RoutineCreateScreen(
                 if (selectedGesture != null) {
                     GestureCard(
                         selectedGesture = selectedGesture!!,
-                        isEditMode = true
+                        isEditMode = true,
+                        onChangeGestureClick = { navController.navigate("gesture_select") }
                     )
                 } else {
                     AddDeviceCard(

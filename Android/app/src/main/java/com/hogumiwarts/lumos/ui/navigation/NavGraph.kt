@@ -252,11 +252,14 @@ fun NavGraph(
                 val viewModel = hiltViewModel<RoutineDetailViewModel>()
 
                 RoutineDetailScreen(
-                    routineId = routineId, viewModel = viewModel,
+                    routineId = routineId,
+                    viewModel = viewModel,
+                    navController = navController,
                     onEdit = {
                         navController.navigate("routine_edit/$routineId")
                     }
                 )
+
             }
 
             // 루틴 수정

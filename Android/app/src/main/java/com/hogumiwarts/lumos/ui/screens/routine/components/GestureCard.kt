@@ -39,7 +39,8 @@ import kotlinx.coroutines.selects.select
 @Composable
 fun GestureCard(
     selectedGesture: GestureData,
-    isEditMode: Boolean
+    isEditMode: Boolean,
+    onChangeGestureClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -121,9 +122,7 @@ fun GestureCard(
         // 변경 버튼
         if (isEditMode) {
             Button(
-                onClick = {
-                    /*TODO: 제스처 목록 화면 띄우기*/
-                },
+                onClick = onChangeGestureClick,
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier
                     .background(
@@ -143,8 +142,7 @@ fun GestureCard(
                         fontWeight = FontWeight(700),
                         color = Color(0xFFFFFFFF),
                         textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier.clickable { /*todo: 제스처 선택 화면과 연동*/ }
+                    )
                 )
             }
         }

@@ -21,4 +21,14 @@ data class GestureData(
     val description: String,
     val gestureImg: String,
     val routineName: String
-) : Serializable
+) : Serializable {
+    companion object {
+        val EMPTY = GestureData(
+            memberGestureId = -1,
+            gestureName = "",
+            description = "",
+            gestureImg = "",
+            routineName = ""
+        )
+    }
+}
