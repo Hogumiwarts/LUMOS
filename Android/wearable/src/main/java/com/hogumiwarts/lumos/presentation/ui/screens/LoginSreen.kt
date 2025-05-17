@@ -1,19 +1,31 @@
 package com.hogumiwarts.lumos.presentation.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -29,9 +41,13 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
+import com.hogumiwarts.lumos.presentation.ui.common.AnimatedMobile
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen() {
+
+    var showAnimation by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -46,7 +62,7 @@ fun LoginScreen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
+            ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,7 +93,12 @@ fun LoginScreen() {
             ) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
-                    color = Color(0x10FFFFFF)
+                    color = Color(0x10FFFFFF),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable {
+                            showAnimation = true
+                        }
                 ) {
                     Text(
                         text = "폰에서 앱 열기",
@@ -90,21 +111,24 @@ fun LoginScreen() {
             }
         }
 
-        val composition by rememberLottieComposition(
-            LottieCompositionSpec.RawRes(R.raw.am_mobile_white)
-        )
-        // 아래 버튼
-        // 4. Other Setting
-        // Lottie 애니메이션: 하단 고정
-        LottieAnimation(
-            composition = composition,
-            iterations = LottieConstants.IterateForever,
-            modifier = Modifier
-                .size(100.dp)
+        AnimatedVisibility(
+            visible = showAnimation,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            AnimatedMobile()
+        }
 
-        )
-
+        // ✅ 2초 후 자동으로 사라지기
+        LaunchedEffect(showAnimation) {
+            if (showAnimation) {
+                delay(2000)
+                showAnimation = false
+            }
+        }
     }
+
 }
 
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
