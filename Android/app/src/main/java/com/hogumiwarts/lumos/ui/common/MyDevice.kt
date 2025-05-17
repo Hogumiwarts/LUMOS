@@ -6,7 +6,7 @@ import com.hogumiwarts.domain.model.routine.CommandData
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 
 data class MyDevice(
-    val deviceId: String,
+    val deviceId: Int,
     val deviceName: String,
     val isOn: Boolean,
     val isActive: Boolean,
@@ -15,7 +15,7 @@ data class MyDevice(
 
 ) : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(deviceId)
+        parcel.writeInt(deviceId)
         parcel.writeString(deviceName)
         parcel.writeByte(if (isOn) 1 else 0)
         parcel.writeByte(if (isActive) 1 else 0)
@@ -27,7 +27,7 @@ data class MyDevice(
     companion object CREATOR : Parcelable.Creator<MyDevice> {
         override fun createFromParcel(parcel: Parcel): MyDevice {
             return MyDevice(
-                deviceId = parcel.readString() ?: "",
+                deviceId = parcel.readInt(),
                 deviceName = parcel.readString() ?: "",
                 isOn = parcel.readByte() != 0.toByte(),
                 isActive = parcel.readByte() != 0.toByte(),
@@ -38,11 +38,12 @@ data class MyDevice(
         override fun newArray(size: Int): Array<MyDevice?> = arrayOfNulls(size)
 
         val sample = listOf(
-            MyDevice("1", "거실 공기청정기", true, true, DeviceListType.AIRPURIFIER),
-            MyDevice("2", "침대 조명 스위치", false, true, DeviceListType.SWITCH),
-            MyDevice("3", "내 방 조명", false, true, DeviceListType.LIGHT),
-            MyDevice("4", "음악 플레이어", false, false, DeviceListType.AUDIO)
+            MyDevice(1, "거실 공기청정기", true, true, DeviceListType.AIRPURIFIER),
+            MyDevice(2, "침대 조명 스위치", false, true, DeviceListType.SWITCH),
+            MyDevice(3, "내 방 조명", false, true, DeviceListType.LIGHT),
+            MyDevice(4, "음악 플레이어", false, false, DeviceListType.AUDIO)
         )
+
     }
 }
 

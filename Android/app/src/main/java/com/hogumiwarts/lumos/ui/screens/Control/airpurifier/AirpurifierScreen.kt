@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,9 +50,7 @@ import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
-import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.ui.viewmodel.AirpurifierViewModel
-import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 
 data class AirPurifierDevice(
@@ -97,7 +94,7 @@ fun AirpurifierScreen(
     viewModel: AirpurifierViewModel = hiltViewModel(),
     selectedDevice: MyDevice,
     ) {
-    var deviceId by remember { mutableStateOf(7L) }
+    var deviceId by remember { mutableStateOf(7) }
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
 

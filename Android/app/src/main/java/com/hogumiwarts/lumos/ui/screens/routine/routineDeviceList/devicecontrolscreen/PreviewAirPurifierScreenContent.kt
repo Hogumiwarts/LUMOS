@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.ui.screens.control.airpurifier
 
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -21,13 +20,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
-import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
-import com.hogumiwarts.lumos.ui.common.LoadingComponent
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.control.AirPurifierDevice
 import com.hogumiwarts.lumos.ui.screens.control.AirQuality
 import com.hogumiwarts.lumos.ui.screens.control.toAirQuality
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -39,7 +35,7 @@ fun PreviewAirPurifierScreenContent(
     selectedDevice: MyDevice,
     viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
-    var deviceId by remember { mutableStateOf(7L) }
+    val deviceId = selectedDevice.deviceId
     var selectedFanMode by remember { mutableStateOf("Auto") }
     var checked by remember { mutableStateOf(false) }
     var dustLevel by remember { mutableStateOf(0) }
@@ -55,9 +51,10 @@ fun PreviewAirPurifierScreenContent(
     val state by viewModel.state.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(deviceId) {
         viewModel.sendIntent(AirpurifierIntent.LoadAirpurifierStatus(deviceId))
     }
+
 
     when (state) {
         is AirpurifierStatusState.Loaded -> {
