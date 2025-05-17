@@ -1,11 +1,16 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture
+package com.hogumiwarts.lumos.ui.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.GestureResult
+import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
 import com.hogumiwarts.domain.repository.GestureRepository
+import com.hogumiwarts.domain.usecase.GestureUseCase
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureIntent
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureState
 import com.hogumiwarts.lumos.ui.screens.Gesture.GestureUIState
+import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -19,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GestureViewModel @Inject constructor(
-    private val gestureRepository: GestureRepository,
+    private val gestureUseCase: GestureUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -50,12 +55,22 @@ class GestureViewModel @Inject constructor(
     private fun loadGesture() {
         viewModelScope.launch {
             _state.value = GestureState.Loading
-            val image = gestureRepository.getGestureList()
-            if (image is GestureResult.Success) {
-                _uiState.update {
-                    it.copy(data = image.data)
+
+            when (val result = gestureUseCase.getGesture()) {
+
+                is GestureResult.Error -> {
+                    _state.value = GestureState.Error(result.error)
+                }
+                is GestureResult.Success -> {
+                    _state.value = GestureState.LoadedGesture(result.data)
                 }
             }
+//            val image = gestureUseCase.getGesture()
+//            if (image is GestureResult.Success) {
+//                _uiState.update {
+//                    it.copy(data = image.data)
+//                }
+//            }
         }
 
 

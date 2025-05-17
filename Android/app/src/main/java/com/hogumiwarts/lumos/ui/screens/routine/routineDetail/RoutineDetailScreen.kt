@@ -205,9 +205,10 @@ fun RoutineDetailContent(
             val gesture = GestureData(
                 memberGestureId = routine.gestureId.toLong(),
                 gestureName = routine.gestureName,
-                description = routine.gestureDescription,
-                gestureImg = routine.gestureImageUrl,
-                routineName = routine.routineName
+                gestureDescription = routine.gestureDescription,
+                gestureImageUrl = routine.gestureImageUrl,
+                routineName = routine.routineName,
+                routineId = 1
             )
             GestureCard(
                 selectedGesture = gesture,

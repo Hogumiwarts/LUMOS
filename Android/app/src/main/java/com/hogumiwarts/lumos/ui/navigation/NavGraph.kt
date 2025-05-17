@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.home.HomeScreen
@@ -176,8 +177,9 @@ fun NavGraph(
                     // 각 화면에 맞는 Composable 함수 호출
                     when (item) {
                         BottomNavItem.Home -> {
-//                            HomeScreen(tokenDataStore = tokenDataStore)
-                            LightScreen()
+                            HomeScreen(tokenDataStore = tokenDataStore)
+//                            LightScreen()
+//                            GestureScreen()
                         }
 
                         BottomNavItem.Info -> {
