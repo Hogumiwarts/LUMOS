@@ -33,6 +33,9 @@ class ControlViewModel @Inject constructor(
 
     /** 내부 감시 Job */
     private var detectionJob: Job? = null
+    // 탐지 상태
+    var isDetecting by mutableStateOf(false)
+        private set
     /** ★ 탐지 결과(기기 이름). null 이면 미탐지 / 탐지 중 */
     var detectedDeviceName by mutableStateOf<String?>(null)
         private set
@@ -40,11 +43,10 @@ class ControlViewModel @Inject constructor(
 
     /** ★ 10 초 타임아웃 + 3 초 연속 구간 유지 로직 */
     fun startDetection() {
-        // ① 이미 돌고 있던 감시 Job이 있으면 취소
+        // 이미 돌고 있던 감시 Job이 있으면 취소
         detectionJob?.cancel()
-
-        // ② 결과 초기화 → UI에서 텍스트 사라짐
         detectedDeviceName = null
+        isDetecting = true
 
         val targetAdr = uwbRanging.getControleeAddresses().first()
 
@@ -54,7 +56,7 @@ class ControlViewModel @Inject constructor(
             var rangeStart = 0L                  // 해당 구간 머문 시각
 
             while (System.currentTimeMillis() < overallDeadline && isActive) {
-                // ⬇️ 최신 방위각
+                // 방위각
                 val azimuth = uwbRanging.getDevicePosition(targetAdr)?.azimuth?.value ?: 180F
 
                 val range = when (azimuth) {
@@ -83,7 +85,11 @@ class ControlViewModel @Inject constructor(
                 delay(100) // 샘플 주기 10 Hz
             }
         }
+    }
 
+    fun cancelDetection() {
+        detectionJob?.cancel()
+        isDetecting = false
     }
 
 
