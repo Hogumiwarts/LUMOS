@@ -56,8 +56,8 @@ fun RoutineDeviceListScreen(
                 val myDevice = MyDevice(
                     deviceId = device.deviceId,
                     deviceName = device.deviceName,
-                    isOn = true, // 예시값
-                    isActive = true, // 예시값
+                    isOn = device.commands.find { it.capability == "switch" }?.command == "on",
+                    isActive = true,
                     deviceType = DeviceListType.valueOf(device.deviceType),
                     commands = device.commands
                 )
