@@ -93,7 +93,7 @@ class LightRepositoryImpl@Inject constructor(
         }
     }
 
-    override suspend fun patchLightColor(deviceId: Long, color: Int,saturation: Float): LightColorResult {
+    override suspend fun patchLightColor(deviceId: Long, color: Float,saturation: Float): LightColorResult {
 
         return try {
             // ✅ API 호출

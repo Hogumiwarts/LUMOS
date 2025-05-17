@@ -15,7 +15,7 @@ interface LightRepository {
 
     suspend fun patchLightBright(deviceId: Long, brightness: Int): LightBrightResult
 
-    suspend fun patchLightColor(deviceId: Long, color: Int,saturation: Float): LightColorResult
+    suspend fun patchLightColor(deviceId: Long, color: Float,saturation: Float): LightColorResult
 
     suspend fun patchLightTemperature(deviceId: Long, temperature: Int): LightTemperatureResult
 }

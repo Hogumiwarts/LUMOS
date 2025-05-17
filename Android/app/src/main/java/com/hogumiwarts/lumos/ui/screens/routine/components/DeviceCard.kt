@@ -28,13 +28,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hogumiwarts.domain.model.CommandData
+import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DeviceCard(
-    routineDevice: RoutineDevice,
-) {
+    commandDevice: CommandDevice,
+    deviceType: DeviceListType,
+    ) {
+
+    val iconResId = deviceType.iconResId
+    val color = deviceType.color
+    val deviceTypeName = deviceType.categoryName
 
     Box(
         modifier = Modifier
@@ -59,7 +67,7 @@ fun DeviceCard(
             modifier = Modifier
                 .width(10.dp)
                 .fillMaxHeight()
-                .background(routineDevice.color)
+                .background(color)
         )
 
         Row(
@@ -71,7 +79,7 @@ fun DeviceCard(
             ) {
                 // 기기 커스텀 이름
                 Text(
-                    text = routineDevice.deviceName,
+                    text = commandDevice.deviceName,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 14.sp,
                         fontFamily = nanum_square_neo,
@@ -84,7 +92,7 @@ fun DeviceCard(
 
                 // 기기 타입
                 Text(
-                    text = routineDevice.deviceTypeName,
+                    text = deviceTypeName,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
                         fontSize = 11.sp,
@@ -93,19 +101,26 @@ fun DeviceCard(
                     )
                 )
 
+
                 Spacer(modifier = Modifier.weight(1f))
 
                 // on/off 여부
+                val commandText = commandDevice.commands.joinToString(", ") {
+                    getKoreanDescription(it)
+                }
+
                 Text(
-                    text = if (routineDevice.isOn) "ON" else "OFF",
+                    text = commandText,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontSize = 13.sp,
                         lineHeight = 16.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(800),
-                        color = if (routineDevice.isOn) Color(0xFFFFA754) else Color(0xFFA1A1A1)
+                        color = Color(0xFFFFA754)
                     )
                 )
+
+
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -118,7 +133,7 @@ fun DeviceCard(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Image(
-                    painter = painterResource(id = routineDevice.iconResId),
+                    painter = painterResource(id = iconResId),
                     contentDescription = null,
                     modifier = Modifier
                         .size(100.dp)
@@ -128,21 +143,18 @@ fun DeviceCard(
     }
 }
 
-@Preview(
-    showBackground = true,
-    widthDp = 380,
-    heightDp = 862
-)
-@Composable
-fun DeviceCardPreview() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(20.dp)
-    ) {
-        DeviceCard(
-            routineDevice = RoutineDevice.sample[0]
-        )
-    }
 
+// command 내용에서 사용자가 지정한 행동 한국어로 추출
+fun getKoreanDescription(command: CommandData): String {
+    return when (command.capability to command.command) {
+        "switch" to "on" -> "전원 켜기"
+        "switch" to "off" -> "전원 끄기"
+        "colorControl" to "setColor" -> "조명 색상 설정"
+        "switchLevel" to "setLevel" -> "밝기 조절"
+        "mediaPlayback" to "play" -> "재생"
+        "mediaPlayback" to "stop" -> "정지"
+        "AUDIO" to "setVolumn" -> "볼륨 조절"
+        "airConditionerFanMode" to "setFanMode" -> "팬 속도: ${command.arguments.firstOrNull() ?: "알 수 없음"}"
+        else -> "${command.capability}.${command.command}"
+    }
 }

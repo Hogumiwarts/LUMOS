@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 

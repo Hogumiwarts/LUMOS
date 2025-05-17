@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.domain.model.CommonError
+import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightStatusState
@@ -29,36 +30,39 @@ import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
 @Composable
 fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
-
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
         viewModel.sendIntent(AudioIntent.LoadAudioStatus(deviceId))
     }
 
-//    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-//    when(state){
-//        is AudioStatusState.Error -> {
-//            when ((state as AudioStatusState.Error).error) {
-//                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
-//                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
-//                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
-//            }
-//        }
-//        AudioStatusState.Idle -> {}
-//        is AudioStatusState.Loaded -> {
-//            LoadedScreen()
-//        }
-//        AudioStatusState.Loading -> {
-//            LoadingDevice()
-//        }
-//    }
-    LoadedScreen()
+
+
+
+    when(state){
+        is AudioStatusState.Error -> {
+            when ((state as AudioStatusState.Error).error) {
+                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
+                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+            }
+        }
+        AudioStatusState.Idle -> {}
+        is AudioStatusState.Loaded -> {
+            val data = (state as AudioStatusState.Loaded).data
+            LoadedScreen(data, deviceId)
+        }
+        AudioStatusState.Loading -> {
+            LoadingDevice()
+        }
+    }
+//    LoadedScreen()
 
 }
 
 @Composable
-private fun LoadedScreen() {
+private fun LoadedScreen(data: AudioStatusData, deviceId: Long) {
     var showNext by remember { mutableStateOf(false) } // 현재 화면/다음 화면 상태
     // 화면 전환 시 애니메이션
     val currentOffsetY by animateDpAsState(
@@ -82,17 +86,19 @@ private fun LoadedScreen() {
         // 무드 플레이어 화면
         Box(modifier = Modifier.offset(y = currentOffsetY)) {
             MoodPlayerSwitch(
+                data = data,
                 volumePercent = 40,
                 isOn = true,
                 onToggle = {},
-                onSwipeUp = { showNext = true }
+                onSwipeUp = { showNext = true },
+                deviceId = deviceId
             )
         }
 
         // 음악 플레이어 화면
         if (showNext || nextOffsetY < 300.dp) {
             Box(modifier = Modifier.offset(y = nextOffsetY)) {
-                MoodPlayerContainer(onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
+                 MoodPlayerContainer(deviceId = deviceId,data = data,onSwipeDown = { showNext = false }) // 아래로 스와이프 시 복귀
             }
         }
     }
