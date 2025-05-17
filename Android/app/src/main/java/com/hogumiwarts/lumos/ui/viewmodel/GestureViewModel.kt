@@ -1,11 +1,14 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture
+package com.hogumiwarts.lumos.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.GestureResult
-import com.hogumiwarts.domain.repository.GestureRepository
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureUIState
+import com.hogumiwarts.domain.usecase.GestureUseCase
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureIntent
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureState
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -13,13 +16,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GestureViewModel @Inject constructor(
-    private val gestureRepository: GestureRepository,
+    private val gestureUseCase: GestureUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -50,12 +52,24 @@ class GestureViewModel @Inject constructor(
     private fun loadGesture() {
         viewModelScope.launch {
             _state.value = GestureState.Loading
-            val image = gestureRepository.getGestureList()
-            if (image is GestureResult.Success) {
-                _uiState.update {
-                    it.copy(data = image.data)
+
+            when (val result = gestureUseCase.getGesture()) {
+
+                is GestureResult.Error -> {
+                    Log.d("Post", "getGestureListe: $result")
+                    _state.value = GestureState.Error(result.error)
+                }
+                is GestureResult.Success -> {
+                    Log.d("Post", "getGestureListd: $result")
+                    _state.value = GestureState.LoadedGesture(result.data)
                 }
             }
+//            val image = gestureUseCase.getGesture()
+//            if (image is GestureResult.Success) {
+//                _uiState.update {
+//                    it.copy(data = image.data)
+//                }
+//            }
         }
 
 

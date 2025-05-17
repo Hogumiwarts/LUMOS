@@ -19,5 +19,12 @@ class MobileMessageListenerService : WearableListenerService() {
             intent.putExtra("message", receivedText)
             sendBroadcast(intent)
         }
+
+        if (messageEvent.path == "/open_app") {
+            val launchIntent = Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(launchIntent)
+        }
     }
 }

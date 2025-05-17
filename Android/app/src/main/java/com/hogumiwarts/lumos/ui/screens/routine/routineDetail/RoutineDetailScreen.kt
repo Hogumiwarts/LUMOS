@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,7 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.hogumiwarts.domain.model.CommandDevice
+import androidx.navigation.NavController
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceCard
@@ -51,7 +51,8 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun RoutineDetailScreen(
     routineId: String?,
     viewModel: RoutineDetailViewModel,
-    onEdit: () -> Unit = {}
+    onEdit: () -> Unit = {},
+    navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -87,7 +88,8 @@ fun RoutineDetailScreen(
                 routine = data.routine,
                 devices = data.devices,
                 onEdit = onEdit,
-                onRequestDelete = { showDeleteDialog = true }
+                onRequestDelete = { showDeleteDialog = true },
+                navController
             )
         }
 
@@ -110,7 +112,8 @@ fun RoutineDetailContent(
     routine: RoutineItem,
     devices: List<CommandDevice>,
     onEdit: () -> Unit,
-    onRequestDelete: () -> Unit
+    onRequestDelete: () -> Unit,
+    navController: NavController
 ) {
     val deviceCount = devices.size
 
@@ -202,16 +205,24 @@ fun RoutineDetailContent(
         }
 
         item {
-            val gesture = GestureData(
-                memberGestureId = routine.gestureId.toLong(),
-                gestureName = routine.gestureName,
-                description = routine.gestureDescription,
-                gestureImg = routine.gestureImageUrl,
-                routineName = routine.routineName
-            )
+            val gesture =
+                if (routine.gestureId.toLong() == 0L || routine.gestureName.isNullOrBlank()) {
+                    GestureData.EMPTY
+                } else {
+                    GestureData(
+                        routineId = 1,
+                        gestureId = routine.gestureId.toLong(),
+                        gestureName = routine.gestureName,
+                        gestureDescription = routine.gestureDescription,
+                        gestureImageUrl = routine.gestureImageUrl,
+                        routineName = routine.routineName,
+                    )
+                }
+
             GestureCard(
                 selectedGesture = gesture,
-                isEditMode = false
+                isEditMode = false,
+                onChangeGestureClick = { navController.navigate("gesture_select") }
             )
         }
     }

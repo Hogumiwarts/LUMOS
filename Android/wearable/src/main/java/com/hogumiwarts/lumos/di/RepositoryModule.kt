@@ -34,6 +34,4 @@ abstract class RepositoryModule {
         impl: LightRepositoryImpl
     ): LightRepository
 
-
-
 }

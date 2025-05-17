@@ -174,6 +174,7 @@ services:
     networks:
       - app-network
   
+  # Loki
   loki:
     image: grafana/loki:2.9.3
     container_name: lumos-loki
@@ -183,6 +184,7 @@ services:
     networks:
       - app-network
 
+  # Promtail
   promtail:
     image: grafana/promtail:2.9.3
     container_name: lumos-promtail
@@ -195,6 +197,47 @@ services:
     networks:
       - app-network
   
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: lumos-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "19090:9090"
+    networks:
+      - app-network
+
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    container_name: lumos-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - app-network
+    restart: always
+  
+  # cAdvisor
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: lumos-cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    command:
+      - "--docker_only=true"
+      - "--housekeeping_interval=10s"
+      - "--store_container_labels=true"
+      - "--allow_dynamic_housekeeping=true"
+    networks:
+      - app-network
+    restart: always
+
   # Kafka
   zookeeper-0:
     image: bitnami/zookeeper:3.9.2

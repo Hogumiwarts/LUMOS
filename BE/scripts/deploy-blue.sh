@@ -13,6 +13,7 @@ scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
   $DEPLOY_DIR/docker-compose.blue.yml \
   $DEPLOY_DIR/nginx/nginx.conf \
   $DEPLOY_DIR/redis/redis.conf \
+  $DEPLOY_DIR/prometheus/prometheus.yml \
   $DEPLOY_DIR/promtail/config.yml \
   $EC2_USER@$EC2_HOST:/tmp/
 
@@ -21,12 +22,13 @@ echo "🚀 EC2에서 docker-compose 실행..."
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
   set -e
 
-  sudo mkdir -p $PROJECT_DIR/{nginx,redis,postgres,promtail}
+  sudo mkdir -p $PROJECT_DIR/{nginx,redis,postgres,prometheus,promtail}
 
   # 설정 파일 이동
   sudo mv /tmp/docker-compose.blue.yml $PROJECT_DIR/docker-compose.yml
   sudo mv /tmp/nginx.conf $PROJECT_DIR/nginx/nginx.conf
   sudo mv /tmp/redis.conf $PROJECT_DIR/redis/redis.conf
+  sudo mv /tmp/prometheus.conf $PROJECT_DIR/prometheus/prometheus.yml
   sudo mv /tmp/config.yml $PROJECT_DIR/promtail/config.yml
 
   cd $PROJECT_DIR

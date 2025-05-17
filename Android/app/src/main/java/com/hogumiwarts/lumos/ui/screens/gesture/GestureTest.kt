@@ -1,5 +1,6 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture
+package com.hogumiwarts.lumos.ui.screens.gesture
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,11 +34,21 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
-import com.hogumiwarts.lumos.ui.screens.Gesture.components.GestureTestCard
+import com.hogumiwarts.lumos.ui.screens.gesture.components.GestureTestCard
+import timber.log.Timber
+import com.hogumiwarts.lumos.ui.screens.gesture.components.GestureTestCard
 import kotlin.math.abs
 
 @Composable
-fun GestureTest(cards: List<GestureData>) {
+fun GestureTest(
+    cards: List<GestureData>,
+    onGestureSelected: (GestureData) -> Unit
+) {
+
+    LaunchedEffect(cards) {
+        Timber.tag("gesture").d("📌 GestureTest 전달받은 카드 수: ${cards.size}")
+    }
+
 
     val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정
@@ -44,6 +56,8 @@ fun GestureTest(cards: List<GestureData>) {
         initialPage = Int.MAX_VALUE / 2,
         pageCount = { Int.MAX_VALUE }
     )
+
+    val selectedGesture = cards[pagerState.currentPage % cards.size] // 현재 선택된 제스처 인덱스를 계산
 
     // 카드가 선택된 상태를 저장하는 상태 변수
     var isCardFocused by remember { mutableStateOf(false) }
@@ -133,7 +147,9 @@ fun GestureTest(cards: List<GestureData>) {
         // 하단 "선택하기" 버튼 (카드 선택 전만 표시)
         if (!isCardFocused) {
             Button(
-                onClick = {},
+                onClick = {
+                    onGestureSelected(selectedGesture)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3E4784)),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.constrainAs(select) {
