@@ -130,12 +130,14 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
 
         gestureViewModel.onGesture2Detected = {
-            Log.d("Gesture", "제스처 2 감지됨: 박수 두 번")
+            Log.d("Gesture", "On 상태 : 제스처 2 감지됨: 박수 두 번")
             clearIMUDataAndPauseCollection()
+
+
         }
 
         gestureViewModel.onGesture3Detected = {
-            Log.d("Gesture", "제스처 3 감지됨: 손바닥 왼쪽 스와이프")
+            Log.d("Gesture", "On 상태 : 제스처 3 감지됨: 손바닥 왼쪽 스와이프")
             clearIMUDataAndPauseCollection()
         }
     }

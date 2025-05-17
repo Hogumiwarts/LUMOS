@@ -139,7 +139,11 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
                 } else {
                     try {
                         gestureId = text.toInt()
-                        Log.d("WebSocket", "📊 제스처 감지: ID=$gestureId")
+                        if(gestureId == 1 || gestureId == 4 || gestureId == 5 || gestureId == 0){
+                            // 로그 안찍
+                        }else {
+                            Log.d("WebSocket", "📊 제스처 감지: ID=$gestureId")
+                        }
 
                         // 4, 5번 제스처는 표시하지 않음 => 가만히 있는자세.
                         // 2,3번 자세만 화면에 표시
@@ -259,11 +263,11 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
      */
     fun processGesture1Detection() {
         val currentTime = System.currentTimeMillis()
-        Log.d("GestureMode", "제스처 1 감지: 현재=${_recognitionMode.value}, 대기중=${awaitingSecondGesture}, 시간차=${currentTime - lastGesture1DetectionTime}ms")
+//        Log.d("GestureMode", "제스처 1 감지: 현재=${_recognitionMode.value}, 대기중=${awaitingSecondGesture}, 시간차=${currentTime - lastGesture1DetectionTime}ms")
 
         // 디바운싱: 연속 감지 방지
         if (currentTime - lastGesture1DetectionTime < GESTURE1_DEBOUNCE_MS) {
-            Log.d("GestureMode", "제스처 1 감지: 디바운스 시간 내 무시됨")
+//            Log.d("GestureMode", "제스처 1 감지: 디바운스 시간 내 무시됨")
             return
         }
 
@@ -272,7 +276,7 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
 
         if (awaitingSecondGesture) {
             // 두 번째 제스처 감지됨
-            Log.d("GestureMode", "제스처 1 감지: 두 번째 제스처 확인!")
+            Log.d("GestureMode", "제스처 1 감지: 두 번째 제스처 확인! On/Off 설정 변경")
 
             // 타이머 취소
             secondGestureTimer?.cancel()
