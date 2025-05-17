@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.gson.annotations.SerializedName
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.LoadingComponent
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
@@ -92,7 +93,10 @@ fun String?.toAirQuality(): AirQuality {
 }
 
 @Composable
-fun AirpurifierScreen(viewModel: AirpurifierViewModel = hiltViewModel()) {
+fun AirpurifierScreen(
+    viewModel: AirpurifierViewModel = hiltViewModel(),
+    selectedDevice: MyDevice,
+    ) {
     var deviceId by remember { mutableStateOf(7L) }
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
@@ -148,40 +152,40 @@ fun AirpurifierScreen(viewModel: AirpurifierViewModel = hiltViewModel()) {
             LaunchedEffect(state) {
 
 
-            val data = (state as AirpurifierStatusState.Loaded).data
-            checked= data.activated
+                val data = (state as AirpurifierStatusState.Loaded).data
+                checked= data.activated
 
-            airQualityText = when (data.caqi.toAirQuality()) {
-                AirQuality.VeryLow -> "매우 좋음"
-                AirQuality.Low -> "좋음"
-                AirQuality.Medium -> "보통"
-                AirQuality.High -> "나쁨"
-                AirQuality.VeryHigh -> "매우 나쁨"
-            }
+                airQualityText = when (data.caqi.toAirQuality()) {
+                    AirQuality.VeryLow -> "매우 좋음"
+                    AirQuality.Low -> "좋음"
+                    AirQuality.Medium -> "보통"
+                    AirQuality.High -> "나쁨"
+                    AirQuality.VeryHigh -> "매우 나쁨"
+                }
 
-            airQualityColor = when (data.caqi.toAirQuality()) {
-                AirQuality.VeryLow -> Color(0xFF4CD137)    // 밝은 초록색
-                AirQuality.Low -> Color(0xFF7FBA00)        // 초록색
-                AirQuality.Medium -> Color(0xFFFBC531)     // 노란색
-                AirQuality.High -> Color(0xFFE84118)       // 주황색
-                AirQuality.VeryHigh -> Color(0xFFC23616)   // 빨간색
-            }
+                airQualityColor = when (data.caqi.toAirQuality()) {
+                    AirQuality.VeryLow -> Color(0xFF4CD137)    // 밝은 초록색
+                    AirQuality.Low -> Color(0xFF7FBA00)        // 초록색
+                    AirQuality.Medium -> Color(0xFFFBC531)     // 노란색
+                    AirQuality.High -> Color(0xFFE84118)       // 주황색
+                    AirQuality.VeryHigh -> Color(0xFFC23616)   // 빨간색
+                }
 
-            dustLevel = data.dustLevel
+                dustLevel = data.dustLevel
 
-            fineDustLevel = data.fineDustLevel
+                fineDustLevel = data.fineDustLevel
 
-            odorLevel = data.odorLevel
+                odorLevel = data.odorLevel
 
-            selectedFanMode = data.fanMode
+                selectedFanMode = data.fanMode
 
-            deviceModel = data.deviceModel
+                deviceModel = data.deviceModel
 
-            manufacturerCode = data.manufacturerCode
+                manufacturerCode = data.manufacturerCode
 
-            filterUsageTime = data.filterUsageTime
+                filterUsageTime = data.filterUsageTime
 
-            name = data.deviceName
+                name = data.deviceName
 
             }
         }
@@ -444,7 +448,7 @@ fun AirpurifierScreen(viewModel: AirpurifierViewModel = hiltViewModel()) {
         AirpurifierPowerState.Idle -> {}
         is AirpurifierPowerState.Loaded -> {
 
-                checked = (powerState as AirpurifierPowerState.Loaded).data.activated
+            checked = (powerState as AirpurifierPowerState.Loaded).data.activated
             Log.d("TAG", "AirpurifierScreen: $checked")
 
         }
@@ -499,8 +503,8 @@ fun FanButton(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun AirpuriScreenPreview() {
-    AirpurifierScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun AirpuriScreenPreview() {
+//    AirpurifierScreen()
+//}
