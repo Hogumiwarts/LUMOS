@@ -26,7 +26,7 @@ fun MessageReceiver(viewModel: GestureTestViewModel) {
         }
 
         val filter = IntentFilter("WATCH_MESSAGE")
-        context.registerReceiver(receiver, filter)
+        context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
         onDispose {
             context.unregisterReceiver(receiver)
