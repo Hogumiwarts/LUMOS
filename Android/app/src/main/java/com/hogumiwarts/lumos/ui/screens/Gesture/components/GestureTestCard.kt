@@ -80,7 +80,7 @@ fun GestureTestCard(
             val (routine, image, name, test) = createRefs()
 
 
-            if (card.routineName != "") {
+            if (card.routineName != null) {
                 Box(
                     modifier = Modifier
                         .constrainAs(routine) {
@@ -144,7 +144,7 @@ fun GestureTestCard(
             Button(
                 onClick = {
                     onclick()
-                    sendTextToWatch(context, "${card.memberGestureId}")
+                    sendTextToWatch(context, "${card.gestureId}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
@@ -259,7 +259,7 @@ fun GestureTestCard(
                                     modifier = Modifier.clickable {
                                         viewModel.updateMessage("")
 
-                                        sendTextToWatch(context, "${card.memberGestureId}")
+                                        sendTextToWatch(context, "${card.gestureId}")
                                     }
 
                                 )

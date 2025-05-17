@@ -203,7 +203,7 @@ fun RoutineDetailContent(
 
         item {
             val gesture = GestureData(
-                memberGestureId = routine.gestureId.toLong(),
+                gestureId = routine.gestureId.toLong(),
                 gestureName = routine.gestureName,
                 gestureDescription = routine.gestureDescription,
                 gestureImageUrl = routine.gestureImageUrl,

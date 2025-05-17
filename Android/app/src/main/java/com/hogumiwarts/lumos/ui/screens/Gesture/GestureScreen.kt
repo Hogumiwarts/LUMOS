@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.Gesture
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 
 import androidx.compose.foundation.Image
@@ -44,14 +45,14 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
 
         when(state){
             is GestureState.Error -> {
-                // todo 에러 처리
+
             }
             GestureState.Idle -> {}
             is GestureState.LoadedGesture -> {
                 GestureTest((state as GestureState.LoadedGesture).data)
             }
             GestureState.Loading -> {
-                // todo 로딩 처리
+
             }
         }
 

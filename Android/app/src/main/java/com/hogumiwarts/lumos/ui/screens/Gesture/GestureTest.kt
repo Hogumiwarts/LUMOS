@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.Gesture
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ import kotlin.math.abs
 
 @Composable
 fun GestureTest(cards: List<GestureData>) {
+
 
     val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정

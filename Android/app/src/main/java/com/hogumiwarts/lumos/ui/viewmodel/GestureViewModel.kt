@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.GestureResult
@@ -59,9 +60,11 @@ class GestureViewModel @Inject constructor(
             when (val result = gestureUseCase.getGesture()) {
 
                 is GestureResult.Error -> {
+                    Log.d("Post", "getGestureListe: $result")
                     _state.value = GestureState.Error(result.error)
                 }
                 is GestureResult.Success -> {
+                    Log.d("Post", "getGestureListd: $result")
                     _state.value = GestureState.LoadedGesture(result.data)
                 }
             }
