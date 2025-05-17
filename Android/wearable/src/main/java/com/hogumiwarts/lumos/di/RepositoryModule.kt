@@ -34,10 +34,4 @@ abstract class RepositoryModule {
         impl: LightRepositoryImpl
     ): LightRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindGestureRepository(
-        impl: com.hogumiwarts.lumos.device.repository.GestureRepositoryImpl
-    ): com.hogumiwarts.domain.repository.GestureRepository
-
 }

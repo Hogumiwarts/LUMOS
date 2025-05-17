@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.GestureResult
 import com.hogumiwarts.domain.usecase.GestureUseCase
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureUIState
 import com.hogumiwarts.lumos.ui.screens.gesture.GestureIntent
 import com.hogumiwarts.lumos.ui.screens.gesture.GestureState
 import com.hogumiwarts.lumos.ui.screens.gesture.GestureUIState
