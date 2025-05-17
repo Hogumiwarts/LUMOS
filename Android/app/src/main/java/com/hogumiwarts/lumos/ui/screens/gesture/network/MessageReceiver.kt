@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture.network
+package com.hogumiwarts.lumos.ui.screens.gesture.network
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,6 +10,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.wearable.Wearable
 import com.hogumiwarts.lumos.GestureTestViewModel
+import com.google.gson.JsonObject
 
 @Composable
 fun MessageReceiver(viewModel: GestureTestViewModel) {
@@ -34,18 +35,24 @@ fun MessageReceiver(viewModel: GestureTestViewModel) {
 }
 
 
-fun sendTextToWatch(context: Context, message: String) {
+fun sendTextToWatch(context: Context, gestureId: String, gestureUrl: String) {
     val messageClient = Wearable.getMessageClient(context)
     val path = "/launch_text_display"
 
+    val dataJson = JsonObject().apply {
+        addProperty("gestureId", gestureId)
+        addProperty("gestureUrl", gestureUrl)
+    }
+
+    val dataBytes = dataJson.toString().toByteArray()
 
     // 워치 노드 가져오기
     Wearable.getNodeClient(context).connectedNodes
         .addOnSuccessListener { nodes ->
             for (node in nodes) {
-                messageClient.sendMessage(node.id, path, message.toByteArray())
+                messageClient.sendMessage(node.id, path, dataBytes)
                     .addOnSuccessListener {
-                        Log.d("Mobile", "메시지 전송 성공")
+                        Log.d("Mobile", "메시지 전송 성공: ${dataBytes}")
                     }
                     .addOnFailureListener {
                         Log.e("Mobile", "메시지 전송 실패: ${it.message}")

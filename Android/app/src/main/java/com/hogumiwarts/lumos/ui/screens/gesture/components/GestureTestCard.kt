@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture.components
+package com.hogumiwarts.lumos.ui.screens.gesture.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -39,8 +40,8 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.Gesture.network.MessageReceiver
-import com.hogumiwarts.lumos.ui.screens.Gesture.network.sendTextToWatch
+import com.hogumiwarts.lumos.ui.screens.gesture.network.MessageReceiver
+import com.hogumiwarts.lumos.ui.screens.gesture.network.sendTextToWatch
 
 @Composable
 fun GestureTestCard(
@@ -80,7 +81,7 @@ fun GestureTestCard(
             val (routine, image, name, test) = createRefs()
 
 
-            if (card.routineName != null) {
+            if (card.routineName != "") {
                 Box(
                     modifier = Modifier
                         .constrainAs(routine) {
@@ -103,13 +104,23 @@ fun GestureTestCard(
                         text = "${card.routineName} 루틴과 연결",
                         color = Color.White
                     )
-
-
                 }
             }
-            Image(
-                painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지 Url 변경
-                contentDescription = null,
+//            Image(
+//                painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지 Url 변경
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(200.dp)
+//                    .constrainAs(image) {
+//                        top.linkTo(parent.top)
+//                        bottom.linkTo(parent.bottom, margin = 100.dp)
+//                        start.linkTo(parent.start)
+//                        end.linkTo(parent.end)
+//                    }
+//            )
+
+            AsyncImage(model = card.gestureImageUrl,
+                contentDescription = "제스처 이미지",
                 modifier = Modifier
                     .size(200.dp)
                     .constrainAs(image) {
@@ -136,7 +147,11 @@ fun GestureTestCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(card.gestureDescription, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
+                Text(
+                    card.gestureDescription,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 14.sp
+                )
             }
 
             val context = LocalContext.current
@@ -144,7 +159,7 @@ fun GestureTestCard(
             Button(
                 onClick = {
                     onclick()
-                    sendTextToWatch(context, "${card.gestureId}")
+                    sendTextToWatch(context, "${card.gestureId}", "${card.gestureImageUrl}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
@@ -175,9 +190,21 @@ fun GestureTestCard(
                 }
             )
 
-            Image(
-                painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지url 변경
-                contentDescription = null,
+//            Image(
+//                painter = painterResource(id = R.drawable.ic_gesture), // Todo 이미지url 변경
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(200.dp)
+//                    .constrainAs(image) {
+//                        top.linkTo(parent.top)
+//                        bottom.linkTo(parent.bottom, margin = 150.dp)
+//                        start.linkTo(parent.start)
+//                        end.linkTo(parent.end)
+//                    }
+//            )
+
+            AsyncImage(model = card.gestureImageUrl,
+                contentDescription = "제스처 이미지",
                 modifier = Modifier
                     .size(200.dp)
                     .constrainAs(image) {
@@ -259,7 +286,11 @@ fun GestureTestCard(
                                     modifier = Modifier.clickable {
                                         viewModel.updateMessage("")
 
-                                        sendTextToWatch(context, "${card.gestureId}")
+                                        sendTextToWatch(
+                                            context,
+                                            "${card.gestureId}",
+                                            card.gestureImageUrl
+                                        )
                                     }
 
                                 )

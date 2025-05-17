@@ -5,13 +5,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.GestureResult
-import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
-import com.hogumiwarts.domain.repository.GestureRepository
 import com.hogumiwarts.domain.usecase.GestureUseCase
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureIntent
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureState
 import com.hogumiwarts.lumos.ui.screens.Gesture.GestureUIState
-import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureIntent
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureState
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -19,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
