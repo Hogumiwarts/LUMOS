@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
+    id("kotlin-parcelize")
+
 }
 
 val localProperties = Properties().apply {

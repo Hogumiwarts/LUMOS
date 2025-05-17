@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
@@ -67,6 +68,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceL
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,12 +92,15 @@ fun RoutineCreateScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit) {
+    val selectedGesture by viewModel.selectedGesture.collectAsState()
+
+    LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
             ?.savedStateHandle
-            ?.getLiveData<Int>("selectedGestureId")
-            ?.observe(lifecycleOwner) { id ->
-                viewModel.setGesture(id)
+            ?.getLiveData<GestureData>("selectedGestureId")
+            ?.observe(lifecycleOwner) { gestureData ->
+                Timber.tag("gesture").d("📥 받아온 제스처: $gestureData")
+                viewModel.setGestureData(gestureData)
             }
     }
 
@@ -398,13 +403,15 @@ fun RoutineCreateScreen(
                 )
             }
 
-            if (devices.isEmpty()) {
-                // 비어있으면 하단에 기기 추가 버튼 생성
-                item {
+            item {
+                if (selectedGesture != null) {
+                    GestureCard(
+                        selectedGesture = selectedGesture!!,
+                        isEditMode = true
+                    )
+                } else {
                     AddDeviceCard(
-                        onClick = {
-                            navController.navigate("gesture_select")
-                        },
+                        onClick = { navController.navigate("gesture_select") },
                         text = "제스처 추가"
                     )
 
@@ -418,12 +425,8 @@ fun RoutineCreateScreen(
                         )
                     }
                 }
-            } else {
-                // 제스처 카드
-                item {
-                    //GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
-                }
             }
+
 
             item {
                 Spacer(modifier = Modifier.height(50.dp))

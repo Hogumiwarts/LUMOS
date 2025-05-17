@@ -1,5 +1,6 @@
 package com.hogumiwarts.domain.model
 
+import java.io.Serializable
 import javax.management.Descriptor
 
 sealed class GestureResult {
@@ -20,4 +21,4 @@ data class GestureData(
     val description: String,
     val gestureImg: String,
     val routineName: String
-)
+) : Serializable

@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateViewModel
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
+import timber.log.Timber
 
 
 @Composable
@@ -71,10 +72,14 @@ fun GestureScreen(
         )
         GestureTest(
             cards = dummyGestureData,
-            onGestureSelected = { gestureId ->
+            onGestureSelected = { gestureData   ->
+                Timber.tag("gesture").d("🎯 선택된 제스처: $gestureData")
+
                 navController.previousBackStackEntry
                     ?.savedStateHandle
-                    ?.set("selectedGestureId", gestureId)
+                    ?.set("selectedGestureId", gestureData )
+
+                Timber.tag("gesture").d("✅ savedStateHandle에 저장 완료")
 
                 navController.popBackStack()
             }

@@ -2,6 +2,7 @@ package com.hogumiwarts.lumos.ui.screens.routine.routineCreate
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.domain.model.routine.CreateRoutineParam
 import com.hogumiwarts.domain.model.routine.RoutineResult
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +38,16 @@ class RoutineCreateViewModel @Inject constructor(
 
     private val _gestureId = MutableStateFlow<Int?>(null)
     val gestureId: StateFlow<Int?> = _gestureId
+
+    private val _selectedGesture = MutableStateFlow<GestureData?>(null)
+    val selectedGesture: StateFlow<GestureData?> = _selectedGesture
+
+    fun setGestureData(gesture: GestureData) {
+        Timber.tag("gesture").d("🧩 setGestureData 호출됨: $gesture")
+
+        _selectedGesture.value = gesture
+        _gestureId.value = gesture.memberGestureId.toInt()
+    }
 
     fun setGesture(id: Int) {
         _gestureId.value = id

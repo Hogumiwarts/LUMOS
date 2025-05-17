@@ -1,5 +1,6 @@
 package com.hogumiwarts.data.di
 
+import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.data.token.TokenStorage
 import kotlinx.coroutines.flow.first
@@ -23,7 +24,7 @@ class TokenAuthenticator @Inject constructor(
             runBlocking {
                 val refreshToken = tokenDataStore.getRefreshToken().first()
 
-                val refreshResponse = authApi.refresh("Bearer $refreshToken")
+                val refreshResponse = authApi.refresh(RefreshRequest(refreshToken))
                 val newAccessToken = refreshResponse.data.accessToken
 
                 tokenDataStore.saveTokens(

@@ -38,7 +38,7 @@ import kotlin.math.abs
 @Composable
 fun GestureTest(
     cards: List<GestureData>,
-    onGestureSelected: (Int) -> Unit
+    onGestureSelected: (GestureData) -> Unit
 ) {
 
     val viewModel: GestureTestViewModel = viewModel()
@@ -139,7 +139,7 @@ fun GestureTest(
         if (!isCardFocused) {
             Button(
                 onClick = {
-                    onGestureSelected(selectedGesture.memberGestureId.toInt())
+                    onGestureSelected(selectedGesture)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3E4784)),
                 shape = RoundedCornerShape(10.dp),

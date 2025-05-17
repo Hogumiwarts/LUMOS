@@ -1,6 +1,7 @@
 package com.hogumiwarts.data.source.remote
 
 import com.hogumiwarts.data.entity.remote.Request.LoginRequest
+import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
 import com.hogumiwarts.data.entity.remote.Request.SignupRequest
 import com.hogumiwarts.data.entity.remote.Response.auth.LoginResponse
 import com.hogumiwarts.data.entity.remote.Response.RefreshResponse
@@ -22,7 +23,7 @@ interface AuthApi {
 
     @POST("refresh")
     suspend fun refresh(
-        @Header("Authorization") refreshToken: String
+        @Body body: RefreshRequest
     ): RefreshResponse
 
     @POST("logout")
