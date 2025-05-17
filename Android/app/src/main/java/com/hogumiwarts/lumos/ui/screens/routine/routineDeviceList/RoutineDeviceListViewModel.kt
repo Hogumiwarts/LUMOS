@@ -39,12 +39,10 @@ class RoutineDeviceListViewModel @Inject constructor(
     }
 
     fun onDeviceClicked(device: MyDevice) {
-        if (!device.isActive) {
-            showDialog.value = true
-        } else {
-            selectedDeviceId.value =
-                if (selectedDeviceId.value == device.deviceId) null else device.deviceId
-        }
+        // 비활성화 상태 무시
+        selectedDeviceId.value =
+            if (selectedDeviceId.value == device.deviceId) null else device.deviceId
+
     }
 
     fun dismissDialog() {

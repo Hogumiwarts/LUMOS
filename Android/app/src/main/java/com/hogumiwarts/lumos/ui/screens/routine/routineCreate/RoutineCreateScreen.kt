@@ -104,17 +104,10 @@ fun RoutineCreateScreen(
 
     val myDeviceList = remember {
         mutableStateListOf<MyDevice>().apply {
-            addAll(MyDevice.sample.map {
-                MyDevice(
-                    deviceId = it.deviceId,
-                    deviceName = it.deviceName,
-                    isOn = it.isOn,
-                    isActive = it.isActive,
-                    deviceType = it.deviceType
-                )
-            })
+            addAll(MyDevice.sample)
         }
     }
+
     val showDuplicateDialog = remember { mutableStateOf(false) }
 
     if (isSheetOpen) {
@@ -141,7 +134,8 @@ fun RoutineCreateScreen(
                     }
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
-                onDismissDuplicateDialog = { showDuplicateDialog.value = false }
+                onDismissDuplicateDialog = { showDuplicateDialog.value = false },
+                navController = navController
             )
         }
     }

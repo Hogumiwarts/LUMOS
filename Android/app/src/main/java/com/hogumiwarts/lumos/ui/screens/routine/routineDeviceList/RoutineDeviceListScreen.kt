@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,10 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
+import com.google.gson.Gson
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
+import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
@@ -30,12 +38,33 @@ fun RoutineDeviceListScreen(
     devices: List<MyDevice>,
     onSelectComplete: (MyDevice) -> Unit,
     showDuplicateDialog: Boolean,
-    onDismissDuplicateDialog: () -> Unit
+    onDismissDuplicateDialog: () -> Unit,
+    navController: NavController
 ) {
     // 선택 기기 상태
     val selectedDeviceId by viewModel.selectedDeviceId
     val showDialog by viewModel.showDialog
     val deviceList by viewModel.devices
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(navController.currentBackStackEntry) {
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<String>("commandDeviceJson")
+            ?.observe(lifecycleOwner) { json ->
+                val device = Gson().fromJson(json, CommandDevice::class.java)
+                val myDevice = MyDevice(
+                    deviceId = device.deviceId,
+                    deviceName = device.deviceName,
+                    isOn = true, // 예시값
+                    isActive = true, // 예시값
+                    deviceType = DeviceListType.valueOf(device.deviceType),
+                    commands = device.commands
+                )
+                onSelectComplete(myDevice)
+            }
+    }
+
 
     Column(
         modifier = Modifier
@@ -75,12 +104,21 @@ fun RoutineDeviceListScreen(
         PrimaryButton(
             buttonText = "선택하기",
             onClick = {
-                viewModel.getSelectedDevice()?.let {
-                    onSelectComplete(it)
+                viewModel.getSelectedDevice()?.let { selected ->
+                    if (selected.deviceType == DeviceListType.LIGHT) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "selectedDevice",
+                            selected
+                        )
+                        navController.navigate("light_control?preview=true")
+                    } else {
+                        // TODO: 다른 기기 제어 화면 혹은 오류 처리
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
         )
+
 
         Spacer(modifier = Modifier.height(28.dp))
 

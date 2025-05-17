@@ -121,7 +121,8 @@ fun RoutineEditScreen(
 //                    }
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
-                onDismissDuplicateDialog = { showDuplicateDialog.value = false }
+                onDismissDuplicateDialog = { showDuplicateDialog.value = false },
+                navController = navController
             )
         }
     }
