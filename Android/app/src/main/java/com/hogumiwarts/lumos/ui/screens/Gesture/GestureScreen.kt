@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
+import com.hogumiwarts.lumos.ui.viewmodel.GestureViewModel
 
 
 @Composable
@@ -40,30 +41,47 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
             contentScale = ContentScale.Crop
         )
 
+
+        when(state){
+            is GestureState.Error -> {
+                // todo 에러 처리
+            }
+            GestureState.Idle -> {}
+            is GestureState.LoadedGesture -> {
+                GestureTest((state as GestureState.LoadedGesture).data)
+            }
+            GestureState.Loading -> {
+                // todo 로딩 처리
+            }
+        }
+
         val dummyGestureData = listOf(
             GestureData(
                 memberGestureId = 1L,
                 gestureName = "주먹 쥠",
-                description = "주먹을 꽉 쥐는 동작입니다.",
-                gestureImg = "https://example.com/images/fist.png",
-                routineName = "조명 켜기"
+                gestureDescription = "주먹을 꽉 쥐는 동작입니다.",
+                gestureImageUrl = "https://example.com/images/fist.png",
+                routineName = "조명 켜기",
+                routineId=1
             ),
             GestureData(
                 memberGestureId = 2L,
                 gestureName = "손 펴기",
-                description = "손을 완전히 펴는 동작입니다.",
-                gestureImg = "https://example.com/images/open_hand.png",
-                routineName = ""
+                gestureDescription = "손을 완전히 펴는 동작입니다.",
+                gestureImageUrl = "https://example.com/images/open_hand.png",
+                routineName = "조명 켜기",
+                routineId=1
             ),
             GestureData(
                 memberGestureId = 3L,
                 gestureName = "손목 회전",
-                description = "손목을 시계 방향으로 회전합니다.",
-                gestureImg = "https://example.com/images/wrist_rotate.png",
-                routineName = ""
+                gestureDescription = "손목을 시계 방향으로 회전합니다.",
+                gestureImageUrl = "https://example.com/images/wrist_rotate.png",
+                routineName = "조명 켜기",
+                routineId=1
             )
         )
-        GestureTest(dummyGestureData)
+
 //        when (state) {
 //            is GestureState.Idle -> {
 //                // 아무 것도 안함 (초기 상태)
