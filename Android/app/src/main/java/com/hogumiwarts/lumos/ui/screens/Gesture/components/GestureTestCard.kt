@@ -136,7 +136,7 @@ fun GestureTestCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(card.description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
+                Text(card.gestureDescription, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
             }
 
             val context = LocalContext.current
