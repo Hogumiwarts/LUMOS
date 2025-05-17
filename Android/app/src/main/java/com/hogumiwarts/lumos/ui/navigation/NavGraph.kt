@@ -37,8 +37,10 @@ import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSwitchScreenContent
 
 @Composable
 fun NavGraph(
@@ -363,6 +365,22 @@ fun NavGraph(
                 }
             }
 
+            composable("switch_control?preview={preview}") {
+                val preview = it.arguments?.getString("preview")?.toBoolean() ?: false
+                val selectedDevice = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<MyDevice>("selectedDevice")
+
+                selectedDevice?.let {
+                    if (preview) {
+                        PreviewSwitchScreenContent(
+                            navController = navController,
+                            selectedDevice = it
+                        )
+                    } else {
+                        SwitchScreen()
+                    }
+                }
+            }
 
         }
     } else {

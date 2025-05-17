@@ -119,6 +119,9 @@ fun RoutineDeviceListScreen(
                             navController.navigate("airpurifier_control?preview=true")
                         }
 
+                        DeviceListType.SWITCH ->
+                            navController.navigate("switch_control?preview=true")
+
                         else -> {
                             // TODO: 지원하지 않는 기기일 경우 처리 (예: 다이얼로그, 토스트 등)
                         }
