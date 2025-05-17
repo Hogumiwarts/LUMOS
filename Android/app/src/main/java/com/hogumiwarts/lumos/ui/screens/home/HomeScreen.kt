@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.home
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -80,7 +81,12 @@ fun HomeScreen(
     val HomeState by homeViewModel.collectAsState()
 
 
+
+
+
     LaunchedEffect(Unit) {
+        Log.d("TAG", "HomeScreen: 호출")
+        deviceViewModel.getJwt()
         deviceViewModel.checkAccountLinked()
 
         val location = getCurrentLocation(context)

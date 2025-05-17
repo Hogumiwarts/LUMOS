@@ -1,8 +1,11 @@
 package com.hogumiwarts.lumos.presentation.ui.screens
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +42,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Text
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -47,12 +53,41 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedMobile
 import com.hogumiwarts.lumos.presentation.ui.function.sendOpenAppMessage
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavHostController, viewModel: DeviceViewModel = hiltViewModel()) {
 
     var showAnimation by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val token = intent.getStringExtra("token")
+                Log.d("TAG", "onReceive: $token")
+                if (token != null) {
+                    viewModel.saveJwt(token,"")
+                    viewModel.getAccess()
+                    navController.navigate("main") {
+                        popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
+                    }
+                }
+            }
+        }
+        context.registerReceiver(
+            receiver,
+            IntentFilter("TOKEN_RECEIVED"),
+            Context.RECEIVER_EXPORTED // ✅ 외부 앱에서 호출할 수 없게 설정
+        )
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -148,6 +183,6 @@ fun LoginScreen() {
 fun DefaultPreview() {
     LUMOSTheme {
 //        DevicesScreen()
-        LoginScreen()
+//        LoginScreen(n)
     }
 }

@@ -1,10 +1,14 @@
 package com.hogumiwarts.data.mapper
 
+import com.hogumiwarts.data.entity.remote.Response.PatchControlResponse
+import com.hogumiwarts.data.entity.remote.Response.device.GetDevicesResponse
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDetailData
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDeviceData
+import com.hogumiwarts.domain.model.ControlData
 import com.hogumiwarts.domain.model.routine.CommandData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.domain.model.DeviceResult
+import com.hogumiwarts.domain.model.devices.DeviceListData
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -62,5 +66,26 @@ fun RoutineDeviceData.toDomain(): CommandDevice {
     )
 }
 
+object DeviceMapper {
 
+    // 🔄 전체 리스트 변환 함수: DTO 리스트 → 도메인 모델 리스트
+    fun fromDeviceListDataResponseList(dtoList: List<GetDevicesResponse>): List<DeviceListData> {
+        return dtoList.map { fromDeviceListDataResponse(it) }
+    }
+
+    // 🔄 단일 DTO 변환 함수: DTO → 도메인 모델
+    fun fromDeviceListDataResponse(response: GetDevicesResponse): DeviceListData {
+        return DeviceListData(
+            deviceId = response.deviceId,
+            tagNumber = response.tagNumber,
+            installedAppId = response.installedAppId,
+            deviceImg = response.deviceImg,
+            deviceName = response.deviceName,
+            deviceType = response.deviceType,
+            activated = response.activated
+        )
+    }
+
+
+}
 

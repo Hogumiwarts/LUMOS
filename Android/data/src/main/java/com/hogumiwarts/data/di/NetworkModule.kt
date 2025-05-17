@@ -14,6 +14,7 @@ import com.hogumiwarts.data.source.remote.LightApi
 import com.hogumiwarts.data.source.remote.MemberApi
 import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
+import com.hogumiwarts.data.source.remote.WearableDevicesApi
 import com.hogumiwarts.data.token.TokenStorage
 import com.hogumiwarts.domain.repository.GestureRepository
 import com.hogumiwarts.domain.repository.MemberRepository
@@ -178,6 +179,11 @@ object NetworkModule {
     @Singleton
     fun provideLightApi(@Named("BaseRetrofit") retrofit: Retrofit): LightApi =
         retrofit.create(LightApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideWearableDevicesApi(@Named("BaseRetrofit") retrofit: Retrofit): WearableDevicesApi =
+        retrofit.create(WearableDevicesApi::class.java)
 
     @Provides
     @Singleton
