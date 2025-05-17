@@ -181,7 +181,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             if (gestureViewModel.isGestureRecognitionActive()) {
                 gestureViewModel.notifyActivity()
             }
-        }, 2000)  // 2000ms = 2초
+        }, 1500)  // 2000ms = 2초
     }
 
     override fun onResume() {
