@@ -100,8 +100,6 @@ fun PreviewAirPurifierScreenContent(
             .background(Color.White)
 
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,6 +107,8 @@ fun PreviewAirPurifierScreenContent(
                 .padding(bottom = 100.dp)
                 .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
+            Spacer(modifier = Modifier.height(40.dp))
+
             Text(
                 name,
                 fontWeight = FontWeight.Bold,
@@ -240,9 +240,12 @@ fun PreviewAirPurifierScreenContent(
                     )
                     navController.popBackStack()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 27.dp)
             )
         }
+
     }
 }
 
