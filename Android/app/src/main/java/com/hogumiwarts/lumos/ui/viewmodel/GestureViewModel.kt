@@ -14,12 +14,14 @@ import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusSta
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,42 +30,54 @@ class GestureViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val channel = Channel<GestureIntent>()
-
     private val _state = MutableStateFlow<GestureState>(GestureState.Idle)
     val state: StateFlow<GestureState> = _state
 
     private val _uiState = MutableStateFlow<GestureUIState>(GestureUIState())
     val uiState: StateFlow<GestureUIState> = _uiState
 
-    init {
-        handleIntent()
-    }
+    val intent = MutableSharedFlow<GestureIntent>()
 
-    private fun handleIntent() {
+    init {
         viewModelScope.launch {
-            channel.consumeAsFlow().collectLatest { // 새 값이 들어오면 이전 값 초기화 할때 사용
+            intent.collectLatest {
                 when (it) {
-                    GestureIntent.LoadGesture -> {
-                        loadGesture()
-                    }
+                    GestureIntent.LoadGesture -> loadGesture()
                 }
             }
         }
     }
 
+
     private fun loadGesture() {
         viewModelScope.launch {
+            Timber.tag("gesture").d("🚀 loadGesture() 호출됨")
+
             _state.value = GestureState.Loading
 
             when (val result = gestureUseCase.getGesture()) {
 
                 is GestureResult.Error -> {
+
                     _state.value = GestureState.Error(result.error)
                 }
+
                 is GestureResult.Success -> {
+
+                    if (result.data.isEmpty()) {
+                        Timber.tag("gesture").d("⚠️ 받아온 제스처 리스트가 비어있음!")
+                    } else {
+                        Timber.tag("gesture").d("✅ ViewModel에서 받은 제스처 수: ${result.data.size}")
+                        result.data.forEach {
+                            Timber.tag("gesture").d("📦 ${it.gestureId} / ${it.gestureName}")
+                        }
+                    }
                     _state.value = GestureState.LoadedGesture(result.data)
                 }
+                else -> {
+                    Timber.tag("gesture").d("❓ 알 수 없는 타입: ${result::class.qualifiedName}")
+                }
+
             }
 //            val image = gestureUseCase.getGesture()
 //            if (image is GestureResult.Success) {

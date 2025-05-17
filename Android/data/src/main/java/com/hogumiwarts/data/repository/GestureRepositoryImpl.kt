@@ -36,12 +36,12 @@ class GestureRepositoryImpl@Inject constructor(
 
 fun GetGestureListResponse.toModel(): GestureData {
     return GestureData(
-        memberGestureId = this.memberGestureId,
+        gestureId = this.gestureId,
         gestureName = this.gestureName,
         gestureDescription = this.gestureDescription,
         gestureImageUrl = this.gestureImageUrl,
-        routineName = this.routineName,
-        routineId = this.routineId,
+        routineName = this.routineName?: "",
+        routineId = this.routineId ?: 0L
 
     )
 }

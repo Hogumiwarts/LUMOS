@@ -2,9 +2,9 @@ package com.hogumiwarts.lumos.ui.screens.control.light
 
 
 sealed class LightIntent {
-    data class LoadLightStatus(val deviceId: Long): LightIntent()
+    data class LoadLightStatus(val deviceId: Int): LightIntent()
 
-    data class ChangeLightPower(val deviceId: Long, val activated: Boolean): LightIntent()
+    data class ChangeLightPower(val deviceId: Int, val activated: Boolean): LightIntent()
 
     data class ChangeLightBright(val deviceId: Long, val brightness: Int): LightIntent()
 

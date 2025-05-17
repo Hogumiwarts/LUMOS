@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,7 +51,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hogumiwarts.domain.model.Routine
+import com.hogumiwarts.domain.model.routine.Routine
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import timber.log.Timber
 
