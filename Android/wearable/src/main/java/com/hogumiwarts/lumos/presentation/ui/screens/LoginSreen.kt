@@ -1,5 +1,8 @@
 package com.hogumiwarts.lumos.presentation.ui.screens
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +46,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedMobile
+import com.hogumiwarts.lumos.presentation.ui.function.sendOpenAppMessage
 import kotlinx.coroutines.delay
 
 @Composable
@@ -91,6 +96,8 @@ fun LoginScreen() {
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
+
+                val context = LocalContext.current
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = Color(0x10FFFFFF),
@@ -98,6 +105,8 @@ fun LoginScreen() {
                         .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             showAnimation = true
+
+                            sendOpenAppMessage(context)
                         }
                 ) {
                     Text(
@@ -130,6 +139,9 @@ fun LoginScreen() {
     }
 
 }
+
+
+
 
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
 @Composable
