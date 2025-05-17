@@ -55,33 +55,6 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
             }
         }
 
-        val dummyGestureData = listOf(
-            GestureData(
-                memberGestureId = 1L,
-                gestureName = "주먹 쥠",
-                gestureDescription = "주먹을 꽉 쥐는 동작입니다.",
-                gestureImageUrl = "https://example.com/images/fist.png",
-                routineName = "조명 켜기",
-                routineId=1
-            ),
-            GestureData(
-                memberGestureId = 2L,
-                gestureName = "손 펴기",
-                gestureDescription = "손을 완전히 펴는 동작입니다.",
-                gestureImageUrl = "https://example.com/images/open_hand.png",
-                routineName = "조명 켜기",
-                routineId=1
-            ),
-            GestureData(
-                memberGestureId = 3L,
-                gestureName = "손목 회전",
-                gestureDescription = "손목을 시계 방향으로 회전합니다.",
-                gestureImageUrl = "https://example.com/images/wrist_rotate.png",
-                routineName = "조명 켜기",
-                routineId=1
-            )
-        )
-
 //        when (state) {
 //            is GestureState.Idle -> {
 //                // 아무 것도 안함 (초기 상태)
