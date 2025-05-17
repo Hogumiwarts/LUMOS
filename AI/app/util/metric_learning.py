@@ -67,10 +67,11 @@ def predict(x, prototypes):
             min_dist = dist
             pred = label
 
-    if min_dist > 10.0 or pred in [5, 6]:
+    # 디버깅 출력
+    print(f"⚙️ MMD predict - 최소 거리: {min_dist:.4f}, 예측 클래스: {pred}")
+    
+    # 임계값 조정 - 타겟 제스처에 대한 임계값 완화
+    if min_dist > 20.0 or pred in [5, 6]:
         pred = 0
-
-    print("min_dist:", min_dist)
-    print("Predicted class:", pred)
 
     return pred

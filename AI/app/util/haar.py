@@ -1,8 +1,6 @@
 import numpy as np
 import pywt
-# import pywavelets as pywt  # 또는
-# from PyWavelets import pywt  # 또는
-# import PyWavelets as pywt
+
 
 # ---------------------------------------------
 # 센서 시계열 데이터를 Haar Wavelet 변환하여 고정 길이 벡터로 변환

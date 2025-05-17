@@ -92,6 +92,14 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // ML 및 수학 라이브러리
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    implementation("org.apache.commons:commons-math3:3.6.1")// 필요한 수학 연산
+    // TensorFlow Lite를 사용한다면
+//    implementation("org.tensorflow:tensorflow-lite:2.8.0")
+    implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+
     // 네트워크
     implementation(platform(libs.okhttp.bom))
     implementation(libs.retrofit)

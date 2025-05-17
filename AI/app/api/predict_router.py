@@ -82,3 +82,43 @@ def predict_from_registered(request: SensorDataRequest):
         predicted=pred_label,
         match=(pred_label == request.gesture_id),
     )
+
+# @router.post("/user/{user_id}/predict")
+# def predict_user_gesture(user_id: str, request: SensorDataRequest):
+#     """사용자별 제스처 예측"""
+#     seq = np.array(
+#         [
+#             [
+#                 getattr(d, f)
+#                 for f in ["acc_x", "acc_y", "acc_z", "gryo_x", "gryo_y", "gryo_z"]
+#             ]
+#             for d in request.data
+#         ]
+#     )
+
+#     # 길이 보정
+#     if len(seq) != 50:
+#         indices = np.linspace(0, len(seq) - 1, 50)
+#         resized = np.zeros((50, seq.shape[1]))
+#         for i in range(seq.shape[1]):
+#             resized[:, i] = np.interp(indices, np.arange(len(seq)), seq[:, i])
+#         seq = resized
+
+#     # idle 상태라면 -1 리턴
+#     if is_idle(seq):
+#         return PredictionResult(
+#             ground_truth=request.gesture_id, predicted=-1, match=False
+#         )
+
+#     # 사용자별 제스처 예측
+#     pred_label = gesture_cache.predict(seq, user_id=user_id)
+    
+#     # 제스처 이름 포함
+#     gesture_name = gesture_cache.get_gesture_name(pred_label, user_id)
+
+#     return {
+#         "ground_truth": request.gesture_id,
+#         "predicted": pred_label,
+#         "predicted_name": gesture_name,
+#         "match": (pred_label == request.gesture_id),
+#     }

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from app.schema.request import SensorDataRequest, SensorValue
+from app.schema.request import SensorDataRequest
 from app.util.gesture_cache import gesture_cache
 import json
 import numpy as np
@@ -14,11 +14,20 @@ async def websocket_predict(websocket: WebSocket):
 
     try:
         while True:
+
+            user_id = None
+
             # JSON → SensorDataRequest 형태로 파싱
             try:
                 data = await websocket.receive_text()
                 obj = json.loads(data)
+
+                # 사용자 ID 추출 (존재하는 경우)
+                if "user_id" in obj:
+                    user_id = obj.get("user_id")
+
                 sensor_data = SensorDataRequest(**obj)
+                
             except Exception as e:
                 await websocket.send_text(f"❌ 잘못된 데이터 형식: {e}")
                 continue
@@ -52,6 +61,14 @@ async def websocket_predict(websocket: WebSocket):
             # 예측
             try:
                 pred = gesture_cache.predict(seq)
+                 # 제스처 이름 추가
+                gesture_name = gesture_cache.get_gesture_name(pred, user_id)
+                
+                # JSON 응답
+                response = {
+                    "predicted": pred,
+                    "gesture_name": gesture_name
+                }
                 await websocket.send_text(str(pred))
             except WebSocketDisconnect:
                 print("🔌 클라이언트가 WebSocket 연결 종료함")
