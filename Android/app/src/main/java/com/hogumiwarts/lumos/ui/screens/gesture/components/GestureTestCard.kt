@@ -159,7 +159,7 @@ fun GestureTestCard(
             Button(
                 onClick = {
                     onclick()
-                    sendTextToWatch(context, "${card.memberGestureId}", "${card.gestureImageUrl}")
+                    sendTextToWatch(context, "${card.gestureId}", "${card.gestureImageUrl}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
@@ -209,7 +209,7 @@ fun GestureTestCard(
                     .size(200.dp)
                     .constrainAs(image) {
                         top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom, margin = 100.dp)
+                        bottom.linkTo(parent.bottom, margin = 150.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
@@ -288,7 +288,7 @@ fun GestureTestCard(
 
                                         sendTextToWatch(
                                             context,
-                                            "${card.memberGestureId}",
+                                            "${card.gestureId}",
                                             card.gestureImageUrl
                                         )
                                     }

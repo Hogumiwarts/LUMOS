@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.domain.usecase.TokensUseCase
@@ -63,7 +64,7 @@ class AuthViewModel @Inject constructor(
 
                     // 2. 토큰 갱신 시도
                     try {
-                        val refreshResponse = authApi.refresh("Bearer $refreshToken")
+                        val refreshResponse = authApi.refresh(RefreshRequest(refreshToken))
                         val newAccessToken = refreshResponse.data.accessToken
                         val name = tokenDataStore.getUserName().first()
 
@@ -118,10 +119,10 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val refreshToken = tokenDataStore.getRefreshToken().first()
-                val response = authApi.refresh("Bearer $refreshToken")
+                val refreshResponse = authApi.refresh(RefreshRequest(refreshToken))
 
                 // 서버에서 새로 받아온 토큰
-                val newAccessToken = response.data.accessToken
+                val newAccessToken = refreshResponse.data.accessToken
 
                 val name = tokenDataStore.getUserName().first()
 

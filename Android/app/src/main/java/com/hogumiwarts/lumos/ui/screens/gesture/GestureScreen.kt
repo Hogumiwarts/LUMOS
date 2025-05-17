@@ -4,22 +4,23 @@ import androidx.compose.runtime.Composable
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.hogumiwarts.lumos.R
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
+import androidx.navigation.NavController
+import timber.log.Timber
 import com.hogumiwarts.lumos.ui.viewmodel.GestureViewModel
 
 
 @Composable
-fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
-
+fun GestureScreen(
+    navController: NavController,
+    onGestureSelected: (gestureId: Int) -> Unit, // 선택된 제스처 ID 콜백
+    viewModel: GestureViewModel = hiltViewModel()
+) {
 
     LaunchedEffect(Unit) {
         viewModel.channel.send(GestureIntent.LoadGesture)
@@ -41,66 +42,52 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
         )
 
 
-        when(state){
+        when (state) {
             is GestureState.Error -> {
-                // todo 에러 처리
+
             }
+
             GestureState.Idle -> {}
             is GestureState.LoadedGesture -> {
-                GestureTest((state as GestureState.LoadedGesture).data)
+                val gestures = (state as GestureState.LoadedGesture).data
+                Timber.tag("gesture").d("✅ 받아온 제스처 수: ${gestures.size}")
+                gestures.forEach {
+                    Timber.tag("gesture").d("📦 ${it.gestureId} / ${it.gestureName} / ${it.gestureImageUrl}")
+                }
+
+                GestureTest(
+                    cards = gestures,
+                    onGestureSelected = { gestureData ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedGesture", gestureData)
+                        navController.popBackStack()
+                    }
+                )
             }
+
+
             GestureState.Loading -> {
-                // todo 로딩 처리
+
             }
         }
 
-//        when (state) {
-//            is GestureState.Idle -> {
-//                // 아무 것도 안함 (초기 상태)
-//            }
-//
-//            is GestureState.Loading -> {
-//                // 🔄 로딩 UI 표시
-//                CircularProgressIndicator(
-//                    modifier = Modifier.align(Alignment.Center),
-//                    color = Color.White
-//                )
-//
-//            }
-//
-//            is GestureState.LoadedGesture -> {
-//                when (val data = (state as GestureState.LoadedGesture).data) {
-//                    GestureResult.InvalidPassword -> {}
-//                    GestureResult.NetworkError -> {}
-//                    is GestureResult.Success -> {
-//                        GestureTest(data.data)
-//                    }
-//
-//                    GestureResult.UnknownError -> {}
-//                    GestureResult.UserNotFound -> {}
-//                }
-//
-//            }
-//
+
+    }
+
+
+}
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    LUMOSTheme {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = Color.Transparent
+//        ) {
+//            GestureScreen()
 //        }
-
-    }
-
-
-}
-
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LUMOSTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.Transparent
-        ) {
-            GestureScreen()
-        }
-    }
-}
+//    }
+//}

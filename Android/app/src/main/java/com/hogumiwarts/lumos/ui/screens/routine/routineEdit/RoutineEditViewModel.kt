@@ -1,7 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineEdit
 
 import androidx.lifecycle.ViewModel
-import com.hogumiwarts.domain.model.CommandDevice
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,7 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.components
 
-import com.hogumiwarts.domain.model.CommandDevice
-import com.hogumiwarts.lumos.R
+import com.hogumiwarts.domain.model.routine.CommandDevice
 
 data class RoutineItem(
     val routineName: String,

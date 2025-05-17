@@ -15,8 +15,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.home.HomeScreen
@@ -34,6 +36,7 @@ import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 
 @Composable
 fun NavGraph(
@@ -176,7 +179,6 @@ fun NavGraph(
 //                            LightScreen()
 //                            GestureScreen()
                         }
-
                         BottomNavItem.Info -> {
                             val myDeviceList = MyDevice.sample
 
@@ -255,11 +257,14 @@ fun NavGraph(
                 val viewModel = hiltViewModel<RoutineDetailViewModel>()
 
                 RoutineDetailScreen(
-                    routineId = routineId, viewModel = viewModel,
+                    routineId = routineId,
+                    viewModel = viewModel,
+                    navController = navController,
                     onEdit = {
                         navController.navigate("routine_edit/$routineId")
                     }
                 )
+
             }
 
             // 루틴 수정
@@ -290,9 +295,30 @@ fun NavGraph(
                         navController.popBackStack()
                     },
                     showDuplicateDialog = showDuplicateDialog.value,
-                    onDismissDuplicateDialog = { showDuplicateDialog.value = false }
+                    onDismissDuplicateDialog = { showDuplicateDialog.value = false },
+                    navController = navController
                 )
             }
+
+
+            composable("light_control?preview={preview}", arguments = listOf(
+                navArgument("preview") { defaultValue = "false" }
+            )) {
+                val preview = it.arguments?.getString("preview")?.toBoolean() ?: false
+                val selectedDevice = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<MyDevice>("selectedDevice")
+
+                selectedDevice?.let {
+                    LightScreen(
+                        selectedDevice = it,
+                        previewMode = preview,
+                        navController = navController
+                    )
+                }
+
+            }
+
+
 
             composable("routine_create") {
                 val viewModel = hiltViewModel<RoutineCreateViewModel>()
@@ -302,6 +328,18 @@ fun NavGraph(
                         navController.popBackStack()
                     },
                     navController = navController
+                )
+            }
+
+            composable("gesture_select") {
+                GestureScreen(
+                    navController = navController,
+                    onGestureSelected = { gestureId ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedGestureId", gestureId)
+                        navController.popBackStack()
+                    }
                 )
             }
 
