@@ -32,6 +32,7 @@ import com.google.android.gms.wearable.Wearable
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
+import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     if(text ==""){
                         NavGraph(navController)
+//                        LoginScreen()
 //                        MoodPlayerScreen(1L)
 //                        LightOtherSetting()
                     }else{

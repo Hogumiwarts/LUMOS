@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.wear.compose.material.Text
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.SplashScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSetting
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSwitch
@@ -54,7 +55,7 @@ fun NavGraph(
                 scaleOut(targetScale = 0.8f, animationSpec = tween(1000))
             }
         ) {
-            DevicesScreen(navController)
+            LoginScreen()
         }
 
         // 🔸 Light 기기 제어 화면
