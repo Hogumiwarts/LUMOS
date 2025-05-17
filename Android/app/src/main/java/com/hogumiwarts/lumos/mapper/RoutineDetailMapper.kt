@@ -1,13 +1,10 @@
 package com.hogumiwarts.lumos.mapper
 
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDeviceData
-import com.hogumiwarts.domain.model.CommandData
-import com.hogumiwarts.domain.model.CommandDevice
-import com.hogumiwarts.domain.model.RoutineDetailData
-import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.domain.model.routine.CommandDevice
+import com.hogumiwarts.domain.model.routine.RoutineDetailData
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
-import kotlinx.serialization.json.Json
 
 fun RoutineDetailData.toRoutineItem(): RoutineItem {
     return RoutineItem(

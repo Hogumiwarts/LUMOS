@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.hogumiwarts.domain.model.CommandDevice
+import com.hogumiwarts.domain.model.routine.CommandDevice
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

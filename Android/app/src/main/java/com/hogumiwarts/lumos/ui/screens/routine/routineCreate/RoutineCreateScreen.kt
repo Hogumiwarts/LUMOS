@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineCreate
 
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -32,6 +33,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -49,11 +51,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
+import com.hogumiwarts.lumos.ui.screens.Gesture.GestureViewModel
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
@@ -83,6 +88,16 @@ fun RoutineCreateScreen(
     // 기기 리스트 관리
     val devices by viewModel.devices.collectAsState()
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(Unit) {
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<Int>("selectedGestureId")
+            ?.observe(lifecycleOwner) { id ->
+                viewModel.setGesture(id)
+            }
+    }
 
     val myDeviceList = remember {
         mutableStateListOf<MyDevice>().apply {
@@ -326,7 +341,8 @@ fun RoutineCreateScreen(
                                 isSheetOpen = true
                                 sheetState.show()
                             }
-                        }
+                        },
+                        text = "기기 추가"
                     )
 
                     if (state.deviceEmptyMessage != null) {
@@ -387,11 +403,9 @@ fun RoutineCreateScreen(
                 item {
                     AddDeviceCard(
                         onClick = {
-                            coroutineScope.launch {
-                                isSheetOpen = true
-                                sheetState.show()
-                            }
-                        }
+                            navController.navigate("gesture_select")
+                        },
+                        text = "제스처 추가"
                     )
 
                     if (state.deviceEmptyMessage != null) {
@@ -404,13 +418,12 @@ fun RoutineCreateScreen(
                         )
                     }
                 }
+            } else {
+                // 제스처 카드
+                item {
+                    //GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
+                }
             }
-
-            // 제스처 카드
-//            item {
-//                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
-//            }
-
 
             item {
                 Spacer(modifier = Modifier.height(50.dp))
@@ -430,16 +443,14 @@ fun RoutineCreateScreen(
             PrimaryButton(
                 buttonText = "생성하기",
                 onClick = {
-                    if (routineName.isBlank()) {
-                        viewModel.setNameBlankError("루틴 이름은 필수 항목입니다.")
-                    } else if (devices.isEmpty()) {
-                        viewModel.setDeviceEmptyError("적용할 기기를 하나 이상 선택해주세요.")
-                    } else {
-                        viewModel.clearNameError()
-                        viewModel.clearDeviceError()
-                        onRoutineCreateComplete()
-                    }
-
+                    viewModel.createRoutine(
+                        onSuccess = {
+                            onRoutineCreateComplete() // 루틴 생성 성공 시
+                        },
+                        onError = { errorMessage ->
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -451,7 +462,7 @@ fun RoutineCreateScreen(
 
 
 @Composable
-fun AddDeviceCard(onClick: () -> Unit) {
+fun AddDeviceCard(onClick: () -> Unit, text: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -475,7 +486,7 @@ fun AddDeviceCard(onClick: () -> Unit) {
         Spacer(modifier = Modifier.height(2.dp))
 
         Text(
-            text = "제스처 추가",
+            text = text,
             style = TextStyle(
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
@@ -500,14 +511,14 @@ fun SelectIcon() {
     TODO("Not yet implemented")
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun RoutineCreateScreenPreview() {
-    val fakeViewModel = remember { RoutineCreateViewModel() }
-
-    RoutineCreateScreen(
-        viewModel = fakeViewModel,
-        onRoutineCreateComplete = {},
-        navController = rememberNavController()
-    )
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+//@Composable
+//fun RoutineCreateScreenPreview() {
+//    val fakeViewModel = remember { RoutineCreateViewModel() }
+//
+//    RoutineCreateScreen(
+//        viewModel = fakeViewModel,
+//        onRoutineCreateComplete = {},
+//        navController = rememberNavController()
+//    )
+//}

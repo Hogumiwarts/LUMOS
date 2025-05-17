@@ -1,6 +1,4 @@
-package com.hogumiwarts.domain.model
-
-import kotlinx.serialization.json.JsonElement
+package com.hogumiwarts.domain.model.routine
 
 sealed class RoutineResult {
     data class Success(
@@ -11,8 +9,11 @@ sealed class RoutineResult {
 
     data class DetailSuccess(val detail: RoutineDetailData) : RoutineResult()
 
+    data class CreateSuccess(val routine: RoutineCreateData) : RoutineResult()
+
     object Unauthorized : RoutineResult()
 }
+
 
 data class Routine(
     val routineId: Int,
@@ -45,4 +46,12 @@ data class CommandData(
     val capability: String,
     val command: String,
     val arguments: List<Any>
+)
+
+data class RoutineCreateData(
+    val routineId: Int,
+    val routineName: String,
+    val routineIcon: String,
+    val gestureId: Int,
+    val devices: List<CommandDevice>
 )

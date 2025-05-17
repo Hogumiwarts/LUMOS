@@ -2,11 +2,9 @@ package com.hogumiwarts.lumos.ui.screens.routine.routineDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hogumiwarts.domain.model.RoutineResult
+import com.hogumiwarts.domain.model.routine.RoutineResult
 import com.hogumiwarts.domain.repository.RoutineRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
-import com.hogumiwarts.lumos.mapper.toRoutineDevice
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

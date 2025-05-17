@@ -13,13 +13,19 @@ import com.hogumiwarts.lumos.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.domain.model.GestureData
+import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateViewModel
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 
 
 @Composable
-fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
-
+fun GestureScreen(
+    navController: NavController,
+    onGestureSelected: (gestureId: Int) -> Unit, // 선택된 제스처 ID 콜백
+    viewModel: GestureViewModel = hiltViewModel()
+) {
 
     LaunchedEffect(Unit) {
         viewModel.channel.send(GestureIntent.LoadGesture)
@@ -63,7 +69,18 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
                 routineName = ""
             )
         )
-        GestureTest(dummyGestureData)
+        GestureTest(
+            cards = dummyGestureData,
+            onGestureSelected = { gestureId ->
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("selectedGestureId", gestureId)
+
+                navController.popBackStack()
+            }
+        )
+
+
 //        when (state) {
 //            is GestureState.Idle -> {
 //                // 아무 것도 안함 (초기 상태)
@@ -100,17 +117,15 @@ fun GestureScreen(viewModel: GestureViewModel = hiltViewModel()) {
 }
 
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LUMOSTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.Transparent
-        ) {
-            GestureScreen()
-        }
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    LUMOSTheme {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = Color.Transparent
+//        ) {
+//            GestureScreen()
+//        }
+//    }
+//}

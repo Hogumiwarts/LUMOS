@@ -36,7 +36,10 @@ import com.hogumiwarts.lumos.ui.screens.Gesture.components.GestureTestCard
 import kotlin.math.abs
 
 @Composable
-fun GestureTest(cards: List<GestureData>) {
+fun GestureTest(
+    cards: List<GestureData>,
+    onGestureSelected: (Int) -> Unit
+) {
 
     val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정
@@ -44,6 +47,8 @@ fun GestureTest(cards: List<GestureData>) {
         initialPage = Int.MAX_VALUE / 2,
         pageCount = { Int.MAX_VALUE }
     )
+
+    val selectedGesture = cards[pagerState.currentPage % cards.size] // 현재 선택된 제스처 인덱스를 계산
 
     // 카드가 선택된 상태를 저장하는 상태 변수
     var isCardFocused by remember { mutableStateOf(false) }
@@ -133,7 +138,9 @@ fun GestureTest(cards: List<GestureData>) {
         // 하단 "선택하기" 버튼 (카드 선택 전만 표시)
         if (!isCardFocused) {
             Button(
-                onClick = {},
+                onClick = {
+                    onGestureSelected(selectedGesture.memberGestureId.toInt())
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3E4784)),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.constrainAs(select) {

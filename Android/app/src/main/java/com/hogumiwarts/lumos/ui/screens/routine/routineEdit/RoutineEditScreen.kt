@@ -46,16 +46,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.hogumiwarts.domain.model.CommandDevice
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
@@ -63,7 +60,6 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceL
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Collections.addAll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

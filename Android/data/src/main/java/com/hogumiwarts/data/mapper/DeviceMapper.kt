@@ -2,12 +2,10 @@ package com.hogumiwarts.data.mapper
 
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDetailData
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDeviceData
-import com.hogumiwarts.domain.model.CommandData
-import com.hogumiwarts.domain.model.CommandDevice
+import com.hogumiwarts.domain.model.routine.CommandData
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.domain.model.DeviceResult
-import com.hogumiwarts.domain.model.RoutineDetail
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -42,8 +40,8 @@ fun parseCommands(commands: String): List<CommandData> {
     }
 }
 
-fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.RoutineDetailData {
-    return com.hogumiwarts.domain.model.RoutineDetailData(
+fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.routine.RoutineDetailData {
+    return com.hogumiwarts.domain.model.routine.RoutineDetailData(
         routineName = routineName,
         routineIcon = routineIcon,
         gestureId = gestureId,

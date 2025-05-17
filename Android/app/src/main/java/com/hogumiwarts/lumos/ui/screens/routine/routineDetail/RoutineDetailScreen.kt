@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,7 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.hogumiwarts.domain.model.CommandDevice
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceCard
