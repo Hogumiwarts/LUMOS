@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture
+package com.hogumiwarts.lumos.ui.screens.gesture
 
 import androidx.compose.runtime.Composable
 
@@ -13,7 +13,6 @@ import com.hogumiwarts.lumos.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import com.hogumiwarts.lumos.ui.viewmodel.GestureViewModel
 

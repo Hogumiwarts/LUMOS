@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.Gesture
+package com.hogumiwarts.lumos.ui.screens.gesture
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -32,7 +32,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
-import com.hogumiwarts.lumos.ui.screens.Gesture.components.GestureTestCard
+import com.hogumiwarts.lumos.ui.screens.gesture.components.GestureTestCard
 import kotlin.math.abs
 
 @Composable
