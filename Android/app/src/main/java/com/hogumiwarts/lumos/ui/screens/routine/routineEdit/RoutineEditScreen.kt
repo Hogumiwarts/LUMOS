@@ -48,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
@@ -97,6 +98,8 @@ fun RoutineEditScreen(
     val showDuplicateDialog = remember { mutableStateOf(false) }
 
     if (isSheetOpen) {
+        val deviceListViewModel: RoutineDeviceListViewModel = hiltViewModel()
+
         ModalBottomSheet(
             onDismissRequest = { isSheetOpen = false },
             sheetState = sheetState,
@@ -104,7 +107,7 @@ fun RoutineEditScreen(
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             RoutineDeviceListScreen(
-                viewModel = RoutineDeviceListViewModel(),
+                viewModel = deviceListViewModel,
                 devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
                     // 같은 기기 + 같은 상태라면 추가 안함

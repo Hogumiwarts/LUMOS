@@ -35,6 +35,7 @@ fun RoutineDeviceListScreen(
     // 선택 기기 상태
     val selectedDeviceId by viewModel.selectedDeviceId
     val showDialog by viewModel.showDialog
+    val deviceList by viewModel.devices
 
     Column(
         modifier = Modifier
@@ -63,8 +64,8 @@ fun RoutineDeviceListScreen(
 
         // 기기 목록
         DeviceGridSection(
-            devices = devices,
-            selectedDeviceId = selectedDeviceId.toString(),
+            devices = deviceList,
+            selectedDeviceId = selectedDeviceId,
             onDeviceClick = { viewModel.onDeviceClicked(it) }
         )
 
@@ -74,9 +75,8 @@ fun RoutineDeviceListScreen(
         PrimaryButton(
             buttonText = "선택하기",
             onClick = {
-                val selected = viewModel.getSelectedDevice(devices)
-                if (selected != null) {
-                    onSelectComplete(selected)
+                viewModel.getSelectedDevice()?.let {
+                    onSelectComplete(it)
                 }
             },
             modifier = Modifier.fillMaxWidth()

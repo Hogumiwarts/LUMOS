@@ -50,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.hogumiwarts.domain.model.GestureData
@@ -117,6 +118,8 @@ fun RoutineCreateScreen(
     val showDuplicateDialog = remember { mutableStateOf(false) }
 
     if (isSheetOpen) {
+        val deviceListViewModel: RoutineDeviceListViewModel = hiltViewModel()
+
         ModalBottomSheet(
             onDismissRequest = { isSheetOpen = false },
             sheetState = sheetState,
@@ -124,13 +127,13 @@ fun RoutineCreateScreen(
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             RoutineDeviceListScreen(
-                viewModel = RoutineDeviceListViewModel(),
-                devices = myDeviceList,
+                viewModel = deviceListViewModel,
+                devices = deviceListViewModel.devices.value,
                 onSelectComplete = { selectedDevice ->
                     // 같은 기기 + 같은 상태라면 추가 안함
                     val newDevice = selectedDevice.toCommandDevice()
 
-                    if (devices.any { it.deviceId.toString() == newDevice.deviceId }) {
+                    if (devices.any { it.deviceId == newDevice.deviceId }) {
                         showDuplicateDialog.value = true
                     } else {
                         viewModel.addDevice(newDevice)
