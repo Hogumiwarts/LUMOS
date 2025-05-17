@@ -12,14 +12,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.hogumiwarts.domain.model.CommandDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.common.MyDevice
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.ui.screens.home.HomeScreen
@@ -36,9 +33,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
-import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
-import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 
 @Composable
 fun NavGraph(
