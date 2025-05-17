@@ -136,7 +136,7 @@ fun GestureTestCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(card.description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
+                Text(card.gestureDescription, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
             }
 
             val context = LocalContext.current
@@ -144,7 +144,7 @@ fun GestureTestCard(
             Button(
                 onClick = {
                     onclick()
-                    sendTextToWatch(context, "${card.memberGestureId}")
+                    sendTextToWatch(context, "${card.gestureId}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x10FFFFFF)),
                 shape = RoundedCornerShape(7.dp),
@@ -259,7 +259,7 @@ fun GestureTestCard(
                                     modifier = Modifier.clickable {
                                         viewModel.updateMessage("")
 
-                                        sendTextToWatch(context, "${card.memberGestureId}")
+                                        sendTextToWatch(context, "${card.gestureId}")
                                     }
 
                                 )

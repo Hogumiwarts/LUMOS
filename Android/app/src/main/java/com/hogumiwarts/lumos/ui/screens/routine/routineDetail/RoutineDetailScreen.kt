@@ -205,17 +205,19 @@ fun RoutineDetailContent(
         }
 
         item {
-            val gesture = if (routine.gestureId.toLong() == 0L || routine.gestureName.isNullOrBlank()) {
-                GestureData.EMPTY
-            } else {
-                GestureData(
-                    memberGestureId = routine.gestureId.toLong(),
-                    gestureName = routine.gestureName,
-                    description = routine.gestureDescription,
-                    gestureImg = routine.gestureImageUrl,
-                    routineName = routine.routineName
-                )
-            }
+            val gesture =
+                if (routine.gestureId.toLong() == 0L || routine.gestureName.isNullOrBlank()) {
+                    GestureData.EMPTY
+                } else {
+                    GestureData(
+                        routineId = 1,
+                        gestureId = routine.gestureId.toLong(),
+                        gestureName = routine.gestureName,
+                        gestureDescription = routine.gestureDescription,
+                        gestureImageUrl = routine.gestureImageUrl,
+                        routineName = routine.routineName,
+                    )
+                }
 
             GestureCard(
                 selectedGesture = gesture,

@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
 import com.hogumiwarts.lumos.ui.screens.Gesture.components.GestureTestCard
+import timber.log.Timber
 import kotlin.math.abs
 
 @Composable
@@ -40,6 +42,10 @@ fun GestureTest(
     cards: List<GestureData>,
     onGestureSelected: (GestureData) -> Unit
 ) {
+
+    LaunchedEffect(cards) {
+        Timber.tag("gesture").d("📌 GestureTest 전달받은 카드 수: ${cards.size}")
+    }
 
     val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정
@@ -97,7 +103,7 @@ fun GestureTest(
             label = "spacingAnimation"
         )
 
-        // 제스처 카드 수평 Pager
+
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = animatedPadding),

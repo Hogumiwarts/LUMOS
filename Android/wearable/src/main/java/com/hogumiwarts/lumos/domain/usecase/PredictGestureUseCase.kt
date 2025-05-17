@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.domain.usecase
 
-import com.hogumiwarts.lumos.domain.model.GestureResult
 import com.hogumiwarts.lumos.domain.repository.GestureRepository
 
 class PredictGestureUseCase(

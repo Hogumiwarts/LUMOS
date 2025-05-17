@@ -79,8 +79,9 @@ fun GestureCard(
             ) {
                 // 제스처 아이콘
                 AsyncImage(
-                    model = selectedGesture.gestureImg,
-                    contentDescription = null
+                    model = selectedGesture.gestureImageUrl,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 

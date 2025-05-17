@@ -59,7 +59,6 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureViewModel
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
@@ -97,7 +96,7 @@ fun RoutineCreateScreen(
     LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
             ?.savedStateHandle
-            ?.getLiveData<GestureData>("selectedGestureId")
+            ?.getLiveData<GestureData>("selectedGesture")
             ?.observe(lifecycleOwner) { gestureData ->
                 Timber.tag("gesture").d("📥 받아온 제스처: $gestureData")
                 viewModel.setGestureData(gestureData)

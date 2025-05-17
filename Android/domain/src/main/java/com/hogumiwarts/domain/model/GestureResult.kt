@@ -1,5 +1,6 @@
 package com.hogumiwarts.domain.model
 
+import com.hogumiwarts.domain.model.audio.AudioVolumeResult
 import java.io.Serializable
 import javax.management.Descriptor
 
@@ -9,26 +10,25 @@ sealed class GestureResult {
     ) : GestureResult()
 
     // 구조화된 에러 타입 사용을 위해 수정
-    object InvalidPassword : GestureResult()
-    object UserNotFound : GestureResult()
-    object UnknownError : GestureResult()
-    object NetworkError : GestureResult()
+    data class Error(val error: CommonError) : GestureResult()
 }
 
 data class GestureData(
-    val memberGestureId: Long,
+    val gestureId: Long,
     val gestureName: String,
-    val description: String,
-    val gestureImg: String,
-    val routineName: String
+    val gestureDescription: String,
+    val gestureImageUrl: String,
+    val routineName: String,
+    val routineId: Long,
 ) : Serializable {
     companion object {
         val EMPTY = GestureData(
-            memberGestureId = -1,
+            gestureId = 0L,
             gestureName = "",
-            description = "",
-            gestureImg = "",
-            routineName = ""
+            gestureDescription = "",
+            gestureImageUrl = "",
+            routineName = "",
+            routineId = 0L
         )
     }
 }

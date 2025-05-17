@@ -19,6 +19,7 @@ import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.RoutineCreateViewModel
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import timber.log.Timber
+import com.hogumiwarts.lumos.ui.viewmodel.GestureViewModel
 
 
 @Composable
@@ -29,7 +30,7 @@ fun GestureScreen(
 ) {
 
     LaunchedEffect(Unit) {
-        viewModel.channel.send(GestureIntent.LoadGesture)
+        viewModel.intent.emit(GestureIntent.LoadGesture)
     }
 
 
@@ -47,74 +48,37 @@ fun GestureScreen(
             contentScale = ContentScale.Crop
         )
 
-        val dummyGestureData = listOf(
-            GestureData(
-                memberGestureId = 1L,
-                gestureName = "주먹 쥠",
-                description = "주먹을 꽉 쥐는 동작입니다.",
-                gestureImg = "https://example.com/images/fist.png",
-                routineName = "조명 켜기"
-            ),
-            GestureData(
-                memberGestureId = 2L,
-                gestureName = "손 펴기",
-                description = "손을 완전히 펴는 동작입니다.",
-                gestureImg = "https://example.com/images/open_hand.png",
-                routineName = ""
-            ),
-            GestureData(
-                memberGestureId = 3L,
-                gestureName = "손목 회전",
-                description = "손목을 시계 방향으로 회전합니다.",
-                gestureImg = "https://example.com/images/wrist_rotate.png",
-                routineName = ""
-            )
-        )
-        GestureTest(
-            cards = dummyGestureData,
-            onGestureSelected = { gestureData   ->
-                Timber.tag("gesture").d("🎯 선택된 제스처: $gestureData")
 
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("selectedGestureId", gestureData )
-
-                Timber.tag("gesture").d("✅ savedStateHandle에 저장 완료")
-
-                navController.popBackStack()
+        when (state) {
+            is GestureState.Error -> {
+                // todo 에러 처리
             }
-        )
+
+            GestureState.Idle -> {}
+            is GestureState.LoadedGesture -> {
+                val gestures = (state as GestureState.LoadedGesture).data
+                Timber.tag("gesture").d("✅ 받아온 제스처 수: ${gestures.size}")
+                gestures.forEach {
+                    Timber.tag("gesture").d("📦 ${it.gestureId} / ${it.gestureName} / ${it.gestureImageUrl}")
+                }
+
+                GestureTest(
+                    cards = gestures,
+                    onGestureSelected = { gestureData ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedGesture", gestureData)
+                        navController.popBackStack()
+                    }
+                )
+            }
 
 
-//        when (state) {
-//            is GestureState.Idle -> {
-//                // 아무 것도 안함 (초기 상태)
-//            }
-//
-//            is GestureState.Loading -> {
-//                // 🔄 로딩 UI 표시
-//                CircularProgressIndicator(
-//                    modifier = Modifier.align(Alignment.Center),
-//                    color = Color.White
-//                )
-//
-//            }
-//
-//            is GestureState.LoadedGesture -> {
-//                when (val data = (state as GestureState.LoadedGesture).data) {
-//                    GestureResult.InvalidPassword -> {}
-//                    GestureResult.NetworkError -> {}
-//                    is GestureResult.Success -> {
-//                        GestureTest(data.data)
-//                    }
-//
-//                    GestureResult.UnknownError -> {}
-//                    GestureResult.UserNotFound -> {}
-//                }
-//
-//            }
-//
-//        }
+            GestureState.Loading -> {
+                // todo 로딩 처리
+            }
+        }
+
 
     }
 

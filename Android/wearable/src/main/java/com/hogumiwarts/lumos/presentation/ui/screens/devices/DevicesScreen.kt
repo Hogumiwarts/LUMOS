@@ -37,7 +37,7 @@ fun DevicesScreen(
     // 최초 진입 시 DeviceIntent 전송
     LaunchedEffect(Unit) {
 
-        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDczNzU0MDN9.-4P5o5y9Z5dDVJOJRJ0myMxZToc1JU74NmMyNXU0LAk","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
+        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mzc4MTEwLCJleHAiOjE3NDc0NjQ1MTB9.sdOs-PHeJjeQOEhrzAqA-ldDVMbzZqgHjo3rIlsVypw","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
         viewModel.sendIntent(DeviceIntent.LoadDevice)
 
     }

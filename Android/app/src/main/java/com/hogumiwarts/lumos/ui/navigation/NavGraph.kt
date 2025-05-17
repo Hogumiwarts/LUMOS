@@ -34,7 +34,9 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
+import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 
 @Composable
 fun NavGraph(
@@ -172,7 +174,11 @@ fun NavGraph(
                 ) {
                     // 각 화면에 맞는 Composable 함수 호출
                     when (item) {
-                        BottomNavItem.Home -> HomeScreen(tokenDataStore = tokenDataStore)
+                        BottomNavItem.Home -> {
+                            HomeScreen(tokenDataStore = tokenDataStore)
+//                            LightScreen()
+//                            GestureScreen()
+                        }
 
                         BottomNavItem.Info -> {
                             val myDeviceList = MyDevice.sample
