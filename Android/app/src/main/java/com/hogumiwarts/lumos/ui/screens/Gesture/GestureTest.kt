@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.Gesture
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -46,6 +47,7 @@ fun GestureTest(
     LaunchedEffect(cards) {
         Timber.tag("gesture").d("📌 GestureTest 전달받은 카드 수: ${cards.size}")
     }
+
 
     val viewModel: GestureTestViewModel = viewModel()
     // 무한 스크롤 가능한 Pager 상태 설정

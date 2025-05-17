@@ -181,7 +181,6 @@ fun NavGraph(
 //                            LightScreen()
 //                            GestureScreen()
                         }
-
                         BottomNavItem.Info -> {
                             val myDeviceList = MyDevice.sample
 

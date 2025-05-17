@@ -80,7 +80,7 @@ fun GestureTestCard(
             val (routine, image, name, test) = createRefs()
 
 
-            if (card.routineName != "") {
+            if (card.routineName != null) {
                 Box(
                     modifier = Modifier
                         .constrainAs(routine) {

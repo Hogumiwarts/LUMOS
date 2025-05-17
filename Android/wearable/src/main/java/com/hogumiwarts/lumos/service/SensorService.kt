@@ -90,9 +90,8 @@ class SensorService : Service() {
                         if(result.first == "motion1"){
                             NotificationUtils.showGestureNotification(this@SensorService, "모션 감지됨!", "motion1")
                             Log.d("TAG", "isTestMode: $isTestMode")
-
-
                         }
+
                         if(isTestMode){ // 테스트용: 결과 브로드캐스트
                             val intent = Intent("GESTURE_RESULT")
                             intent.putExtra("gesture", result.first) // 예: "motion1"
