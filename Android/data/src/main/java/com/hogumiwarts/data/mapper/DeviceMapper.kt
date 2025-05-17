@@ -54,11 +54,13 @@ fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.routine.RoutineDe
 
 fun RoutineDeviceData.toDomain(): CommandDevice {
     return CommandDevice(
-        deviceId = deviceId,
+        deviceId = deviceId.toString(),
         deviceName = deviceName,
         deviceType = deviceType,
         deviceImageUrl = deviceImageUrl,
         commands = commands
     )
 }
+
+
 

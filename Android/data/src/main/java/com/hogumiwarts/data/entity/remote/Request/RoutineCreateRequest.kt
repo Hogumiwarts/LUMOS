@@ -8,7 +8,7 @@ data class RoutineCreateRequest(
 )
 
 data class RoutineDeviceRequest(
-    val deviceId: Int,
+    val deviceId: String,
     val commands: CommandRequest
 )
 

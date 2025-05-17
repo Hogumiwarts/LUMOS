@@ -26,7 +26,7 @@ fun RoutineCreateResponse.toDomain(): RoutineCreateData {
         gestureId = gestureId,
         devices = devices.map { device ->
             CommandDevice(
-                deviceId = device.deviceId,
+                deviceId = device.deviceId.toString(),
                 deviceName = device.deviceName,
                 deviceType = device.deviceType,
                 deviceImageUrl = device.deviceImageUrl,

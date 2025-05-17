@@ -18,9 +18,9 @@ fun RoutineDetailData.toRoutineItem(): RoutineItem {
     )
 }
 
-fun RoutineDeviceData.toRoutineDevice(): CommandDevice {
+fun RoutineDeviceData.toCommandDevice(): CommandDevice {
     return CommandDevice(
-        deviceId = deviceId,
+        deviceId = deviceId.toString(),
         deviceName = deviceName,
         deviceType = DeviceListType.from(deviceType).toString(),
         deviceImageUrl = null,

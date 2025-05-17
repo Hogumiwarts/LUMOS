@@ -48,17 +48,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.Gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
@@ -130,14 +128,14 @@ fun RoutineCreateScreen(
                 devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
                     // 같은 기기 + 같은 상태라면 추가 안함
-//                    val newDevice = selectedDevice.toRoutineDevice()
-//
-//                    if (devices.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
-//                        showDuplicateDialog.value = true
-//                    } else {
-//                        viewModel.addDevice(newDevice)
-//                        isSheetOpen = false
-//                    }
+                    val newDevice = selectedDevice.toCommandDevice()
+
+                    if (devices.any { it.deviceId.toString() == newDevice.deviceId }) {
+                        showDuplicateDialog.value = true
+                    } else {
+                        viewModel.addDevice(newDevice)
+                        isSheetOpen = false
+                    }
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false }
