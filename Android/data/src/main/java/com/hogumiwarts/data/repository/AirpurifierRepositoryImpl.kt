@@ -12,10 +12,10 @@ import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierPowerResult
 import com.hogumiwarts.domain.repository.AirpurifierRepository
 import javax.inject.Inject
 
-class AirpurifierRepositoryImpl@Inject constructor(
+class AirpurifierRepositoryImpl @Inject constructor(
     private val airpurifierApi: AirpurifierApi // 🔹 Retrofit API 인터페이스 주입
 ):AirpurifierRepository {
-    override suspend fun getAirpurifierStatus(deviceId: Long): AirpurifierResult {
+    override suspend fun getAirpurifierStatus(deviceId: Int): AirpurifierResult {
         return try {
             // ✅ API 호출
             val response = airpurifierApi.getAirpurifierStatus(deviceId)
@@ -40,7 +40,7 @@ class AirpurifierRepositoryImpl@Inject constructor(
     }
 
     override suspend fun patchAirpurifierPower(
-        deviceId: Long,
+        deviceId: Int,
         activated: Boolean,
     ): PatchAirpurifierPowerResult {
         return try {
@@ -67,7 +67,7 @@ class AirpurifierRepositoryImpl@Inject constructor(
     }
 
     override suspend fun patchAirpurifierFanMode(
-        deviceId: Long,
+        deviceId: Int,
         fanMode: String,
     ): PatchAirpurifierFanModeResult {
         return try {

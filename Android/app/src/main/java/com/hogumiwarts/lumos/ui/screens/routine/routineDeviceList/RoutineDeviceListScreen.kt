@@ -105,14 +105,23 @@ fun RoutineDeviceListScreen(
             buttonText = "선택하기",
             onClick = {
                 viewModel.getSelectedDevice()?.let { selected ->
-                    if (selected.deviceType == DeviceListType.LIGHT) {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "selectedDevice",
-                            selected
-                        )
-                        navController.navigate("light_control?preview=true")
-                    } else {
-                        // TODO: 다른 기기 제어 화면 혹은 오류 처리
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "selectedDevice",
+                        selected
+                    )
+
+                    when (selected.deviceType) {
+                        DeviceListType.LIGHT -> {
+                            navController.navigate("light_control?preview=true")
+                        }
+
+                        DeviceListType.AIRPURIFIER -> {
+                            navController.navigate("airpurifier_control?preview=true")
+                        }
+
+                        else -> {
+                            // TODO: 지원하지 않는 기기일 경우 처리 (예: 다이얼로그, 토스트 등)
+                        }
                     }
                 }
             },

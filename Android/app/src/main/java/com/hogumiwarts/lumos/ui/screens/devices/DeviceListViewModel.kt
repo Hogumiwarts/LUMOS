@@ -36,7 +36,7 @@ class DeviceListViewModel @Inject constructor(
     private val tokenDataStore: TokenDataStore,
 ) : ViewModel() {
 
-    val selectedDeviceId = mutableStateOf<String?>(null)
+    val selectedDeviceId = mutableStateOf<Int?>(null)
     val showDialog = mutableStateOf(false)
 
     private val _isLinked = MutableStateFlow(false) // SmartThings 계정 연동 여부
@@ -168,7 +168,7 @@ class DeviceListViewModel @Inject constructor(
             }
         }
 
-        fun toggleDeviceState(deviceId: String) {
+        fun toggleDeviceState(deviceId: Int) {
             val currentList = _deviceList.value.toMutableList()
 
             val index = currentList.indexOfFirst { it.deviceId == deviceId }

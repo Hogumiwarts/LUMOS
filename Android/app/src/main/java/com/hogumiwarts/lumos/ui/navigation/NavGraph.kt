@@ -35,7 +35,9 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
+import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 
 @Composable
@@ -179,6 +181,7 @@ fun NavGraph(
 //                            LightScreen()
 //                            GestureScreen()
                         }
+
                         BottomNavItem.Info -> {
                             val myDeviceList = MyDevice.sample
 
@@ -342,6 +345,24 @@ fun NavGraph(
                     }
                 )
             }
+
+            composable("airpurifier_control?preview={preview}") {
+                val preview = it.arguments?.getString("preview")?.toBoolean() ?: false
+                val selectedDevice = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<MyDevice>("selectedDevice")
+
+                selectedDevice?.let {
+                    if (preview) {
+                        PreviewAirPurifierScreenContent(
+                            navController = navController,
+                            selectedDevice = it
+                        )
+                    } else {
+                        AirpurifierScreen(selectedDevice = it)
+                    }
+                }
+            }
+
 
         }
     } else {

@@ -9,7 +9,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.LightRoutineCo
 
 fun DeviceResult.toMyDevice(): MyDevice {
     return MyDevice(
-        deviceId = deviceId.toString(),
+        deviceId = deviceId,
         deviceName = deviceName,
         deviceType = deviceType.toDeviceListType(),
         isOn = activated,
@@ -65,6 +65,34 @@ fun MyDevice.toCommandDevice(
                     "saturation" to saturation
                 )
             )
+        )
+    )
+
+    return CommandDevice(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType.toString(),
+        deviceImageUrl = "",
+        commands = commands
+    )
+}
+
+fun MyDevice.toCommandDeviceForAirPurifier(
+    isOn: Boolean,
+    fanMode: String
+): CommandDevice {
+    val commands = listOf(
+        CommandData(
+            component = "main",
+            capability = "switch",
+            command = if (isOn) "on" else "off",
+            arguments = emptyList()
+        ),
+        CommandData(
+            component = "main",
+            capability = "airConditionerFanMode",
+            command = "setFanMode",
+            arguments = listOf(fanMode)
         )
     )
 
