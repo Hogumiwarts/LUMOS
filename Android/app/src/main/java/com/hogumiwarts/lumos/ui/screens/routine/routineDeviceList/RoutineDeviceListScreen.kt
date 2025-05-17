@@ -56,8 +56,8 @@ fun RoutineDeviceListScreen(
                 val myDevice = MyDevice(
                     deviceId = device.deviceId,
                     deviceName = device.deviceName,
-                    isOn = true, // 예시값
-                    isActive = true, // 예시값
+                    isOn = device.commands.find { it.capability == "switch" }?.command == "on",
+                    isActive = true,
                     deviceType = DeviceListType.valueOf(device.deviceType),
                     commands = device.commands
                 )
@@ -118,6 +118,9 @@ fun RoutineDeviceListScreen(
                         DeviceListType.AIRPURIFIER -> {
                             navController.navigate("airpurifier_control?preview=true")
                         }
+
+                        DeviceListType.SWITCH ->
+                            navController.navigate("switch_control?preview=true")
 
                         else -> {
                             // TODO: 지원하지 않는 기기일 경우 처리 (예: 다이얼로그, 토스트 등)
