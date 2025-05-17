@@ -191,15 +191,3 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel, con
     }
 }
 
-//@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-//@Composable
-//fun DeviceListScreenPreview() {
-//    // 가짜 ViewModel 생성
-//    val fakeViewModel = object : DeviceListViewModel() {}
-//
-//    DeviceListScreen(
-//        viewModel = fakeViewModel,
-//        devices = MyDevice.sample,
-//        onSelectedComplete = {}
-//    )
-//}

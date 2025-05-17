@@ -2,6 +2,7 @@ package com.hogumiwarts.data.di
 
 import android.util.Log
 import com.hogumiwarts.data.BuildConfig
+import com.hogumiwarts.data.repository.GestureRepositoryImpl
 import com.hogumiwarts.data.repository.MemberRepositoryImpl
 import com.hogumiwarts.data.source.remote.AirpurifierApi
 import com.hogumiwarts.data.source.remote.AudioApi
@@ -14,6 +15,7 @@ import com.hogumiwarts.data.source.remote.MemberApi
 import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
 import com.hogumiwarts.data.token.TokenStorage
+import com.hogumiwarts.domain.repository.GestureRepository
 import com.hogumiwarts.domain.repository.MemberRepository
 import dagger.Binds
 import dagger.Module

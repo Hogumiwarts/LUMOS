@@ -2,10 +2,11 @@ package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
 import com.hogumiwarts.data.source.remote.AuthApi
-import com.hogumiwarts.domain.model.RoutineResult
-import com.hogumiwarts.domain.model.Routine
-import com.hogumiwarts.domain.model.RoutineDetailData
+import com.hogumiwarts.domain.model.routine.RoutineResult
+import com.hogumiwarts.domain.model.routine.Routine
+import com.hogumiwarts.domain.model.routine.RoutineDetailData
 import com.hogumiwarts.domain.repository.RoutineRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +35,6 @@ class RoutineViewModel @Inject constructor(
 
     private val _routineDetail = MutableStateFlow<RoutineDetailData?>(null)
     val routineDetail: StateFlow<RoutineDetailData?> = _routineDetail
-
 
     // 루틴 목록 불러오기
     fun getRoutineList() {
@@ -75,6 +75,7 @@ class RoutineViewModel @Inject constructor(
                     _routineDetail.value = result.detail
                 }
 
+                is RoutineResult.CreateSuccess -> TODO()
             }
         }
     }
@@ -83,7 +84,9 @@ class RoutineViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val refreshToken = tokenDataStore.getRefreshToken().first()
-                val response = authApi.refresh("Bearer $refreshToken")
+                Timber.tag("routine").d("🔐 리프레시 토큰: $refreshToken")
+
+                val response = authApi.refresh(RefreshRequest(refreshToken))
                 val newAccessToken = response.data.accessToken
                 val name = tokenDataStore.getUserName().firstOrNull() ?: ""
 
@@ -98,5 +101,6 @@ class RoutineViewModel @Inject constructor(
             }
         }
     }
+
 
 }

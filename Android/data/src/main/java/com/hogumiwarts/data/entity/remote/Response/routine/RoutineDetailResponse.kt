@@ -1,10 +1,6 @@
 package com.hogumiwarts.data.entity.remote.Response.routine
 
-import com.hogumiwarts.domain.model.CommandData
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import com.hogumiwarts.domain.model.routine.CommandData
 
 data class RoutineDetailResponse(
     val status: Int,
@@ -27,5 +23,5 @@ data class RoutineDeviceData(
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,
-    val commands: List<com.hogumiwarts.domain.model.CommandData>
+    val commands: List<CommandData>
 )

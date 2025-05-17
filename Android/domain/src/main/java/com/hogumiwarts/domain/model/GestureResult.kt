@@ -1,6 +1,7 @@
 package com.hogumiwarts.domain.model
 
 import com.hogumiwarts.domain.model.audio.AudioVolumeResult
+import java.io.Serializable
 import javax.management.Descriptor
 
 sealed class GestureResult {
@@ -17,6 +18,17 @@ data class GestureData(
     val gestureName: String,
     val gestureDescription: String,
     val gestureImageUrl: String,
-    val routineName: String?,
-    val routineId: Long?,
-)
+    val routineName: String,
+    val routineId: Long,
+) : Serializable {
+    companion object {
+        val EMPTY = GestureData(
+            gestureId = 0L,
+            gestureName = "",
+            gestureDescription = "",
+            gestureImageUrl = "",
+            routineName = "",
+            routineId = 0L
+        )
+    }
+}
