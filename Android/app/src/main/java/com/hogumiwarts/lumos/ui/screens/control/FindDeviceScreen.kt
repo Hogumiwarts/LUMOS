@@ -4,8 +4,11 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,6 +54,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,7 +73,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,20 +105,32 @@ fun FindDeviceScreen(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset =
-                if (available.y > 0f) available   // ↓방향 잔여량 전부 소비 → 시트로 못 내려감
-                else Offset.Zero                  // ↑방향 or 없음 → 통과
+                // available.y 가 +↓든  –↑든 그대로 소비
+                if (available.y != 0f) Offset(x = 0f, y = available.y)
+                else Offset.Zero
 
             override suspend fun onPostFling(
                 consumed: Velocity,
                 available: Velocity
             ): Velocity =
-                if (available.y > 0f) available   // ↓방향 플링 잔여량도 소비
+                if (available.y != 0f) Velocity(x = 0f, y = available.y)
                 else Velocity.Zero
         }
     }
+    val absorbDrag = rememberDraggableState { }
 
+    // 화면에 들어왔을 떄 세션을 준비하고 레인징 시작
     LaunchedEffect(Unit) {
-        controlViewModel.prepareSession()
+//        controlViewModel.prepareSession()
+        controlViewModel.startSingleRanging()
+    }
+
+    LaunchedEffect(controlViewModel.detectedDeviceName) {
+        // 기기를 탐지 하면 bottom sheet 열기 + 탐지를 중지
+        if (controlViewModel.detectedDeviceName != null) {
+            showSheet = true
+            controlViewModel.cancelDetection()
+        }
     }
 
     Box(
@@ -125,6 +140,7 @@ fun FindDeviceScreen(
         Image(
             painter = painterResource(id = R.drawable.bg_loading),
             contentDescription = null,
+            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -166,22 +182,34 @@ fun FindDeviceScreen(
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxHeight()
-                .padding(40.dp),
+                .padding(36.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.weight(0.1f))
+            Spacer(modifier = Modifier.weight(0.2f))
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
+//                    .clickable(
+//                        interactionSource = remember { MutableInteractionSource() },
+//                        indication = null,
+//                        onClick = {
+//                            if (sessionReady && !controlViewModel.rangingActive) {
+////                                controlViewModel.startSingleRanging()
+//                            }
+//                        }
+//                    )
             ) {
-
-                LottieAnimation(
-                    composition = composition,
-                    progress = { progress },
-                    modifier = Modifier
-                        .size(350.dp)
-                )
+                if (controlViewModel.isDetecting) {
+                    LottieAnimation(
+                        composition = composition,
+                        progress = { progress },
+                        modifier = Modifier
+                            .size(350.dp)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.size(350.dp))
+                }
 
                 // TODO: 지팡이랑 로티 위치 확인하기(기기마다 다를수도)
                 Image(
@@ -207,32 +235,27 @@ fun FindDeviceScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-//            Text(
-//                "지팡이를 눌러주세요",
-//                style = MaterialTheme.typography.body1.copy(color = Color.White),
-//                modifier = Modifier.fillMaxWidth(),
-//                textAlign = TextAlign.Center
-//            )
-
             Text(
-                "연결 기기를 찾는 중..",
+                text = if (controlViewModel.isDetecting) "연결 기기를 찾는 중..." else "지팡이를 눌러 탐지를 시작하세요.",
                 style = MaterialTheme.typography.body1.copy(color = Color.White),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
 
             Row(
-                Modifier.fillMaxWidth(),
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.LightGray),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(
-                    onClick = {
-                        controlViewModel.startSingleRanging()
-                    },
-                    enabled = sessionReady && !controlViewModel.rangingActive
-                ) {
-                    Text("Ranging 시작")
-                }
+//                Button(
+//                    onClick = {
+//                        controlViewModel.startSingleRanging()
+//                    },
+//                    enabled = sessionReady && !controlViewModel.rangingActive
+//                ) {
+//                    Text("Ranging 시작")
+//                }
 
                 Button(
                     onClick = {
@@ -241,7 +264,7 @@ fun FindDeviceScreen(
                     },
                     enabled = controlViewModel.rangingActive
                 ) {
-                    Text("탐지시작")
+                    Text("탐지 시작")
                 }
 
                 Button(onClick = { showSheet = true }) {
@@ -262,7 +285,7 @@ fun FindDeviceScreen(
                     .padding(18.dp)
             ) {
                 Text(
-                    text = "지금 가리키고 있는 기기를 찾고 있어요!\n연결할 기기를 향해 방향을 조절해 주세요.",
+                    text = "지금 가리키고 있는 기기를 찾고 있어요!\n연결할 기기를 향해 방향을 조절해 주세요.\n탐지 결과: ${controlViewModel.detectedDeviceName}",
                     style = MaterialTheme.typography.body1.copy(
                         color = Color.White,
                         fontSize = 14.sp
@@ -271,36 +294,41 @@ fun FindDeviceScreen(
                     textAlign = TextAlign.Center
                 )
             }
-//            Spacer(modifier = Modifier.height(32.dp))
-            Spacer(modifier = Modifier.weight(0.2f))
+            Spacer(modifier = Modifier.height(32.dp))
+//            Spacer(modifier = Modifier.weight(0.4f))
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                controlViewModel.controleeAddresses.forEach { address ->
-                    val position = controlViewModel.getDevicePosition(address)
-                    val isConnected = position != null
+
+        // 방향 탐지 테스트 UI
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(bottom = 16.dp)
+//        ) {
+//            Column(
+//                verticalArrangement = Arrangement.spacedBy(8.dp)
+//            ) {
+//                controlViewModel.controleeAddresses.forEach { address ->
+//                    val position = controlViewModel.getDevicePosition(address)
+//                    val isConnected = position != null
 //                    RangingResultText(
 //                        address = address,
 //                        isConnected = isConnected,
 //                        position = position,
 //                        findType = controlViewModel.detectedDeviceName
 //                    )
-                }
-            }
-        }
+//                }
+//            }
+//        }
 
     }
 
     if (showSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
+            onDismissRequest = {
+                showSheet = false
+
+            },
             sheetState = sheetState,
             shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
             // 네비·제스처 바 뒤로 콘텐츠가 들어가도록 (선택 사항)
@@ -312,13 +340,42 @@ fun FindDeviceScreen(
             Box(
                 Modifier
                     .nestedScroll(blockSheetDrag)
+                    .draggable(
+                        state = absorbDrag,
+                        orientation = Orientation.Vertical,
+                        startDragImmediately = false
+                    )
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .statusBarsPadding()
             ) {
-                LightScreen()
+                when (controlViewModel.detectedDeviceName) {
+                    "공기청정기" -> Test1()
+                    "조명" -> LightScreen()
+                    "스피커" -> Test2()
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun Test1() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "공기청정기 화면")
+    }
+}
+
+@Composable
+private fun Test2() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "스피커 화면")
     }
 }
 
@@ -423,9 +480,8 @@ private fun RangingResultText(
 }
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun FindDeviceScreenPreview() {
+@Preview(showBackground = true)
+@Composable
+fun FindDeviceScreenPreview() {
 //    FindDeviceScreen()
-//
-//}
+}
