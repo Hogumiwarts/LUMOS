@@ -12,6 +12,9 @@ val localProperties = Properties().apply {
     load(rootProject.file("local.properties").inputStream())
 }
 val baseUrl = localProperties["AUTH_BASE_URL"] as String
+val ipAddress = localProperties["IP_ADDRESS"] as String
+
+
 android {
     namespace = "com.hogumiwarts.lumos"
     compileSdk = 34
@@ -23,6 +26,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "AUTH_BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "IP_ADDRESS", "\"$ipAddress\"")
 
         vectorDrawables {
             useSupportLibrary = true
