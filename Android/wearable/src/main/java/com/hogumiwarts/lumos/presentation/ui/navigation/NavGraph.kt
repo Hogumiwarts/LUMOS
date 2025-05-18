@@ -34,11 +34,16 @@ fun NavGraph(
 
         // 🔸 SplashScreen → Main으로 이동
         composable("splash") {
-            SplashScreen {
+            SplashScreen(onTimeout = {
                 navController.navigate("main") {
                     popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
                 }
-            }
+            },
+                goLogin = {
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
+                    }
+                })
         }
 
         // 🔸 DevicesScreen (메인 화면)
@@ -55,10 +60,14 @@ fun NavGraph(
                 scaleOut(targetScale = 0.8f, animationSpec = tween(1000))
             }
         ) {
-//            LoginScreen()
-            DevicesScreen(navController = navController)
+            DevicesScreen(navController)
         }
-        
+
+        composable(
+            "login",
+        ) {
+            LoginScreen(navController)
+        }
 
         // 🔸 Light 기기 제어 화면
         composable("light/{deviceId}",

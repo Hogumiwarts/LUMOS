@@ -65,3 +65,21 @@ cloud:
 gesture-classification:
   server:
       url: ${GESTURE_CLASSIFICATION_SERVER_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus  # Prometheus endpoint 포함
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: gesture-sensor-service
+    enable:
+      hikari: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true

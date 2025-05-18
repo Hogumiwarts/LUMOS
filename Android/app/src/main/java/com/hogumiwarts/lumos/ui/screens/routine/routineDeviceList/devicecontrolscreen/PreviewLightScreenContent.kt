@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList
+package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
@@ -35,6 +34,7 @@ import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.LightPreviewViewModel
 
 @Composable
 fun PreviewLightScreenContent(
@@ -67,7 +67,7 @@ fun PreviewLightScreenContent(
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = selectedDevice.deviceName,
@@ -196,6 +196,7 @@ fun PreviewLightScreenContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .background(Color.White)
                 .padding(horizontal = 24.dp, vertical = 20.dp)
         ) {
             PrimaryButton(
@@ -215,7 +216,9 @@ fun PreviewLightScreenContent(
                     navController.popBackStack()
 
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 27.dp)
             )
         }
     }

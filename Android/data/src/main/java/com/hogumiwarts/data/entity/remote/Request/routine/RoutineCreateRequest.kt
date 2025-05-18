@@ -4,17 +4,17 @@ data class RoutineCreateRequest(
     val routineName: String,
     val routineIcon: String,
     val devices: List<RoutineDeviceRequest>,
-    val gestureId: Int
+    val gestureId: Int?
 )
 
 data class RoutineDeviceRequest(
-    val deviceId: String,
-    val commands: CommandRequest
+    val deviceId: Int,
+    val commands: List<CommandRequest>
 )
 
 data class CommandRequest(
     val component: String,
     val capability: String,
     val command: String,
-    val arguments: List<Any>
+    val arguments: List<Any>?
 )

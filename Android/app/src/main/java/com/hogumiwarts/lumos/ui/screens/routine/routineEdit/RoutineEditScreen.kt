@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
@@ -108,22 +109,23 @@ fun RoutineEditScreen(
         ) {
             RoutineDeviceListScreen(
                 viewModel = deviceListViewModel,
-                devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
-                    // 같은 기기 + 같은 상태라면 추가 안함
-//                    val newDevice = selectedDevice.toRoutineDevice()
-//
-//                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
-//                        showDuplicateDialog.value = true
-//                    } else {
-//                        deviceList.add(newDevice)
+                    // 이미 등록된 기기 중 중복 검사
+                    val isDuplicate = deviceList.any { it.deviceId == selectedDevice.deviceId }
+                    if (isDuplicate) {
+                        showDuplicateDialog.value = true
+                    } else {
+                        // 기기 추가
+//                        deviceList.add(/* 변환 후 추가 */)
 //                        isSheetOpen = false
-//                    }
+                    }
                 },
-                showDuplicateDialog = showDuplicateDialog.value,
+                showDuplicateDialog = showDuplicateDialog,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false },
-                navController = navController
+                navController = navController,
+                alreadyAddedDeviceIds = deviceList.map { it.deviceId }
             )
+
         }
     }
 
@@ -309,40 +311,39 @@ fun RoutineEditScreen(
             // 기기 리스트
             items(deviceList, key = { it.deviceId }) { device ->
                 var visible by remember { mutableStateOf(true) }
-
-
                 if (visible) {
                     var shouldRemove by remember { mutableStateOf(false) }
-
                     if (shouldRemove) {
                         LaunchedEffect(device) {
                             delay(300)
                             deviceList.remove(device)
                         }
                     }
-
                     AnimatedVisibility(
                         visible = !shouldRemove,
-                        exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                        exit = shrinkVertically(tween(300)) + fadeOut()
                     ) {
-                        SwipeableDeviceCard(
-                            device = device,
-                            onDelete = {
-                                shouldRemove = true
-
-                                Toast.makeText(
-                                    context,
-                                    "${device.deviceName.appendSubject()} 삭제되었습니다.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                        SwipeableDeviceCard(device = device, onDelete = {
+                            shouldRemove = true
+                            Toast.makeText(
+                                context,
+                                "${device.deviceName.appendSubject()} 삭제되었습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                            onClick = {
+                                // 기기 카드 클릭 시 행동 정의 (예: 제어화면 이동)
+                                val json = Gson().toJson(device)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "commandDeviceJson",
+                                    json
+                                )
+                                navController.navigate("routineDeviceList")
                             }
                         )
                     }
                 }
-
             }
-
-            item { Box(modifier = Modifier.height(1.dp)) {} }
 
             // 제스처 선택
             // 제목

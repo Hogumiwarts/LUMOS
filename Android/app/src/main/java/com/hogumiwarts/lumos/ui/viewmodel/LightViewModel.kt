@@ -118,7 +118,7 @@ class LightViewModel @Inject constructor(
     }
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun loadSwitchStatus(deviceId: Int) {
+    private fun loadSwitchStatus(deviceId: Long) {
         viewModelScope.launch {
             _state.value = LightStatusState.Loading
 
@@ -142,7 +142,7 @@ class LightViewModel @Inject constructor(
     }
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun changeSwitchPower(deviceId: Int, activated: Boolean) {
+    private fun changeSwitchPower(deviceId: Long, activated: Boolean) {
         viewModelScope.launch {
             _powerState.value = ControlState.Loading
 

@@ -43,6 +43,7 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.gesture.network.MessageReceiver
 import com.hogumiwarts.lumos.ui.screens.gesture.network.sendTextToWatch
 
+
 @Composable
 fun GestureTestCard(
     card: GestureData,

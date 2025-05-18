@@ -35,6 +35,31 @@ fun MessageReceiver(viewModel: GestureTestViewModel) {
 }
 
 
+fun sendTokenToWatch(context: Context, token: String, ) {
+    val messageClient = Wearable.getMessageClient(context)
+    val path = "/launch_send_token"
+
+    val dataJson = JsonObject().apply {
+        addProperty("token", token)
+    }
+
+    val dataBytes = dataJson.toString().toByteArray()
+
+    // 워치 노드 가져오기
+    Wearable.getNodeClient(context).connectedNodes
+        .addOnSuccessListener { nodes ->
+            for (node in nodes) {
+                messageClient.sendMessage(node.id, path, dataBytes)
+                    .addOnSuccessListener {
+                        Log.d("Mobile", "메시지 전송 성공: ${dataBytes}")
+                    }
+                    .addOnFailureListener {
+                        Log.e("Mobile", "메시지 전송 실패: ${it.message}")
+                    }
+            }
+        }
+}
+
 fun sendTextToWatch(context: Context, gestureId: String, gestureUrl: String) {
     val messageClient = Wearable.getMessageClient(context)
     val path = "/launch_text_display"

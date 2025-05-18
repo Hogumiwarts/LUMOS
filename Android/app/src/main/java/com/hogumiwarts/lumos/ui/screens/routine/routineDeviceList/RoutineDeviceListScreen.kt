@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,11 +37,12 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun RoutineDeviceListScreen(
     viewModel: RoutineDeviceListViewModel = hiltViewModel(),
-    devices: List<MyDevice>,
     onSelectComplete: (MyDevice) -> Unit,
-    showDuplicateDialog: Boolean,
+    showDuplicateDialog: MutableState<Boolean>,
     onDismissDuplicateDialog: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    alreadyAddedDeviceIds: List<Int>
+
 ) {
     // 선택 기기 상태
     val selectedDeviceId by viewModel.selectedDeviceId
@@ -53,12 +56,14 @@ fun RoutineDeviceListScreen(
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
                 val device = Gson().fromJson(json, CommandDevice::class.java)
+                Log.d("RoutineDeviceList", "Received deviceType: ${device.deviceType}")
+
                 val myDevice = MyDevice(
                     deviceId = device.deviceId,
                     deviceName = device.deviceName,
-                    isOn = true, // 예시값
-                    isActive = true, // 예시값
-                    deviceType = DeviceListType.valueOf(device.deviceType),
+                    isOn = device.commands.find { it.capability == "switch" }?.command == "on",
+                    isActive = true,
+                    deviceType = DeviceListType.from(device.deviceType),
                     commands = device.commands
                 )
                 onSelectComplete(myDevice)
@@ -105,14 +110,38 @@ fun RoutineDeviceListScreen(
             buttonText = "선택하기",
             onClick = {
                 viewModel.getSelectedDevice()?.let { selected ->
-                    if (selected.deviceType == DeviceListType.LIGHT) {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "selectedDevice",
-                            selected
-                        )
-                        navController.navigate("light_control?preview=true")
-                    } else {
-                        // TODO: 다른 기기 제어 화면 혹은 오류 처리
+                    if (alreadyAddedDeviceIds.contains(selected.deviceId)) {
+                        showDuplicateDialog.value = false // 먼저 끔
+                        showDuplicateDialog.value = true  // 다시 켬
+                        return@let
+                    }
+
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "selectedDevice",
+                        selected
+                    )
+
+                    viewModel.clearSelectedDevice() // 선택 후 초기화
+
+                    when (selected.deviceType) {
+                        DeviceListType.LIGHT -> {
+                            navController.navigate("light_control?preview=true")
+                        }
+
+                        DeviceListType.AIRPURIFIER -> {
+                            navController.navigate("airpurifier_control?preview=true")
+                        }
+
+                        DeviceListType.SWITCH ->
+                            navController.navigate("switch_control?preview=true")
+
+                        DeviceListType.AUDIO -> {
+                            navController.navigate("speaker_control?preview=true")
+                        }
+
+                        else -> {
+                            // TODO: 지원하지 않는 기기일 경우 처리 (예: 다이얼로그, 토스트 등)
+                        }
                     }
                 }
             },
@@ -125,27 +154,22 @@ fun RoutineDeviceListScreen(
         // 다이얼로그 설정
         CommonDialog(
             showDialog = showDialog,
-            onDismiss = { viewModel.dismissDialog() },
-            titleText = "선택할 수 없는 기기예요!",
+            onDismiss = {
+                viewModel.clearSelectedDevice()
+                onDismissDuplicateDialog()
+            },            titleText = "선택할 수 없는 기기예요!",
             bodyText = "기기 상태가 비활성화로 감지되어 제어할 수 없습니다. 거리가 멀어지면 비활성화로 전환될 수 있어요."
         )
 
         // 중복 기기용 다이얼로그
         CommonDialog(
-            showDialog = showDuplicateDialog,
-            onDismiss = onDismissDuplicateDialog,
-            titleText = "이미 선택한 기기예요!",
-            bodyText = "같은 기기 + 같은 상태 조합은 한 번만 사용할 수 있어요. 새로운 조합으로 시도해볼까요? ✨"
+            showDialog = showDuplicateDialog.value,
+            onDismiss = {
+                viewModel.clearSelectedDevice()
+                onDismissDuplicateDialog()
+            },            titleText = "이미 선택한 기기예요!",
+            bodyText = "같은 기기는 한 번만 설정할 수 있어요. 다른 기기로 시도해볼까요? ✨"
         )
     }
 }
 
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun RoutineDeviceListScreenPreview() {
-//    RoutineDeviceListScreen(
-//        devices = MyDevice.sample,
-//        onSelectComplete = {},
-//    )
-//}

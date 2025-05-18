@@ -19,6 +19,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
 	@Override
 	protected String[] getPermitAllPaths() {
 		return new String[] {
+			"/actuator/prometheus",
 			"/api/email-exists",
 			"/api/find-by-email",
 			"/api/member-exists",
