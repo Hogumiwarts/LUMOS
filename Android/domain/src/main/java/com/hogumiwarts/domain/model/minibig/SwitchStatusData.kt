@@ -5,7 +5,7 @@ data class SwitchStatusData(
     val deviceId: Long,
     val deviceImg: String?,
     val deviceName: String,
-    val deviceManufacturer: String?,
+    val manufacturerCode: String?,
     val deviceModel: String,
     val deviceType: String,
     val activated: Boolean,
