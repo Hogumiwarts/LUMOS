@@ -56,8 +56,12 @@ import androidx.navigation.NavController
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toCommandDevice
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
@@ -124,12 +128,29 @@ fun RoutineCreateScreen(
                 devices = deviceListViewModel.devices.value,
                 onSelectComplete = { selectedDevice ->
                     // 같은 기기 + 같은 상태라면 추가 안함
-                    val newDevice = selectedDevice.toCommandDevice()
+                    val commandDevice = when (selectedDevice.deviceType) {
+                        DeviceListType.LIGHT -> selectedDevice.toCommandDevice(
+                            isOn = true,
+                            brightness = 50,
+                            hue = null,
+                            saturation = null
+                        )
+                        DeviceListType.AIRPURIFIER -> selectedDevice.toCommandDeviceForAirPurifier(
+                            isOn = true,
+                            fanMode = "low"
+                        )
+                        DeviceListType.AUDIO -> selectedDevice.toCommandDeviceForSpeaker(
+                            isOn = true,
+                            volume = 30
+                        )
+                        DeviceListType.SWITCH -> selectedDevice.toCommandDeviceForSwitch(isOn = true)
+                        else -> selectedDevice.toCommandDevice(isOn = true)
+                    }
 
-                    if (devices.any { it.deviceId == newDevice.deviceId }) {
+                    if (devices.any { it.deviceId == commandDevice.deviceId }) {
                         showDuplicateDialog.value = true
                     } else {
-                        viewModel.addDevice(newDevice)
+                        viewModel.addDevice(commandDevice)
                         isSheetOpen = false
                     }
                 },

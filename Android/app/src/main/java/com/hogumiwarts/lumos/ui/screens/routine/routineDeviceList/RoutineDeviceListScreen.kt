@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,12 +54,14 @@ fun RoutineDeviceListScreen(
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
                 val device = Gson().fromJson(json, CommandDevice::class.java)
+                Log.d("RoutineDeviceList", "Received deviceType: ${device.deviceType}")
+
                 val myDevice = MyDevice(
                     deviceId = device.deviceId,
                     deviceName = device.deviceName,
                     isOn = device.commands.find { it.capability == "switch" }?.command == "on",
                     isActive = true,
-                    deviceType = DeviceListType.valueOf(device.deviceType),
+                    deviceType = DeviceListType.from(device.deviceType),
                     commands = device.commands
                 )
                 onSelectComplete(myDevice)
@@ -121,6 +124,10 @@ fun RoutineDeviceListScreen(
 
                         DeviceListType.SWITCH ->
                             navController.navigate("switch_control?preview=true")
+
+                        DeviceListType.AUDIO -> {
+                            navController.navigate("speaker_control?preview=true")
+                        }
 
                         else -> {
                             // TODO: 지원하지 않는 기기일 경우 처리 (예: 다이얼로그, 토스트 등)

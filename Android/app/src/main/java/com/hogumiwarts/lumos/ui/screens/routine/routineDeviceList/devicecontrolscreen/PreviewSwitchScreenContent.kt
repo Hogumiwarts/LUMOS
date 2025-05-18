@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toCommandDevice
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.control.SwitchDevice
@@ -156,7 +157,7 @@ fun PreviewSwitchScreenContent(
             PrimaryButton(
                 buttonText = "설정하기",
                 onClick = {
-                    val commandDevice = selectedDevice.toCommandDevice(isOn = isChecked)
+                    val commandDevice = selectedDevice.toCommandDeviceForSwitch(isOn = isChecked)
                     val json = Gson().toJson(commandDevice)
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "commandDeviceJson",
