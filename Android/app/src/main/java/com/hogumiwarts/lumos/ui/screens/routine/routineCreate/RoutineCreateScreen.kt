@@ -131,12 +131,19 @@ fun RoutineCreateScreen(
                 devices = deviceListViewModel.devices.value,
                 onSelectComplete = { selectedDevice ->
                     val commandDevice = when (selectedDevice.deviceType) {
-                        DeviceListType.LIGHT -> selectedDevice.toCommandDevice(
-                            isOn = true,
-                            brightness = 50,
-                            hue = null,
-                            saturation = null
-                        )
+                        DeviceListType.LIGHT -> {
+                            val json = navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.get<String>("commandDeviceJson")
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDevice(
+                                isOn = true,
+                                brightness = 50,
+                                hue = null,
+                                saturation = null
+                            )
+                        }
 
                         DeviceListType.AIRPURIFIER -> {
                             val json =
@@ -483,7 +490,7 @@ fun RoutineCreateScreen(
         }
 
 
-        // 수정 버튼
+        // 생성 버튼
         Box(
             modifier = Modifier
                 .align(
