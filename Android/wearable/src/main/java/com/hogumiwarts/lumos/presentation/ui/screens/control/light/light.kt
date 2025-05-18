@@ -138,9 +138,7 @@ fun LightScreen(tagNumber: Long?) {
 
         // 4. Other Setting
         Box(modifier = Modifier.offset(y = otherOffsetY)) {
-            LightOtherSetting(
-                onSwipeDown = { state = "color" }
-            )
+
         }
 
 

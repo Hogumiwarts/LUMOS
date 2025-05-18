@@ -16,12 +16,15 @@ import android.content.Context
 import android.content.Intent
 import android.devicelock.DeviceId
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.repository.DeviceRepository
+import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.mapper.toMyDevice
+import com.hogumiwarts.lumos.ui.screens.gesture.network.sendTokenToWatch
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
@@ -34,10 +37,13 @@ class DeviceListViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val authApi: AuthApi,
     private val tokenDataStore: TokenDataStore,
+    private val jwtUseCase: TokensUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     val selectedDeviceId = mutableStateOf<Int?>(null)
     val showDialog = mutableStateOf(false)
+
 
     private val _isLinked = MutableStateFlow(false) // SmartThings 계정 연동 여부
     val isLinked: StateFlow<Boolean> = _isLinked
@@ -46,7 +52,14 @@ class DeviceListViewModel @Inject constructor(
     private val _deviceList = MutableStateFlow<List<MyDevice>>(emptyList())
     val deviceList: StateFlow<List<MyDevice>> = _deviceList
 
+    fun getJwt(){
+        viewModelScope.launch {
+            val a = jwtUseCase.getAccessToken().first()
+            Log.d("TAG", "getJwt: $a")
+            sendTokenToWatch(context,a)
+        }
 
+    }
 
     // SmartThings 인증 URL 요청 및 브라우저 이동 함수
     fun requestAuthAndOpen(context: Context) {

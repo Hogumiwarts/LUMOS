@@ -90,9 +90,10 @@ fun String?.toAirQuality(): AirQuality {
 }
 
 @Composable
+
 fun AirpurifierScreen(
     viewModel: AirpurifierViewModel = hiltViewModel(),
-    selectedDevice: MyDevice,
+    deviceId: Long,
     ) {
     var deviceId by remember { mutableStateOf(7) }
     // 최초 진입 시 상태 요청
@@ -498,6 +499,7 @@ fun FanButton(
         )
     }
 }
+
 
 
 //@Preview(showBackground = true)

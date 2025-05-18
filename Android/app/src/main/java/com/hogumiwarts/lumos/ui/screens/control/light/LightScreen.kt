@@ -35,7 +35,7 @@ fun LightScreen(
         PreviewLightScreenContent(viewModel, selectedDevice, navController)
     } else { // 직접 제어 화면
         val viewModel: LightViewModel = hiltViewModel()
-        RealLightScreenContent(viewModel, selectedDevice)
+        RealLightScreenContent(viewModel, selectedDevice.deviceId.toLong())
     }
 }
 

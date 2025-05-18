@@ -74,7 +74,7 @@ data class SpeakerDevice(
 )
 
 @Composable
-fun SpeakerScreen() {
+fun SpeakerScreen(deviceId: Long) {
     val speakerDevice = remember {
         SpeakerDevice(
             tagNumber = 1,
@@ -438,5 +438,5 @@ fun SpeakerScreen() {
 @Preview
 @Composable
 fun SpeakerScreenPreview() {
-    SpeakerScreen()
+    SpeakerScreen(1L)
 }

@@ -18,10 +18,10 @@ import retrofit2.http.Path
 interface LightApi {
 
     @GET("/device/api/devices/{deviceId}/light/status")
-    suspend fun getLightStatus(@Path("deviceId") deviceId: Int): BaseResponse<GetLightStatusResponse>
+    suspend fun getLightStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetLightStatusResponse>
 
     @PATCH("/device/api/devices/{deviceId}/light/power")
-    suspend fun patchLightPower(@Path("deviceId") deviceId: Int, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
+    suspend fun patchLightPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
 
     @PATCH("/device/api/devices/{deviceId}/light/bright")
     suspend fun patchLightBright(@Path("deviceId") deviceId: Long, @Body request: PatchLightBrightRequest): BaseResponse<LightBrightResponse>

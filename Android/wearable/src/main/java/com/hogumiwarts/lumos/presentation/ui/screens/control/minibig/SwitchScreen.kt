@@ -1,7 +1,11 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.minibig
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,14 +27,17 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Text
+import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
+import com.hogumiwarts.lumos.presentation.ui.common.AnimatedMobile
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
+import com.hogumiwarts.lumos.presentation.ui.function.sendOpenLightMessage
 import com.hogumiwarts.lumos.presentation.ui.screens.control.ControlState
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.SwitchViewModel
+import kotlinx.coroutines.delay
 
 // 🟢 최상위 Composable - 스크린 전체를 구성
 @Composable
@@ -110,6 +118,7 @@ fun BedLightSwitch(
     name:String,
     deviceId: Long
 ) {
+    var showAnimation by remember { mutableStateOf(false) }
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -146,7 +155,7 @@ fun BedLightSwitch(
             }
         )
 
-
+        val context = LocalContext.current
         // 하단 안내 텍스트
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -158,6 +167,11 @@ fun BedLightSwitch(
                     end.linkTo(parent.end)
                     top.linkTo(toggle.bottom)
                 }
+                .clip(RoundedCornerShape(16.dp))
+                .clickable {
+                    showAnimation = true
+                    sendOpenLightMessage(context, deviceId = deviceId, deviceType = "SWITCH")
+                }
         ) {
             Text(
                 text = "폰에서 세부 제어",
@@ -167,6 +181,24 @@ fun BedLightSwitch(
             )
         }
 
+    }
+
+    Box(modifier = Modifier.fillMaxSize()){
+        AnimatedVisibility(
+            visible = showAnimation,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            AnimatedMobile()
+        }
+    }
+    // ✅ 2초 후 자동으로 사라지기
+    LaunchedEffect(showAnimation) {
+        if (showAnimation) {
+            delay(2000)
+            showAnimation = false
+        }
     }
 }
 

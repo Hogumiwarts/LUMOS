@@ -36,12 +36,12 @@ import kotlin.math.*
 fun ColorWheelPicker(
     onSwipeDown: () -> Unit,
     onSwipeUp: () -> Unit,
-    onColorSelected: (Int) -> Unit, // ✅ 손 뗐을 때 색상 전송용 콜백 추가
-    color: Int,
-    onColorChange: (Int) -> Unit,
+    onColorSelected: (Float) -> Unit, // ✅ 손 뗐을 때 색상 전송용 콜백 추가
+    color: Float,
+    onColorChange: (Float) -> Unit,
 ) {
 
-    var hue by remember { mutableIntStateOf(color*36/10) } // 0~360
+    var hue by remember { mutableFloatStateOf(color*36/10) } // 0~360
     val selectedColor = Color.hsv(hue.toFloat(), 1f, 1f)
     // Color 객체에서 RGB 값 추출
     val red = (selectedColor.red * 255).toInt()
@@ -88,7 +88,7 @@ fun ColorWheelPicker(
                         val dy = touchPoint.y - center.y
                         var angle = atan2(dy, dx) * 180f / PI.toFloat()
                         if (angle < 0) angle += 360f
-                        hue = angle.toInt()
+                        hue = angle
                         onColorChange(hue)
                     }
                 })
