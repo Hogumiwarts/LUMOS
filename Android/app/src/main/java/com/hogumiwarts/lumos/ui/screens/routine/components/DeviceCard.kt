@@ -37,6 +37,7 @@ import kotlin.math.roundToInt
 fun DeviceCard(
     commandDevice: CommandDevice,
     deviceType: DeviceListType,
+    modifier: Modifier = Modifier
 ) {
 
     val iconResId = deviceType.iconResId
@@ -44,7 +45,7 @@ fun DeviceCard(
     val deviceTypeName = deviceType.categoryName
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(95.dp)
             .shadow(

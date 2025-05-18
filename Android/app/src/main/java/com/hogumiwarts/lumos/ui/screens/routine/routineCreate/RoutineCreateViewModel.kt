@@ -151,5 +151,12 @@ class RoutineCreateViewModel @Inject constructor(
         }
     }
 
+    fun updateDevice(updated: CommandDevice) {
+        _devices.update { list ->
+            list.map {
+                if (it.deviceId == updated.deviceId) updated else it
+            }
+        }
+    }
 
 }

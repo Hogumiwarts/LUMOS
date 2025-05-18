@@ -116,7 +116,18 @@ fun RoutineCreateScreen(
                 viewModel.setGestureData(gestureData)
             }
 
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<String>("commandDeviceJson")
+            ?.observe(lifecycleOwner) { json ->
+                val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
+                viewModel.updateDevice(updatedDevice)
+
+                // 초기화
+                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
+            }
     }
+
 
     val showDuplicateDialog = remember { mutableStateOf(false) }
 
@@ -351,7 +362,9 @@ fun RoutineCreateScreen(
                             fontFamily = nanum_square_neo
                         )
                     )
+
                     Spacer(Modifier.weight(1f))
+
                     if (devices.isNotEmpty()) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -378,39 +391,29 @@ fun RoutineCreateScreen(
                 }
             }
 
-            item {
-                AnimatedVisibility(
-                    visible = devices.isEmpty(),
-                    enter = fadeIn(tween(300)) + expandVertically(tween(300)),
-                    exit = fadeOut(tween(300)) + shrinkVertically(tween(300))
-                ) {
+            if (devices.isEmpty()) {
+                item {
                     Column {
                         AddDeviceCard(
                             onClick = {
-                                coroutineScope.launch {
-                                    isSheetOpen = true
-                                    sheetState.show()
-                                }
+                                coroutineScope.launch { isSheetOpen = true; sheetState.show() }
                             },
                             text = "기기 추가"
                         )
-
                         state.deviceEmptyMessage?.let {
                             Text(
                                 text = it,
-                                color = Color(0xFFF26D6D),
-                                fontSize = 12.sp,
-                                fontFamily = nanum_square_neo,
-                                modifier = Modifier.padding(top = 6.dp, start = 4.dp)
+                                color = Color(0xFFF26D6D), fontSize = 12.sp,
+                                fontFamily = nanum_square_neo, modifier = Modifier.padding(top = 6.dp, start = 4.dp)
                             )
                         }
                     }
                 }
             }
+
             items(devices, key = { it.deviceId }) { device ->
                 var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
                 var shouldShowHint by remember(device.deviceId) { mutableStateOf(true) }
-
                 AnimatedVisibility(
                     visible = !shouldRemove,
                     exit = shrinkVertically(tween(300)) + fadeOut(tween(300))
@@ -435,12 +438,25 @@ fun RoutineCreateScreen(
                                         delay(300)
                                         viewModel.deleteDevice(device)
                                     }
+                                },
+                                onClick = {
+                                    val json = Gson().toJson(device)
+                                    navController.currentBackStackEntry?.savedStateHandle?.set("commandDeviceJson", json)
+                                    when (DeviceListType.from(device.deviceType)) {
+                                        DeviceListType.LIGHT -> navController.navigate("light_control?preview=true")
+                                        DeviceListType.SWITCH -> navController.navigate("switch_control?preview=true")
+                                        DeviceListType.AIRPURIFIER -> navController.navigate("airpurifier_control?preview=true")
+                                        DeviceListType.AUDIO -> navController.navigate("speaker_control?preview=true")
+                                        else -> Toast.makeText(context, "지원하지 않는 기기 타입이에요!", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             )
                         }
                     )
                 }
             }
+
+            item { Box(modifier = Modifier.height(1.dp)) {} }
 
 
             // 제스처 선택

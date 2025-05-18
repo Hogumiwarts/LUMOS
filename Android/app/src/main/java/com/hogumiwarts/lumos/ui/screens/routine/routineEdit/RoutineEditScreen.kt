@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
@@ -329,7 +330,17 @@ fun RoutineEditScreen(
                                 "${device.deviceName.appendSubject()} 삭제되었습니다.",
                                 Toast.LENGTH_SHORT
                             ).show()
-                        })
+                        },
+                            onClick = {
+                                // 기기 카드 클릭 시 행동 정의 (예: 제어화면 이동)
+                                val json = Gson().toJson(device)
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "commandDeviceJson",
+                                    json
+                                )
+                                navController.navigate("routineDeviceList")
+                            }
+                        )
                     }
                 }
             }

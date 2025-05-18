@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.routine.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,7 +24,8 @@ import com.hogumiwarts.domain.model.routine.CommandDevice
 @Composable
 fun SwipeableDeviceCard(
     device: CommandDevice,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onClick: () -> Unit
 ) {
     val dismissState = rememberDismissState(
         confirmStateChange = {
@@ -57,7 +59,8 @@ fun SwipeableDeviceCard(
         dismissContent = {
             DeviceCard(
                 commandDevice = device,
-                deviceType = DeviceListType.from(device.deviceType)
+                deviceType = DeviceListType.from(device.deviceType),
+                modifier = Modifier.clickable { onClick() }
             )
         }
     )
