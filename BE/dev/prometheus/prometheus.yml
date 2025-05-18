@@ -15,81 +15,88 @@ scrape_configs:
     static_configs:
       - targets: ['lumos-gateway-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: gateway-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-gateway
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'
       
   - job_name: 'auth-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['lumos-auth-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: auth-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-auth
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'
         
   - job_name: 'member-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['lumos-member-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: member-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-member
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'
       
   - job_name: 'gesture-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['lumos-gesture-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: gesture-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-gesture
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'
 
   - job_name: 'gesture-sensor-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['lumos-gesture-sensor-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: gesture-sensor-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-gesture-sensor
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'
       
   - job_name: 'device-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['lumos-device-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: device-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-device
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'
 
   - job_name: 'routine-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['lumos-routine-service:8080']
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: application
-        replacement: routine-service
-      - source_labels: [__address__]
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
         target_label: instance
-        replacement: lumos-routine
+      - source_labels: [__meta_docker_container_name]
+        regex: '/lumos-(.*)-service'
+        target_label: job
+        replacement: '$1'

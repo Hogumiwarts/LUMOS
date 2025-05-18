@@ -1,4 +1,4 @@
-package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList
+package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
@@ -35,6 +34,7 @@ import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.LightPreviewViewModel
 
 @Composable
 fun PreviewLightScreenContent(

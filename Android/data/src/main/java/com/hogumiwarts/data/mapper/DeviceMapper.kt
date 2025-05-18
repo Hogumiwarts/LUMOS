@@ -54,7 +54,7 @@ fun RoutineDetailData.toDomain(): com.hogumiwarts.domain.model.routine.RoutineDe
 
 fun RoutineDeviceData.toDomain(): CommandDevice {
     return CommandDevice(
-        deviceId = deviceId.toString(),
+        deviceId = deviceId,
         deviceName = deviceName,
         deviceType = deviceType,
         deviceImageUrl = deviceImageUrl,

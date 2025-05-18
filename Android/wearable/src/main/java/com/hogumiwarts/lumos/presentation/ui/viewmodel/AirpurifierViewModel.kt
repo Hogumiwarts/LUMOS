@@ -7,13 +7,10 @@ import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
 import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierFanModeResult
 import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierPowerResult
 import com.hogumiwarts.domain.usecase.AirpurifierUseCase
-import com.hogumiwarts.lumos.domain.model.GetSwitchStatusResult
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierFanModeState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AirpurifierStatusState
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
-import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow

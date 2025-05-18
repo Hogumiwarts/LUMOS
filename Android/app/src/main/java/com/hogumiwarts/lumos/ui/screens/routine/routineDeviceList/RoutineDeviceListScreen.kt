@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,12 +54,14 @@ fun RoutineDeviceListScreen(
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
                 val device = Gson().fromJson(json, CommandDevice::class.java)
+                Log.d("RoutineDeviceList", "Received deviceType: ${device.deviceType}")
+
                 val myDevice = MyDevice(
                     deviceId = device.deviceId,
                     deviceName = device.deviceName,
-                    isOn = true, // 예시값
-                    isActive = true, // 예시값
-                    deviceType = DeviceListType.valueOf(device.deviceType),
+                    isOn = device.commands.find { it.capability == "switch" }?.command == "on",
+                    isActive = true,
+                    deviceType = DeviceListType.from(device.deviceType),
                     commands = device.commands
                 )
                 onSelectComplete(myDevice)
@@ -105,14 +108,30 @@ fun RoutineDeviceListScreen(
             buttonText = "선택하기",
             onClick = {
                 viewModel.getSelectedDevice()?.let { selected ->
-                    if (selected.deviceType == DeviceListType.LIGHT) {
-                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                            "selectedDevice",
-                            selected
-                        )
-                        navController.navigate("light_control?preview=true")
-                    } else {
-                        // TODO: 다른 기기 제어 화면 혹은 오류 처리
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "selectedDevice",
+                        selected
+                    )
+
+                    when (selected.deviceType) {
+                        DeviceListType.LIGHT -> {
+                            navController.navigate("light_control?preview=true")
+                        }
+
+                        DeviceListType.AIRPURIFIER -> {
+                            navController.navigate("airpurifier_control?preview=true")
+                        }
+
+                        DeviceListType.SWITCH ->
+                            navController.navigate("switch_control?preview=true")
+
+                        DeviceListType.AUDIO -> {
+                            navController.navigate("speaker_control?preview=true")
+                        }
+
+                        else -> {
+                            // TODO: 지원하지 않는 기기일 경우 처리 (예: 다이얼로그, 토스트 등)
+                        }
                     }
                 }
             },
