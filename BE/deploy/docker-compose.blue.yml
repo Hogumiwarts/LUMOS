@@ -120,8 +120,8 @@ services:
     container_name: lumos-postgres
     env_file:
       - .env.prod
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -133,8 +133,8 @@ services:
     image: redis:latest
     container_name: lumos-redis
     restart: always
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
@@ -146,8 +146,8 @@ services:
     image: redis/redisinsight:latest
     container_name: lumos-redis-insight
     restart: always
-    ports:
-      - "5540:5540"
+    expose:
+      - "5540"
     volumes:
       - redis-insight-data:/data
     depends_on:
@@ -159,8 +159,8 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: lumos-grafana
-    ports:
-      - "3001:3000"
+    expose:
+      - "3000"
     env_file:
       - .env.prod
     volumes:
@@ -172,8 +172,8 @@ services:
   loki:
     image: grafana/loki:2.9.3
     container_name: lumos-loki
-    ports:
-      - "3100:3100"
+    expose:
+      - "3100"
     command: -config.file=/etc/loki/local-config.yaml -log.level=warn
     networks:
       - app-network
@@ -197,8 +197,8 @@ services:
     container_name: lumos-prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "19090:9090"
+    expose:
+      - "9090"
     networks:
       - app-network
 
@@ -206,8 +206,8 @@ services:
   node-exporter:
     image: prom/node-exporter
     container_name: lumos-node-exporter
-    ports:
-      - "9100:9100"
+    expose:
+      - "9100"
     networks:
       - app-network
     restart: always
@@ -216,8 +216,8 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: lumos-cadvisor
-    ports:
-      - "8081:8080"
+    expose:
+      - "8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
