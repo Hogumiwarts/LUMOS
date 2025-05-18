@@ -1,9 +1,7 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.minibig
 
-import com.hogumiwarts.lumos.domain.model.CommonError
-import com.hogumiwarts.lumos.domain.model.DeviceListData
-import com.hogumiwarts.lumos.domain.model.SwitchStatusData
-import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceState
+import com.hogumiwarts.domain.model.CommonError
+import com.hogumiwarts.domain.model.minibig.SwitchStatusData
 
 sealed class SwitchStatusState {
     object Idle : SwitchStatusState()

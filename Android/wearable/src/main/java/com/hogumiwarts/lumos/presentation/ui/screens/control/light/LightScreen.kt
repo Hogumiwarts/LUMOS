@@ -22,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.lumos.data.LightData
-import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.components.ColorWheelPicker
@@ -78,7 +78,7 @@ fun hexToHue(hex: String): Float {
 }
 
 @Composable
-private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long,viewModel: LightViewModel = hiltViewModel(), hue:Int) {
+private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Long,viewModel: LightViewModel = hiltViewModel(), hue:Float) {
     var screen by remember { mutableStateOf("switch") }// 현재 화면/다음 화면 상태
 
     var hue by remember { mutableStateOf(hue) }
@@ -184,7 +184,7 @@ private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Lo
 fun sendBrightnessToServer(brightness: Int, viewModel: LightViewModel, deviceId: Long) {
     viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
 }
-fun sendColorToServer(color: Int, viewModel: LightViewModel, deviceId: Long) {
+fun sendColorToServer(color: Float, viewModel: LightViewModel, deviceId: Long) {
     viewModel.sendIntent(LightIntent.ChangeLightColor(deviceId, color))
 }
 

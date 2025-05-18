@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Text
+import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.common.AnimatedToggleButton
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage

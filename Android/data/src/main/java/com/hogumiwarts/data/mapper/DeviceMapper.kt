@@ -86,6 +86,11 @@ object DeviceMapper {
         )
     }
 
-
+    fun fromSwitchPowerResponse(dtoList: PatchControlResponse): ControlData {
+        return ControlData(
+            success = dtoList.success,
+            activated = dtoList.activated
+        )
+    }
 }
 

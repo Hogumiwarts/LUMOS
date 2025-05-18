@@ -9,9 +9,9 @@ import com.hogumiwarts.domain.model.light.LightTemperatureResult
 
 interface LightRepository {
 
-    suspend fun getLightStatus(deviceId: Int): GetLightStatusResult
+    suspend fun getLightStatus(deviceId: Long): GetLightStatusResult
 
-    suspend fun patchLightPower(deviceId: Int, activated: Boolean): PatchSwitchPowerResult
+    suspend fun patchLightPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult
 
     suspend fun patchLightBright(deviceId: Long, brightness: Int): LightBrightResult
 
