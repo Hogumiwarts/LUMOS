@@ -108,20 +108,13 @@ fun MyDevice.toCommandDeviceForAirPurifier(
 
 fun MyDevice.toCommandDeviceForSpeaker(
     isOn: Boolean,
-    volume: Int
+    volume: Int,
+    isPlaying: Boolean
 ): CommandDevice {
-    val commands = mutableListOf<CommandData>()
+    val commandList = mutableListOf<CommandData>()
 
-    commands.add(
-        CommandData(
-            component = "main",
-            capability = "switch",
-            command = if (isOn) "on" else "off",
-            arguments = emptyList()
-        )
-    )
-
-    commands.add(
+    // 볼륨 명령
+    commandList.add(
         CommandData(
             component = "main",
             capability = "audioVolume",
@@ -130,14 +123,25 @@ fun MyDevice.toCommandDeviceForSpeaker(
         )
     )
 
+    // 재생/정지 명령
+    commandList.add(
+        CommandData(
+            component = "main",
+            capability = "mediaPlayback",
+            command = if (isPlaying) "play" else "stop",
+            arguments = emptyList()
+        )
+    )
+
     return CommandDevice(
         deviceId = this.deviceId,
         deviceName = this.deviceName,
         deviceType = this.deviceType.toString(),
-        deviceImageUrl = "",
-        commands = commands
+        deviceImageUrl = "", // 필요 시 이미지 URL 연결
+        commands = commandList
     )
 }
+
 
 fun MyDevice.toCommandDeviceForSwitch(
     isOn: Boolean

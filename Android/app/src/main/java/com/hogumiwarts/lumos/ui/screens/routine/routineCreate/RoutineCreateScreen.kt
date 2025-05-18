@@ -130,7 +130,6 @@ fun RoutineCreateScreen(
                 viewModel = deviceListViewModel,
                 devices = deviceListViewModel.devices.value,
                 onSelectComplete = { selectedDevice ->
-
                     val commandDevice = when (selectedDevice.deviceType) {
                         DeviceListType.LIGHT -> selectedDevice.toCommandDevice(
                             isOn = true,
@@ -152,10 +151,18 @@ fun RoutineCreateScreen(
                             )
                         }
 
-                        DeviceListType.AUDIO -> selectedDevice.toCommandDeviceForSpeaker(
-                            isOn = true,
-                            volume = 30
-                        )
+                        DeviceListType.AUDIO -> {
+                            val json = navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.get<String>("commandDeviceJson")
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDeviceForSpeaker(
+                                isOn = true,
+                                volume = 30,
+                                isPlaying = true
+                            )
+                        }
 
                         DeviceListType.SWITCH -> selectedDevice.toCommandDeviceForSwitch(isOn = true)
                         else -> selectedDevice.toCommandDevice(isOn = true)

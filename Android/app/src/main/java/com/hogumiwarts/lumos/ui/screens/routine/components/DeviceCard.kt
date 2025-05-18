@@ -30,13 +30,14 @@ import androidx.compose.ui.unit.sp
 import com.hogumiwarts.domain.model.routine.CommandData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DeviceCard(
     commandDevice: CommandDevice,
     deviceType: DeviceListType,
-    ) {
+) {
 
     val iconResId = deviceType.iconResId
     val color = deviceType.color
@@ -151,7 +152,11 @@ fun getKoreanDescription(command: CommandData): String {
         "switchLevel" to "setLevel" -> "밝기 조절"
         "mediaPlayback" to "play" -> "재생"
         "mediaPlayback" to "stop" -> "정지"
-        "audioVolume" to "setVolume" -> "볼륨 조절"
+        "audioVolume" to "setVolume" -> {
+            val volume = command.arguments?.firstOrNull()
+                ?.toString()?.toDoubleOrNull()?.roundToInt() ?: "알 수 없음"
+            "볼륨 ${volume}으로 조절"
+        }
         "airConditionerFanMode" to "setFanMode" -> "팬 속도: ${command.arguments?.firstOrNull() ?: "알 수 없음"}"
         else -> "${command.capability}.${command.command}"
     }
