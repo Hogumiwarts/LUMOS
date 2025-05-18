@@ -3,9 +3,9 @@ package com.hogumiwarts.lumos.presentation.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hogumiwarts.lumos.domain.model.GetSwitchStatusResult
-import com.hogumiwarts.lumos.domain.model.PatchSwitchPowerResult
-import com.hogumiwarts.lumos.domain.usecase.SwitchUseCase
+import com.hogumiwarts.domain.model.PatchSwitchPowerResult
+import com.hogumiwarts.domain.model.minibig.GetSwitchStatusResult
+import com.hogumiwarts.domain.usecase.SwitchUseCase
 import com.hogumiwarts.lumos.presentation.ui.screens.control.ControlState
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState

@@ -21,7 +21,7 @@ class LightRepositoryImpl@Inject constructor(
 ) : LightRepository {
 
     // 🔸 기기 데이터를 API로부터 받아오는 함수
-    override suspend fun getLightStatus(deviceId: Int): GetLightStatusResult {
+    override suspend fun getLightStatus(deviceId: Long): GetLightStatusResult {
         return try {
             // ✅ API 호출
             val response = lightApi.getLightStatus(deviceId)
@@ -45,7 +45,7 @@ class LightRepositoryImpl@Inject constructor(
         }
     }
 
-    override suspend fun patchLightPower(deviceId: Int, activated: Boolean): PatchSwitchPowerResult {
+    override suspend fun patchLightPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult {
         return try {
             // ✅ API 호출
             val response = lightApi.patchLightPower(deviceId, PowerRequest(activated))

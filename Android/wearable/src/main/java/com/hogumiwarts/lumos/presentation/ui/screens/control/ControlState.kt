@@ -1,7 +1,9 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control
 
-import com.hogumiwarts.lumos.domain.model.CommonError
-import com.hogumiwarts.lumos.domain.model.ControlData
+import com.hogumiwarts.domain.model.CommonError
+import com.hogumiwarts.domain.model.ControlData
+import com.hogumiwarts.domain.model.light.LightBrightData
+
 
 sealed class ControlState {
     object Idle : ControlState()

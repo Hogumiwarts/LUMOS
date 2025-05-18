@@ -15,6 +15,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.hogumiwarts.domain.model.minibig.SwitchStatusData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchIntent
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchStatusState
+import com.hogumiwarts.lumos.ui.viewmodel.SwitchViewModel
 
 data class SwitchDevice(
     val tagNumber: Int,
@@ -41,15 +48,23 @@ data class SwitchDevice(
 )
 
 @Composable
-fun SwitchScreen() {
+fun SwitchScreen(deviceId: Int, viewModel: SwitchViewModel = hiltViewModel()) {
 
     var checked by remember { mutableStateOf(true) }
-    // 더미
-    val switchDevice = remember {
-        SwitchDevice(
+    var name by remember { mutableStateOf("스위치") }
+
+// 최초 진입 시 상태 요청
+    LaunchedEffect(Unit) {
+        viewModel.sendIntent(SwitchIntent.LoadSwitchStatus(deviceId))
+    }
+
+    val state by viewModel.state.collectAsState()
+
+    var switchDevice = remember {
+        SwitchStatusData(
             tagNumber = 1,
             deviceId = 123,
-            manufactureCode = "MiniBig",
+            manufacturerCode = "MiniBig",
             deviceImg = "https://example.com/test.png",
             deviceName = "침대 조명 스위치",
             deviceType = "스위치",
@@ -57,6 +72,22 @@ fun SwitchScreen() {
             activated = true
         )
     }
+    when(state){
+        is SwitchStatusState.Error -> {
+            // TODO: 에러 처리
+        }
+        SwitchStatusState.Idle -> {}
+        is SwitchStatusState.Loaded -> {
+            val data = (state as SwitchStatusState.Loaded).data
+            checked= data.activated
+            switchDevice = data
+        }
+        SwitchStatusState.Loading -> {
+            // TODO: 로딩 화면
+        }
+    }
+    // 더미
+
 
     Column(
         modifier = Modifier
@@ -129,7 +160,7 @@ fun SwitchScreen() {
             Spacer(modifier = Modifier.height(13.dp))
 
             Text(
-                "제조사 | ${switchDevice.manufactureCode}",
+                "제조사 | ${switchDevice.manufacturerCode}",
                 fontSize = 12.sp
             )
 
@@ -155,6 +186,6 @@ fun SwitchScreen() {
 @Preview(showBackground = true)
 @Composable
 fun SwitchPreview() {
-    SwitchScreen()
+    SwitchScreen(1)
 
 }

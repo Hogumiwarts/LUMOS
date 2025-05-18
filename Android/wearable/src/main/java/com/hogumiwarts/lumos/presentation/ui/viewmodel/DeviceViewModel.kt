@@ -1,23 +1,21 @@
 package com.hogumiwarts.lumos.presentation.ui.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hogumiwarts.domain.usecase.DeviceUseCase
 import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.domain.model.GetDevicesResult
-import com.hogumiwarts.lumos.domain.usecase.DeviceUseCase
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,16 +60,15 @@ class DeviceViewModel @Inject constructor(
         }
 
     }
+    private val _tokenState = MutableStateFlow<TokenState>(TokenState.Loading)
+    val tokenState: StateFlow<TokenState> = _tokenState
 
-    suspend fun getAccess(): String {
-        var accessToken = ""
-
+    fun getAccess(){
         // Flow에서 첫 번째 값을 비동기적으로 수집
-        jwtUseCase.getAccessToken().collect { token ->
-            accessToken = token
+        viewModelScope.launch {
+            val token = jwtUseCase.getAccessToken().first()
+            _tokenState.value = TokenState.Loaded(token)
         }
-
-        return accessToken
     }
 
 
@@ -81,13 +78,13 @@ class DeviceViewModel @Inject constructor(
             _state.value = DeviceState.Loading
 
             when (val result = deviceUseCase.getDevice()) {
-                is GetDevicesResult.Success -> {
+
+                is com.hogumiwarts.domain.model.devices.GetDevicesResult.Error -> {
+                    _state.value = DeviceState.Error(result.error)
+                }
+                is com.hogumiwarts.domain.model.devices.GetDevicesResult.Success -> {
                     _state.value = DeviceState.Loaded(result.data)
 
-                }
-
-                is GetDevicesResult.Error -> {
-                    _state.value = DeviceState.Error(result.error)
                 }
             }
         }

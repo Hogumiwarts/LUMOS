@@ -38,8 +38,6 @@ fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
 
 
-
-
     when(state){
         is AudioStatusState.Error -> {
             when ((state as AudioStatusState.Error).error) {

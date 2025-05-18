@@ -39,6 +39,8 @@ import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
 import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSpeakerScreenContent
@@ -46,6 +48,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrols
 
 @Composable
 fun NavGraph(
+    deviceId: Int, deviceType: String,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -66,7 +69,14 @@ fun NavGraph(
     val tokenDataStore = TokenDataStore(context = LocalContext.current)
 
     if (isLoggedIn != null) {
-        val startDestination = if (isLoggedIn == true) "home" else "welcome"
+        val startDestination = if (isLoggedIn == true){
+            if(deviceId == -1 || deviceType== ""){
+                "home"
+            }else{
+                deviceType
+            }
+
+        } else "welcome"
         //val startDestination = "welcome"
 
         NavHost(
@@ -325,6 +335,30 @@ fun NavGraph(
 
             }
 
+            // 워치에서 호출 후 조명 제어화면
+            composable("LIGHT") {
+                    RealLightScreenContent(
+                        deviceId = deviceId
+                    )
+            }
+            // 워치에서 호출 후 공기 청정기 제어화면
+            composable("AIRPURIFIER") {
+                AirpurifierScreen(
+                    deviceId = deviceId
+                )
+            }
+            // 워치에서 호출 후 공기 청정기 제어화면
+            composable("AUDIO") {
+                SpeakerScreen(
+                    deviceId = deviceId
+                )
+            }
+            // 워치에서 호출 후 공기 청정기 제어화면
+            composable("SWITCH") {
+                SwitchScreen(
+                    deviceId = deviceId
+                )
+            }
 
 
             composable("routine_create") {
@@ -362,7 +396,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        AirpurifierScreen(selectedDevice = it)
+                        AirpurifierScreen(deviceId = it.deviceId)
                     }
                 }
             }
@@ -379,7 +413,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        SwitchScreen()
+                        SwitchScreen(it.deviceId)
                     }
                 }
             }
@@ -396,7 +430,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        SpeakerScreen() // 실제 제어 화면
+                        SpeakerScreen(it.deviceId) // 실제 제어 화면
                     }
                 }
             }
