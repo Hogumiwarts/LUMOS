@@ -54,6 +54,7 @@ import com.hogumiwarts.lumos.ui.common.DeviceGridHomeSection
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.SkeletonComponent
+import com.hogumiwarts.lumos.ui.screens.control.ControlViewModel
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.devices.NotLinkedScreen
 import com.hogumiwarts.lumos.ui.screens.home.components.LightDeviceItem
@@ -69,6 +70,7 @@ import timber.log.Timber
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
+    controlViewModel: ControlViewModel = hiltViewModel(),
    tokenDataStore: TokenDataStore
     ) {
     val context = LocalContext.current
@@ -87,6 +89,9 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
         deviceViewModel.getJwt()
+
+        controlViewModel.prepareSession()
+
         deviceViewModel.checkAccountLinked()
 
         val location = getCurrentLocation(context)
@@ -150,7 +155,7 @@ fun HomeScreen(
 
 
             Text(
-                text = "${HomeState.userName ?: "루모스"}님\n집에 돌아오신 걸 환영해요.",
+                text = "${HomeState.userName ?: "루모스"}님 ${controlViewModel.localAddress}\n집에 돌아오신 걸 환영해요. ",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,

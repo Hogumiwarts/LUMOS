@@ -166,8 +166,6 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
                         return@launch
                     }
 
-                    Log.d("UwbRanging", "Session prepared successfully, collecting results...")
-                    // 4. 여기서 약간의 지연 추가
                     delay(100)  // 100ms 지연으로 API 호출 사이에 시간 여유 추가
 
                     // 5. try-catch 블록으로 collect 호출 래핑
