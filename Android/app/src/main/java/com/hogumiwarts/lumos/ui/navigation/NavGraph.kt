@@ -38,7 +38,7 @@ import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
 import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
-import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchScreen
+import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
