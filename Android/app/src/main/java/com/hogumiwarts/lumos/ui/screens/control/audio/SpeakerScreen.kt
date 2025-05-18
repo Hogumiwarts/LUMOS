@@ -1,5 +1,6 @@
-package com.hogumiwarts.lumos.ui.screens.control
+package com.hogumiwarts.lumos.ui.screens.control.audio
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -33,6 +34,8 @@ import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,8 +57,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientCircularProgressIndicator
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchIntent
+import com.hogumiwarts.lumos.ui.viewmodel.AudioViewModel
+import com.hogumiwarts.lumos.ui.viewmodel.SwitchViewModel
 
 
 data class SpeakerDevice(
@@ -74,14 +83,24 @@ data class SpeakerDevice(
 )
 
 @Composable
-fun SpeakerScreen(deviceId: Long) {
-    val speakerDevice = remember {
-        SpeakerDevice(
+fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
+
+    LaunchedEffect(Unit) {
+        viewModel.sendIntent(AudioIntent.LoadAudioStatus(deviceId))
+    }
+    val state by viewModel.state.collectAsState()
+    val playState by viewModel.playState.collectAsState()
+    val volumeState by viewModel.volumeState.collectAsState()
+
+
+
+    var speakerDevice = remember {
+        AudioStatusData(
             tagNumber = 1,
             deviceId = 12345,
             deviceImg = "https://storage.googleapis.com/lumos-assets/devices/smart_speaker.png",
             deviceName = "무드 플레이어",
-            manufacturerCode = "Sonos",
+            manufacturerCode = "adfadf",
             deviceModel = "SYMFONISK_V2",
             deviceType = "스피커",
             activated = true,
@@ -92,10 +111,64 @@ fun SpeakerScreen(deviceId: Long) {
         )
     }
 
+    var isPlaying by remember { mutableStateOf(speakerDevice.activated) }
     var volume by remember { mutableIntStateOf(speakerDevice.audioVolume) }
+    var audioImage by remember { mutableStateOf(speakerDevice.audioImg) }
+
+    LaunchedEffect(state) {
+        when(state){
+            is AudioStatusState.Error -> {
+                // TODO: 에러 처리
+            }
+            AudioStatusState.Idle -> {}
+            is AudioStatusState.Loaded -> {
+                val data = (state as AudioStatusState.Loaded).data
+                speakerDevice = data
+                isPlaying = data.activated
+                volume = data.audioVolume
+                audioImage = data.audioImg
+            }
+            AudioStatusState.Loading -> {
+                // TODO: 로딩 화면
+            }
+        }
+    }
+    
+    LaunchedEffect(volumeState) {
+        when(volumeState){
+            is AudioVolumeState.Error -> {
+                // TODO: 에러처리 
+            }
+            AudioVolumeState.Idle -> {}
+            is AudioVolumeState.Loaded -> {
+                volume= (volumeState as AudioVolumeState.Loaded).data.volume
+            }
+            AudioVolumeState.Loading -> {
+                // TODO: 로딩구현 
+            }
+        }
+    }
+
+    when(playState){
+        is AudioPlayState.Error -> {
+            // TODO: 에러 처리
+        }
+        AudioPlayState.Idle -> {}
+        is AudioPlayState.Loaded -> {
+           val data =  (playState as AudioPlayState.Loaded).data
+            isPlaying = data.activated
+        }
+        AudioPlayState.Loading -> {
+            // TODO: 로딩 화면
+        }
+    }
+    
+    
+
+
     var isMuted by remember { mutableStateOf(false) }
     val primaryColor = Color(0xFF4A5BB9)
-    var isPlaying by remember { mutableStateOf(false) }
+
 
     val infiniteTransition = rememberInfiniteTransition(label = "회전 애니메이션 트랜잭션")
     val rotation by infiniteTransition.animateFloat(
@@ -239,6 +312,11 @@ fun SpeakerScreen(deviceId: Long) {
                         isMuted = false
                     }
                 },
+                onValueChangeFinished = {
+                    // 손을 뗐을 때 로그 출력
+                    Log.d("VolumeSlider", "최종 볼륨 값: $volume")
+                        viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId=deviceId, volume = volume))
+                },
                 valueRange = 0f..100f,
                 steps = 0,
                 colors = SliderDefaults.colors(
@@ -305,14 +383,20 @@ fun SpeakerScreen(deviceId: Long) {
                     contentAlignment = Alignment.Center
                 ) {
                     // Album image
-                    Image(
-                        painter = painterResource(id = R.drawable.wish),
+                    AsyncImage(
+                        model = audioImage,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(220.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                        modifier = Modifier.size(220.dp),
+                        contentScale = ContentScale.Fit
                     )
+//                    Image(
+//                        painter = painterResource(id = R.drawable.wish),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .size(220.dp)
+//                            .clip(CircleShape),
+//                        contentScale = ContentScale.Crop
+//                    )
 
                     // TODO: DB에 url 받아 올때
 //                    AsyncImage(model = speakerDevice.audioImg,
@@ -388,7 +472,15 @@ fun SpeakerScreen(deviceId: Long) {
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,  // ripple 효과 제거
                                     role = Role.Button,
-                                    onClick = { isPlaying = !isPlaying }
+                                    onClick = {
+                                        viewModel.sendIntent(
+                                            AudioIntent.LoadAudioPlay(
+                                                deviceId,
+                                                !isPlaying
+                                            )
+                                        )
+//                                        isPlaying = !isPlaying
+                                    }
                                 )
                         )
                     }
