@@ -28,7 +28,7 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
   sudo mv /tmp/docker-compose.blue.yml $PROJECT_DIR/docker-compose.yml
   sudo mv /tmp/nginx.conf $PROJECT_DIR/nginx/nginx.conf
   sudo mv /tmp/redis.conf $PROJECT_DIR/redis/redis.conf
-  sudo mv /tmp/prometheus.conf $PROJECT_DIR/prometheus/prometheus.yml
+  sudo mv /tmp/prometheus.yml $PROJECT_DIR/prometheus/prometheus.yml
   sudo mv /tmp/config.yml $PROJECT_DIR/promtail/config.yml
 
   cd $PROJECT_DIR
