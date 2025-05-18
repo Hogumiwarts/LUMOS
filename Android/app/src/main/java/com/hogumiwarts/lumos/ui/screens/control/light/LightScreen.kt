@@ -31,8 +31,7 @@ fun LightScreen(
 
 ) {
     if (previewMode) { // 루틴 생성에서 띄울 화면
-        val viewModel: LightPreviewViewModel = hiltViewModel()
-        PreviewLightScreenContent(viewModel, selectedDevice, navController)
+        PreviewLightScreenContent(selectedDevice, navController)
     } else { // 직접 제어 화면
         val viewModel: LightViewModel = hiltViewModel()
         RealLightScreenContent(viewModel, selectedDevice.deviceId.toLong())
