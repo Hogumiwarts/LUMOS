@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.ui.screens.control
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,30 +23,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.hogumiwarts.domain.model.minibig.SwitchStatusData
-import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchIntent
-import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchStatusState
-import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
-import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchIntent
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchPowerState
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchStatusState
 import com.hogumiwarts.lumos.ui.viewmodel.SwitchViewModel
 
-data class SwitchDevice(
-    val tagNumber: Int,
-    val deviceId: Int,
-    val deviceImg: String,
-    val deviceName: String,
-    val manufactureCode: String,
-    val deviceModel: String,
-    val deviceType: String,
-    val activated: Boolean
-)
+
 
 @Composable
 fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
@@ -61,6 +50,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
     }
 
     val state by viewModel.state.collectAsState()
+    val powerState by viewModel.powerState.collectAsState()
 
     var switchDevice = remember {
         SwitchStatusData(
@@ -88,7 +78,22 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
             // TODO: 로딩 화면
         }
     }
+
+    when(powerState){
+        is SwitchPowerState.Error -> {
+            // TODO: 에러 처리
+        }
+        SwitchPowerState.Idle -> {}
+        is SwitchPowerState.Loaded -> {
+            checked = (powerState as SwitchPowerState.Loaded).data.activated
+        }
+        SwitchPowerState.Loading -> {
+            // TODO: 로딩 화면
+        }
+    }
     // 더미
+
+
 
 
     Column(
@@ -120,6 +125,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
             Switch(
                 checked = checked,
                 onCheckedChange = {
+                    viewModel.sendIntent(SwitchIntent.ChangeSwitchPower(deviceId, activated = it))
                     checked = it
                 },
                 colors = SwitchDefaults.colors(
@@ -134,18 +140,18 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
         Spacer(modifier = Modifier.height(17.dp))
 
         // TODO: DB에서 imageUrl 받으면 바꾸기
-//        AsyncImage(
-//            model = device.deviceImg,
-//            contentDescription = null,
-//            modifier = Modifier.size(180.dp),
-//            contentScale = ContentScale.Fit
-//        )
-
-        Image(
-            painter = painterResource(id = R.drawable.ic_switch),
-            contentDescription = "스위치",
-            modifier = Modifier.size(250.dp)
+        AsyncImage(
+            model = switchDevice.deviceImg,
+            contentDescription = null,
+            modifier = Modifier.size(250.dp),
+            contentScale = ContentScale.Fit
         )
+
+//        Image(
+//            painter = painterResource(id = R.drawable.ic_switch),
+//            contentDescription = "스위치",
+//            modifier = Modifier.size(250.dp)
+//        )
 
         Spacer(modifier = Modifier.height(54.dp))
         Column(
