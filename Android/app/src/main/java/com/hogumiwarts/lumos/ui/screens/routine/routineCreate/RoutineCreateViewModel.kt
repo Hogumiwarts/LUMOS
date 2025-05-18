@@ -117,11 +117,6 @@ class RoutineCreateViewModel @Inject constructor(
                 return@launch
             }
 
-            //todo: 제스처 선택안할 수 있게 추후 변경
-            if (gesture == null) {
-                onError("제스처를 선택해주세요.")
-                return@launch
-            }
 
             val param = CreateRoutineParam(
                 routineName = name,
@@ -130,8 +125,9 @@ class RoutineCreateViewModel @Inject constructor(
                 devices = deviceList
             )
 
+            val gson = Gson().newBuilder().serializeNulls().create()
             val type = object : TypeToken<CreateRoutineParam>() {}.type
-            val json = Gson().toJson(param, type)
+            val json = gson.toJson(param, type)
 
             Timber.tag("Routine").d("📦 최종 저장 파라미터: $json")
 

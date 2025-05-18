@@ -4,7 +4,7 @@ data class RoutineCreateRequest(
     val routineName: String,
     val routineIcon: String,
     val devices: List<RoutineDeviceRequest>,
-    val gestureId: Int
+    val gestureId: Int?
 )
 
 data class RoutineDeviceRequest(
