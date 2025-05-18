@@ -1,7 +1,7 @@
 package com.hogumiwarts.lumos.data.repostitory
 
 
-import com.hogumiwarts.data.entity.remote.Request.routine.PostRoutineRequest
+import com.hogumiwarts.lumos.data.entity.remote.routine.PostRoutineRequest
 import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.data.entity.mapper.RoutineMapper
 import com.hogumiwarts.lumos.data.source.remote.RoutineApi
@@ -17,7 +17,7 @@ class RoutineRepositoryImpl @Inject constructor(
     override suspend fun executeRoutine(gestureId: Long): PostRoutineResult {
         return try {
             val request = PostRoutineRequest(gestureId = gestureId)
-            val response = routineApi.executeRoutine(request)
+            val response = routineApi.executeRoutine(gestureId)
 
             PostRoutineResult.Success(
                 data = RoutineMapper.fromPostRoutineResponse(response.data)

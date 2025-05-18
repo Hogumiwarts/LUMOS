@@ -58,37 +58,61 @@ class WebSocketViewModel @Inject constructor(
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d("WebSocket", "✅ WebSocket 연결 성공")
+                Log.d("Routine", "onMessage: $currentMode")
                 isConnecting = false
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("WebSocket", "📩 받은 메시지: $text")
-                if (text.startsWith("{")) {
-                    val json = JSONObject(text)
-                    val label = json.optString("label", "예측 없음")
-                    Log.d("Routine", "onMessage: $currentMode")
+                Log.d("Routine", "현재 모드: $currentMode")
 
-                    when (currentMode) {
-                        GestureMode.TEST -> {
-                            // 테스트 모드: 그냥 prediction 업데이트
-                            _prediction.value = label
-                        }
-                        GestureMode.CONTINUOUS -> {
-                            // 연속 감지 모드: 제스처 인식되면 루틴 실행
-                            _prediction.value = label
-                            if (label != "0" && label != "5" && label != "6" && label != "예측 없음") {
-                                executeGestureRoutine(label)  // 제스처실행 함수
-                            }
+                // 🔥 서버가 단순 문자열로 보내는 경우와 JSON으로 보내는 경우 모두 처리
+                val label = if (text.startsWith("{")) {
+                    // JSON 형태인 경우
+                    try {
+                        val json = JSONObject(text)
+                        json.optString("label", "예측 없음")
+                    } catch (e: Exception) {
+                        Log.e("WebSocket", "JSON 파싱 오류", e)
+                        text
+                    }
+                } else {
+                    // 단순 문자열인 경우 (현재 서버 응답)
+                    text
+                }
+
+                Log.d("Routine", "파싱된 라벨: '$label', 모드: $currentMode")
+
+                when (currentMode) {
+                    GestureMode.TEST -> {
+                        Log.d("Routine", "🧪 TEST 모드 - prediction만 업데이트")
+                        _prediction.value = label
+                    }
+                    GestureMode.CONTINUOUS -> {
+                        Log.d("Routine", "🔄 CONTINUOUS 모드 - 제스처 확인 중...")
+                        _prediction.value = label
+
+                        // 🔍 조건 체크를 더 명확하게
+                        val isGestureDetected = label != "0" && label != "5" && label != "6" && label != "예측 없음"
+                        Log.d("Routine", "🎯 제스처 감지 조건: label='$label', 감지됨=$isGestureDetected")
+
+                        if (isGestureDetected) {
+                            Log.d("Routine", "🚀🚀🚀 루틴 실행! executeGestureRoutine('$label') 호출")
+                            executeGestureRoutine(label)
+                        } else {
+                            Log.d("Routine", "⏸️ 루틴 실행 조건 불만족 (대기 상태: $label)")
                         }
                     }
-                    
-                } else {
-                    _prediction.value = text
                 }
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e("WebSocket", "❌ 연결 실패: ${t.message}")
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                Log.d("WebSocket", "🔒 WebSocket 연결 종료: $code, $reason")
+                isConnecting = false
             }
         })
     }
@@ -123,6 +147,7 @@ class WebSocketViewModel @Inject constructor(
                             _prediction.value = "루틴 실행 실패"
                         }
                     }
+
                     is PostRoutineResult.Error -> {
                         Log.e("WebSocket", "❌ 루틴 실행 오류: ${result.error}")
                         _prediction.value = "루틴 실행 오류"
