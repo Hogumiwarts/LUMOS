@@ -75,6 +75,10 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     private var isPauseActive = false  // 일시 정지 상태 추적을 위한 변수
 
+
+    // ======================================================
+    // 1. 생명주기 관련 함수: onCreate, onResume, onPause
+    // ======================================================
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -132,8 +136,6 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         gestureViewModel.onGesture2Detected = {
             Log.d("Gesture", "On 상태 : 제스처 2 감지됨: 박수 두 번")
             clearIMUDataAndPauseCollection()
-
-
         }
 
         gestureViewModel.onGesture3Detected = {
@@ -142,28 +144,99 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
-    // 센서 시작 함수
+    override fun onResume() {
+        super.onResume()
+        startSensors()  // 앱이 화면에 보일 때 센서 다시 시작
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // stopSensors() // 앱이 화면에서 사라질 때 센서 중지 (배터리 절약)
+    }
+
+
+    // ======================================================
+    // 2. 센서 관련 함수: startSensors, stopSensors, onSensorChanged, onAccuracyChanged, collectSensorData, processDataIfReady
+    // ======================================================
     private fun startSensors() {
         // 기존 리스너 모두 해제
         sensorManager.unregisterListener(this)
         imuDataList.clear()
 
-//        Log.d("Sensors", "센서 시작: 일반 모드")
-
-        // 모든 센서를 게임용 샘플링 레이트로 등록
-        val accResult = sensorManager.registerListener(this, accelerometer, SENSOR_DELAY)
-        val linearAccResult = sensorManager.registerListener(this, linearAccelerometer, SENSOR_DELAY)
-        val gyroResult = sensorManager.registerListener(this, gyroscope, SENSOR_DELAY)
-
-        // 등록 결과 로깅
+        // 모든 센서를 게임용 샘플링 레이트로 등록 = 데이터를 수집하는 주기를 결정
+        sensorManager.registerListener(this, accelerometer, SENSOR_DELAY)
+        sensorManager.registerListener(this, linearAccelerometer, SENSOR_DELAY)
+        sensorManager.registerListener(this, gyroscope, SENSOR_DELAY)
 //        Log.d("Sensors", "센서 등록 결과 - 가속도: $accResult, 자이로: $gyroResult, 선형가속도: $linearAccResult")
     }
 
-    // 센서 중지 함수
+    // 센서 중지 함수 : 필요할 경우 사용
     private fun stopSensors() {
         sensorManager.unregisterListener(this)
         imuDataList.clear()
         Log.d("Sensors", "센서 중지")
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        // 일시 정지 상태나 이벤트가 null이면 처리하지 않음
+        if (isPauseActive || event == null) return
+
+        // 1. 센서 데이터 캡처(수집) + 저장
+        collectSensorData(event)
+
+        // 2. 충분한 데이터가 모이면 처리
+        processDataIfReady()
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    private fun collectSensorData(event: SensorEvent) {
+        when (event.sensor.type) {
+            Sensor.TYPE_LINEAR_ACCELERATION -> tempLINEARAccel = event.values.clone()
+            Sensor.TYPE_ACCELEROMETER -> tempAccel = event.values.clone()
+            Sensor.TYPE_GYROSCOPE -> tempGyro = event.values.clone()
+        }
+
+        lastTimestamp = System.currentTimeMillis()
+        trySaveIMUData()
+    }
+
+    private fun processDataIfReady() {
+        if (imuDataList.size >= SLIDING_WINDOW_SIZE) {
+            if (gestureViewModel.isGestureRecognitionActive()) {
+                trySendNormalData()
+                gestureViewModel.notifyActivity()
+            } else {
+                trySendActivationOnlyData()
+            }
+        }
+    }
+
+
+    // ======================================================
+    // 3. 데이터 처리 함수: trySaveIMUData, clearIMUDataAndPauseCollection, trySendNormalData, trySendActivationOnlyData
+    // ======================================================
+    private fun trySaveIMUData() {
+        if (tempAccel != null && tempGyro != null && tempLINEARAccel != null) {
+            val (ax, ay, az) = tempAccel!!
+            val (gx, gy, gz) = tempGyro!!
+            val (lax, lay, laz) = tempLINEARAccel!!
+
+            imuDataList.add(
+                GestureData(
+                    timestamp = lastTimestamp,
+                    accX = ax, accY = ay, accZ = az,
+                    liAccX = lax, liAccY = lay, liAccZ = laz,
+                    gryoX = gx, gryoY = gy, gryoZ = gz
+                )
+            )
+
+
+            // 초기화
+            tempAccel = null
+            tempGyro = null
+            tempLINEARAccel = null
+        }
     }
 
     // 데이터 수집 일시 정지
@@ -183,85 +256,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             if (gestureViewModel.isGestureRecognitionActive()) {
                 gestureViewModel.notifyActivity()
             }
-        }, 1500)  // 2000ms = 2초
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 앱이 화면에 보일 때 센서 다시 시작
-        startSensors()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // 앱이 화면에서 사라질 때 센서 중지 (배터리 절약)
-        stopSensors()
-    }
-
-    override fun onSensorChanged(event: SensorEvent?) {
-        // 일시 정지 상태나 이벤트가 null이면 처리하지 않음
-        if (isPauseActive || event == null) return
-
-        // 센서 데이터 수집
-        when (event.sensor.type) {
-            Sensor.TYPE_LINEAR_ACCELERATION -> {
-                tempLINEARAccel = event.values.clone()
-//                Log.d("SensorData", "선형가속도: ${event.values.contentToString()}")
-            }
-            Sensor.TYPE_ACCELEROMETER -> {
-                tempAccel = event.values.clone()
-//                Log.d("SensorData", "가속도계: ${event.values.contentToString()}")
-            }
-            Sensor.TYPE_GYROSCOPE -> {
-                tempGyro = event.values.clone()
-//                Log.d("SensorData", "자이로스코프: ${event.values.contentToString()}")
-            }
-        }
-
-        lastTimestamp = System.currentTimeMillis()
-
-        // 데이터 저장
-        trySaveIMUData()
-
-        // 제스처 인식 상태에 따른 처리
-        if (imuDataList.size >= SLIDING_WINDOW_SIZE) {
-            if (gestureViewModel.isGestureRecognitionActive()) {
-                // 활성화 상태: 모든 제스처 인식
-                trySendNormalData()
-                gestureViewModel.notifyActivity()
-            } else {
-                // 비활성화 상태: 제스처 1(활성화 토글용)만 인식
-                trySendActivationOnlyData()
-            }
-        }
-    }
-
-    // 센서 데이터 저장
-    private fun trySaveIMUData() {
-        if (tempAccel != null && tempGyro != null && tempLINEARAccel != null) {
-            val (ax, ay, az) = tempAccel!!
-            val (gx, gy, gz) = tempGyro!!
-            val (lax, lay, laz) = tempLINEARAccel!!
-
-            imuDataList.add(
-                GestureData(
-                    timestamp = lastTimestamp,
-                    accX = ax, accY = ay, accZ = az,
-                    liAccX = lax, liAccY = lay, liAccZ = laz,
-                    gryoX = gx, gryoY = gy, gryoZ = gz
-                )
-            )
-
-            // 데이터 저장 로그
-            if (imuDataList.size % 10 == 0) {
-//                Log.d("SensorData", "데이터 저장: 목록 크기=${imuDataList.size}")
-            }
-
-            // 초기화
-            tempAccel = null
-            tempGyro = null
-            tempLINEARAccel = null
-        }
+        }, 1500)  // 1500ms = 1.5초
     }
 
     // 일반 모드: 모든 제스처 인식
@@ -337,8 +332,10 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
+    // ======================================================
+    // 3. UI 관련 함수들: WearApp, PredictionScreen, buildDisplayText, ActivationIndicator, ConnectionStatusIndicator
+    // ======================================================
     @Composable
     fun WearApp(
         isActive: Boolean,
@@ -362,7 +359,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                 }
 
                 HorizontalPager(
-                    count = 2,
+                    count = 1,
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
@@ -388,12 +385,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
 
     @Composable
-    fun PredictionScreen(
-        isActive: Boolean,
-        prediction: String,
-        history: List<String>,
-        uiState: com.hogumiwarts.myapplication.presentation.viewmodel.GestureUiState,
-        onToggleMeasurement: () -> Unit
+    fun PredictionScreen(isActive: Boolean, prediction: String, history: List<String>,
+                         uiState: com.hogumiwarts.myapplication.presentation.viewmodel.GestureUiState,
+                         onToggleMeasurement: () -> Unit
     ) {
         Column(
             modifier = Modifier
@@ -463,9 +457,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
-    /**
-     * 제스처 인식 활성화 상태를 표시하는 애니메이션 인디케이터
-     */
+   // 제스처 인식 활성화 상태를 표시하는 애니메이션 인디케이터
     @Composable
     fun ActivationIndicator(isActive: Boolean) {
         val infiniteTransition = rememberInfiniteTransition()
@@ -507,15 +499,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
-    /**
-     * 서버 연결 상태 인디케이터
-     */
+    // 서버 연결 상태 인디케이터
     @Composable
-    fun ConnectionStatusIndicator(
-        isConnected: Boolean,
-        isConnecting: Boolean,
-        errorMessage: String?
-    ) {
+    fun ConnectionStatusIndicator(isConnected: Boolean, isConnecting: Boolean, errorMessage: String?) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

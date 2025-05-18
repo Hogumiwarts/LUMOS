@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.myapplication.BuildConfig
+import com.hogumiwarts.myapplication.util.GestureConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,6 +26,8 @@ import kotlinx.coroutines.launch
 import okhttp3.*
 import org.json.JSONObject
 import javax.inject.Inject
+
+
 
 @HiltViewModel
 class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObserver {
@@ -44,6 +47,7 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
     private val _uiState = MutableStateFlow(GestureUiState())
     val uiState: StateFlow<GestureUiState> = _uiState.asStateFlow()
 
+
     // 제스처 인식 모드 관리
     enum class GestureRecognitionMode {
         INACTIVE,   // 제스처 인식 비활성화 (센서 데이터 처리 안 함)
@@ -51,32 +55,12 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
         ACTIVE      // 제스처 인식 활성화 (센서 데이터 처리 및 제스처 2, 3 인식)
     }
 
-    enum class SensorMode {
-        OFF,       // 센서 완전 비활성화
-        LOW_POWER, // 저전력 모드 (1번 제스처만 감지)
-        NORMAL     // 정상 모드 (모든 제스처 감지)
+    enum class FeedbackPattern {
+        MODE_CHANGE,     // 모드 전환 (활성화/비활성화)
+        GESTURE_ACTION,  // 제스처 2/3 감지
+        ACTIVATION       // 수동 활성화
     }
 
-
-    // 기존 코드
-//    private val _sensorMode = MutableStateFlow(SensorMode.LOW_POWER)
-////    val sensorMode: StateFlow<SensorMode> = _sensorMode.asStateFlow()
-//
-//    // 추가할 코드
-//    private val _sensorModeChanged = MutableSharedFlow<SensorMode>()
-////    val sensorModeChanged = _sensorModeChanged.asSharedFlow()
-//
-//    fun setSensorMode(mode: SensorMode) {
-//        if (_sensorMode.value != mode) {
-//            _sensorMode.value = mode
-//            Log.d("GestureViewModel", "센서 모드 변경: $mode")
-//
-//            // 센서 모드 변경 이벤트 발행
-//            viewModelScope.launch {
-//                _sensorModeChanged.emit(mode)
-//            }
-//        }
-//    }
 
     private val _recognitionMode = MutableStateFlow(GestureRecognitionMode.INACTIVE)
     val recognitionMode: StateFlow<GestureRecognitionMode> = _recognitionMode.asStateFlow()
@@ -85,17 +69,10 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
     private var inactivityTimer: Job? = null
     private var vibrator: Vibrator? = null
 
-    // 상수 정의
-    companion object {
-        const val DOUBLE_GESTURE_THRESHOLD_MS = 1500L // 1.5초 내 두 제스처 감지 시 비활성화
-        const val INACTIVITY_TIMEOUT_MS = 30000L // 30초 동안 활동 없으면 자동 비활성화
-    }
-
     // 콜백을 위한 속성
     var onGesture1Detected: (() -> Unit)? = null
     var onGesture2Detected: (() -> Unit)? = null
     var onGesture3Detected: (() -> Unit)? = null
-    var onGesture4Detected: (() -> Unit)? = null
 
     // 진동 관련 함수 초기화
     fun initVibrator(context: Context) {
@@ -129,76 +106,15 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
 //                Log.d("WebSocket", "📩 받은 메시지: $text")
 
                 // 메시지 파싱
-                var gestureId = -1
-                if (text.startsWith("{")) {
-                    val json = JSONObject(text)
-                    gestureId = json.optInt("predicted", -1)
-                    val gestureName = json.optString("gesture_name", "예측 없음")
-                    _prediction.value = gestureName
-                    _history.add(0, gestureName)
-                } else {
-                    try {
-                        gestureId = text.toInt()
-                        if(gestureId == 1 || gestureId == 4 || gestureId == 5 || gestureId == 0){
-                            // 로그 안찍
-                        }else {
-                            Log.d("WebSocket", "📊 제스처 감지: ID=$gestureId")
-                        }
+                // 1. GestureId 추출
+                val gestureId = parseGestureId(text)
 
-                        // 4, 5번 제스처는 표시하지 않음 => 가만히 있는자세.
-                        // 2,3번 자세만 화면에 표시
-                        if (gestureId != 4 && gestureId != 5) {
-                            _prediction.value = text
-                            _history.add(0, text)
-                        } else {
-                            _prediction.value = "-"
-                            _history.add(0, "-")
-                        }
-//                        _prediction.value = text
-//                        _history.add(0, text)
-                    } catch (e: NumberFormatException) {
-                        _prediction.value = text
-                        _history.add(0, text)
-                    }
+                // 2. UI 업데이트 (prediction 값과 history 업데이트)
+                updateUI(gestureId, text)
 
 
-                }
-
-                // 특정 제스처 ID에 대한 처리
-                when (gestureId) {
-                    1 -> {
-                        viewModelScope.launch { _gestureEvent.emit(1) }
-                        processGesture1Detection()
-                    }
-                    2, 3 -> {
-                        // 제스처 2, 3은 활성 모드에서만 처리
-                        if (isGestureRecognitionActive()) {
-                            viewModelScope.launch { _gestureEvent.emit(gestureId) }
-
-                            // 제스처 2/3 감지 시 짧은 진동 한 번
-                            provideGestureActionFeedback()
-
-                            if (gestureId == 2) onGesture2Detected?.invoke()
-                            else onGesture3Detected?.invoke()
-
-                            notifyActivity()
-                        }
-                    }
-//                    2 -> {
-//                        if (isGestureRecognitionActive()) {
-//                            viewModelScope.launch { _gestureEvent.emit(2) }
-//                            onGesture2Detected?.invoke()
-//                            notifyActivity() // 활동 감지하여 타이머 재설정
-//                        }
-//                    }
-//                    3 -> {
-//                        if (isGestureRecognitionActive()) {
-//                            viewModelScope.launch { _gestureEvent.emit(3) }
-//                            onGesture3Detected?.invoke()
-//                            notifyActivity() // 활동 감지하여 타이머 재설정
-//                        }
-//                    }
-                }
+                // 3. 제스처에 따른 동작 처리
+                handleGesture(gestureId)
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -229,6 +145,91 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
         _uiState.update { it.copy(isConnecting = true) }
     }
 
+    // 메시지를 파싱하여 제스처 ID 추출
+    private fun parseGestureId(text: String): Int {
+        return try {
+            if (text.startsWith("{")) {
+                // JSON 형식 응답 처리
+                val json = JSONObject(text)
+                json.optInt("predicted", -1)
+            } else {
+                // 숫자 형식 응답 처리
+                text.toInt()
+            }
+        } catch (e: NumberFormatException) {
+            -1 // 파싱 실패 시 기본값
+        }
+    }
+
+    // Gesture UI 업데이트
+    private fun updateUI(gestureId: Int, originalText: String) {
+        // 제스처 ID에 따른 로그 출력
+        if (gestureId != 1 && gestureId != 4 && gestureId != 5 && gestureId != 0) {
+            Log.d("WebSocket", "📊 제스처 감지: ID=$gestureId")
+        }
+
+        // UI 상태 업데이트
+        if (originalText.startsWith("{")) {
+            // JSON 응답인 경우
+            val json = JSONObject(originalText)
+            val gestureName = json.optString("gesture_name", "예측 없음")
+            _prediction.value = gestureName
+            _history.add(0, gestureName)
+        } else {
+            // 정지 제스처(4, 5번)는 특별 처리
+            if (gestureId != 4 && gestureId != 5) {
+                _prediction.value = originalText
+                _history.add(0, originalText)
+            } else {
+                _prediction.value = "-"
+                _history.add(0, "-")
+            }
+        }
+    }
+
+    /**
+     * 제스처 ID에 따른 동작을 처리합니다.
+     */
+    private fun handleGesture(gestureId: Int) {
+        when (gestureId) {
+            1 -> handleGesture1()
+            2, 3 -> handleActiveGesture(gestureId)
+        }
+    }
+
+    /**
+     * 제스처 1(손목 회전) 처리
+     */
+    private fun handleGesture1() {
+        viewModelScope.launch { _gestureEvent.emit(1) }
+        processGesture1Detection()
+    }
+
+    /**
+     * 활성화 상태의 제스처(2,3) 처리
+     */
+    private fun handleActiveGesture(gestureId: Int) {
+        // 활성 모드에서만 처리
+        if (!isGestureRecognitionActive()) return
+
+        // 이벤트 발행
+        viewModelScope.launch { _gestureEvent.emit(gestureId) }
+
+        // 진동 피드백
+        provideHapticFeedback(FeedbackPattern.GESTURE_ACTION)
+
+        // 콜백 호출
+        if (gestureId == 2) {
+            onGesture2Detected?.invoke()
+        } else {
+            onGesture3Detected?.invoke()
+        }
+
+        // 활동 알림
+        notifyActivity()
+    }
+
+
     fun disconnectWebSocket() {
         webSocket?.close(1000, "종료")
         webSocket = null
@@ -246,27 +247,17 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
     /**
      * 제스처 1 감지 처리 - 활성화/비활성화 토글
      */
-// 4. processGesture1Detection() 함수 수정 - 기존 함수 내용 변경
     // 제스처 1 감지 관련 변수들
     private var lastGesture1DetectionTime = 0L
-    private val GESTURE1_DEBOUNCE_MS = 500L  // 디바운스 시간
-    private val DOUBLE_GESTURE_THRESHOLD_MS = 1500L  // 두 번째 제스처 대기 시간
     private var awaitingSecondGesture = false
     private var secondGestureTimer: Job? = null
 
-    /**
-     * 제스처 1(손목 회전) 감지 처리 - 활성화/비활성화 토글
-     * 개선된 버전: 연속 감지 방지 및 더 명확한 상태 관리
-     */
-    /**
-     * 제스처 1(손목 회전) 감지 처리 - 항상 두 번의 연속 제스처 필요
-     */
+    // 제스처 1(손목 회전) 감지 처리 - 항상 두 번의 연속 제스처 필요
     fun processGesture1Detection() {
         val currentTime = System.currentTimeMillis()
-//        Log.d("GestureMode", "제스처 1 감지: 현재=${_recognitionMode.value}, 대기중=${awaitingSecondGesture}, 시간차=${currentTime - lastGesture1DetectionTime}ms")
 
         // 디바운싱: 연속 감지 방지
-        if (currentTime - lastGesture1DetectionTime < GESTURE1_DEBOUNCE_MS) {
+        if (currentTime - lastGesture1DetectionTime < GestureConstants.GESTURE1_DEBOUNCE_MS) {
 //            Log.d("GestureMode", "제스처 1 감지: 디바운스 시간 내 무시됨")
             return
         }
@@ -303,7 +294,7 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
             }
 
             // 모드 전환 피드백 (짧은 진동 두 번)
-            provideModeChangeFeedback()
+            provideHapticFeedback(FeedbackPattern.MODE_CHANGE)
 
             // 대기 상태 해제
             awaitingSecondGesture = false
@@ -322,13 +313,11 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
         }
     }
 
-
-
     /** 두 번째 제스처 대기 타이머 시작*/
     private fun startSecondGestureTimer() {
         secondGestureTimer?.cancel()
         secondGestureTimer = viewModelScope.launch {
-            delay(DOUBLE_GESTURE_THRESHOLD_MS)
+            delay(GestureConstants.DOUBLE_GESTURE_THRESHOLD_MS)
             if (awaitingSecondGesture) {
                 Log.d("GestureMode", "두 번째 제스처 대기 시간 초과: 대기 상태 해제")
                 awaitingSecondGesture = false
@@ -339,49 +328,10 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
         }
     }
 
-    /**
-     * 첫 번째 제스처 감지 피드백 (짧은 진동)
-     */
-    private fun provideGestureDetectionFeedback() {
-        vibrator?.let {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                // 아주 짧은 진동 (50ms)
-                it.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
-            } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(50)
-            }
-        }
-    }
 
-    /**
-     * 타임아웃 피드백 (짧은 진동 2번)
-     */
-    private fun provideTimeoutFeedback() {
-        vibrator?.let {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                // 짧은 진동 두 번 빠르게 (30ms + 50ms 간격 + 30ms)
-                val timings = longArrayOf(0, 30, 50, 30)
-                val amplitudes = intArrayOf(0, VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE)
-                it.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
-            } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(longArrayOf(0, 30, 50, 30), -1)
-            }
-        }
-    }
-
-
-
-    /**
-     * 제스처 인식을 비활성화합니다.
-     */
-    // 5. 비활성화 함수 수정
+    // 5. 제스처 인식을 비활성화합니다. (루틴 실행만 하지 않을 뿐, 지속적으로 IMU 센서 감지는 함.)
     private fun deactivateGestureRecognition() {
         _recognitionMode.value = GestureRecognitionMode.INACTIVE
-
-        // 센서 모드를 LOW_POWER로 설정
-//        setSensorMode(SensorMode.LOW_POWER)
 
         inactivityTimer?.cancel()
 
@@ -393,26 +343,12 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
         ) }
 
         // 비활성화 피드백
-//        provideDeactivationFeedback()
-        provideModeChangeFeedback()
+        provideHapticFeedback(FeedbackPattern.MODE_CHANGE)
 
-        Log.d("GestureMode", "제스처 인식 모드 비활성화 - 저전력 센서 모드로 전환")
+        Log.d("GestureMode", "제스처 인식 모드 비활성화")
     }
-    /**
-     * 제스처 인식 자동 타임아웃 타이머를 시작합니다.
-     */
-//    private fun startInactivityTimer() {
-//        inactivityTimer?.cancel()
-//        inactivityTimer = viewModelScope.launch {
-//            delay(INACTIVITY_TIMEOUT_MS)
-//
-//            if (_recognitionMode.value == GestureRecognitionMode.ACTIVE ||
-//                _recognitionMode.value == GestureRecognitionMode.ACTIVATING) {
-//                deactivateGestureRecognition()
-//                Log.d("GestureMode", "제스처 인식 모드 자동 비활성화 (타임아웃)")
-//            }
-//        }
-//    }
+
+
 
     /**
      * 비활성 타이머를 재설정합니다.
@@ -461,7 +397,7 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
             ) }
 
             // 햅틱 피드백 제공
-            provideActivationFeedback()
+            provideHapticFeedback(FeedbackPattern.ACTIVATION)
 
             // 타이머 시작
             //startInactivityTimer()
@@ -469,47 +405,37 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
             Log.d("GestureMode", "제스처 인식 모드 수동 활성화 (버튼) - 정상 센서 모드로 전환")
         }
     }
+
     /**
-     * 활성화 햅틱 피드백을 제공합니다.
+     * 햅틱 피드백을 제공합니다.
+     * @param pattern 피드백 패턴 (MODE_CHANGE, GESTURE_ACTION, ACTIVATION)
      */
-    private fun provideActivationFeedback() {
+    private fun provideHapticFeedback(pattern: FeedbackPattern) {
         vibrator?.let {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                // 짧은 진동 한 번 (100ms)
-                it.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+                when (pattern) {
+                    FeedbackPattern.MODE_CHANGE -> {
+                        // 짧은 진동 두 번 (모드 전환)
+                        val timings = longArrayOf(0, 30, 50, 30)
+                        val amplitudes = intArrayOf(0, 255, 0, 255)
+                        it.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
+                    }
+                    FeedbackPattern.GESTURE_ACTION -> {
+                        // 짧은 진동 한 번 (제스처 동작)
+                        it.vibrate(VibrationEffect.createOneShot(50, GestureConstants.VIBRATION_AMPLITUDE_STRONG))
+                    }
+                    FeedbackPattern.ACTIVATION -> {
+                        // 중간 진동 한 번 (수동 활성화)
+                        it.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+                    }
+                }
             } else {
                 @Suppress("DEPRECATION")
-                it.vibrate(100)
-            }
-        }
-    }
-
-    /*** 모드 전환 피드백 (짧은 진동 두 번) */
-    private fun provideModeChangeFeedback() {
-        vibrator?.let {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                // 짧은 진동 두 번 빠르게 (30ms + 50ms 간격 + 30ms)
-                val strongAmplitude = 255 // 최대 세기
-                val timings = longArrayOf(0, 30, 50, 30)
-                val amplitudes = intArrayOf(0, strongAmplitude, 0, strongAmplitude)
-                it.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
-            } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(longArrayOf(0, 30, 50, 30), -1)
-            }
-        }
-    }
-
-    /*** 제스처 2/3 감지 피드백 (짧은 진동 한 번)*/
-    private fun provideGestureActionFeedback() {
-        vibrator?.let {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                // 아주 짧은 진동 (강한 세기)
-                val strongAmplitude = 255 // 최대 세기
-                it.vibrate(VibrationEffect.createOneShot(50, strongAmplitude))
-            } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(50)
+                when (pattern) {
+                    FeedbackPattern.MODE_CHANGE -> it.vibrate(longArrayOf(0, 30, 50, 30), -1)
+                    FeedbackPattern.GESTURE_ACTION -> it.vibrate(50)
+                    FeedbackPattern.ACTIVATION -> it.vibrate(100)
+                }
             }
         }
     }
