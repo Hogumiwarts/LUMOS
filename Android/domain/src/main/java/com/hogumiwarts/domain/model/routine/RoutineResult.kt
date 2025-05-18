@@ -34,7 +34,7 @@ data class RoutineDetailData(
 )
 
 data class CommandDevice(
-    val deviceId: String,
+    val deviceId: Int,
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,

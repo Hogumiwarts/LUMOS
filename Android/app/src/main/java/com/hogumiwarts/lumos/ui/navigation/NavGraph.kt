@@ -41,6 +41,10 @@ import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
+import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
+import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSpeakerScreenContent
+import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSwitchScreenContent
 
 @Composable
 fun NavGraph(
@@ -191,6 +195,7 @@ fun NavGraph(
 //                            LightScreen()
 //                            GestureScreen()
                         }
+
                         BottomNavItem.Info -> {
                             val myDeviceList = MyDevice.sample
 
@@ -378,6 +383,58 @@ fun NavGraph(
                     }
                 )
             }
+
+            composable("airpurifier_control?preview={preview}") {
+                val preview = it.arguments?.getString("preview")?.toBoolean() ?: false
+                val selectedDevice = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<MyDevice>("selectedDevice")
+
+                selectedDevice?.let {
+                    if (preview) {
+                        PreviewAirPurifierScreenContent(
+                            navController = navController,
+                            selectedDevice = it
+                        )
+                    } else {
+                        AirpurifierScreen(deviceId = it.deviceId.toLong())
+                    }
+                }
+            }
+
+            composable("switch_control?preview={preview}") {
+                val preview = it.arguments?.getString("preview")?.toBoolean() ?: false
+                val selectedDevice = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<MyDevice>("selectedDevice")
+
+                selectedDevice?.let {
+                    if (preview) {
+                        PreviewSwitchScreenContent(
+                            navController = navController,
+                            selectedDevice = it
+                        )
+                    } else {
+                        SwitchScreen(it.deviceId.toLong())
+                    }
+                }
+            }
+
+            composable("speaker_control?preview={preview}") {
+                val preview = it.arguments?.getString("preview")?.toBoolean() ?: false
+                val selectedDevice = navController.previousBackStackEntry
+                    ?.savedStateHandle?.get<MyDevice>("selectedDevice")
+
+                selectedDevice?.let {
+                    if (preview) {
+                        PreviewSpeakerScreenContent(
+                            navController = navController,
+                            selectedDevice = it
+                        )
+                    } else {
+                        SpeakerScreen(it.deviceId.toLong()) // 실제 제어 화면
+                    }
+                }
+            }
+
 
         }
     } else {

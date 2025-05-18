@@ -70,8 +70,12 @@ dependencies {
     // WebClient 도구
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    // Feign
+    // OpenFeign
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+
+    // Micrometer + Prometheus 연동
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {

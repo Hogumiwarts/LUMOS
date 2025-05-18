@@ -68,7 +68,7 @@ class AirpurifierViewModel@Inject constructor(
 
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun loadAirpurifierStatus(deviceId: Long) {
+    private fun loadAirpurifierStatus(deviceId: Int) {
         viewModelScope.launch {
             _state.value = AirpurifierStatusState.Loading
 
@@ -85,7 +85,7 @@ class AirpurifierViewModel@Inject constructor(
     }
 
     // 🔁 실제 비즈니스 로직 실행: 기기 데이터 불러오기
-    private fun changeAirpurifierPower(deviceId: Long, activated: Boolean) {
+    private fun changeAirpurifierPower(deviceId: Int, activated: Boolean) {
         viewModelScope.launch {
             _powerState.value = AirpurifierPowerState.Loading
 
@@ -102,7 +102,7 @@ class AirpurifierViewModel@Inject constructor(
     }
 
 
-    private fun changeAirpurifierFanMode(deviceId: Long, fanMode: String) {
+    private fun changeAirpurifierFanMode(deviceId: Int, fanMode: String) {
         viewModelScope.launch {
             _fanModeState.value = AirpurifierFanModeState.Loading
 

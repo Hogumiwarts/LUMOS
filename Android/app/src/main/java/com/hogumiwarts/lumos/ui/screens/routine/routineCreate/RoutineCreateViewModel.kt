@@ -70,8 +70,12 @@ class RoutineCreateViewModel @Inject constructor(
     }
 
     fun addDevice(device: CommandDevice) {
-        _devices.value = _devices.value + device
+        val current = _devices.value
+        if (current.none { it.deviceId == device.deviceId }) {
+            _devices.value = current + device
+        }
     }
+
 
     fun setNameBlankError(message: String) {
         _state.value = state.value.copy(nameBlankMessage = message)

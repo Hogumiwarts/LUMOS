@@ -40,19 +40,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.gson.annotations.SerializedName
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.LoadingComponent
+import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
-import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.ui.viewmodel.AirpurifierViewModel
-import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 
 data class AirPurifierDevice(
@@ -92,8 +90,12 @@ fun String?.toAirQuality(): AirQuality {
 }
 
 @Composable
-fun AirpurifierScreen(deviceId: Long, viewModel: AirpurifierViewModel = hiltViewModel()) {
-    var deviceId by remember { mutableStateOf(deviceId) }
+
+fun AirpurifierScreen(
+    viewModel: AirpurifierViewModel = hiltViewModel(),
+    deviceId: Long,
+    ) {
+    var deviceId by remember { mutableStateOf(7) }
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
 
@@ -148,40 +150,40 @@ fun AirpurifierScreen(deviceId: Long, viewModel: AirpurifierViewModel = hiltView
             LaunchedEffect(state) {
 
 
-            val data = (state as AirpurifierStatusState.Loaded).data
-            checked= data.activated
+                val data = (state as AirpurifierStatusState.Loaded).data
+                checked= data.activated
 
-            airQualityText = when (data.caqi.toAirQuality()) {
-                AirQuality.VeryLow -> "매우 좋음"
-                AirQuality.Low -> "좋음"
-                AirQuality.Medium -> "보통"
-                AirQuality.High -> "나쁨"
-                AirQuality.VeryHigh -> "매우 나쁨"
-            }
+                airQualityText = when (data.caqi.toAirQuality()) {
+                    AirQuality.VeryLow -> "매우 좋음"
+                    AirQuality.Low -> "좋음"
+                    AirQuality.Medium -> "보통"
+                    AirQuality.High -> "나쁨"
+                    AirQuality.VeryHigh -> "매우 나쁨"
+                }
 
-            airQualityColor = when (data.caqi.toAirQuality()) {
-                AirQuality.VeryLow -> Color(0xFF4CD137)    // 밝은 초록색
-                AirQuality.Low -> Color(0xFF7FBA00)        // 초록색
-                AirQuality.Medium -> Color(0xFFFBC531)     // 노란색
-                AirQuality.High -> Color(0xFFE84118)       // 주황색
-                AirQuality.VeryHigh -> Color(0xFFC23616)   // 빨간색
-            }
+                airQualityColor = when (data.caqi.toAirQuality()) {
+                    AirQuality.VeryLow -> Color(0xFF4CD137)    // 밝은 초록색
+                    AirQuality.Low -> Color(0xFF7FBA00)        // 초록색
+                    AirQuality.Medium -> Color(0xFFFBC531)     // 노란색
+                    AirQuality.High -> Color(0xFFE84118)       // 주황색
+                    AirQuality.VeryHigh -> Color(0xFFC23616)   // 빨간색
+                }
 
-            dustLevel = data.dustLevel
+                dustLevel = data.dustLevel
 
-            fineDustLevel = data.fineDustLevel
+                fineDustLevel = data.fineDustLevel
 
-            odorLevel = data.odorLevel
+                odorLevel = data.odorLevel
 
-            selectedFanMode = data.fanMode
+                selectedFanMode = data.fanMode
 
-            deviceModel = data.deviceModel
+                deviceModel = data.deviceModel
 
-            manufacturerCode = data.manufacturerCode
+                manufacturerCode = data.manufacturerCode
 
-            filterUsageTime = data.filterUsageTime
+                filterUsageTime = data.filterUsageTime
 
-            name = data.deviceName
+                name = data.deviceName
 
             }
         }
@@ -444,7 +446,7 @@ fun AirpurifierScreen(deviceId: Long, viewModel: AirpurifierViewModel = hiltView
         AirpurifierPowerState.Idle -> {}
         is AirpurifierPowerState.Loaded -> {
 
-                checked = (powerState as AirpurifierPowerState.Loaded).data.activated
+            checked = (powerState as AirpurifierPowerState.Loaded).data.activated
             Log.d("TAG", "AirpurifierScreen: $checked")
 
         }
@@ -499,8 +501,9 @@ fun FanButton(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun AirpuriScreenPreview() {
-    AirpurifierScreen(7L)
-}
+
+//@Preview(showBackground = true)
+//@Composable
+//fun AirpuriScreenPreview() {
+//    AirpurifierScreen()
+//}
