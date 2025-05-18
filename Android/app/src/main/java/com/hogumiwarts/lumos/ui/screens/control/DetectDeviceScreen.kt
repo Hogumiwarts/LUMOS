@@ -290,7 +290,7 @@ fun DetectDeviceScreen(
             ) {
                 when (controlViewModel.detectedDeviceName) {
                     "공기청정기" -> Test1()
-                    "조명" -> LightScreen()
+//                    "조명" -> LightScreen()
                     "스피커" -> Test2()
                 }
             }
