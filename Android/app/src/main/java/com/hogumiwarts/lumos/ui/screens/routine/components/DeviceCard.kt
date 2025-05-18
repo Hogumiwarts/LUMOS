@@ -30,20 +30,22 @@ import androidx.compose.ui.unit.sp
 import com.hogumiwarts.domain.model.routine.CommandData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DeviceCard(
     commandDevice: CommandDevice,
     deviceType: DeviceListType,
-    ) {
+    modifier: Modifier = Modifier
+) {
 
     val iconResId = deviceType.iconResId
     val color = deviceType.color
     val deviceTypeName = deviceType.categoryName
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(95.dp)
             .shadow(
@@ -147,12 +149,51 @@ fun getKoreanDescription(command: CommandData): String {
     return when (command.capability to command.command) {
         "switch" to "on" -> "전원 켜기"
         "switch" to "off" -> "전원 끄기"
-        "colorControl" to "setColor" -> "조명 색상 설정"
-        "switchLevel" to "setLevel" -> "밝기 조절"
+        "colorControl" to "setColor" -> {
+            val color = command.arguments?.firstOrNull()
+            if (color is Map<*, *>) {
+                val hue = color["hue"]?.toString()?.toDoubleOrNull()?.roundToInt()
+                val saturation = color["saturation"]?.toString()?.toDoubleOrNull()?.roundToInt()
+
+                if (hue != null && saturation != null) {
+                    val colorName = getColorNameFromHue(hue)
+                    "$colorName"
+                } else {
+                    "조명 색상 설정"
+                }
+            } else {
+                "조명 색상 설정"
+            }
+        }
+
+        "switchLevel" to "setLevel" -> {
+            val level = command.arguments?.firstOrNull()
+                ?.toString()?.toDoubleOrNull()?.roundToInt() ?: return "밝기 조절"
+            "밝기 ${level}%"
+        }
+
         "mediaPlayback" to "play" -> "재생"
         "mediaPlayback" to "stop" -> "정지"
-        "audioVolume" to "setVolume" -> "볼륨 조절"
-        "airConditionerFanMode" to "setFanMode" -> "팬 속도: ${command.arguments.firstOrNull() ?: "알 수 없음"}"
+        "audioVolume" to "setVolume" -> {
+            val volume = command.arguments?.firstOrNull()
+                ?.toString()?.toDoubleOrNull()?.roundToInt() ?: "알 수 없음"
+            "볼륨 ${volume}으로 조절"
+        }
+
+        "airConditionerFanMode" to "setFanMode" -> "팬 속도: ${command.arguments?.firstOrNull() ?: "알 수 없음"}"
         else -> "${command.capability}.${command.command}"
+    }
+}
+
+fun getColorNameFromHue(hue: Int): String {
+    return when (hue) {
+        in 0..15, in 331..360 -> "빨간색"
+        in 16..45 -> "주황색"
+        in 46..65 -> "노란색"
+        in 66..170 -> "초록색"
+        in 171..250 -> "파란색"
+        in 251..290 -> "남색"
+        in 291..330 -> "보라색"
+        else -> "색상 미지정"
     }
 }

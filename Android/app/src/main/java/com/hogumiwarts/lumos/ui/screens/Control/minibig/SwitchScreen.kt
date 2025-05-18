@@ -33,9 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.domain.model.minibig.SwitchStatusData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchIntent
-import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchStatusState
-import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
-import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchStatusState
 import com.hogumiwarts.lumos.ui.viewmodel.SwitchViewModel
 
 data class SwitchDevice(
@@ -50,7 +48,7 @@ data class SwitchDevice(
 )
 
 @Composable
-fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
+fun SwitchScreen(deviceId: Int, viewModel: SwitchViewModel = hiltViewModel()) {
 
     var checked by remember { mutableStateOf(true) }
     var name by remember { mutableStateOf("스위치") }
@@ -188,6 +186,6 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 @Preview(showBackground = true)
 @Composable
 fun SwitchPreview() {
-    SwitchScreen(1L)
+    SwitchScreen(1)
 
 }

@@ -46,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.gson.annotations.SerializedName
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.LoadingComponent
-import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
@@ -93,7 +92,7 @@ fun String?.toAirQuality(): AirQuality {
 
 fun AirpurifierScreen(
     viewModel: AirpurifierViewModel = hiltViewModel(),
-    deviceId: Long,
+    deviceId: Int,
     ) {
     var deviceId by remember { mutableStateOf(deviceId) }
     // 최초 진입 시 상태 요청

@@ -1,18 +1,12 @@
 package com.hogumiwarts.lumos.ui.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hogumiwarts.domain.model.light.GetLightStatusResult
 import com.hogumiwarts.domain.model.minibig.GetSwitchStatusResult
-import com.hogumiwarts.domain.usecase.LightUseCase
 import com.hogumiwarts.domain.usecase.SwitchUseCase
-import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchIntent
-import com.hogumiwarts.lumos.ui.screens.Control.minibig.SwitchStatusState
-import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
-import com.hogumiwarts.lumos.ui.screens.control.light.LightStatusState
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchStatusState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,7 +49,7 @@ class SwitchViewModel  @Inject constructor(
         }
     }
 
-    private fun loadSwitchStatus(deviceId: Long) {
+    private fun loadSwitchStatus(deviceId: Int) {
         viewModelScope.launch {
             _state.value = SwitchStatusState.Loading
 

@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RealLightScreenContent(
     viewModel: LightViewModel= hiltViewModel(),
-    deviceId: Long
+    deviceId: Int
 ) {
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {

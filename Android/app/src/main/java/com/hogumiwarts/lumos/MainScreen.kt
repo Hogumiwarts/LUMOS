@@ -24,7 +24,7 @@ import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
 
 @Composable
-fun MainScreen(deviceId: Long, deviceType: String) {
+fun MainScreen(deviceId: Int, deviceType: String) {
     val navController = rememberNavController()
 
     // 현재 백스택 엔트리 가져오기

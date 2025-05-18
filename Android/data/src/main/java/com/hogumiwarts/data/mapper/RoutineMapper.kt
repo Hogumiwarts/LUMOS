@@ -29,13 +29,13 @@ fun RoutineCreateResponse.toDomain(): RoutineCreateData {
                 deviceId = device.deviceId,
                 deviceName = device.deviceName,
                 deviceType = device.deviceType,
-                deviceImageUrl = device.deviceImageUrl,
+                deviceImageUrl = device.deviceImageUrl ?: "", // null 방어
                 commands = device.commands.map { command ->
                     CommandData(
                         component = command.component,
                         capability = command.capability,
                         command = command.command,
-                        arguments = command.arguments
+                        arguments = command.arguments ?: emptyList()
                     )
                 }
             )

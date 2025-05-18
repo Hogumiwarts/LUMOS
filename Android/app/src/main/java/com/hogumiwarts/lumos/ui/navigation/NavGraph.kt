@@ -48,7 +48,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrols
 
 @Composable
 fun NavGraph(
-    deviceId: Long, deviceType: String,
+    deviceId: Int, deviceType: String,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +70,7 @@ fun NavGraph(
 
     if (isLoggedIn != null) {
         val startDestination = if (isLoggedIn == true){
-            if(deviceId == -1L || deviceType== ""){
+            if(deviceId == -1 || deviceType== ""){
                 "home"
             }else{
                 deviceType
@@ -307,13 +307,13 @@ fun NavGraph(
 
                 RoutineDeviceListScreen(
                     viewModel = viewModel,
-                    devices = MyDevice.sample,
                     onSelectComplete = {
                         navController.popBackStack()
                     },
-                    showDuplicateDialog = showDuplicateDialog.value,
+                    showDuplicateDialog = showDuplicateDialog,
                     onDismissDuplicateDialog = { showDuplicateDialog.value = false },
-                    navController = navController
+                    navController = navController,
+                    alreadyAddedDeviceIds = listOf()
                 )
             }
 
@@ -396,7 +396,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        AirpurifierScreen(deviceId = it.deviceId.toLong())
+                        AirpurifierScreen(deviceId = it.deviceId)
                     }
                 }
             }
@@ -413,7 +413,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        SwitchScreen(it.deviceId.toLong())
+                        SwitchScreen(it.deviceId)
                     }
                 }
             }
@@ -430,7 +430,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        SpeakerScreen(it.deviceId.toLong()) // 실제 제어 화면
+                        SpeakerScreen(it.deviceId) // 실제 제어 화면
                     }
                 }
             }

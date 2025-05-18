@@ -9,13 +9,13 @@ import javax.inject.Inject
 class SwitchUseCase@Inject constructor(
     private val switchRepository: SwitchRepository
 ) {
-    suspend fun getSwitchStatus(deviceId: Long): GetSwitchStatusResult {
+    suspend fun getSwitchStatus(deviceId: Int): GetSwitchStatusResult {
 
         val data = switchRepository.getSwitchStatus(deviceId)
         return data
     }
 
-    suspend fun patchSwitchStatus(deviceId: Long, activated: Boolean): PatchSwitchPowerResult {
+    suspend fun patchSwitchStatus(deviceId: Int, activated: Boolean): PatchSwitchPowerResult {
 
         val data = switchRepository.patchSwitchPower(deviceId =deviceId,activated = activated)
         return data

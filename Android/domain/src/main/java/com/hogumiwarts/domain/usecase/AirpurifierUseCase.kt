@@ -9,19 +9,19 @@ import javax.inject.Inject
 class AirpurifierUseCase @Inject constructor(
     private val airpurifierRepository: AirpurifierRepository
 ){
-    suspend fun getAirpurifierStatus(deviceId: Long): AirpurifierResult {
+    suspend fun getAirpurifierStatus(deviceId: Int): AirpurifierResult {
 
         val data = airpurifierRepository.getAirpurifierStatus(deviceId)
         return data
     }
 
-    suspend fun patchAirpurifierPower(deviceId: Long, activated:Boolean): PatchAirpurifierPowerResult {
+    suspend fun patchAirpurifierPower(deviceId: Int, activated:Boolean): PatchAirpurifierPowerResult {
 
         val data = airpurifierRepository.patchAirpurifierPower(deviceId, activated)
         return data
     }
 
-    suspend fun patchAirpurifierFanMode(deviceId: Long, fanMode:String): PatchAirpurifierFanModeResult {
+    suspend fun patchAirpurifierFanMode(deviceId: Int, fanMode:String): PatchAirpurifierFanModeResult {
 
         val data = airpurifierRepository.patchAirpurifierFanMode(deviceId, fanMode)
         return data
