@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.control.audio
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -88,6 +89,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
         viewModel.sendIntent(AudioIntent.LoadAudioStatus(deviceId))
     }
     val state by viewModel.state.collectAsState()
+    val playState by viewModel.playState.collectAsState()
 
 
 
@@ -112,19 +114,35 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
     var volume by remember { mutableIntStateOf(speakerDevice.audioVolume) }
     var audioImage by remember { mutableStateOf(speakerDevice.audioImg) }
 
-    when(state){
-        is AudioStatusState.Error -> {
+    LaunchedEffect(state) {
+        when(state){
+            is AudioStatusState.Error -> {
+                // TODO: 에러 처리
+            }
+            AudioStatusState.Idle -> {}
+            is AudioStatusState.Loaded -> {
+                val data = (state as AudioStatusState.Loaded).data
+                speakerDevice = data
+                isPlaying = data.activated
+                volume = data.audioVolume
+                audioImage = data.audioImg
+            }
+            AudioStatusState.Loading -> {
+                // TODO: 로딩 화면
+            }
+        }
+    }
+
+    when(playState){
+        is AudioPlayState.Error -> {
             // TODO: 에러 처리
         }
-        AudioStatusState.Idle -> {}
-        is AudioStatusState.Loaded -> {
-            val data = (state as AudioStatusState.Loaded).data
-            speakerDevice = data
+        AudioPlayState.Idle -> {}
+        is AudioPlayState.Loaded -> {
+           val data =  (playState as AudioPlayState.Loaded).data
             isPlaying = data.activated
-            volume = data.audioVolume
-            audioImage = data.audioImg
         }
-        AudioStatusState.Loading -> {
+        AudioPlayState.Loading -> {
             // TODO: 로딩 화면
         }
     }
@@ -275,6 +293,11 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                     else if (isMuted && it > 0) {
                         isMuted = false
                     }
+                },
+                onValueChangeFinished = {
+                    // 손을 뗐을 때 로그 출력
+                    Log.d("VolumeSlider", "최종 볼륨 값: $volume")
+
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -431,7 +454,10 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,  // ripple 효과 제거
                                     role = Role.Button,
-                                    onClick = { isPlaying = !isPlaying }
+                                    onClick = {
+                                        viewModel.sendIntent(AudioIntent.LoadAudioPlay(deviceId, !isPlaying))
+//                                        isPlaying = !isPlaying
+                                    }
                                 )
                         )
                     }

@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
+import com.hogumiwarts.domain.model.audio.AudioPowerResult
 import com.hogumiwarts.domain.model.audio.AudioStatusResult
 import com.hogumiwarts.domain.usecase.AirpurifierUseCase
 import com.hogumiwarts.domain.usecase.AudioUseCase
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState
 import com.hogumiwarts.lumos.ui.screens.control.audio.AudioIntent
+import com.hogumiwarts.lumos.ui.screens.control.audio.AudioPlayState
 import com.hogumiwarts.lumos.ui.screens.control.audio.AudioStatusState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,6 +30,9 @@ class AudioViewModel@Inject constructor(
     private val _state = MutableStateFlow<AudioStatusState>(AudioStatusState.Idle)
     val state: StateFlow<AudioStatusState> = _state
 
+    private val _playState = MutableStateFlow<AudioPlayState>(AudioPlayState.Idle)
+    val playState: StateFlow<AudioPlayState> = _playState
+
     val intentFlow = MutableSharedFlow<AudioIntent>()
 
     init {
@@ -39,6 +44,7 @@ class AudioViewModel@Inject constructor(
             intentFlow.collectLatest { intent ->
                 when (intent) {
                     is AudioIntent.LoadAudioStatus -> loadAudioStatus(intent.deviceId)
+                    is AudioIntent.LoadAudioPlay -> loadAudioPlay(intent.deviceId, intent.play)
                 }
             }
         }
@@ -65,6 +71,24 @@ class AudioViewModel@Inject constructor(
                 is AudioStatusResult.Success -> {
                     _state.value = AudioStatusState.Loaded(result.data)
                 }
+            }
+        }
+    }
+
+    private fun loadAudioPlay(deviceId: Long, play: Boolean) {
+        viewModelScope.launch {
+            _playState.value = AudioPlayState.Loading
+
+            when (val result = audioUseCase.patchAudioPower(deviceId,play)) {
+
+
+                is AudioPowerResult.Error -> {
+                    _playState.value = AudioPlayState.Error(result.error)
+                }
+                is AudioPowerResult.Success -> {
+                    _playState.value = AudioPlayState.Loaded(result.data)
+                }
+
             }
         }
     }
