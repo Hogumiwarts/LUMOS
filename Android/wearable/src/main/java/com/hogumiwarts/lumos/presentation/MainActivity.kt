@@ -37,6 +37,8 @@ import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMode
+import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMonitorScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,14 +67,18 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private val SLIDING_STEP = 5
     private val SENSOR_DELAY = SensorManager.SENSOR_DELAY_NORMAL
 
+    // 현재 제스처 모드
+    private var gestureMode = GestureMode.CONTINUOUS
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        val text = intent.getStringExtra("text") ?: ""
 
-        setTheme(android.R.style.Theme_DeviceDefault)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        val text = intent.getStringExtra("text") ?: ""
+        val mode = intent.getStringExtra("mode") ?: "continuous"
+        gestureMode = if (mode == "test") GestureMode.TEST else GestureMode.CONTINUOUS
 
         if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1001)
@@ -83,13 +89,12 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         linearAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
-        if (text.isNotEmpty()) {
-            // 웹소켓 연결 및 센서 수집 자동 시작
-            isMeasuring = true
-            startIMU()
-            webSocketViewModel.connectWebSocket()
-            Log.d("MainActivity", "GestureTestScreen: 자동으로 웹소켓 연결 및 센서 수집 시작")
-        }
+
+        isMeasuring = true
+        startIMU()
+        webSocketViewModel.connectWebSocket(gestureMode) // 모드 전달
+        Log.d("Gesture", "모드: $gestureMode, 웹소켓 연결 및 센서 수집 시작 ${text}")
+
 
 
         setContent {
@@ -111,32 +116,55 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
 
                     val navController = rememberNavController()
-                    if (text == "") {
-                        NavGraph(navController)
-//                        LoginScreen()
-//                        MoodPlayerScreen(1L)
-//                        LightOtherSetting()
-                    } else {
-                        GestureTestScreen(
-                            type = text,
-                            isMeasuring = isMeasuring,
-                            prediction = prediction,
-                            onToggleMeasurement = {
-                                isMeasuring = !isMeasuring
-                                if (isMeasuring) {
-                                    startIMU()
-                                    webSocketViewModel.connectWebSocket()
-                                } else {
+                    when {
+                        // 테스트 모드
+                        text.isNotEmpty() && gestureMode == GestureMode.TEST -> {
+                            GestureTestScreen(
+                                type = text,
+                                isMeasuring = isMeasuring,
+                                prediction = prediction,
+                                onToggleMeasurement = {
+                                    isMeasuring = !isMeasuring
+                                    if (isMeasuring) {
+                                        startIMU()
+                                        webSocketViewModel.connectWebSocket(gestureMode)
+                                    } else {
+                                        stopIMU()
+                                        webSocketViewModel.disconnectWebSocket()
+                                    }
+                                }
+                            ) {
+                                sendTextToMobile(this@MainActivity, it)
+                                Log.d("Gesture", "제스처 테스트 결과: $it")
+                                finish()
+                            }
+                        }
+                        // 연속 감지 모드
+                        gestureMode == GestureMode.CONTINUOUS -> {
+                            GestureMonitorScreen(
+                                isMonitoring = isMeasuring,
+                                onToggleMonitoring = {
+                                    isMeasuring = !isMeasuring
+                                    if (isMeasuring) {
+                                        startIMU()
+                                        webSocketViewModel.connectWebSocket(gestureMode)
+                                    } else {
+                                        stopIMU()
+                                        webSocketViewModel.disconnectWebSocket()
+                                    }
+                                },
+                                onStop = {
                                     stopIMU()
                                     webSocketViewModel.disconnectWebSocket()
+                                    finish()
                                 }
-                            }) {
-                            sendTextToMobile(this@MainActivity, it)
-                            Log.d("MainActivity", "제스처 테스트 결과: $it")
+                            )
                         }
-
+                        // 일반 네비게이션
+                        else -> {
+                            NavGraph(navController)
+                        }
                     }
-
                 }
 
             }
@@ -237,6 +265,12 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
+    override fun onDestroy() {
+        super.onDestroy()
+        stopIMU()
+        webSocketViewModel.disconnectWebSocket()
+        Log.d("Gesture", "MainActivity 종료 - 리소스 정리 완료")
+    }
 }
 
 fun sendTextToMobile(context: Context, message: String) {

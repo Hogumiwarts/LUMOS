@@ -1,8 +1,8 @@
 package com.hogumiwarts.data.repository.routine
 
-import com.hogumiwarts.data.entity.remote.Request.CommandRequest
-import com.hogumiwarts.data.entity.remote.Request.RoutineCreateRequest
-import com.hogumiwarts.data.entity.remote.Request.RoutineDeviceRequest
+import com.hogumiwarts.data.entity.remote.Request.routine.CommandRequest
+import com.hogumiwarts.data.entity.remote.Request.routine.RoutineCreateRequest
+import com.hogumiwarts.data.entity.remote.Request.routine.RoutineDeviceRequest
 import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.domain.model.routine.RoutineResult
 import com.hogumiwarts.domain.repository.RoutineRepository

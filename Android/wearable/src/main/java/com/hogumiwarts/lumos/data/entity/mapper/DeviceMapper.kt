@@ -14,7 +14,7 @@ object DeviceMapper {
     }
 
     // 🔄 단일 DTO 변환 함수: DTO → 도메인 모델
-    fun fromDeviceListDataResponse(response: GetDevicesResponse): DeviceListData {
+    private fun fromDeviceListDataResponse(response: GetDevicesResponse): DeviceListData {
         return DeviceListData(
             deviceId = response.deviceId,
             tagNumber = response.tagNumber,

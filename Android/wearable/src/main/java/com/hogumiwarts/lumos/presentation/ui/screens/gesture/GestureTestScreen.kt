@@ -236,9 +236,30 @@ fun GestureTestScreen(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
                     .background(Color(0xFF3A3A3C))
-                    .clickable(enabled = isCompleted) {
+                    .clickable {
+                        Log.d("GestureTestScreen", "완료하기 버튼 클릭")
+
+                        // 1. 센서 중지
+                        if (isMeasuring) {
+                            onToggleMeasurement()
+                        }
+
+                        // 2. WebSocket 연결 끊기
+                        webSocketViewModel.disconnectWebSocket()
+
+                        // 3. 서비스 중지
+                        val intent = Intent(context, SensorService::class.java)
+                        context.stopService(intent)
+
+                        // 4. 결과 전송
                         onFinish(if (isCompleted) "done" else "fail")
-                        (context as? Activity)?.finish()
+
+                        // 5. Activity 종료
+                        Log.d("GestureTestScreen", "Activity 종료 시도")
+                        (context as? Activity)?.let { activity ->
+                            activity.finish()
+                            Log.d("GestureTestScreen", "Activity finish() 호출 완료")
+                        }
                     }
                     .padding(horizontal = 33.dp, vertical = 11.dp)
             ) {
