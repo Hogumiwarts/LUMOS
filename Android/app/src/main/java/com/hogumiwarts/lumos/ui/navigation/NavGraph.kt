@@ -35,6 +35,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
+import com.hogumiwarts.lumos.ui.screens.control.DetectDeviceScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
 
 @Composable
@@ -219,9 +220,8 @@ fun NavGraph(
                     )
                 },
             ) {
-                FindDeviceScreen(
-                    navController = navController
-                )
+//                FindDeviceScreen(navController = navController)
+                DetectDeviceScreen(navController = navController)
             }
 
             // Auth
