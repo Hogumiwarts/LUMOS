@@ -4,7 +4,7 @@ object GestureConstants {
     // 시간 관련 상수
     const val DOUBLE_GESTURE_THRESHOLD_MS = 1500L  // 1.5초 내 두 제스처 감지 시 비활성화
     const val INACTIVITY_TIMEOUT_MS = 30000L       // 30초 동안 활동 없으면 자동 비활성화
-    const val GESTURE1_DEBOUNCE_MS = 500L          // 제스처 1 감지 디바운스 시간
+    const val GESTURE1_DEBOUNCE_MS = 1000L          // 제스처 1 감지 디바운스 시간
     const val GESTURE_PAUSE_DURATION_MS = 1500L    // 제스처 감지 후 일시 중지 시간
 
     // 진동 관련 상수
