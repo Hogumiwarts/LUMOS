@@ -5,35 +5,28 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.uwb.UwbManager
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
-import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
-import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
-import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
-import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.control.UwbRanging
+import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -139,7 +132,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-
+//                     GestureScreen(navController = rememberNavController(), onGestureSelected = {})
                     MainScreen()
 //                    LightScreen()
                 }

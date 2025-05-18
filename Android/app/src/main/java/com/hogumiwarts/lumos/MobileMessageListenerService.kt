@@ -17,6 +17,7 @@ class MobileMessageListenerService : WearableListenerService() {
             // 예: 브로드캐스트로 UI에 전달
             val intent = Intent("WATCH_MESSAGE")
             intent.putExtra("message", receivedText)
+            intent.setPackage(packageName)
             sendBroadcast(intent)
         }
 
