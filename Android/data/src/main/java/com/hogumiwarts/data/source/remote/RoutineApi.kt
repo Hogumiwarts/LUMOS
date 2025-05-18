@@ -1,6 +1,6 @@
 package com.hogumiwarts.data.source.remote
 
-import com.hogumiwarts.data.entity.remote.Request.RoutineCreateRequest
+import com.hogumiwarts.data.entity.remote.Request.routine.RoutineCreateRequest
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineCreateResponse
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineDetailResponse
 import com.hogumiwarts.data.entity.remote.Response.routine.RoutineResponse

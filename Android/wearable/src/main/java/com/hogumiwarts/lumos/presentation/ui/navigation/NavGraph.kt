@@ -55,8 +55,10 @@ fun NavGraph(
                 scaleOut(targetScale = 0.8f, animationSpec = tween(1000))
             }
         ) {
-            LoginScreen()
+//            LoginScreen()
+            DevicesScreen(navController = navController)
         }
+        
 
         // 🔸 Light 기기 제어 화면
         composable("light/{deviceId}",

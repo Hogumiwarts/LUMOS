@@ -132,8 +132,8 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
-//                     GestureScreen(navController = rememberNavController(), onGestureSelected = {})
-                    MainScreen()
+                     GestureScreen(navController = rememberNavController(), onGestureSelected = {})
+//                    MainScreen()
 //                    LightScreen()
                 }
             }
