@@ -15,7 +15,7 @@ import javax.inject.Inject
 class AirpurifierRepositoryImpl @Inject constructor(
     private val airpurifierApi: AirpurifierApi // 🔹 Retrofit API 인터페이스 주입
 ):AirpurifierRepository {
-    override suspend fun getAirpurifierStatus(deviceId: Int): AirpurifierResult {
+    override suspend fun getAirpurifierStatus(deviceId: Long): AirpurifierResult {
         return try {
             // ✅ API 호출
             val response = airpurifierApi.getAirpurifierStatus(deviceId)
@@ -40,7 +40,7 @@ class AirpurifierRepositoryImpl @Inject constructor(
     }
 
     override suspend fun patchAirpurifierPower(
-        deviceId: Int,
+        deviceId: Long,
         activated: Boolean,
     ): PatchAirpurifierPowerResult {
         return try {
@@ -67,7 +67,7 @@ class AirpurifierRepositoryImpl @Inject constructor(
     }
 
     override suspend fun patchAirpurifierFanMode(
-        deviceId: Int,
+        deviceId: Long,
         fanMode: String,
     ): PatchAirpurifierFanModeResult {
         return try {

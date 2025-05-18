@@ -16,7 +16,7 @@ class SwitchRepositoryImpl@Inject constructor(
 ) : SwitchRepository {
 
     // 🔸 기기 데이터를 API로부터 받아오는 함수
-    override suspend fun getSwitchStatus(deviceId: Int): GetSwitchStatusResult {
+    override suspend fun getSwitchStatus(deviceId: Long): GetSwitchStatusResult {
         return try {
             // ✅ API 호출
             val response = switchApi.getSwitchStatus(deviceId)
@@ -40,7 +40,7 @@ class SwitchRepositoryImpl@Inject constructor(
         }
     }
 
-    override suspend fun patchSwitchPower(deviceId: Int, activated: Boolean): PatchSwitchPowerResult {
+    override suspend fun patchSwitchPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult {
         return try {
             // ✅ API 호출
             val response = switchApi.getSwitchPower(deviceId, PowerRequest(activated))

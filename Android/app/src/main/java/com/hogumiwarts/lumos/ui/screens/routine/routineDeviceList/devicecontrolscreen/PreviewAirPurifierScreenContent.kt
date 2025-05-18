@@ -125,7 +125,7 @@ fun PreviewAirPurifierScreenContent(
                 Switch(
                     checked = checked,
                     onCheckedChange = {
-                        viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId, it))
+                        viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId.toLong(), it))
                         checked = it
                     },
                     colors = SwitchDefaults.colors(

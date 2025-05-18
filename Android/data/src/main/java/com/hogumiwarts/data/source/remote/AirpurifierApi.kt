@@ -13,11 +13,11 @@ import retrofit2.http.Path
 interface AirpurifierApi {
 
     @GET("/device/api/devices/{deviceId}/airpurifier/status")
-    suspend fun getAirpurifierStatus(@Path("deviceId") deviceId: Int): BaseResponse<GetAirpurifierResponse>
+    suspend fun getAirpurifierStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetAirpurifierResponse>
 
     @PATCH("/device/api/devices/{deviceId}/airpurifier/power")
-    suspend fun patchAirpurifierPower(@Path("deviceId") deviceId: Int, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
+    suspend fun patchAirpurifierPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
 
     @PATCH("/device/api/devices/{deviceId}/airpurifier/fanmode")
-    suspend fun patchAirpurifierFanMode(@Path("deviceId") deviceId: Int, @Body request: FanModeRequest): BaseResponse<PatchControlResponse>
+    suspend fun patchAirpurifierFanMode(@Path("deviceId") deviceId: Long, @Body request: FanModeRequest): BaseResponse<PatchControlResponse>
 }

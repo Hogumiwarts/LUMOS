@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val deviceId = intent.getIntExtra("deviceId", -1) // 기본값 -1
+        val deviceId = intent.getLongExtra("deviceId", -1L) // 기본값 -1
         val deviceType = intent.getStringExtra("deviceType") ?: ""
 
 

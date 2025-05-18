@@ -6,8 +6,8 @@ import com.hogumiwarts.domain.model.minibig.GetSwitchStatusResult
 
 interface SwitchRepository {
 
-    suspend fun getSwitchStatus(deviceId: Int): GetSwitchStatusResult
+    suspend fun getSwitchStatus(deviceId: Long): GetSwitchStatusResult
 
-    suspend fun patchSwitchPower(deviceId: Int, activated: Boolean): PatchSwitchPowerResult
+    suspend fun patchSwitchPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult
 
 }

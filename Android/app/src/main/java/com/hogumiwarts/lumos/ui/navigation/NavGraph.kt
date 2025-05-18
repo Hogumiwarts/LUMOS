@@ -42,13 +42,12 @@ import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
-import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSpeakerScreenContent
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSwitchScreenContent
 
 @Composable
 fun NavGraph(
-    deviceId: Int, deviceType: String,
+    deviceId: Long, deviceType: String,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +69,7 @@ fun NavGraph(
 
     if (isLoggedIn != null) {
         val startDestination = if (isLoggedIn == true){
-            if(deviceId == -1 || deviceType== ""){
+            if(deviceId == -1L || deviceType== ""){
                 "home"
             }else{
                 deviceType
@@ -396,7 +395,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        AirpurifierScreen(deviceId = it.deviceId)
+                        AirpurifierScreen(deviceId = it.deviceId.toLong())
                     }
                 }
             }
@@ -413,7 +412,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        SwitchScreen(it.deviceId)
+                        SwitchScreen(it.deviceId.toLong())
                     }
                 }
             }
@@ -430,7 +429,7 @@ fun NavGraph(
                             selectedDevice = it
                         )
                     } else {
-                        SpeakerScreen(it.deviceId) // 실제 제어 화면
+                        SpeakerScreen(it.deviceId.toLong()) // 실제 제어 화면
                     }
                 }
             }

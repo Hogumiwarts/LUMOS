@@ -6,10 +6,10 @@ import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierPowerResult
 
 interface AirpurifierRepository {
 
-    suspend fun getAirpurifierStatus(deviceId: Int): AirpurifierResult
+    suspend fun getAirpurifierStatus(deviceId: Long): AirpurifierResult
 
-    suspend fun patchAirpurifierPower(deviceId: Int, activated: Boolean): PatchAirpurifierPowerResult
+    suspend fun patchAirpurifierPower(deviceId: Long, activated: Boolean): PatchAirpurifierPowerResult
 
-    suspend fun patchAirpurifierFanMode(deviceId: Int, fanMode: String): PatchAirpurifierFanModeResult
+    suspend fun patchAirpurifierFanMode(deviceId: Long, fanMode: String): PatchAirpurifierFanModeResult
 
 }

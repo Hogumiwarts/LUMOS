@@ -92,7 +92,7 @@ fun String?.toAirQuality(): AirQuality {
 
 fun AirpurifierScreen(
     viewModel: AirpurifierViewModel = hiltViewModel(),
-    deviceId: Int,
+    deviceId: Long,
     ) {
     var deviceId by remember { mutableStateOf(deviceId) }
     // 최초 진입 시 상태 요청

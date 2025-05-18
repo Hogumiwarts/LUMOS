@@ -11,8 +11,8 @@ import retrofit2.http.Path
 
 interface SwitchApi {
     @GET("/device/api/devices/{deviceId}/switch/status")
-    suspend fun getSwitchStatus(@Path("deviceId") deviceId: Int): BaseResponse<GetSwitchStatusResponse>
+    suspend fun getSwitchStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetSwitchStatusResponse>
 
     @PATCH("/device/api/devices/{deviceId}/switch/power")
-    suspend fun getSwitchPower(@Path("deviceId") deviceId: Int, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
+    suspend fun getSwitchPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<PatchControlResponse>
 }
