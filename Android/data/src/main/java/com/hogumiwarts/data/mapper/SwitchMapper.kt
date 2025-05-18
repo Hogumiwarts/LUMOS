@@ -13,7 +13,7 @@ object SwitchMapper {
             deviceId = dtoList.deviceId,
             deviceImg = dtoList.deviceImg,
             deviceName = dtoList.deviceName,
-            deviceManufacturer = dtoList.deviceManufacturer,
+            manufacturerCode = dtoList.manufacturerCode,
             deviceModel = dtoList.deviceModel,
             deviceType = dtoList.deviceType,
             activated = dtoList.activated
