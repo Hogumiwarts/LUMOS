@@ -104,7 +104,7 @@ class RoutineCreateViewModel @Inject constructor(
             val token = tokenDataStore.getAccessToken()
 
             val name = routineName.value
-            val icon = selectedIcon.value?.name ?: ""
+            val icon = selectedIcon.value?.name ?: "laptop"
             val gesture = gestureId.value
             val deviceList = devices.value
 

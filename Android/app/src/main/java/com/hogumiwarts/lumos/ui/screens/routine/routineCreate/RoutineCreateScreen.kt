@@ -501,6 +501,8 @@ fun RoutineCreateScreen(
             PrimaryButton(
                 buttonText = "생성하기",
                 onClick = {
+                    val finalIcon = selectedIcon ?: "laptop"
+
                     viewModel.createRoutine(
                         onSuccess = {
                             Timber.tag("Routine").d("🟢 루틴 생성 요청됨")
