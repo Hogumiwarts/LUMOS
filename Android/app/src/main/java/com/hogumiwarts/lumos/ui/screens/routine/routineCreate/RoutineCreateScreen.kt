@@ -100,7 +100,7 @@ fun RoutineCreateScreen(
     val coroutineScope = rememberCoroutineScope()
     var isSheetOpen by remember { mutableStateOf(false) }
 
-    // 기기 리스트 관리
+    // 루틴 내의 기기 리스트 관리
     val devices by viewModel.devices.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -129,9 +129,10 @@ fun RoutineCreateScreen(
             containerColor = Color.White,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
+            // 루틴 기기 선택하는 바텀 시트
             RoutineDeviceListScreen(
                 viewModel = deviceListViewModel,
-                devices = deviceListViewModel.devices.value,
+                alreadyAddedDeviceIds = devices.map { it.deviceId },
                 onSelectComplete = { selectedDevice ->
                     val json = navController.previousBackStackEntry
                         ?.savedStateHandle
@@ -192,7 +193,7 @@ fun RoutineCreateScreen(
                         isSheetOpen = false
                     }
                 },
-                showDuplicateDialog = showDuplicateDialog.value,
+                showDuplicateDialog = showDuplicateDialog,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false },
                 navController = navController
             )

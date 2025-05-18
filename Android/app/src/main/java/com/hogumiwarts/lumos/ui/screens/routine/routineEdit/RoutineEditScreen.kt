@@ -108,22 +108,23 @@ fun RoutineEditScreen(
         ) {
             RoutineDeviceListScreen(
                 viewModel = deviceListViewModel,
-                devices = myDeviceList,
                 onSelectComplete = { selectedDevice ->
-                    // 같은 기기 + 같은 상태라면 추가 안함
-//                    val newDevice = selectedDevice.toRoutineDevice()
-//
-//                    if (deviceList.any { it.deviceId == newDevice.deviceId && it.isOn == newDevice.isOn }) {
-//                        showDuplicateDialog.value = true
-//                    } else {
-//                        deviceList.add(newDevice)
+                    // 이미 등록된 기기 중 중복 검사
+                    val isDuplicate = deviceList.any { it.deviceId == selectedDevice.deviceId }
+                    if (isDuplicate) {
+                        showDuplicateDialog.value = true
+                    } else {
+                        // 기기 추가
+//                        deviceList.add(/* 변환 후 추가 */)
 //                        isSheetOpen = false
-//                    }
+                    }
                 },
-                showDuplicateDialog = showDuplicateDialog.value,
+                showDuplicateDialog = showDuplicateDialog,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false },
-                navController = navController
+                navController = navController,
+                alreadyAddedDeviceIds = deviceList.map { it.deviceId }
             )
+
         }
     }
 
@@ -323,7 +324,11 @@ fun RoutineEditScreen(
                     ) {
                         SwipeableDeviceCard(device = device, onDelete = {
                             shouldRemove = true
-                            Toast.makeText(context, "${device.deviceName.appendSubject()} 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "${device.deviceName.appendSubject()} 삭제되었습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         })
                     }
                 }

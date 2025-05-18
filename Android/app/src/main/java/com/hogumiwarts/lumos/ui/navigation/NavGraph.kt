@@ -297,13 +297,13 @@ fun NavGraph(
 
                 RoutineDeviceListScreen(
                     viewModel = viewModel,
-                    devices = MyDevice.sample,
                     onSelectComplete = {
                         navController.popBackStack()
                     },
-                    showDuplicateDialog = showDuplicateDialog.value,
+                    showDuplicateDialog = showDuplicateDialog,
                     onDismissDuplicateDialog = { showDuplicateDialog.value = false },
-                    navController = navController
+                    navController = navController,
+                    alreadyAddedDeviceIds = listOf()
                 )
             }
 

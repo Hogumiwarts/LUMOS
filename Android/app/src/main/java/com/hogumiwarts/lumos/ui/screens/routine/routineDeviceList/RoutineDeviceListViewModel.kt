@@ -53,4 +53,9 @@ class RoutineDeviceListViewModel @Inject constructor(
         return devices.value.find { it.deviceId == selectedDeviceId.value }
     }
 
+    fun clearSelectedDevice() {
+        selectedDeviceId.value = null
+    }
+
+
 }
