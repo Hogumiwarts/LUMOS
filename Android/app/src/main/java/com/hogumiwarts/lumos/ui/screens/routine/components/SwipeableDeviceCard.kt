@@ -25,8 +25,6 @@ fun SwipeableDeviceCard(
     device: CommandDevice,
     onDelete: () -> Unit
 ) {
-
-    // 수정에서 카드 삭제 할 때 사용
     val dismissState = rememberDismissState(
         confirmStateChange = {
             if (it == DismissValue.DismissedToStart) {
@@ -38,12 +36,10 @@ fun SwipeableDeviceCard(
         }
     )
 
-    // 스와이프해서 카드 삭제하기
     SwipeToDismiss(
         state = dismissState,
         directions = setOf(DismissDirection.EndToStart),
         background = {
-            // 스와이프하면 보여줄 배경
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -60,7 +56,8 @@ fun SwipeableDeviceCard(
         },
         dismissContent = {
             DeviceCard(
-                commandDevice = device, deviceType = DeviceListType.from(device.deviceType)
+                commandDevice = device,
+                deviceType = DeviceListType.from(device.deviceType)
             )
         }
     )

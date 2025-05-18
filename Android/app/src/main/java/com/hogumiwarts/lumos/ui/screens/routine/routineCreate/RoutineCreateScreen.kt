@@ -1,10 +1,11 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineCreate
 
-
+import androidx.compose.animation.core.animateIntAsState
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -53,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -75,6 +78,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -102,6 +106,7 @@ fun RoutineCreateScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val selectedGesture by viewModel.selectedGesture.collectAsState()
+
 
     LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
@@ -403,22 +408,39 @@ fun RoutineCreateScreen(
             }
             items(devices, key = { it.deviceId }) { device ->
                 var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
+                var shouldShowHint by remember(device.deviceId) { mutableStateOf(true) }
+
                 AnimatedVisibility(
                     visible = !shouldRemove,
                     exit = shrinkVertically(tween(300)) + fadeOut(tween(300))
                 ) {
-                    SwipeableDeviceCard(
-                        device = device,
+                    SwipeableDeviceCardWithHint(
+                        deviceId = device.deviceId,
+                        shouldShowHint = shouldShowHint,
+                        onHintShown = { shouldShowHint = false },
                         onDelete = {
                             shouldRemove = true
                             coroutineScope.launch {
                                 delay(300)
                                 viewModel.deleteDevice(device)
                             }
+                        },
+                        deviceContent = {
+                            SwipeableDeviceCard(
+                                device = device,
+                                onDelete = {
+                                    shouldRemove = true
+                                    coroutineScope.launch {
+                                        delay(300)
+                                        viewModel.deleteDevice(device)
+                                    }
+                                }
+                            )
                         }
                     )
                 }
             }
+
 
             // 제스처 선택
             // 제목

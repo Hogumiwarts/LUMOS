@@ -309,40 +309,25 @@ fun RoutineEditScreen(
             // 기기 리스트
             items(deviceList, key = { it.deviceId }) { device ->
                 var visible by remember { mutableStateOf(true) }
-
-
                 if (visible) {
                     var shouldRemove by remember { mutableStateOf(false) }
-
                     if (shouldRemove) {
                         LaunchedEffect(device) {
                             delay(300)
                             deviceList.remove(device)
                         }
                     }
-
                     AnimatedVisibility(
                         visible = !shouldRemove,
-                        exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                        exit = shrinkVertically(tween(300)) + fadeOut()
                     ) {
-                        SwipeableDeviceCard(
-                            device = device,
-                            onDelete = {
-                                shouldRemove = true
-
-                                Toast.makeText(
-                                    context,
-                                    "${device.deviceName.appendSubject()} 삭제되었습니다.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        )
+                        SwipeableDeviceCard(device = device, onDelete = {
+                            shouldRemove = true
+                            Toast.makeText(context, "${device.deviceName.appendSubject()} 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        })
                     }
                 }
-
             }
-
-            item { Box(modifier = Modifier.height(1.dp)) {} }
 
             // 제스처 선택
             // 제목
