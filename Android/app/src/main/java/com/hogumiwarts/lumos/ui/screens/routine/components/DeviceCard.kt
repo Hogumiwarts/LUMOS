@@ -105,16 +105,28 @@ fun DeviceCard(
                 Spacer(modifier = Modifier.weight(1f))
 
                 // on/off 여부
-                // 전원 off 상태일 경우엔 그 명령만 표시, 아니면 모두 출력
+
+
+                val isStopped = commandDevice.commands.any {
+                    it.capability == "mediaPlayback" && it.command == "stop"
+                }
+
+                val isOff = commandDevice.commands.any {
+                    it.capability == "switch" && it.command == "off"
+                }
+
+                val filteredCommands = commandDevice.commands.filterNot {
+                    (isStopped || isOff) && it.capability == "audioVolume" && it.command == "setVolume"
+                }
+
                 val commandText =
-                    if (commandDevice.commands.any { it.capability == "switch" && it.command == "off" }) {
-                        getKoreanDescription(commandDevice.commands.first { it.capability == "switch" && it.command == "off" })
+                    if (filteredCommands.any { it.capability == "switch" && it.command == "off" }) {
+                        getKoreanDescription(filteredCommands.first { it.capability == "switch" && it.command == "off" })
                     } else {
-                        commandDevice.commands.joinToString(", ") {
+                        filteredCommands.joinToString(", ") {
                             getKoreanDescription(it)
                         }
                     }
-
 
                 Text(
                     text = commandText,
