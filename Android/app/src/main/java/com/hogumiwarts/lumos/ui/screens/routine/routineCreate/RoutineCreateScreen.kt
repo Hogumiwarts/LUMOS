@@ -164,8 +164,18 @@ fun RoutineCreateScreen(
                             )
                         }
 
-                        DeviceListType.SWITCH -> selectedDevice.toCommandDeviceForSwitch(isOn = true)
-                        else -> selectedDevice.toCommandDevice(isOn = true)
+                        DeviceListType.SWITCH -> {
+                            val json = navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.get<String>("commandDeviceJson")
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDeviceForSwitch(
+                                isOn = true
+                            )
+                        }
+
+                        DeviceListType.ETC -> TODO()
                     }
 
                     if (devices.any { it.deviceId == commandDevice.deviceId }) {

@@ -32,7 +32,21 @@ fun PreviewSwitchScreenContent(
     navController: NavController,
     selectedDevice: MyDevice
 ) {
-    var isChecked by remember { mutableStateOf(selectedDevice.isOn) }
+    val commandJson =
+        navController.previousBackStackEntry?.savedStateHandle?.get<String>("commandDeviceJson")
+    var isChecked by remember {
+        mutableStateOf(
+            commandJson?.let {
+                val commandDevice = Gson().fromJson(
+                    it,
+                    com.hogumiwarts.domain.model.routine.CommandDevice::class.java
+                )
+                val switchCommand =
+                    commandDevice.commands.find { cmd -> cmd.capability == "switch" }
+                switchCommand?.command == "on"
+            } ?: selectedDevice.isOn
+        )
+    }
 
     // todo: 더미 데이터 api 연동....!
     val switchDevice = remember {
@@ -53,6 +67,8 @@ fun PreviewSwitchScreenContent(
             .fillMaxSize()
             .background(Color.White)
     ) {
+        Spacer(modifier = Modifier.height(40.dp))
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -165,7 +181,10 @@ fun PreviewSwitchScreenContent(
                     )
                     navController.popBackStack()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 27.dp)
+
             )
         }
     }
