@@ -134,9 +134,9 @@ class ControlViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         detectionJob?.cancel()
-        // ViewModel이 소멸될 때 레인징을 중지
-        if (rangingActive) {
-            uwbRanging.stopRanging()
-        }
+//        // ViewModel이 소멸될 때 레인징을 중지
+//        if (rangingActive) {
+//            uwbRanging.stopRanging()
+//        }
     }
 }
