@@ -75,7 +75,9 @@ class RoutineViewModel @Inject constructor(
                     _routineDetail.value = result.detail
                 }
 
-                is RoutineResult.CreateSuccess -> TODO()
+                else -> {
+                    Timber.tag("RoutineViewModel").w("⚠️ 예상치 못한 RoutineResult: $result")
+                }
             }
         }
     }

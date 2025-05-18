@@ -173,7 +173,27 @@ fun RoutineDetailContent(
                 Text(
                     "수정",
                     modifier = Modifier.clickable {
-                        onEdit()
+                        navController.currentBackStackEntry?.savedStateHandle?.apply {
+                            set("editRoutineId", routine.routineId.toLong())
+                            set("editRoutineName", routine.routineName)
+                            set("editRoutineIcon", routine.routineIcon)
+                            set("editDevices", devices)
+
+                            // 여기가 추가 포인트
+                            if (routine.gestureId.toLong() != 0L && !routine.gestureName.isNullOrBlank()) {
+                                val gesture = GestureData(
+                                    routineId = routine.routineId.toLong(),
+                                    gestureId = routine.gestureId.toLong(),
+                                    gestureName = routine.gestureName,
+                                    gestureDescription = routine.gestureDescription,
+                                    gestureImageUrl = routine.gestureImageUrl,
+                                    routineName = routine.routineName,
+                                )
+                                set("selectedGesture", gesture)
+                            }
+                        }
+
+                        onEdit() // routineEdit 화면으로 이동하는 Nav 로직
                     },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = nanum_square_neo,

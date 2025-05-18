@@ -49,14 +49,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.google.gson.Gson
+import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
+import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
+import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.AddDeviceCard
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -67,12 +72,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun RoutineEditScreen(
     viewModel: RoutineEditViewModel,
-    devices: List<CommandDevice>,
     onRoutineEditComplete: () -> Unit,
     navController: NavController
 ) {
     val selectedIcon by viewModel.selectedIcon.collectAsState()
     val routineName by viewModel.routineName.collectAsState()
+    val deviceList by viewModel.devices.collectAsState()
+    val selectedGesture by viewModel.selectedGesture.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
@@ -80,22 +86,52 @@ fun RoutineEditScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var isSheetOpen by remember { mutableStateOf(false) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    // 기기 리스트 관리
-    val deviceList = remember { mutableStateListOf<CommandDevice>().apply { addAll(devices) } }
-    val myDeviceList = remember {
-        mutableStateListOf<MyDevice>().apply {
-            addAll(MyDevice.sample.map {
-                MyDevice(
-                    deviceId = it.deviceId,
-                    deviceName = it.deviceName,
-                    isOn = it.isOn,
-                    isActive = it.isActive,
-                    deviceType = it.deviceType
-                )
-            })
+    LaunchedEffect(navController.currentBackStackEntry) {
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<GestureData>("selectedGesture")
+            ?.observe(lifecycleOwner) {
+                viewModel.setGestureData(it)
+            }
+    }
+
+    // 초기 데이터 설정
+    LaunchedEffect(Unit) {
+        val routineId = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>("editRoutineId")
+
+        val routineName = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<String>("editRoutineName")
+
+        val routineIcon = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<String>("editRoutineIcon")
+
+        val gestureData = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<GestureData>("selectedGesture")
+
+        val devices = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<List<CommandDevice>>("editDevices")
+
+        routineId?.let { viewModel.setRoutineId(it) }
+        gestureData?.let { viewModel.setGestureData(it) }
+        routineName?.let { viewModel.onRoutineNameChanged(it) }
+        devices?.let { viewModel.loadInitialDevices(it) }
+
+        // 아이콘 문자열을 Enum으로 변환
+        routineIcon?.let { iconName ->
+            RoutineIconType.entries.find { it.iconName == iconName || it.name == iconName }?.let {
+                viewModel.selectIcon(it)
+            }
         }
     }
+
+    // 기기 리스트 관리
+
     val showDuplicateDialog = remember { mutableStateOf(false) }
 
     if (isSheetOpen) {
@@ -316,7 +352,7 @@ fun RoutineEditScreen(
                     if (shouldRemove) {
                         LaunchedEffect(device) {
                             delay(300)
-                            deviceList.remove(device)
+                            viewModel.deleteDevice(device)
                         }
                     }
                     AnimatedVisibility(
@@ -349,21 +385,31 @@ fun RoutineEditScreen(
             // 제목
             item {
                 Text(
-                    "제스처 선택",
-                    style = MaterialTheme.typography.titleMedium.copy(
+                    "제스처 선택", style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 16.sp,
-                        lineHeight = 16.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(800),
-                        color = Color(0xFF000000),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = nanum_square_neo
                     )
                 )
             }
 
-            // 제스처 카드
-//            item {
-//                GestureCard(selectedGesture = GestureType.DOUBLE_CLAP, isEditMode = true)
-//            }
+            item {
+                if (selectedGesture != null) {
+                    GestureCard(
+                        selectedGesture = selectedGesture!!,
+                        isEditMode = true,
+                        onChangeGestureClick = {
+                            navController.navigate("gesture_select")
+                        }
+                    )
+                } else {
+                    AddDeviceCard(
+                        onClick = { navController.navigate("gesture_select") },
+                        text = "제스처 추가"
+                    )
+                }
+            }
+
 
 
             item {
@@ -399,20 +445,30 @@ fun String.appendSubject(): String {
 }
 
 
-//@Composable
-//fun SelectIcon() {
-//    TODO("Not yet implemented")
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun RoutineEditScreenPreview() {
-//    val fakeViewModel = remember { RoutineEditViewModel() }
-//
-//    RoutineEditScreen(
-//        viewModel = fakeViewModel,
-//        devices = RoutineDevice.sample,
-//        onRoutineEditComplete = {},
-//        navController = rememberNavController()
-//    )
-//}
+@Composable
+fun AddDeviceCard(onClick: () -> Unit, text: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clickable { onClick() }
+            .border(1.dp, Color(0xFFD9DCE8), RoundedCornerShape(10.dp))
+            .background(Color(0xFFF5F6F9), RoundedCornerShape(10.dp)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painterResource(id = R.drawable.ic_plus),
+            contentDescription = null,
+            modifier = Modifier.size(15.dp)
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFBFC2D7),
+            fontFamily = nanum_square_neo
+        )
+    }
+}

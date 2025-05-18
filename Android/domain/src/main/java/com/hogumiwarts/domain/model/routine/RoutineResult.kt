@@ -11,6 +11,8 @@ sealed class RoutineResult {
 
     data class CreateSuccess(val routine: RoutineCreateData) : RoutineResult()
 
+    data class EditSuccess(val data: RoutineDetail) : RoutineResult()
+
     object Unauthorized : RoutineResult()
 }
 
@@ -34,7 +36,7 @@ data class RoutineDetailData(
 )
 
 data class CommandDevice(
-    val deviceId: Int,
+    val deviceId: Long,
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,

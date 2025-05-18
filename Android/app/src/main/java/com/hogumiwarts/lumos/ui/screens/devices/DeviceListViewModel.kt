@@ -41,7 +41,7 @@ class DeviceListViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val selectedDeviceId = mutableStateOf<Int?>(null)
+    val selectedDeviceId = mutableStateOf<Long?>(null)
     val showDialog = mutableStateOf(false)
 
 
@@ -181,7 +181,7 @@ class DeviceListViewModel @Inject constructor(
             }
         }
 
-        fun toggleDeviceState(deviceId: Int) {
+        fun toggleDeviceState(deviceId: Long) {
             val currentList = _deviceList.value.toMutableList()
 
             val index = currentList.indexOfFirst { it.deviceId == deviceId }

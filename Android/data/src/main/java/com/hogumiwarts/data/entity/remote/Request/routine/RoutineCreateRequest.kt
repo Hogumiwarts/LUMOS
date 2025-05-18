@@ -4,11 +4,11 @@ data class RoutineCreateRequest(
     val routineName: String,
     val routineIcon: String,
     val devices: List<RoutineDeviceRequest>,
-    val gestureId: Int?
+    val gestureId: Long?
 )
 
 data class RoutineDeviceRequest(
-    val deviceId: Int,
+    val deviceId: Long,
     val commands: List<CommandRequest>
 )
 

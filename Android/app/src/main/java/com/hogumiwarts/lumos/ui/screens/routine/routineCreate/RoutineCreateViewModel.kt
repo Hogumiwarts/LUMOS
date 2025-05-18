@@ -38,8 +38,8 @@ class RoutineCreateViewModel @Inject constructor(
     private val _routineName = MutableStateFlow("")
     val routineName: StateFlow<String> = _routineName
 
-    private val _gestureId = MutableStateFlow<Int?>(null)
-    val gestureId: StateFlow<Int?> = _gestureId
+    private val _gestureId = MutableStateFlow<Long?>(null)
+    val gestureId: StateFlow<Long?> = _gestureId
 
     private val _selectedGesture = MutableStateFlow<GestureData?>(null)
     val selectedGesture: StateFlow<GestureData?> = _selectedGesture
@@ -48,10 +48,10 @@ class RoutineCreateViewModel @Inject constructor(
         Timber.tag("gesture").d("🧩 setGestureData 호출됨: $gesture")
 
         _selectedGesture.value = gesture
-        _gestureId.value = gesture.gestureId.toInt()
+        _gestureId.value = gesture.gestureId
     }
 
-    fun setGesture(id: Int) {
+    fun setGesture(id: Long) {
         _gestureId.value = id
     }
 

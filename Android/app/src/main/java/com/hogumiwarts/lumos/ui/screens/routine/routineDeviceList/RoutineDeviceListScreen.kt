@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,7 +29,6 @@ import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
@@ -41,7 +39,7 @@ fun RoutineDeviceListScreen(
     showDuplicateDialog: MutableState<Boolean>,
     onDismissDuplicateDialog: () -> Unit,
     navController: NavController,
-    alreadyAddedDeviceIds: List<Int>
+    alreadyAddedDeviceIds: List<Long>
 
 ) {
     // 선택 기기 상태

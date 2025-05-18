@@ -19,7 +19,7 @@ data class RoutineDetailData(
 )
 
 data class RoutineDeviceData(
-    val deviceId: Int,
+    val deviceId: Long,
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,
