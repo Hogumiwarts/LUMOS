@@ -41,7 +41,7 @@ data class SwitchDevice(
 )
 
 @Composable
-fun SwitchScreen() {
+fun SwitchScreen(deviceId: Long) {
 
     var checked by remember { mutableStateOf(true) }
     // 더미
@@ -155,6 +155,6 @@ fun SwitchScreen() {
 @Preview(showBackground = true)
 @Composable
 fun SwitchPreview() {
-    SwitchScreen()
+    SwitchScreen(1L)
 
 }
