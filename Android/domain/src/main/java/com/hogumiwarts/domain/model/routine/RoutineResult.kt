@@ -45,7 +45,7 @@ data class CommandData(
     val component: String,
     val capability: String,
     val command: String,
-    val arguments: List<Any>
+    val arguments: List<@JvmSuppressWildcards Any>
 )
 
 data class RoutineCreateData(

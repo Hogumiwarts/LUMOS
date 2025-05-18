@@ -2,6 +2,8 @@ package com.hogumiwarts.lumos.ui.screens.routine.routineCreate
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.domain.model.routine.CreateRoutineParam
@@ -127,6 +129,11 @@ class RoutineCreateViewModel @Inject constructor(
                 gestureId = gesture,
                 devices = deviceList
             )
+
+            val type = object : TypeToken<CreateRoutineParam>() {}.type
+            val json = Gson().toJson(param, type)
+
+            Timber.tag("Routine").d("📦 최종 저장 파라미터: $json")
 
             when (val result = routineRepository.createRoutine(param, token.toString())) {
                 is RoutineResult.CreateSuccess -> onSuccess()

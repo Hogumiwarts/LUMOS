@@ -127,7 +127,6 @@ fun RoutineCreateScreen(
                 viewModel = deviceListViewModel,
                 devices = deviceListViewModel.devices.value,
                 onSelectComplete = { selectedDevice ->
-                    // 같은 기기 + 같은 상태라면 추가 안함
                     val commandDevice = when (selectedDevice.deviceType) {
                         DeviceListType.LIGHT -> selectedDevice.toCommandDevice(
                             isOn = true,
@@ -135,14 +134,17 @@ fun RoutineCreateScreen(
                             hue = null,
                             saturation = null
                         )
+
                         DeviceListType.AIRPURIFIER -> selectedDevice.toCommandDeviceForAirPurifier(
                             isOn = true,
                             fanMode = "low"
                         )
+
                         DeviceListType.AUDIO -> selectedDevice.toCommandDeviceForSpeaker(
                             isOn = true,
                             volume = 30
                         )
+
                         DeviceListType.SWITCH -> selectedDevice.toCommandDeviceForSwitch(isOn = true)
                         else -> selectedDevice.toCommandDevice(isOn = true)
                     }
@@ -464,7 +466,8 @@ fun RoutineCreateScreen(
                 onClick = {
                     viewModel.createRoutine(
                         onSuccess = {
-                            onRoutineCreateComplete() // 루틴 생성 성공 시
+                            Timber.tag("Routine").d("🟢 루틴 생성 요청됨")
+                            onRoutineCreateComplete()
                         },
                         onError = { errorMessage ->
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
@@ -473,6 +476,7 @@ fun RoutineCreateScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+
         }
     }
 
