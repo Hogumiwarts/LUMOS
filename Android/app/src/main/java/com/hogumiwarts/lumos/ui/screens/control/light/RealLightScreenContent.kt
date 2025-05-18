@@ -248,46 +248,12 @@ fun RealLightScreenContent(
             val coroutineScope = rememberCoroutineScope()
             var debounceJob by remember { mutableStateOf<Job?>(null) }
 
-            HsvColorPicker(
+            ColorWheelSelector(
                 modifier = Modifier
                     .height(200.dp)
                     .width(200.dp)
                     .padding(10.dp),
-                controller = controller,
-                onColorChanged = { colorEnvelope: ColorEnvelope ->
-                    selectedColorCode = "#" + colorEnvelope.hexCode.substring(2)
-                    selectedColor = colorEnvelope.color
-
-                    // Color -> HSV 변환
-                    val hsv = FloatArray(3)
-//                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
-                    android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(),hsv)
-
-
-                    val hue = hsv[0]
-                    val saturation = hsv[1]
-                    val saturation1 = hsv[2]
-
-                    if(isColor == true){
-
-                    } else{
-                        debounceJob?.cancel()
-                        debounceJob = coroutineScope.launch {
-                            delay(300)
-                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation, saturation1: $saturation1")
-                            Log.d("ColorPicker", "Hue: $selectedColorCode")
-                            viewModel.sendIntent(
-                                LightIntent.ChangeLightColor(
-                                    9,
-                                    (hue * 10 / 36),
-                                    saturation * 100
-                                )
-                            )
-                        }
-                    }
-
-                    isColor = false
-                }
+                {}
             )
         }
 
