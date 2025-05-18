@@ -67,7 +67,7 @@ fun PreviewLightScreenContent(
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = selectedDevice.deviceName,
@@ -196,6 +196,7 @@ fun PreviewLightScreenContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .background(Color.White)
                 .padding(horizontal = 24.dp, vertical = 20.dp)
         ) {
             PrimaryButton(
@@ -215,7 +216,9 @@ fun PreviewLightScreenContent(
                     navController.popBackStack()
 
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 27.dp)
             )
         }
     }

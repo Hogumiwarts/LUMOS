@@ -38,11 +38,10 @@ import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
 import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
-import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
+import com.hogumiwarts.lumos.ui.screens.control.minibig.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
-import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSpeakerScreenContent
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSwitchScreenContent
 
@@ -307,13 +306,13 @@ fun NavGraph(
 
                 RoutineDeviceListScreen(
                     viewModel = viewModel,
-                    devices = MyDevice.sample,
                     onSelectComplete = {
                         navController.popBackStack()
                     },
-                    showDuplicateDialog = showDuplicateDialog.value,
+                    showDuplicateDialog = showDuplicateDialog,
                     onDismissDuplicateDialog = { showDuplicateDialog.value = false },
-                    navController = navController
+                    navController = navController,
+                    alreadyAddedDeviceIds = listOf()
                 )
             }
 

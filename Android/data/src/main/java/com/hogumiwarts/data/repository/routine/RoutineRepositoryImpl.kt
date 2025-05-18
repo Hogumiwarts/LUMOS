@@ -59,11 +59,12 @@ class RoutineRepositoryImpl @Inject constructor(
             devices = devices.map {
                 RoutineDeviceRequest(
                     deviceId = it.deviceId,
-                    commands = it.commands.first().toRequestCommand()
+                    commands = it.commands.map { cmd -> cmd.toRequestCommand() }
                 )
             }
         )
     }
+
 
     fun CommandData.toRequestCommand(): CommandRequest {
         return CommandRequest(

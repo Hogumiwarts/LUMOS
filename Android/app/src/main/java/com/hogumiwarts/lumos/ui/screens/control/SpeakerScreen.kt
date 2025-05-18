@@ -438,5 +438,5 @@ fun SpeakerScreen(deviceId: Long) {
 @Preview
 @Composable
 fun SpeakerScreenPreview() {
-    SpeakerScreen(1L)
+    SpeakerScreen(1)
 }

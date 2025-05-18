@@ -13,8 +13,9 @@ enum class RoutineIconType(val iconName: String, @DrawableRes val iconResId: Int
 
     companion object {
         fun fromName(name: String): RoutineIconType? {
-            return values().find { it.iconName == name.trim() }
+            return values().find { it.iconName.equals(name.trim(), ignoreCase = true) }
         }
+
 
         fun getResIdByName(name: String?): Int {
             return fromName(name?.trim().orEmpty())?.iconResId ?: R.drawable.ic_laptop

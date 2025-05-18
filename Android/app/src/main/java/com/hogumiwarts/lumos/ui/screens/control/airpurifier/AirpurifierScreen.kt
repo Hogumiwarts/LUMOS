@@ -46,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.gson.annotations.SerializedName
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.LoadingComponent
-import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierIntent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierPowerState
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.AirpurifierStatusState

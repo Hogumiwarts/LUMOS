@@ -15,6 +15,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -73,7 +74,7 @@ fun PreviewSpeakerScreenContent(
     var volume by remember { mutableIntStateOf(speakerDevice.audioVolume) }
     var isMuted by remember { mutableStateOf(false) }
     val primaryColor = Color(0xFF4A5BB9)
-    var isPlaying by remember { mutableStateOf(false) }
+    var isPlaying: Boolean? by remember { mutableStateOf(null) } // null: 선택 전
 
     val infiniteTransition = rememberInfiniteTransition(label = "회전 애니메이션 트랜잭션")
     val rotation by infiniteTransition.animateFloat(
@@ -308,9 +309,15 @@ fun PreviewSpeakerScreenContent(
                         Image(
                             painter = painterResource(id = R.drawable.bg_sample_album_cover),
                             contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
+                        )
+
+                        // 어두운 반투명 오버레이
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.3f))
                         )
 
                         // 타이틀 & 가수
@@ -352,25 +359,58 @@ fun PreviewSpeakerScreenContent(
                             Spacer(modifier = Modifier.weight(1f))
 
                             //재생 or 일시정지
-                            Box(
+                            Column(
                                 modifier = Modifier
-                                    .size(45.dp),
-                                contentAlignment = Alignment.Center
+                                    .width(70.dp)
+                                    .height(70.dp),
+                                verticalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                Icon(
-                                    painterResource(id = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play),
-                                    contentDescription = if (isPlaying) "일시정지" else "재생",
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null,  // ripple 효과 제거
-                                            role = Role.Button,
-                                            onClick = { isPlaying = !isPlaying }
-                                        ),
-                                    tint = Color.White
-                                )
+                                listOf(true to "재생", false to "일시정지").forEach { (state, label) ->
+                                    val selected = isPlaying == state
+                                    val borderColor =
+                                        if (selected) primaryColor else Color(0xFFD9DCE8)
+                                    val backgroundColor =
+                                        if (selected) primaryColor else Color.White
+                                    val textColor = if (selected) Color.White else Color.Black
+
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxWidth()
+                                            .border(
+                                                width = 1.dp,
+                                                color = borderColor,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .background(
+                                                color = backgroundColor,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = rememberRipple(
+                                                    bounded = true,
+                                                    color = primaryColor
+                                                )
+                                            ) {
+                                                isPlaying = state
+                                            }
+                                            .padding(vertical = 2.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            color = textColor,
+                                            fontFamily = nanum_square_neo,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                }
                             }
+
                         }
                     }
 
@@ -475,17 +515,21 @@ fun PreviewSpeakerScreenContent(
             PrimaryButton(
                 buttonText = "설정하기",
                 onClick = {
-                    val commandDevice = selectedDevice.toCommandDeviceForSpeaker(
-                        isOn = !isMuted,
-                        volume = volume
-                    )
-
+                    val commandDevice = isPlaying?.let {
+                        selectedDevice.toCommandDeviceForSpeaker(
+                            isOn = !isMuted,
+                            volume = volume,
+                            isPlaying = it
+                        )
+                    }
 
                     val json = Gson().toJson(commandDevice)
+
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "commandDeviceJson",
                         json
                     )
+
                     navController.popBackStack()
                 },
                 modifier = Modifier

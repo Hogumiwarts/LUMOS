@@ -63,4 +63,6 @@ class SwitchRepositoryImpl@Inject constructor(
             PatchSwitchPowerResult.Error(CommonError.NetworkError)
         }
     }
+
+
 }
