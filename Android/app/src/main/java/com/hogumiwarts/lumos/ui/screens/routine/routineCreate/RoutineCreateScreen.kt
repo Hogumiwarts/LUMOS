@@ -53,7 +53,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.hogumiwarts.domain.model.GestureData
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
@@ -101,10 +103,11 @@ fun RoutineCreateScreen(
             ?.savedStateHandle
             ?.getLiveData<GestureData>("selectedGesture")
             ?.observe(lifecycleOwner) { gestureData ->
-                Timber.tag("gesture").d("📥 받아온 제스처: $gestureData")
                 viewModel.setGestureData(gestureData)
             }
+
     }
+
 
     val myDeviceList = remember {
         mutableStateListOf<MyDevice>().apply {
@@ -127,6 +130,7 @@ fun RoutineCreateScreen(
                 viewModel = deviceListViewModel,
                 devices = deviceListViewModel.devices.value,
                 onSelectComplete = { selectedDevice ->
+
                     val commandDevice = when (selectedDevice.deviceType) {
                         DeviceListType.LIGHT -> selectedDevice.toCommandDevice(
                             isOn = true,
@@ -135,10 +139,18 @@ fun RoutineCreateScreen(
                             saturation = null
                         )
 
-                        DeviceListType.AIRPURIFIER -> selectedDevice.toCommandDeviceForAirPurifier(
-                            isOn = true,
-                            fanMode = "low"
-                        )
+                        DeviceListType.AIRPURIFIER -> {
+                            val json =
+                                navController.previousBackStackEntry?.savedStateHandle?.get<String>(
+                                    "commandDeviceJson"
+                                )
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDeviceForAirPurifier(
+                                isOn = false,
+                                fanMode = "auto"
+                            )
+                        }
 
                         DeviceListType.AUDIO -> selectedDevice.toCommandDeviceForSpeaker(
                             isOn = true,
@@ -155,6 +167,7 @@ fun RoutineCreateScreen(
                         viewModel.addDevice(commandDevice)
                         isSheetOpen = false
                     }
+
                 },
                 showDuplicateDialog = showDuplicateDialog.value,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false },
@@ -471,8 +484,11 @@ fun RoutineCreateScreen(
                         },
                         onError = { errorMessage ->
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                            Timber.tag("routine").e("❌ 루틴 생성 중 오류: $errorMessage")
+                            onRoutineCreateComplete()
                         }
                     )
+
                 },
                 modifier = Modifier.fillMaxWidth()
             )

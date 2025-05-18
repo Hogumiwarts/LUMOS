@@ -28,6 +28,7 @@ import com.hogumiwarts.lumos.ui.screens.control.AirQuality
 import com.hogumiwarts.lumos.ui.screens.control.toAirQuality
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.ui.viewmodel.AirpurifierViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun PreviewAirPurifierScreenContent(
@@ -35,6 +36,8 @@ fun PreviewAirPurifierScreenContent(
     selectedDevice: MyDevice,
     viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     val deviceId = selectedDevice.deviceId
     var selectedFanMode by remember { mutableStateOf("Auto") }
     var checked by remember { mutableStateOf(false) }
@@ -50,46 +53,45 @@ fun PreviewAirPurifierScreenContent(
 
     val state by viewModel.state.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
+    var isInitialLoad by remember { mutableStateOf(true) }
 
-    LaunchedEffect(deviceId) {
-        viewModel.sendIntent(AirpurifierIntent.LoadAirpurifierStatus(deviceId))
-    }
+    LaunchedEffect(state) {
+        if (state is AirpurifierStatusState.Loaded) {
+            val data = (state as AirpurifierStatusState.Loaded).data
+            checked = data.activated
 
-
-    when (state) {
-        is AirpurifierStatusState.Loaded -> {
-            LaunchedEffect(state) {
-                val data = (state as AirpurifierStatusState.Loaded).data
-                checked = data.activated
+            // 최초 1회만 fanMode 세팅
+            if (isInitialLoad) {
                 selectedFanMode = data.fanMode
-                dustLevel = data.dustLevel
-                fineDustLevel = data.fineDustLevel
-                odorLevel = data.odorLevel
-                filterUsageTime = data.filterUsageTime
-                deviceModel = data.deviceModel
-                manufacturerCode = data.manufacturerCode
-                name = data.deviceName
+                isInitialLoad = false
+            }
 
-                airQualityText = when (data.caqi.toAirQuality()) {
-                    AirQuality.VeryLow -> "매우 좋음"
-                    AirQuality.Low -> "좋음"
-                    AirQuality.Medium -> "보통"
-                    AirQuality.High -> "나쁨"
-                    AirQuality.VeryHigh -> "매우 나쁨"
-                }
+            dustLevel = data.dustLevel
+            fineDustLevel = data.fineDustLevel
+            odorLevel = data.odorLevel
+            filterUsageTime = data.filterUsageTime
+            deviceModel = data.deviceModel
+            manufacturerCode = data.manufacturerCode
+            name = data.deviceName
 
-                airQualityColor = when (data.caqi.toAirQuality()) {
-                    AirQuality.VeryLow -> Color(0xFF4CD137)
-                    AirQuality.Low -> Color(0xFF7FBA00)
-                    AirQuality.Medium -> Color(0xFFFBC531)
-                    AirQuality.High -> Color(0xFFE84118)
-                    AirQuality.VeryHigh -> Color(0xFFC23616)
-                }
+            airQualityText = when (data.caqi.toAirQuality()) {
+                AirQuality.VeryLow -> "매우 좋음"
+                AirQuality.Low -> "좋음"
+                AirQuality.Medium -> "보통"
+                AirQuality.High -> "나쁨"
+                AirQuality.VeryHigh -> "매우 나쁨"
+            }
+
+            airQualityColor = when (data.caqi.toAirQuality()) {
+                AirQuality.VeryLow -> Color(0xFF4CD137)
+                AirQuality.Low -> Color(0xFF7FBA00)
+                AirQuality.Medium -> Color(0xFFFBC531)
+                AirQuality.High -> Color(0xFFE84118)
+                AirQuality.VeryHigh -> Color(0xFFC23616)
             }
         }
-
-        else -> {}
     }
+
 
     Box(
         modifier = Modifier
@@ -209,12 +211,8 @@ fun PreviewAirPurifierScreenContent(
             }
 
             Spacer(Modifier.height(24.dp))
-
-            Text("기기 정보", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text("필터 사용 시간 | ${filterUsageTime}시간", fontSize = 14.sp, color = Color.DarkGray)
-            Text("모델명 | ${deviceModel}", fontSize = 14.sp, color = Color.DarkGray)
-            Text("제조사 | ${manufacturerCode}", fontSize = 14.sp, color = Color.DarkGray)
         }
+
 
         Box(
             modifier = Modifier
@@ -235,7 +233,16 @@ fun PreviewAirPurifierScreenContent(
                         "commandDeviceJson",
                         json
                     )
-                    navController.popBackStack()
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "fanMode",
+                        selectedFanMode
+                    )
+                    navController.previousBackStackEntry?.savedStateHandle?.set("isOn", checked)
+
+                    coroutineScope.launch {
+                        kotlinx.coroutines.delay(100)
+                        navController.popBackStack()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

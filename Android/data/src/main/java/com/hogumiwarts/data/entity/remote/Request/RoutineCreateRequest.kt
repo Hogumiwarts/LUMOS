@@ -16,5 +16,5 @@ data class CommandRequest(
     val component: String,
     val capability: String,
     val command: String,
-    val arguments: List<Any>
+    val arguments: List<Any>?
 )

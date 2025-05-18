@@ -58,12 +58,13 @@ fun MyDevice.toCommandDevice(
             component = "main",
             capability = "colorControl",
             command = "setColor",
-            arguments = listOf(
+            arguments = listOfNotNull(
                 mapOf(
                     "hue" to hue,
                     "saturation" to saturation
-                )
+                ).takeIf { it.values.none { value -> value == null } }
             )
+
         )
     )
 
