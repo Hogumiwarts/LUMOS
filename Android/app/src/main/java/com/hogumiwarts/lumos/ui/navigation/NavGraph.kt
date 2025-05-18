@@ -35,11 +35,16 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
+import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
+import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 
 @Composable
 fun NavGraph(
+    deviceId: Long, deviceType: String,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -60,7 +65,14 @@ fun NavGraph(
     val tokenDataStore = TokenDataStore(context = LocalContext.current)
 
     if (isLoggedIn != null) {
-        val startDestination = if (isLoggedIn == true) "home" else "welcome"
+        val startDestination = if (isLoggedIn == true){
+            if(deviceId == -1L || deviceType== ""){
+                "home"
+            }else{
+                deviceType
+            }
+
+        } else "welcome"
         //val startDestination = "welcome"
 
         NavHost(
@@ -318,6 +330,30 @@ fun NavGraph(
 
             }
 
+            // 워치에서 호출 후 조명 제어화면
+            composable("LIGHT") {
+                    RealLightScreenContent(
+                        deviceId = deviceId
+                    )
+            }
+            // 워치에서 호출 후 공기 청정기 제어화면
+            composable("AIRPURIFIER") {
+                AirpurifierScreen(
+                    deviceId = deviceId
+                )
+            }
+            // 워치에서 호출 후 공기 청정기 제어화면
+            composable("AUDIO") {
+                SpeakerScreen(
+                    deviceId = deviceId
+                )
+            }
+            // 워치에서 호출 후 공기 청정기 제어화면
+            composable("SWITCH") {
+                SwitchScreen(
+                    deviceId = deviceId
+                )
+            }
 
 
             composable("routine_create") {

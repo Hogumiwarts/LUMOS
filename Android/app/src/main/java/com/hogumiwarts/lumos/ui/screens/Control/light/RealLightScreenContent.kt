@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -49,6 +50,7 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.LoadingComponent
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
+import com.hogumiwarts.lumos.ui.viewmodel.AirpurifierViewModel
 import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -56,12 +58,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RealLightScreenContent(
-    viewModel: LightViewModel,
-    selectedDevice: MyDevice
+    viewModel: LightViewModel= hiltViewModel(),
+    deviceId: Long
 ) {
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
-        viewModel.sendIntent(LightIntent.LoadLightStatus(selectedDevice.deviceId.toInt()))
+        viewModel.sendIntent(LightIntent.LoadLightStatus(deviceId.toLong()))
     }
 
     val state by viewModel.state.collectAsState()
@@ -134,7 +136,7 @@ fun RealLightScreenContent(
             Switch(
                 checked = checked,
                 onCheckedChange = {
-                    viewModel.sendIntent(LightIntent.ChangeLightPower(selectedDevice.deviceId.toInt(), it))
+                    viewModel.sendIntent(LightIntent.ChangeLightPower(deviceId.toLong(), it))
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,

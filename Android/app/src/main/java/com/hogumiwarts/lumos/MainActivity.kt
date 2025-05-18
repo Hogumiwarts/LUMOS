@@ -30,10 +30,13 @@ import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
+import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
 import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.control.UwbRanging
+import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -116,6 +119,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val deviceId = intent.getLongExtra("deviceId", -1L) // 기본값 -1
+        val deviceType = intent.getStringExtra("deviceType") ?: ""
+
+        Log.d("MainActivity", "받은 deviceId: $deviceId")
+        Log.d("MainActivity", "받은 deviceType: $deviceType")
+
         // 시스템 바 영역까지 앱이 확장되도록
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -140,8 +149,8 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent
                 ) {
 
-                    MainScreen()
-//                    LightScreen()
+                        MainScreen(deviceId, deviceType)
+
                 }
             }
         }
@@ -209,6 +218,6 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     LUMOSTheme {
         val navController = rememberNavController()
-        NavGraph(navController = navController)
+        NavGraph(1,"",navController = navController)
     }
 }

@@ -174,7 +174,8 @@ private fun ScrollScreen(name : String, isOn: Boolean, bright: Int, deviceId: Lo
         // 4. Other Setting
         Box(modifier = Modifier.offset(y = otherOffsetY)) {
             LightOtherSetting(
-                onSwipeDown = { screen = "color" }
+                deviceId = deviceId,
+                onSwipeDown = { screen = "color" },
             )
         }
 

@@ -133,6 +133,7 @@ fun LoginScreen(navController: NavHostController, viewModel: DeviceViewModel = h
             ) {
 
                 val context = LocalContext.current
+
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = Color(0x10FFFFFF),
