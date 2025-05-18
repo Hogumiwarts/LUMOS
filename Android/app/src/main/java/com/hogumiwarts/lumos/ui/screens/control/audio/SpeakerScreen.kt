@@ -90,6 +90,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
     }
     val state by viewModel.state.collectAsState()
     val playState by viewModel.playState.collectAsState()
+    val volumeState by viewModel.volumeState.collectAsState()
 
 
 
@@ -132,6 +133,21 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
             }
         }
     }
+    
+    LaunchedEffect(volumeState) {
+        when(volumeState){
+            is AudioVolumeState.Error -> {
+                // TODO: 에러처리 
+            }
+            AudioVolumeState.Idle -> {}
+            is AudioVolumeState.Loaded -> {
+                volume= (volumeState as AudioVolumeState.Loaded).data.volume
+            }
+            AudioVolumeState.Loading -> {
+                // TODO: 로딩구현 
+            }
+        }
+    }
 
     when(playState){
         is AudioPlayState.Error -> {
@@ -146,6 +162,8 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
             // TODO: 로딩 화면
         }
     }
+    
+    
 
 
     var isMuted by remember { mutableStateOf(false) }
@@ -297,7 +315,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                 onValueChangeFinished = {
                     // 손을 뗐을 때 로그 출력
                     Log.d("VolumeSlider", "최종 볼륨 값: $volume")
-
+                        viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId=deviceId, volume = volume))
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -455,7 +473,12 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                                     indication = null,  // ripple 효과 제거
                                     role = Role.Button,
                                     onClick = {
-                                        viewModel.sendIntent(AudioIntent.LoadAudioPlay(deviceId, !isPlaying))
+                                        viewModel.sendIntent(
+                                            AudioIntent.LoadAudioPlay(
+                                                deviceId,
+                                                !isPlaying
+                                            )
+                                        )
 //                                        isPlaying = !isPlaying
                                     }
                                 )
