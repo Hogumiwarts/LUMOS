@@ -44,6 +44,9 @@ class DeviceListViewModel @Inject constructor(
     val selectedDeviceId = mutableStateOf<Int?>(null)
     val showDialog = mutableStateOf(false)
 
+    val clickDevice = mutableStateOf<MyDevice?>(null)
+
+
 
     private val _isLinked = MutableStateFlow(false) // SmartThings 계정 연동 여부
     val isLinked: StateFlow<Boolean> = _isLinked
@@ -95,6 +98,8 @@ class DeviceListViewModel @Inject constructor(
             showDialog.value = true
         } else {
             //todo: 각 기기의 제어 화면으로 이동
+            clickDevice.value = device
+
         }
     }
 
