@@ -120,6 +120,11 @@ fun DetectDeviceScreen(
         }
     }
 
+    BackHandler {
+        controlViewModel.cancelDetection()
+        navController.popBackStack()
+    }
+
 
     Box(
         modifier = Modifier
