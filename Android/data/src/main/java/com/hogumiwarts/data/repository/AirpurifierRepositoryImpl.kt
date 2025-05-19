@@ -30,6 +30,7 @@ class AirpurifierRepositoryImpl @Inject constructor(
 
         } catch (e: retrofit2.HttpException) {
             when (e.code()) {
+                401-> AirpurifierResult.Error(CommonError.UnauthorizedAccess)
                 404 -> AirpurifierResult.Error(CommonError.UserNotFound)
                 else -> AirpurifierResult.Error(CommonError.UnknownError)
             }
@@ -57,6 +58,7 @@ class AirpurifierRepositoryImpl @Inject constructor(
 
         } catch (e: retrofit2.HttpException) {
             when (e.code()) {
+                401 -> PatchAirpurifierPowerResult.Error(CommonError.UnauthorizedAccess)
                 404 -> PatchAirpurifierPowerResult.Error(CommonError.UserNotFound)
                 else -> PatchAirpurifierPowerResult.Error(CommonError.UnknownError)
             }
@@ -85,6 +87,7 @@ class AirpurifierRepositoryImpl @Inject constructor(
         } catch (e: retrofit2.HttpException) {
             when (e.code()) {
                 404 -> PatchAirpurifierFanModeResult.Error(CommonError.UserNotFound)
+                401 -> PatchAirpurifierFanModeResult.Error(CommonError.UnauthorizedAccess)
                 else -> PatchAirpurifierFanModeResult.Error(CommonError.UnknownError)
             }
 

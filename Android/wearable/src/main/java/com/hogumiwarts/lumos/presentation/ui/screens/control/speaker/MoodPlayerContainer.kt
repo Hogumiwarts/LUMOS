@@ -80,7 +80,7 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
     var dragStartPosition by remember { mutableStateOf(Offset.Zero) }
     var totalVerticalDrag by remember { mutableFloatStateOf(0f) }
 
-    var imageUrl by remember { mutableStateOf(data.deviceImg) }
+    var imageUrl by remember { mutableStateOf(data.audioImg) }
     var name by remember { mutableStateOf(data.audioName) }
     var artists by remember { mutableStateOf(data.audioArtist) }
     val powerState by viewModel.powerState.collectAsState()

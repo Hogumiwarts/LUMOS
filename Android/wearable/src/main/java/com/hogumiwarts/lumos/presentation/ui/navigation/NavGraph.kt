@@ -166,7 +166,7 @@ fun NavGraph(
             val deviceId = it.arguments?.getString("deviceId")
 
             if (type != null && deviceId != null) {
-                AipurifierSetting(deviceId = deviceId.toLong(), type = type)
+                AipurifierSetting(deviceId = deviceId.toLong(), type = type, navController)
             }
 
         }

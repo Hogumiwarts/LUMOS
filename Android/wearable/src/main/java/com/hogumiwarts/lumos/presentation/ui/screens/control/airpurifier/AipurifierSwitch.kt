@@ -52,6 +52,7 @@ import com.hogumiwarts.lumos.presentation.ui.function.sendOpenLightMessage
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.AirpurifierViewModel
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -78,6 +79,13 @@ fun AipurifierSwitch(
             when ((state as AirpurifierStatusState.Error).error) {
                 CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
                 CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                CommonError.UnauthorizedAccess->{
+                    navController.navigate("login") {
+                        // 뒤로가기 시 로그인 화면으로 못 돌아가게 스택 클리어 옵션 추가 가능
+                        popUpTo("home") { inclusive = true } // 필요에 따라 홈 등 이전 화면 지정
+                        launchSingleTop = true
+                    }
+                }
                 else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
             }
         }
@@ -102,11 +110,13 @@ private fun leaded(
     switchState: Boolean,
     data: AirpurifierData,
     deviceId: Long,
-    viewModel: AirpurifierViewModel = hiltViewModel()
+    viewModel: AirpurifierViewModel = hiltViewModel(),
+    viewModel1: DeviceViewModel = hiltViewModel()
 ) {
 
     val isOn by viewModel.isOn.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
+    viewModel1.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MDM1MDI0LCJleHAiOjE3NDcxMjE0MjR9.fZSp8dEpCWN-k1bB2zF_IEVn1Yi7_lIeev_zTJERnqY","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
 
     // 폰에서 세부 설정 클릭시 애니메이션 효과 여부
     var showAnimation by remember { mutableStateOf(false) }
@@ -241,7 +251,20 @@ private fun leaded(
     }
 
     when(powerState){
-        is AirpurifierPowerState.Error -> {}
+        is AirpurifierPowerState.Error -> {
+            when ((powerState as AirpurifierStatusState.Error).error) {
+                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
+                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                CommonError.UnauthorizedAccess->{
+                    navController.navigate("login") {
+                        // 뒤로가기 시 로그인 화면으로 못 돌아가게 스택 클리어 옵션 추가 가능
+                        popUpTo("home") { inclusive = true } // 필요에 따라 홈 등 이전 화면 지정
+                        launchSingleTop = true
+                    }
+                }
+                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+            }
+        }
         AirpurifierPowerState.Idle -> {}
         is AirpurifierPowerState.Loaded -> {}
         AirpurifierPowerState.Loading -> {
