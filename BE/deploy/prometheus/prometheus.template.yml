@@ -18,19 +18,19 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets:
-          - lumos-gateway-service-blue:8080
-          - lumos-auth-service-blue:8080
-          - lumos-member-service-blue:8080
-          - lumos-device-service-blue:8080
-          - lumos-gesture-service-blue:8080
-          - lumos-gesture-sensor-service-blue:8080
-          - lumos-routine-service-blue:8080
+          - lumos-gateway-service-{{color}}:8080
+          - lumos-auth-service-{{color}}:8080
+          - lumos-member-service-{{color}}:8080
+          - lumos-device-service-{{color}}:8080
+          - lumos-gesture-service-{{color}}:8080
+          - lumos-gesture-sensor-service-{{color}}:8080
+          - lumos-routine-service-{{color}}:8080
     relabel_configs:
       - source_labels: [__address__]
-        regex: 'lumos-(.*)-service-blue:8080'
+        regex: 'lumos-(.*)-service-{{color}}:8080'
         target_label: instance
-        replacement: '${1}-service-blue'
+        replacement: '${1}-service-{{color}}'
       - source_labels: [__address__]
-        regex: 'lumos-(.*)-service-blue:8080'
+        regex: 'lumos-(.*)-service-{{color}}:8080'
         target_label: job
         replacement: '${1}'
