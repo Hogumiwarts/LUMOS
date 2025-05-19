@@ -66,7 +66,7 @@ data class AirPurifierDevice(
     @SerializedName("dustLevel") val dustLevel: Int = 0,  // 미세먼지
     @SerializedName("fineDustLevel") val fineDustLevel: Int = 0,  // 초미세먼지
     @SerializedName("fanMode") val fanMode: String = "",  // 팬 모드 (예: 자동, 강, 중, 약)
-    @SerializedName("filterUsageTime") val filterUsageTime: Int = 0  // 필터 사용 시간(시간)
+    @SerializedName("filterUsageTime") val filterUsageTime: Int = 0,  // 필터 사용 시간(시간)
 )
 
 enum class AirQuality {
@@ -93,7 +93,7 @@ fun String?.toAirQuality(): AirQuality {
 fun AirpurifierScreen(
     viewModel: AirpurifierViewModel = hiltViewModel(),
     deviceId: Long,
-    ) {
+) {
     var deviceId by remember { mutableStateOf(deviceId) }
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
@@ -122,7 +122,6 @@ fun AirpurifierScreen(
     )
 
 
-
     // 공기 질 enum을 한국어 텍스트로 변환
     var airQualityText by remember { mutableStateOf("") }
 
@@ -138,19 +137,18 @@ fun AirpurifierScreen(
     var fineDustLevel by remember { mutableStateOf(0) }
     var odorLevel by remember { mutableStateOf(0) }
     var filterUsageTime by remember { mutableStateOf(0) }
-    var deviceModel by remember { mutableStateOf(" " )}
-    var manufacturerCode by remember { mutableStateOf(" " )}
-    var name by remember { mutableStateOf("공기청정기" )}
-
-    when(state){
-        is AirpurifierStatusState.Error -> {}
-        AirpurifierStatusState.Idle -> {}
-        is AirpurifierStatusState.Loaded -> {
-            LaunchedEffect(state) {
+    var deviceModel by remember { mutableStateOf(" ") }
+    var manufacturerCode by remember { mutableStateOf(" ") }
+    var name by remember { mutableStateOf("공기청정기") }
+    LaunchedEffect(state) {
+        when (state) {
+            is AirpurifierStatusState.Error -> {}
+            AirpurifierStatusState.Idle -> {}
+            is AirpurifierStatusState.Loaded -> {
 
 
                 val data = (state as AirpurifierStatusState.Loaded).data
-                checked= data.activated
+                checked = data.activated
 
                 airQualityText = when (data.caqi.toAirQuality()) {
                     AirQuality.VeryLow -> "매우 좋음"
@@ -185,8 +183,9 @@ fun AirpurifierScreen(
                 name = data.deviceName
 
             }
+            AirpurifierStatusState.Loading -> {}
         }
-        AirpurifierStatusState.Loading -> {}
+
     }
 
 
@@ -229,7 +228,7 @@ fun AirpurifierScreen(
             Switch(
                 checked = checked,
                 onCheckedChange = {
-                    viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId,it))
+                    viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId, it))
 //                    checked = it
                 },
                 colors = SwitchDefaults.colors(
@@ -397,7 +396,12 @@ fun AirpurifierScreen(
                     onClick = {
                         selectedFanMode = mode
                         Log.d("TAG", "AirpurifierScreen: $selectedFanMode  $mode")
-                        viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierFenMode(deviceId,selectedFanMode))
+                        viewModel.sendIntent(
+                            AirpurifierIntent.ChangeAirpurifierFenMode(
+                                deviceId,
+                                selectedFanMode
+                            )
+                        )
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -440,7 +444,7 @@ fun AirpurifierScreen(
 
     }
 
-    when(powerState){
+    when (powerState) {
         is AirpurifierPowerState.Error -> {}
         AirpurifierPowerState.Idle -> {}
         is AirpurifierPowerState.Loaded -> {
@@ -449,6 +453,7 @@ fun AirpurifierScreen(
             Log.d("TAG", "AirpurifierScreen: $checked")
 
         }
+
         AirpurifierPowerState.Loading -> {
             LoadingComponent()
         }
@@ -473,7 +478,7 @@ fun FanButton(
     mode: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -498,7 +503,6 @@ fun FanButton(
         )
     }
 }
-
 
 
 //@Preview(showBackground = true)

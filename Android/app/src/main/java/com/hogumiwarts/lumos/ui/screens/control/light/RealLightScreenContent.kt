@@ -368,12 +368,13 @@ fun RealLightScreenContent(
 
         LightBrightState.Loading -> LoadingComponent()
     }
+    LaunchedEffect(colorState) {
 
-    when (colorState) {
-        is LightColorState.Error -> {}
-        LightColorState.Idle -> {}
-        is LightColorState.Loaded -> {
-            LaunchedEffect(colorState) {
+        when (colorState) {
+            is LightColorState.Error -> {}
+            LightColorState.Idle -> {}
+            is LightColorState.Loaded -> {
+
                 isColor = true
                 val data = (colorState as LightColorState.Loaded).data
                 controller.selectByHsv(
@@ -384,11 +385,13 @@ fun RealLightScreenContent(
                     false
                 )
 
-            }
-        }
 
-        LightColorState.Loading -> LoadingComponent()
+            }
+
+            LightColorState.Loading -> {}
+        }
     }
+
     when (temperatureState) {
         is LightTemperatureState.Error -> {}
         LightTemperatureState.Idle -> {}

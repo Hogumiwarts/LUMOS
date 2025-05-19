@@ -94,7 +94,6 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
         deviceViewModel.getJwt()
-
         controlViewModel.prepareSession()
 
         deviceViewModel.checkAccountLinked()
