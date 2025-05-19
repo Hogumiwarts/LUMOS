@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -85,10 +86,40 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1001)
         }
 
+        // 진동 권한 확인 (API 33 이상에서 필요)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.VIBRATE), 1002)
+            }
+        }
+
+        // 센서 초기화
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         linearAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+
+        // 진동 초기화
+        webSocketViewModel.initVibrator(this)
+
+        // 제스처 콜백 설정 (중요!)
+        webSocketViewModel.onGesture1Detected = {
+            Log.d("Gesture", "제스처 1 감지됨")
+            // 1번 제스처는 단순히 모드 토글용이므로 버퍼만 지우기
+            imuDataList.clear()
+        }
+
+        webSocketViewModel.onGesture2Detected = {
+            Log.d("Gesture", "ACTIVE 상태: 제스처 2 감지됨")
+            // 2,3번 제스처 감지 후 잠시 데이터 수집 중단 (연속 감지 방지)
+            clearIMUDataAndPauseCollection()
+        }
+
+        webSocketViewModel.onGesture3Detected = {
+            Log.d("Gesture", "ACTIVE 상태: 제스처 3 감지됨")
+            // 2,3번 제스처 감지 후 잠시 데이터 수집 중단 (연속 감지 방지)
+            clearIMUDataAndPauseCollection()
+        }
 
         // CONTINUOUS 모드에서만 자동으로 시작
         if (gestureMode == GestureMode.CONTINUOUS) {
@@ -105,6 +136,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             LUMOSTheme {
 
                 val prediction by webSocketViewModel.prediction
+                val recognitionMode by webSocketViewModel.recognitionMode.collectAsState()
 
                 Box(
                     modifier = Modifier
@@ -117,10 +149,6 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                     )
-
-
-                    val navController = rememberNavController()
-                    NavGraph(navController)
 
                     when (gestureMode) {
                         // 테스트 모드
@@ -145,16 +173,18 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                                 finish()
                             }
                         }
-
                         // 연속 감지 모드
                         GestureMode.CONTINUOUS -> {
-
+                            val navController = rememberNavController()
                             NavGraph(navController)
 
                             // 예측값이 숫자이고 실행 대상인 경우
-                            prediction.toLongOrNull()?.let { longValue ->
-                                if (longValue in listOf(1L, 2L, 4L)) {
-                                    RoutineExecuteScreen(longValue)
+                            if (recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVE) {
+                                prediction.toLongOrNull()?.let { longValue ->
+                                    if (longValue in listOf(2L, 3L)) {
+                                        Log.d("Routine", "ACTIVE 모드에서 루틴 화면 표시: 제스처 $longValue")
+                                        RoutineExecuteScreen(longValue)
+                                    }
                                 }
                             }
                         }
@@ -176,6 +206,21 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
         isMeasuring = false
         imuDataList.clear()
+    }
+
+    // 데이터 수집 일시 정지 함수 추가
+    private fun clearIMUDataAndPauseCollection() {
+        // 버퍼 지우기
+        imuDataList.clear()
+
+        // 잠시 측정 중단 플래그 설정
+        isMeasuring = false
+
+        // 1.5초 후 측정 재개
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            isMeasuring = true
+            Log.d("IMU", "데이터 수집 재개")
+        }, 1500)
     }
 
     override fun onSensorChanged(event: SensorEvent?) {

@@ -3,12 +3,8 @@ package com.hogumiwarts.lumos.presentation.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hogumiwarts.domain.model.audio.AudioStatusResult
 import com.hogumiwarts.domain.model.gesture.GestureDetailResult
-import com.hogumiwarts.domain.usecase.AudioUseCase
 import com.hogumiwarts.domain.usecase.GestureUseCase
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioIntent
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioStatusState
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureDetailState
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureIntent
 import dagger.hilt.android.lifecycle.HiltViewModel

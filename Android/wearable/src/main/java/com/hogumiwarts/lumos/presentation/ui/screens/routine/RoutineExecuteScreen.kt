@@ -63,12 +63,6 @@ fun RoutineExecuteScreen(
     }
 
     gestureViewModel.sendIntent(GestureIntent.LoadGestureDetail(gestureId))
-    val gesture = GestureDetailData(
-        gestureId,
-        "손목 회전",
-        "https://example.com/image.png",
-        "손목을 가볍게 회전합니다"
-    )
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -89,15 +83,21 @@ fun RoutineExecuteScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // 제스처 이미지
-            AsyncImage(
-                model = gestureImgUrl,
-                contentDescription = "제스처 이미지"
+//            AsyncImage(
+//                model = gestureImgUrl,
+//                contentDescription = "제스처 이미지"
+//            )
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_gesture),
+                contentDescription = "테스트 제스처 이미지",
+                modifier = Modifier.size(100.dp)
             )
 
             Log.d("TAG", "RoutineExecuteScreen: $gestureImgUrl")
 
             Text(
-                "루틴이 실행되었습니다.",
+                "${gestureId} 루틴이 실행되었습니다.",
                 color = Color.White,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
