@@ -107,4 +107,8 @@ done
 echo "🧹 $CURRENT_COLOR 앱 종료 중..."
 bash "$PROJECT_DIR/scripts/cleanup.sh" "$CURRENT_COLOR"
 
+echo "🧹 이미지 정리 중..."
+docker image prune -f
+echo "✅ 정리 완료!"
+
 echo "✅ 배포 완료: 현재 운영은 $PREV_COLOR 입니다."
