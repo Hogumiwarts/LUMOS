@@ -60,11 +60,14 @@ grep "server lumos-gateway-service" "$NGINX_CONF"
 # nginx reload
 # ======================
 if sudo docker ps --format '{{.Names}}' | grep -q "$NGINX_CONTAINER_NAME"; then
-  echo "🔄 Reloading Nginx (in $NGINX_CONTAINER_NAME)"
-  if ! sudo docker exec "$NGINX_CONTAINER_NAME" nginx -s reload; then
-    echo "⚠️ nginx reload 실패 → 컨테이너 재시작 시도"
-    sudo docker restart "$NGINX_CONTAINER_NAME"
+  echo "🔍 nginx 설정 파일 문법 검사"
+  if ! sudo docker exec "$NGINX_CONTAINER_NAME" nginx -t; then
+    echo "❌ nginx 설정 문법 오류! 재시작 중단"
+    exit 1
   fi
+
+  echo "🔄 Restarting Nginx"
+  sudo docker restart "$NGINX_CONTAINER_NAME"
 else
   echo "❌ Nginx 컨테이너 $NGINX_CONTAINER_NAME 가 존재하지 않습니다."
   exit 1
