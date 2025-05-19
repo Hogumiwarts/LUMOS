@@ -33,7 +33,6 @@ import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.data.GestureData
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMode
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.routine.RoutineExecuteScreen

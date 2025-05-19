@@ -39,12 +39,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.wear.compose.material.Text
+import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.AirpurifierViewModel
 
 @Composable
-fun AipurifierSetting(deviceId: Long,type: String, viewModel: AirpurifierViewModel = hiltViewModel()) {
+fun AipurifierSetting(deviceId: Long,type: String, navController: NavController,  viewModel: AirpurifierViewModel = hiltViewModel()) {
 
     ConstraintLayout(
         modifier = Modifier
@@ -132,7 +135,20 @@ fun AipurifierSetting(deviceId: Long,type: String, viewModel: AirpurifierViewMod
 
     val fanModeState by viewModel.fanModeState.collectAsState()
     when(fanModeState){
-        is AirpurifierFanModeState.Error -> {}
+        is AirpurifierFanModeState.Error -> {
+            when ((fanModeState as AirpurifierStatusState.Error).error) {
+                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
+                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                CommonError.UnauthorizedAccess->{
+                    navController.navigate("login") {
+                        // 뒤로가기 시 로그인 화면으로 못 돌아가게 스택 클리어 옵션 추가 가능
+                        popUpTo("home") { inclusive = true } // 필요에 따라 홈 등 이전 화면 지정
+                        launchSingleTop = true
+                    }
+                }
+                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+            }
+        }
         AirpurifierFanModeState.Idle -> {}
         is AirpurifierFanModeState.Loaded -> {
 

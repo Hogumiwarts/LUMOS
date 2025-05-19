@@ -41,7 +41,7 @@ fun RoutineDeviceListScreen(
     showDuplicateDialog: MutableState<Boolean>,
     onDismissDuplicateDialog: () -> Unit,
     navController: NavController,
-    alreadyAddedDeviceIds: List<Int>
+    alreadyAddedDeviceIds: List<Long>
 
 ) {
     // 선택 기기 상태
@@ -116,12 +116,15 @@ fun RoutineDeviceListScreen(
                         return@let
                     }
 
+
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "selectedDevice",
                         selected
                     )
 
-                    viewModel.clearSelectedDevice() // 선택 후 초기화
+                    onSelectComplete(selected)
+
+                    viewModel.clearSelectedDevice() // 선택 후 상태 초기화
 
                     when (selected.deviceType) {
                         DeviceListType.LIGHT -> {
@@ -157,7 +160,7 @@ fun RoutineDeviceListScreen(
             onDismiss = {
                 viewModel.clearSelectedDevice()
                 onDismissDuplicateDialog()
-            },            titleText = "선택할 수 없는 기기예요!",
+            }, titleText = "선택할 수 없는 기기예요!",
             bodyText = "기기 상태가 비활성화로 감지되어 제어할 수 없습니다. 거리가 멀어지면 비활성화로 전환될 수 있어요."
         )
 
@@ -167,7 +170,7 @@ fun RoutineDeviceListScreen(
             onDismiss = {
                 viewModel.clearSelectedDevice()
                 onDismissDuplicateDialog()
-            },            titleText = "이미 선택한 기기예요!",
+            }, titleText = "이미 선택한 기기예요!",
             bodyText = "같은 기기는 한 번만 설정할 수 있어요. 다른 기기로 시도해볼까요? ✨"
         )
     }

@@ -64,6 +64,7 @@ fun LoginScreen(navController: NavHostController, viewModel: DeviceViewModel = h
     val context = LocalContext.current
 
     DisposableEffect(Unit) {
+        viewModel.clearJwt()
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val token = intent.getStringExtra("token")

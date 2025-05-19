@@ -60,6 +60,12 @@ class DeviceViewModel @Inject constructor(
         }
 
     }
+
+    fun clearJwt(){
+        viewModelScope.launch {
+        }
+
+    }
     private val _tokenState = MutableStateFlow<TokenState>(TokenState.Loading)
     val tokenState: StateFlow<TokenState> = _tokenState
 

@@ -52,24 +52,25 @@ class DeviceRepositoryImpl @Inject constructor(
 
     override suspend fun getDevices(): GetDevicesResult {
         return try {
-            // ✅ API 호출
             val response = devicesApi.getGestureList()
+            val data = response.data
 
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
-            GetDevicesResult.Success(
-                data = DeviceMapper.fromDeviceListDataResponseList(response.data)
-            )
+            if (data != null) {
+                GetDevicesResult.Success(
+                    data = DeviceMapper.fromDeviceListDataResponseList(data)
+                )
+            } else {
+                GetDevicesResult.Error(CommonError.UnknownError)
+            }
 
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> GetDevicesResult.Error(CommonError.UserNotFound)
                 else -> GetDevicesResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             GetDevicesResult.Error(CommonError.NetworkError)
         }
     }
+
 }

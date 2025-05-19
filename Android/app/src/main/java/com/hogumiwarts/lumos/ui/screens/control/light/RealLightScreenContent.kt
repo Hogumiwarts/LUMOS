@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RealLightScreenContent(
-    viewModel: LightViewModel= hiltViewModel(),
+    viewModel: LightViewModel = hiltViewModel(),
     deviceId: Long
 ) {
     // 최초 진입 시 상태 요청
@@ -82,11 +82,9 @@ fun RealLightScreenContent(
 
     val controller = rememberColorPickerController()
 
-    when (state) {
-        is LightStatusState.Error -> {}
-        LightStatusState.Idle -> {}
-        is LightStatusState.Loaded -> {
-            LaunchedEffect(state) {
+    LaunchedEffect(state) {
+        when (state) {
+            is LightStatusState.Loaded -> {
                 val data = (state as LightStatusState.Loaded).data
                 checked = data.activated
                 brightness = data.brightness
@@ -98,19 +96,23 @@ fun RealLightScreenContent(
                     false
                 )
                 lightDevice = data
-            }
-        }
 
-        LightStatusState.Loading -> {}
+            }
+
+            is LightStatusState.Error -> {}
+            is LightStatusState.Loading -> {}
+            is LightStatusState.Idle -> {}
+            else -> {}
+        }
     }
 
     Column(
-    modifier = Modifier
-    .fillMaxSize()
-    .background(Color.White)
-    .verticalScroll(rememberScrollState())
-    .padding(24.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -291,6 +293,7 @@ fun RealLightScreenContent(
             )
         }
 
+
         Row() {
             Box(
                 modifier = Modifier
@@ -386,12 +389,13 @@ fun RealLightScreenContent(
 
         LightColorState.Loading -> LoadingComponent()
     }
-    when(temperatureState){
+    when (temperatureState) {
         is LightTemperatureState.Error -> {}
         LightTemperatureState.Idle -> {}
-        is LightTemperatureState.Loaded ->{
+        is LightTemperatureState.Loaded -> {
 
         }
+
         LightTemperatureState.Loading -> {
             LoadingComponent()
         }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.annotations.SerializedName
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.LightPreviewViewModel
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewLightScreenContent
@@ -31,8 +32,7 @@ fun LightScreen(
 
 ) {
     if (previewMode) { // 루틴 생성에서 띄울 화면
-        val viewModel: LightPreviewViewModel = hiltViewModel()
-        PreviewLightScreenContent(viewModel, selectedDevice, navController)
+        PreviewLightScreenContent(selectedDevice, navController)
     } else { // 직접 제어 화면
         val viewModel: LightViewModel = hiltViewModel()
         RealLightScreenContent(viewModel, selectedDevice.deviceId.toLong())

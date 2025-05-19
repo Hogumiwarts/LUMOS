@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDetail
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -46,10 +47,11 @@ import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlinx.coroutines.delay
 
 @Composable
 fun RoutineDetailScreen(
-    routineId: String?,
+    routineId: Long?,
     viewModel: RoutineDetailViewModel,
     onEdit: () -> Unit = {},
     navController: NavController
@@ -65,7 +67,6 @@ fun RoutineDetailScreen(
             Toast.makeText(context, "\uD83D\uDE22 루틴 정보를 찾을 수 없습니다!", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     when (state) {
         is RoutineDetailState.Loading -> {
@@ -93,6 +94,17 @@ fun RoutineDetailScreen(
             )
         }
 
+        RoutineDetailState.Deleted -> {
+            LaunchedEffect(state) {
+                if (state is RoutineDetailState.Deleted) {
+                    delay(300) // ViewModel 작업 종료 대기
+                    navController.popBackStack()
+
+                    Toast.makeText(context, "루틴이 삭제되었습니다!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     }
 
     ConfirmCancelDialog(
@@ -101,7 +113,12 @@ fun RoutineDetailScreen(
         bodyText = "루틴을 삭제하면 설정된 기기 동작도 모두 사라져요. 그래도 삭제하시겠어요?",
         onConfirm = {
             showDeleteDialog = false
-            // TODO: 삭제 API 호출 or navigation.popBackStack()
+
+            routineId?.let {
+                viewModel.deleteRoutine(it) // 실제 삭제 요청
+            } ?: run {
+                Toast.makeText(context, "삭제할 루틴 ID가 유효하지 않아요!", Toast.LENGTH_SHORT).show()
+            }
         },
         onCancel = { showDeleteDialog = false }
     )
@@ -173,7 +190,33 @@ fun RoutineDetailContent(
                 Text(
                     "수정",
                     modifier = Modifier.clickable {
-                        onEdit()
+                        navController.currentBackStackEntry?.savedStateHandle?.apply {
+                            set("editRoutineId", routine.routineId)
+                            set("editRoutineName", routine.routineName)
+                            set("editRoutineIcon", routine.routineIcon)
+                            set("editDevices", devices)
+
+                            // 여기가 추가 포인트
+                            if (routine.gestureId != 0L && !routine.gestureName.isNullOrBlank()) {
+                                val gesture = routine.gestureDescription?.let {
+                                    routine.gestureImageUrl?.let { it1 ->
+                                        routine.gestureId?.let { it2 ->
+                                            GestureData(
+                                                routineId = routine.routineId,
+                                                gestureId = it2,
+                                                gestureName = routine.gestureName,
+                                                gestureDescription = it,
+                                                gestureImageUrl = it1,
+                                                routineName = routine.routineName,
+                                            )
+                                        }
+                                    }
+                                }
+                                set("selectedGesture", gesture)
+                            }
+                        }
+
+                        onEdit() // routineEdit 화면으로 이동하는 Nav 로직
                     },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = nanum_square_neo,
@@ -200,30 +243,43 @@ fun RoutineDetailContent(
             )
         }
 
-        item {
-            Divider(color = Color(0xFFB9C0D4), thickness = 1.dp)
-        }
 
         item {
             val gesture =
-                if (routine.gestureId.toLong() == 0L || routine.gestureName.isNullOrBlank()) {
+                if (routine.gestureId == 0L || routine.gestureName.isNullOrBlank()) {
                     GestureData.EMPTY
                 } else {
-                    GestureData(
-                        routineId = 1,
-                        gestureId = routine.gestureId.toLong(),
-                        gestureName = routine.gestureName,
-                        gestureDescription = routine.gestureDescription,
-                        gestureImageUrl = routine.gestureImageUrl,
-                        routineName = routine.routineName,
-                    )
+                    routine.gestureId?.let {
+                        routine.gestureDescription?.let { it1 ->
+                            routine.gestureImageUrl?.let { it2 ->
+                                GestureData(
+                                    routineId = 1,
+                                    gestureId = it,
+                                    gestureName = routine.gestureName,
+                                    gestureDescription = it1,
+                                    gestureImageUrl = it2,
+                                    routineName = routine.routineName,
+                                )
+                            }
+                        }
+                    }
                 }
 
-            GestureCard(
-                selectedGesture = gesture,
-                isEditMode = false,
-                onChangeGestureClick = { navController.navigate("gesture_select") }
-            )
+            if (gesture?.gestureId != 0L) {
+                Log.d("routine", "🌭🌭🌭 gesture null 확인: $gesture")
+
+                Divider(color = Color(0xFFB9C0D4), thickness = 1.dp)
+
+                Spacer(modifier = Modifier.height(17.dp))
+
+                if (gesture != null) {
+                    GestureCard(
+                        selectedGesture = gesture,
+                        isEditMode = false,
+                        onChangeGestureClick = { navController.navigate("gesture_select") }
+                    )
+                }
+            }
         }
     }
 

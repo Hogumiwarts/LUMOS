@@ -24,11 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
-import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
-import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
-import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
-import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.control.UwbRanging
 import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
@@ -88,8 +83,7 @@ class MainActivity : ComponentActivity() {
                         "SmartThings 연동 완료!",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Timber.tag("smartthings")
-                        .d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
+                    Timber.tag("smartthings").d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
                 }
             }
         }
@@ -110,10 +104,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    lateinit var uwbManager: UwbManager // UWB 관리자 객체
-
-    @Inject
-    lateinit var uwbRanging: UwbRanging // UWB 레인징 객체
+    lateinit var uwbManager : UwbManager // UWB 관리자 객체
+    @Inject lateinit var uwbRanging : UwbRanging // UWB 레인징 객체
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,8 +138,8 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent
                 ) {
 
-                    MainScreen(deviceId, deviceType)
-//                    GestureScreen(navController = rememberNavController(), onGestureSelected = {})
+                        MainScreen(deviceId, deviceType)
+
                 }
             }
         }
@@ -176,37 +168,21 @@ class MainActivity : ComponentActivity() {
             }
         } else {
             // 이전 버전에서는 BLUETOOTH, BLUETOOTH_ADMIN 권한 필요
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH)
             }
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_ADMIN
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_ADMIN)
             }
         }
 
         // 위치 권한 확인 (BLE 스캔에 필요)
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         // UWB 권한 확인
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.UWB_RANGING
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.UWB_RANGING) != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.UWB_RANGING)
         }
 
@@ -231,6 +207,6 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     LUMOSTheme {
         val navController = rememberNavController()
-        NavGraph(1, "", navController = navController)
+        NavGraph(1,"",navController = navController)
     }
 }

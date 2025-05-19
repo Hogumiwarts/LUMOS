@@ -1,6 +1,8 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineEdit
 
-data class RoutineEditState (
-    val nameBlankMessage: String? = null,
+import com.hogumiwarts.domain.model.routine.CommandDevice
 
+data class RoutineEditState(
+    val nameBlankMessage: String? = null,
+    val deviceEmptyMessage: String? = null,
 )

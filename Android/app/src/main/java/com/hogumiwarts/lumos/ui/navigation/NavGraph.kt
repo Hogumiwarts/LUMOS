@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,9 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.hogumiwarts.domain.model.GestureData
+import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.screens.gesture.GestureScreen
@@ -37,12 +41,12 @@ import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
 import com.hogumiwarts.lumos.ui.screens.control.DetectDeviceScreen
-import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
-import com.hogumiwarts.lumos.ui.screens.control.SpeakerScreen
+import com.hogumiwarts.lumos.ui.screens.control.audio.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.screens.control.airpurifier.PreviewAirPurifierScreenContent
+import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSpeakerScreenContent
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen.PreviewSwitchScreenContent
 
@@ -69,10 +73,10 @@ fun NavGraph(
     val tokenDataStore = TokenDataStore(context = LocalContext.current)
 
     if (isLoggedIn != null) {
-        val startDestination = if (isLoggedIn == true){
-            if(deviceId == -1L || deviceType== ""){
+        val startDestination = if (isLoggedIn == true) {
+            if (deviceId == -1L || deviceType == "") {
                 "home"
-            }else{
+            } else {
                 deviceType
             }
 
@@ -191,7 +195,10 @@ fun NavGraph(
                     // 각 화면에 맞는 Composable 함수 호출
                     when (item) {
                         BottomNavItem.Home -> {
-                            HomeScreen(tokenDataStore = tokenDataStore)
+                            HomeScreen(
+                                tokenDataStore = tokenDataStore,
+                                navController = navController
+                            )
 //                            LightScreen()
 //                            GestureScreen()
                         }
@@ -200,6 +207,7 @@ fun NavGraph(
                             val myDeviceList = MyDevice.sample
 
                             DeviceListScreen(
+                                navController = navController
                             )
                         }
 
@@ -268,31 +276,59 @@ fun NavGraph(
             // 루틴 상세
             composable(
                 "routine_detail/{routineId}",
-                enterTransition = { fadeIn(tween(300)) },
-                popExitTransition = { fadeOut(tween(300)) }
+                arguments = listOf(navArgument("routineId") { type = NavType.LongType })
             ) { backStackEntry ->
-                val routineId = backStackEntry.arguments?.getString("routineId")
+                val routineId = backStackEntry.arguments?.getLong("routineId")
                 val viewModel = hiltViewModel<RoutineDetailViewModel>()
 
-                RoutineDetailScreen(
-                    routineId = routineId,
-                    viewModel = viewModel,
-                    navController = navController,
-                    onEdit = {
-                        navController.navigate("routine_edit/$routineId")
-                    }
-                )
+                if (routineId != null) {
+                    RoutineDetailScreen(
+                        routineId = routineId,
+                        viewModel = viewModel,
+                        navController = navController,
+                        onEdit = {
+                            navController.navigate("routine_edit/$routineId")
+                        }
+                    )
+                }
 
             }
 
             // 루틴 수정
-            composable("routine_edit/{routineId}") { navBackStackEntry ->
-                val routineId = navBackStackEntry.arguments?.getString("routineId")
+            composable(
+                "routine_edit/{routineId}",
+                arguments = listOf(navArgument("routineId") { type = NavType.LongType })
+            ) { navBackStackEntry ->
+                val routineId = navBackStackEntry.arguments?.getString("routineId")?.toLongOrNull()
                 val viewModel = hiltViewModel<RoutineEditViewModel>()
+                val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+                val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")
+
+                val editRoutineName = savedStateHandle?.get<String>("editRoutineName") ?: ""
+                val editRoutineIcon = savedStateHandle?.get<String>("editRoutineIcon")
+                val editDevices =
+                    savedStateHandle?.get<List<CommandDevice>>("editDevices") ?: emptyList()
+
+                // 초기 상태 로드
+                LaunchedEffect(Unit) {
+                    val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")
+                    editGestureData?.let {
+                        viewModel.setGestureData(it)
+                        savedStateHandle.remove<GestureData>("selectedGesture")
+                    }
+
+                    viewModel.onRoutineNameChanged(editRoutineName)
+                    editRoutineIcon?.let { iconName ->
+                        RoutineIconType.entries.find { it.name == iconName }?.let {
+                            viewModel.selectIcon(it)
+                        }
+                    }
+                    viewModel.loadInitialDevices(editDevices)
+                    viewModel.setRoutineId(routineId)
+                }
 
                 RoutineEditScreen(
                     viewModel = viewModel,
-                    devices = emptyList(),
                     onRoutineEditComplete = {
                         navController.popBackStack()
                     },
@@ -338,12 +374,13 @@ fun NavGraph(
 
             // 워치에서 호출 후 조명 제어화면
             composable("LIGHT") {
-                    RealLightScreenContent(
-                        deviceId = deviceId
-                    )
+                RealLightScreenContent(
+                    deviceId = deviceId
+                )
             }
             // 워치에서 호출 후 공기 청정기 제어화면
             composable("AIRPURIFIER") {
+
                 AirpurifierScreen(
                     deviceId = deviceId
                 )
@@ -356,6 +393,36 @@ fun NavGraph(
             }
             // 워치에서 호출 후 공기 청정기 제어화면
             composable("SWITCH") {
+                SwitchScreen(
+                    deviceId = deviceId
+                )
+            }
+
+            // 모바일에서 호출
+
+            composable("LIGHT/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
+                RealLightScreenContent(
+                    deviceId = deviceId
+                )
+            }
+
+            composable("AIRPURIFIER/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
+                AirpurifierScreen(
+                    deviceId = deviceId
+                )
+            }
+
+            composable("AUDIO/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
+                SpeakerScreen(
+                    deviceId = deviceId
+                )
+            }
+
+            composable("SWITCH/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
                 SwitchScreen(
                     deviceId = deviceId
                 )
