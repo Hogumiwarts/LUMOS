@@ -44,63 +44,57 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 
 
 
-
 @Composable
-fun ColorWheelSelector(
+fun LinearColorSelector(
     modifier: Modifier = Modifier,
     onColorSelected: (Color) -> Unit
 ) {
-    val radius = 150f
-    val strokeWidth = 30f
-    val angleState = remember { mutableFloatStateOf(0f) }
+    val widthPx = 500f
+    val heightPx = 20f
+    val strokeHeight = 40f
+    val handleRadius = 15f
+    val hueState = remember { mutableFloatStateOf(0f) }
     val selectedColor = remember { mutableStateOf(Color.Red) }
 
     Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.size((radius * 2).dp)
-    ) {
-        Canvas(modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
+            .width(widthPx.dp)
+            .height(heightPx.dp)
             .pointerInput(Unit) {
                 detectDragGestures { change, _ ->
-                    val center = Offset((size.width / 2).toFloat(), (size.height / 2).toFloat())
-                    val angle = atan2(
-                        change.position.y - center.y,
-                        change.position.x - center.x
-                    ) * (180f / Math.PI).toFloat()
-                    val normalizedAngle = (angle + 360f) % 360f
-                    angleState.value = normalizedAngle
-                    selectedColor.value = hsvToColor(normalizedAngle, 1f, 1f)
+                    val x = change.position.x.coerceIn(0f, size.width.toFloat())
+                    val hue = (x / size.width) * 360f
+                    hueState.value = hue
+                    selectedColor.value = hsvToColor(hue, 1f, 1f)
                     onColorSelected(selectedColor.value)
                 }
+            },
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            // 전체 길이에 360도 Hue 그라데이션 그리기
+            for (i in 0 until size.width.toInt()) {
+                val color = hsvToComposeColor(i / size.width * 360f, 1f, 1f)
+                drawLine(
+                    color = color,
+                    start = Offset(i.toFloat(), 0f),
+                    end = Offset(i.toFloat(), strokeHeight),
+                    strokeWidth = strokeHeight
+                )
             }
-        ) {
-            // 색상 원
-            drawColorWheel(radius, strokeWidth)
 
-            // 핸들 위치 계산
-            val theta = Math.toRadians(angleState.value.toDouble())
-            val handleX = (size.width / 2 + cos(theta) * radius).toFloat()
-            val handleY = (size.height / 2 + sin(theta) * radius).toFloat()
-
-            // 핸들 원
+            // 핸들 위치
+            val handleX = (hueState.value / 360f) * size.width
             drawCircle(
                 color = Color.White,
-                radius = 12f,
-                center = Offset(handleX, handleY),
+                radius = handleRadius,
+                center = Offset(handleX, size.height / 2),
                 style = Stroke(width = 3f)
             )
         }
-
-        // 중앙 색상 미리보기
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(selectedColor.value)
-        )
     }
 }
+
 fun hsvToColor(hue: Float, saturation: Float, value: Float): Color {
     val hsv = floatArrayOf(hue, saturation, value)
     val intColor = android.graphics.Color.HSVToColor(hsv)
@@ -132,5 +126,5 @@ fun hsvToComposeColor(hue: Float, saturation: Float, value: Float): ComposeColor
 @Preview
 @Composable
 fun SpeakerScreenPreview() {
-    ColorWheelSelector(Modifier,{})
+    LinearColorSelector(Modifier,{})
 }
