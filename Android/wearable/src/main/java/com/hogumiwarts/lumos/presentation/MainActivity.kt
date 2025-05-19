@@ -36,6 +36,7 @@ import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMode
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.routine.RoutineExecuteScreen
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONArray
@@ -90,12 +91,15 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         linearAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
-
-        // 항상 웹소켓 연결 및 센서 시작 (백그라운드 제스처 감지)
-        isMeasuring = true
-        startIMU()
-        webSocketViewModel.connectWebSocket(gestureMode) // 모드 전달
-        Log.d("Gesture", "모드: $gestureMode, 웹소켓 연결 및 센서 수집 시작 ${text}")
+        // CONTINUOUS 모드에서만 자동으로 시작
+        if (gestureMode == GestureMode.CONTINUOUS) {
+            isMeasuring = true
+            startIMU()
+            webSocketViewModel.connectWebSocket(gestureMode)
+            Log.d("Gesture", "CONTINUOUS 모드 - 웹소켓 연결 및 센서 수집 시작")
+        } else {
+            Log.d("Gesture", "TEST 모드 - 수동 시작 대기 중")
+        }
 
 
         setContent {
@@ -117,9 +121,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
 
                     val navController = rememberNavController()
-                    when {
+                    NavGraph(navController)
+
+                    when (gestureMode) {
                         // 테스트 모드
-                        text.isNotEmpty() && gestureMode == GestureMode.TEST -> {
+                        GestureMode.TEST -> {
                             GestureTestScreen(
                                 type = text,
                                 isMeasuring = isMeasuring,
@@ -142,22 +148,21 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                         }
 
                         // 연속 감지 모드
-                        else -> {
+                        GestureMode.CONTINUOUS -> {
 
                             NavGraph(navController)
 
-                            if (prediction == "1") {
-                                LightScreen(deviceId = 9L)
-                                // TODO 제스처가 감지 되면 센서 감지 정지 시키고 루틴 실행이 되었습니다 화면 띄우고 종류 될떄 다시 센서 감지 실행
+                            // 예측값이 숫자이고 실행 대상인 경우
+                            prediction.toLongOrNull()?.let { longValue ->
+                                if (longValue in listOf(1L, 2L, 4L)) {
+                                    RoutineExecuteScreen(longValue)
+                                }
                             }
                         }
                     }
                 }
-
             }
-
         }
-
     }
 
     private fun startIMU() {

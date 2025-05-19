@@ -142,9 +142,9 @@ class DeviceListViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val accessToken = tokenDataStore.getAccessToken().first()
-                    val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
+//                    val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
 
-                    //val installedAppId = tokenDataStore.getInstalledAppId().first()
+                    val installedAppId = tokenDataStore.getInstalledAppId().first()
                     val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
 
                     Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")

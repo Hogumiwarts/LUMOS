@@ -82,17 +82,19 @@ class WebSocketViewModel @Inject constructor(
                 }
 
                 Log.d("Routine", "파싱된 라벨: '$label', 모드: $currentMode")
+                _prediction.value = label
 
                 when (currentMode) {
                     GestureMode.TEST -> {
                         Log.d("Routine", "🧪 TEST 모드 - prediction만 업데이트")
                         _prediction.value = label
                     }
+
                     GestureMode.CONTINUOUS -> {
                         Log.d("Routine", "🔄 CONTINUOUS 모드 - 제스처 확인 중...")
                         _prediction.value = label
 
-                        // 🔍 조건 체크를 더 명확하게
+                        // 🔍 조건 체크
                         val isGestureDetected = label != "0" && label != "5" && label != "6" && label != "예측 없음"
                         Log.d("Routine", "🎯 제스처 감지 조건: label='$label', 감지됨=$isGestureDetected")
 
@@ -120,6 +122,8 @@ class WebSocketViewModel @Inject constructor(
     fun disconnectWebSocket() {
         webSocket?.close(1000, "종료")
         webSocket = null
+        isConnecting = false
+        Log.d("WebSocket", "🔌 웹소켓 연결 끊김")
     }
 
     fun sendIMUData(json: String) {
@@ -142,19 +146,29 @@ class WebSocketViewModel @Inject constructor(
                         if (result.data.success) {
                             Log.d("Routine", "✅ 루틴 실행 성공")
                             _prediction.value = "루틴 실행 완료"
+                            kotlinx.coroutines.delay(5000)
+                            _prediction.value = "예측 없음"
+
                         } else {
                             Log.e("Routine", "❌ 루틴 실행 실패")
                             _prediction.value = "루틴 실행 실패"
+                            kotlinx.coroutines.delay(5000)
+                            _prediction.value = "예측 없음"
                         }
                     }
 
                     is PostRoutineResult.Error -> {
                         Log.e("WebSocket", "❌ 루틴 실행 오류: ${result.error}")
                         _prediction.value = "루틴 실행 오류"
+                        kotlinx.coroutines.delay(5000)
+                        _prediction.value = "예측 없음"
                     }
                 }
             } catch (e: Exception) {
                 Log.e("WebSocket", "루틴 실행 중 예외 발생", e)
+                _prediction.value = "루틴 실행 오류"
+                kotlinx.coroutines.delay(2000)
+                _prediction.value = "예측 없음"
             }
         }
     }
