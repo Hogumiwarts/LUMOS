@@ -48,23 +48,13 @@ fi
 echo "▶ Switching from $CURRENT_COLOR to $TARGET_COLOR"
 
 # ======================
-# nginx.conf 수정
+# nginx.conf 내 프록시 대상 강제 변경
 # ======================
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  SED_INPLACE="sed -i ''"
-else
-  SED_INPLACE="sudo sed -i"
-fi
+sudo sed -i "s|server lumos-gateway-service-[a-z]\+:8080;|server lumos-gateway-service-${TARGET_COLOR}:8080;|" "$NGINX_CONF"
 
-OLD_LINE="server ${GATEWAY_SERVICE_PREFIX}-${CURRENT_COLOR}:8080;"
-NEW_LINE="server ${GATEWAY_SERVICE_PREFIX}-${TARGET_COLOR}:8080;"
-
-if grep -q "$OLD_LINE" "$NGINX_CONF"; then
-  $SED_INPLACE "s|$OLD_LINE|$NEW_LINE|" "$NGINX_CONF"
-else
-  echo "⚠️ nginx.conf 내 $OLD_LINE 찾을 수 없습니다. 직접 수정 필요할 수 있음"
-  exit 1
-fi
+# 변경 확인 로그
+echo "📝 nginx.conf 프록시 대상 변경됨:"
+grep "server lumos-gateway-service" "$NGINX_CONF"
 
 # ======================
 # nginx reload
@@ -76,7 +66,7 @@ if sudo docker ps --format '{{.Names}}' | grep -q "$NGINX_CONTAINER_NAME"; then
     sudo docker restart "$NGINX_CONTAINER_NAME"
   fi
 else
-  echo "❌ Nginx 컨테이너 $NGINX_CONTAINER_NAME가 존재하지 않습니다."
+  echo "❌ Nginx 컨테이너 $NGINX_CONTAINER_NAME 가 존재하지 않습니다."
   exit 1
 fi
 
@@ -89,7 +79,7 @@ echo "⏳ 프록시 전환 후 $TARGET_COLOR 응답 대기 중..."
 
 RETRY=0
 MAX_RETRY=60
-while ! curl -s -L -o /dev/null -w "%{http_code}" http://localhost/ | grep -q 200; do
+while ! curl -skL -o /dev/null -w "%{http_code}" http://localhost/ | grep -q 200; do
   echo "   🔄 아직 $TARGET_COLOR 응답 없음... 기다리는 중..."
   sleep 1
   RETRY=$((RETRY+1))
