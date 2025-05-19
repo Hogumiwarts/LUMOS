@@ -1,15 +1,21 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.routine
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,20 +26,43 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.hogumiwarts.domain.model.gesture.GestureDetailData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureDetailState
+import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureIntent
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.GestureViewModel
 
-data class GestureDetailData(
-    val gestureId: Long,
-    val gestureName: String,
-    val gestureImg: String,
-    val gestureDescription: String
-)
 
 @Composable
 fun RoutineExecuteScreen(
-    gestureId: Long
+    gestureId: Long,
+    gestureViewModel: GestureViewModel = hiltViewModel()
 ) {
 
+    val state by gestureViewModel.state.collectAsState()
+    var gestureImgUrl by remember { mutableStateOf("") }
+
+    LaunchedEffect(state) {
+        when (state) {
+            is GestureDetailState.Error -> {
+                // todo 에러처리
+            }
+
+            GestureDetailState.Idle -> {}
+            is GestureDetailState.Loaded -> {
+                val data = (state as GestureDetailState.Loaded).data
+                gestureImgUrl = data.gestureImageUrl
+            }
+
+            GestureDetailState.Loading -> {
+                // todo 로딩처리
+            }
+        }
+    }
+
+    gestureViewModel.sendIntent(GestureIntent.LoadGestureDetail(gestureId))
     val gesture = GestureDetailData(
         gestureId,
         "손목 회전",
@@ -60,15 +89,12 @@ fun RoutineExecuteScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // 제스처 이미지
-            // TODO: 이미지 url로 받기
-//            AsyncImage(model = gesture.gestureImg,
-//                contentDescription = "제스처 이미지")
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_gesture),
-                contentDescription = "테스트 제스처 이미지",
-                modifier = Modifier.size(100.dp)
+            AsyncImage(
+                model = gestureImgUrl,
+                contentDescription = "제스처 이미지"
             )
+
+            Log.d("TAG", "RoutineExecuteScreen: $gestureImgUrl")
 
             Text(
                 "루틴이 실행되었습니다.",
