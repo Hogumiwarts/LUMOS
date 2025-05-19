@@ -45,7 +45,7 @@ echo "▶ Switching from $CURRENT_COLOR to $TARGET_COLOR"
 # ======================
 # nginx.conf 내 프록시 대상 강제 변경
 # ======================
-sudo sed -i "s|server lumos-gateway-service-[a-z]\+:8080;|server lumos-gateway-service-${TARGET_COLOR}:8080;|" "$NGINX_CONF"
+sudo sed -i "s|proxy_pass http://lumos-gateway-service-[a-z]\+:8080;|proxy_pass http://lumos-gateway-service-${TARGET_COLOR}:8080;|" "$NGINX_CONF"
 
 # 변경 확인 로그
 echo "📝 nginx.conf 프록시 대상 변경됨:"
