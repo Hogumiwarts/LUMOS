@@ -40,11 +40,6 @@ else
   exit 1
 fi
 
-if [ "$CURRENT_COLOR" == "$TARGET_COLOR" ]; then
-  echo "ℹ️ 현재 프록시 상태($CURRENT_COLOR)와 동일하므로 전환하지 않습니다."
-  exit 0
-fi
-
 echo "▶ Switching from $CURRENT_COLOR to $TARGET_COLOR"
 
 # ======================
