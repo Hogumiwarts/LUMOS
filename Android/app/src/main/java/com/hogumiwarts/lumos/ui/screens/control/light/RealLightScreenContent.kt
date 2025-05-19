@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RealLightScreenContent(
-    viewModel: LightViewModel= hiltViewModel(),
+    viewModel: LightViewModel = hiltViewModel(),
     deviceId: Long
 ) {
     // 최초 진입 시 상태 요청
@@ -82,11 +82,9 @@ fun RealLightScreenContent(
 
     val controller = rememberColorPickerController()
 
-    when (state) {
-        is LightStatusState.Error -> {}
-        LightStatusState.Idle -> {}
-        is LightStatusState.Loaded -> {
-            LaunchedEffect(state) {
+    LaunchedEffect(state) {
+        when (state) {
+            is LightStatusState.Loaded -> {
                 val data = (state as LightStatusState.Loaded).data
                 checked = data.activated
                 brightness = data.brightness
@@ -98,19 +96,23 @@ fun RealLightScreenContent(
                     false
                 )
                 lightDevice = data
-            }
-        }
 
-        LightStatusState.Loading -> {}
+            }
+
+            is LightStatusState.Error -> {}
+            is LightStatusState.Loading -> {}
+            is LightStatusState.Idle -> {}
+            else -> {}
+        }
     }
 
     Column(
-    modifier = Modifier
-    .fillMaxSize()
-    .background(Color.White)
-    .verticalScroll(rememberScrollState())
-    .padding(24.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -248,46 +250,12 @@ fun RealLightScreenContent(
             val coroutineScope = rememberCoroutineScope()
             var debounceJob by remember { mutableStateOf<Job?>(null) }
 
-            HsvColorPicker(
+            ColorWheelSelector(
                 modifier = Modifier
                     .height(200.dp)
                     .width(200.dp)
                     .padding(10.dp),
-                controller = controller,
-                onColorChanged = { colorEnvelope: ColorEnvelope ->
-                    selectedColorCode = "#" + colorEnvelope.hexCode.substring(2)
-                    selectedColor = colorEnvelope.color
-
-                    // Color -> HSV 변환
-                    val hsv = FloatArray(3)
-//                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
-                    android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(),hsv)
-
-
-                    val hue = hsv[0]
-                    val saturation = hsv[1]
-                    val saturation1 = hsv[2]
-
-                    if(isColor == true){
-
-                    } else{
-                        debounceJob?.cancel()
-                        debounceJob = coroutineScope.launch {
-                            delay(300)
-                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation, saturation1: $saturation1")
-                            Log.d("ColorPicker", "Hue: $selectedColorCode")
-                            viewModel.sendIntent(
-                                LightIntent.ChangeLightColor(
-                                    9,
-                                    (hue * 10 / 36),
-                                    saturation * 100
-                                )
-                            )
-                        }
-                    }
-
-                    isColor = false
-                }
+                {}
             )
         }
 
@@ -386,12 +354,13 @@ fun RealLightScreenContent(
 
         LightColorState.Loading -> LoadingComponent()
     }
-    when(temperatureState){
+    when (temperatureState) {
         is LightTemperatureState.Error -> {}
         LightTemperatureState.Idle -> {}
-        is LightTemperatureState.Loaded ->{
+        is LightTemperatureState.Loaded -> {
 
         }
+
         LightTemperatureState.Loading -> {
             LoadingComponent()
         }

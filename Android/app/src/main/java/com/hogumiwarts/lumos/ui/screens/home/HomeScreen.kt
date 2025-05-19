@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.hogumiwarts.domain.model.WeatherInfo
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
@@ -59,6 +60,7 @@ import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.devices.NotLinkedScreen
 import com.hogumiwarts.lumos.ui.screens.home.components.LightDeviceItem
 import com.hogumiwarts.lumos.ui.screens.home.components.WeatherCardView
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.utils.CommonUtils
@@ -71,7 +73,8 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
     controlViewModel: ControlViewModel = hiltViewModel(),
-   tokenDataStore: TokenDataStore
+   tokenDataStore: TokenDataStore,
+    navController: NavController
     ) {
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
@@ -82,7 +85,32 @@ fun HomeScreen(
 
     val HomeState by homeViewModel.collectAsState()
 
+    val clickDevice by deviceViewModel.clickDevice
 
+    LaunchedEffect(clickDevice) {
+        clickDevice?.let {
+            Log.d("TAG", "HomeScreen: $clickDevice")
+            when(it.deviceType){
+
+
+                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.LIGHT -> navController.navigate("LIGHT/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.AUDIO -> navController.navigate("AUDIO/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.SWITCH -> navController.navigate("SWITCH/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.ETC -> {}
+            }
+
+//            navController.navigate(it.deviceType.categoryName)
+        }
+    }
 
 
 
@@ -204,7 +232,8 @@ fun HomeScreen(
                         onDeviceClick = { deviceViewModel.onDeviceClicked(it) },
                         onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
-                            deviceViewModel.toggleDeviceState(device.deviceId)
+
+                            deviceViewModel.toggleDeviceState(device.deviceId, device.deviceType)
                         }
                     )
                 }

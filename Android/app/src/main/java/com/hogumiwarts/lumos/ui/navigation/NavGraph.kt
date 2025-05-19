@@ -194,7 +194,7 @@ fun NavGraph(
                     // 각 화면에 맞는 Composable 함수 호출
                     when (item) {
                         BottomNavItem.Home -> {
-                            HomeScreen(tokenDataStore = tokenDataStore)
+                            HomeScreen(tokenDataStore = tokenDataStore, navController = navController)
 //                            LightScreen()
 //                            GestureScreen()
                         }
@@ -203,6 +203,7 @@ fun NavGraph(
                             val myDeviceList = MyDevice.sample
 
                             DeviceListScreen(
+                                navController = navController
                             )
                         }
 
@@ -371,6 +372,7 @@ fun NavGraph(
             }
             // 워치에서 호출 후 공기 청정기 제어화면
             composable("AIRPURIFIER") {
+
                 AirpurifierScreen(
                     deviceId = deviceId
                 )
@@ -383,6 +385,36 @@ fun NavGraph(
             }
             // 워치에서 호출 후 공기 청정기 제어화면
             composable("SWITCH") {
+                SwitchScreen(
+                    deviceId = deviceId
+                )
+            }
+
+            // 모바일에서 호출
+
+            composable("LIGHT/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
+                RealLightScreenContent(
+                    deviceId = deviceId
+                )
+            }
+
+            composable("AIRPURIFIER/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
+                AirpurifierScreen(
+                    deviceId = deviceId
+                )
+            }
+
+            composable("AUDIO/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
+                SpeakerScreen(
+                    deviceId = deviceId
+                )
+            }
+
+            composable("SWITCH/{deviceId}") {
+                val deviceId = it.arguments?.getString("deviceId")?.toLong() ?: -1L
                 SwitchScreen(
                     deviceId = deviceId
                 )

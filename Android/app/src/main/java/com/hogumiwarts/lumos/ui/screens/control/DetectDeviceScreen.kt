@@ -63,7 +63,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.screens.control.audio.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.control.light.LightScreen
+import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -236,6 +238,12 @@ fun DetectDeviceScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
+            Text(
+                text = "${controlViewModel.getDevicePosition("00:01")?.azimuth?.value ?: "N/A"} °",
+                style = MaterialTheme.typography.body1.copy(color = Color.White),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
             Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
@@ -289,9 +297,9 @@ fun DetectDeviceScreen(
                     .statusBarsPadding()
             ) {
                 when (controlViewModel.detectedDeviceName) {
-                    "공기청정기" -> Test1()
-//                    "조명" -> LightScreen()
-                    "스피커" -> Test2()
+                    "공기청정기" -> AirpurifierScreen(deviceId = 7)
+                    "조명" -> RealLightScreenContent(deviceId = 9)
+                    "스피커" -> SpeakerScreen(deviceId = 6)
                 }
             }
         }
@@ -299,26 +307,6 @@ fun DetectDeviceScreen(
 
 }
 
-
-@Composable
-private fun Test1() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "공기청정기 화면")
-    }
-}
-
-@Composable
-private fun Test2() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "스피커 화면")
-    }
-}
 
 
 @Preview(showBackground = true)

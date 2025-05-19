@@ -77,7 +77,9 @@ fun DeviceGridHomeSection(
                     DeviceRoutineCard(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clickable { onDeviceClick(device) },
+                            .clickable {
+                                onDeviceClick(device)
+                                       },
                         showToggle = true,
                         cardTitle = device.deviceName,
                         cardSubtitle = device.deviceType.categoryName,

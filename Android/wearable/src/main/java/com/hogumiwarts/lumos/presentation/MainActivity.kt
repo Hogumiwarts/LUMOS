@@ -140,27 +140,27 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                             }
                         }
                         // 연속 감지 모드
-                        gestureMode == GestureMode.CONTINUOUS -> {
-                            GestureMonitorScreen(
-                                isMonitoring = isMeasuring,
-                                onToggleMonitoring = {
-                                    isMeasuring = !isMeasuring
-                                    if (isMeasuring) {
-                                        startIMU()
-                                        webSocketViewModel.connectWebSocket(gestureMode)
-                                    } else {
-                                        stopIMU()
-                                        webSocketViewModel.disconnectWebSocket()
-                                    }
-                                },
-                                onStop = {
-                                    stopIMU()
-                                    webSocketViewModel.disconnectWebSocket()
-                                    finish()
-                                }
-                            )
-                        }
-                        // 일반 네비게이션
+//                        gestureMode == GestureMode.CONTINUOUS -> {
+//                            GestureMonitorScreen(
+//                                isMonitoring = isMeasuring,
+//                                onToggleMonitoring = {
+//                                    isMeasuring = !isMeasuring
+//                                    if (isMeasuring) {
+//                                        startIMU()
+//                                        webSocketViewModel.connectWebSocket(gestureMode)
+//                                    } else {
+//                                        stopIMU()
+//                                        webSocketViewModel.disconnectWebSocket()
+//                                    }
+//                                },
+//                                onStop = {
+//                                    stopIMU()
+//                                    webSocketViewModel.disconnectWebSocket()
+//                                    finish()
+//                                }
+//                            )
+//                        }
+//                        // 일반 네비게이션
                         else -> {
                             NavGraph(navController)
                         }
