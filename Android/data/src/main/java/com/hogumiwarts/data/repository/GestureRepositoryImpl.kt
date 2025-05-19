@@ -8,6 +8,8 @@ import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.GestureResult
 import com.hogumiwarts.domain.model.audio.AudioPowerResult
+import com.hogumiwarts.domain.model.gesture.GestureDetailData
+import com.hogumiwarts.domain.model.gesture.GestureDetailResult
 import com.hogumiwarts.domain.repository.GestureRepository
 import javax.inject.Inject
 import kotlin.math.log
@@ -34,6 +36,28 @@ class GestureRepositoryImpl@Inject constructor(
             // 🔶 기타 네트워크/변환 등 예외 처리
             Log.d("Post", "getGestureList: error $e")
             GestureResult.Error(CommonError.NetworkError)
+        }
+    }
+
+    override suspend fun getGestureDetail(deviceId: Long): GestureDetailResult {
+        return try {
+            val response = gestureApi.getGestureDetail(deviceId)
+            Log.d("Post", "getGestureList: $response")
+            val result = response.data
+            GestureDetailResult.Success(
+                data = GestureDetailData(result.gestureId, gestureName = result.gestureName, gestureDescription =  result.gestureDescription, gestureImageUrl = result.gestureImageUrl)
+            )
+        } catch (e: retrofit2.HttpException) {
+            // 🔶 서버 에러 코드별 처리
+            when (e.code()) {
+                404 -> GestureDetailResult.Error(CommonError.UserNotFound)
+                else -> GestureDetailResult.Error(CommonError.UnknownError)
+            }
+
+        } catch (e: Exception) {
+            // 🔶 기타 네트워크/변환 등 예외 처리
+            Log.d("Post", "getGestureList: error $e")
+            GestureDetailResult.Error(CommonError.NetworkError)
         }
     }
 }
