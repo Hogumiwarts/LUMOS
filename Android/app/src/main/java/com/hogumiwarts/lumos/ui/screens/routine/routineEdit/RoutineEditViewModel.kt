@@ -45,6 +45,14 @@ class RoutineEditViewModel @Inject constructor(
     private val _selectedGesture = MutableStateFlow<GestureData?>(null)
     val selectedGesture: StateFlow<GestureData?> = _selectedGesture
 
+    private val _isInitialized = MutableStateFlow(false)
+
+    fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
+        if (!_isInitialized.value) {
+            _devices.value = initial
+            _isInitialized.value = true
+        }
+    }
 
     fun selectIcon(icon: RoutineIconType) {
         _selectedIcon.value = icon
@@ -89,4 +97,19 @@ class RoutineEditViewModel @Inject constructor(
         _selectedGesture.value = data
         _gestureId.value = data?.gestureId
     }
+
+    fun addDevice(device: CommandDevice) {
+        val current = _devices.value
+        if (current.none { it.deviceId == device.deviceId }) {
+            _devices.value = current + device
+        }
+    }
+
+    fun updateDevice(updated: CommandDevice) {
+        _devices.update { list ->
+            list.map { if (it.deviceId == updated.deviceId) updated else it }
+
+        }
+    }
+
 }

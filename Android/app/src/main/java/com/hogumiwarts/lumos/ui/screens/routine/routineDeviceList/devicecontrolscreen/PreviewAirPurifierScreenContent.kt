@@ -150,17 +150,15 @@ fun PreviewAirPurifierScreenContent(
                         fanMode = selectedFanMode
                     )
                     val json = Gson().toJson(deviceWithCommands)
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
                         "commandDeviceJson",
                         json
                     )
-                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
                         "fanMode",
                         selectedFanMode
                     )
-                    navController.previousBackStackEntry?.savedStateHandle?.set("isOn", checked)
-
-                    Timber.d("[DEBUG] 루틴 설정 JSON: $json")
+                    navController.currentBackStackEntry?.savedStateHandle?.set("isOn", checked)
 
                     coroutineScope.launch {
                         kotlinx.coroutines.delay(100)

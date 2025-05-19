@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,18 +55,26 @@ import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
+import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.mapper.toCommandDevice
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconList
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.screens.routine.components.SwipeableDeviceCard
 import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.AddDeviceCard
+import com.hogumiwarts.lumos.ui.screens.routine.routineCreate.SwipeableDeviceCardWithHint
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.RoutineDeviceListViewModel
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +82,7 @@ import kotlinx.coroutines.launch
 fun RoutineEditScreen(
     viewModel: RoutineEditViewModel,
     onRoutineEditComplete: () -> Unit,
-    navController: NavController
+    navController: NavController,
 ) {
     val selectedIcon by viewModel.selectedIcon.collectAsState()
     val routineName by viewModel.routineName.collectAsState()
@@ -81,6 +90,7 @@ fun RoutineEditScreen(
     val selectedGesture by viewModel.selectedGesture.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val tokenDataStore = TokenDataStore(context)
 
     // 바텀 시트
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -89,10 +99,35 @@ fun RoutineEditScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(navController.currentBackStackEntry) {
-        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<GestureData>("selectedGesture")
-            ?.observe(lifecycleOwner) {
-                viewModel.setGestureData(it)
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<GestureData>("selectedGesture")
+            ?.observe(lifecycleOwner) { gestureData ->
+                viewModel.setGestureData(gestureData)
             }
+
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<String>("commandDeviceJson")
+            ?.observe(lifecycleOwner) { json ->
+                val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
+                viewModel.updateDevice(updatedDevice)
+
+                navController.previousBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
+            }
+
+    }
+
+    var initialized by rememberSaveable { mutableStateOf(false) }
+
+    if (!initialized) {
+        val devices = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<List<CommandDevice>>("editDevices")
+
+        viewModel.loadInitialDevicesOnce(devices ?: emptyList())
+
+        initialized = true
     }
 
     // 초기 데이터 설정
@@ -113,14 +148,9 @@ fun RoutineEditScreen(
             ?.savedStateHandle
             ?.get<GestureData>("selectedGesture")
 
-        val devices = navController.previousBackStackEntry
-            ?.savedStateHandle
-            ?.get<List<CommandDevice>>("editDevices")
-
         routineId?.let { viewModel.setRoutineId(it) }
         gestureData?.let { viewModel.setGestureData(it) }
         routineName?.let { viewModel.onRoutineNameChanged(it) }
-        devices?.let { viewModel.loadInitialDevices(it) }
 
         // 아이콘 문자열을 Enum으로 변환
         routineIcon?.let { iconName ->
@@ -131,7 +161,6 @@ fun RoutineEditScreen(
     }
 
     // 기기 리스트 관리
-
     val showDuplicateDialog = remember { mutableStateOf(false) }
 
     if (isSheetOpen) {
@@ -146,14 +175,64 @@ fun RoutineEditScreen(
             RoutineDeviceListScreen(
                 viewModel = deviceListViewModel,
                 onSelectComplete = { selectedDevice ->
-                    // 이미 등록된 기기 중 중복 검사
-                    val isDuplicate = deviceList.any { it.deviceId == selectedDevice.deviceId }
+                    val json = navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<String>("commandDeviceJson")
+
+                    val commandDevice = when (selectedDevice.deviceType) {
+                        DeviceListType.LIGHT -> {
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDevice(
+                                isOn = true,
+                                brightness = 50,
+                                hue = null,
+                                saturation = null
+                            )
+                        }
+
+                        DeviceListType.AIRPURIFIER -> {
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDeviceForAirPurifier(
+                                isOn = false,
+                                fanMode = "auto"
+                            )
+                        }
+
+                        DeviceListType.AUDIO -> {
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDeviceForSpeaker(
+                                isOn = true,
+                                volume = 30,
+                                isPlaying = true
+                            )
+                        }
+
+                        DeviceListType.SWITCH -> {
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDeviceForSwitch(
+                                isOn = true
+                            )
+                        }
+
+                        DeviceListType.ETC -> TODO()
+                    }
+
+                    val isDuplicate = deviceList.any { it.deviceId == commandDevice.deviceId }
                     if (isDuplicate) {
                         showDuplicateDialog.value = true
                     } else {
-                        // 기기 추가
-//                        deviceList.add(/* 변환 후 추가 */)
-//                        isSheetOpen = false
+                        viewModel.addDevice(commandDevice)
+
+                        // 추가 후 commandDeviceJson 초기화
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.remove<String>("commandDeviceJson")
+
+                        isSheetOpen = false
                     }
                 },
                 showDuplicateDialog = showDuplicateDialog,
@@ -292,95 +371,129 @@ fun RoutineEditScreen(
 
             // 적용 기기
             item {
-                Row(
-
-                ) {
-                    // 제목
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         "적용 기기",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontSize = 16.sp,
-                            lineHeight = 16.sp,
-                            fontFamily = nanum_square_neo,
                             fontWeight = FontWeight(800),
-                            color = Color(0xFF000000),
+                            fontFamily = nanum_square_neo
                         )
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(Modifier.weight(1f))
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clickable {
-                                //기기 추가 화면으로 이동
-                                //navController.navigate("routineDeviceList")
-//                               isSheetOpen = true
-                                coroutineScope.launch {
-                                    isSheetOpen = true
-                                    sheetState.show() // 바텀 시트 열기
-                                }
+                    if (deviceList.isNotEmpty()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                coroutineScope.launch { isSheetOpen = true; sheetState.show() }
                             }
-                    ) {
-                        Image(
-                            painterResource(id = R.drawable.ic_plus),
-                            contentDescription = null,
-                            modifier = Modifier.size(12.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(5.dp))
-
-                        Text(
-                            text = "기기 추가",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                fontSize = 11.sp,
-                                lineHeight = 16.sp,
-                                fontFamily = nanum_square_neo,
-                                fontWeight = FontWeight(700),
-                                color = Color(0xFFBFC2D7),
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_plus),
+                                contentDescription = null,
+                                modifier = Modifier.size(12.dp)
                             )
+                            Spacer(Modifier.width(5.dp))
+                            Text(
+                                "기기 추가",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight(700),
+                                    color = Color(0xFFBFC2D7)
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (deviceList.isEmpty()) {
+                item {
+                    Column {
+                        AddDeviceCard(
+                            onClick = {
+                                coroutineScope.launch { isSheetOpen = true; sheetState.show() }
+                            },
+                            text = "기기 추가"
                         )
+                        state.deviceEmptyMessage?.let {
+                            Text(
+                                text = it,
+                                color = Color(0xFFF26D6D),
+                                fontSize = 12.sp,
+                                fontFamily = nanum_square_neo,
+                                modifier = Modifier.padding(top = 6.dp, start = 4.dp)
+                            )
+                        }
                     }
                 }
             }
 
             // 기기 리스트
-            items(deviceList, key = { it.deviceId }) { device ->
-                var visible by remember { mutableStateOf(true) }
-                if (visible) {
-                    var shouldRemove by remember { mutableStateOf(false) }
-                    if (shouldRemove) {
-                        LaunchedEffect(device) {
-                            delay(300)
-                            viewModel.deleteDevice(device)
-                        }
-                    }
-                    AnimatedVisibility(
-                        visible = !shouldRemove,
-                        exit = shrinkVertically(tween(300)) + fadeOut()
-                    ) {
-                        SwipeableDeviceCard(device = device, onDelete = {
+            items(deviceList, key = {
+                "${it.deviceId}_${it.hashCode()}"
+            }) { device ->
+                var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
+                var shouldShowHint by remember(device.deviceId) { mutableStateOf(true) }
+                AnimatedVisibility(
+                    visible = !shouldRemove,
+                    exit = shrinkVertically(tween(300)) + fadeOut(tween(300))
+                ) {
+                    SwipeableDeviceCardWithHint(
+                        deviceId = device.deviceId,
+                        shouldShowHint = shouldShowHint,
+                        onHintShown = { shouldShowHint = false },
+                        onDelete = {
                             shouldRemove = true
-                            Toast.makeText(
-                                context,
-                                "${device.deviceName.appendSubject()} 삭제되었습니다.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                            onClick = {
-                                // 기기 카드 클릭 시 행동 정의 (예: 제어화면 이동)
-                                val json = Gson().toJson(device)
-                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                    "commandDeviceJson",
-                                    json
-                                )
-                                navController.navigate("routineDeviceList")
+                            coroutineScope.launch {
+                                delay(300)
+                                viewModel.deleteDevice(device)
                             }
-                        )
-                    }
+                        },
+                        deviceContent = {
+                            SwipeableDeviceCard(
+                                device = device,
+                                onDelete = {
+                                    shouldRemove = true
+                                    coroutineScope.launch {
+                                        delay(300)
+                                        viewModel.deleteDevice(device)
+                                    }
+                                },
+                                onClick = {
+                                    val myDevice = MyDevice(
+                                        deviceId = device.deviceId,
+                                        deviceName = device.deviceName,
+                                        isOn = device.commands.any { it.capability == "switch" && it.command == "on" },
+                                        isActive = true, // 편의상 true로 지정 (비활성 구분 안 할 경우)
+                                        deviceType = DeviceListType.from(device.deviceType),
+                                        commands = device.commands
+                                    )
+
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "selectedDevice",
+                                        myDevice
+                                    )
+
+                                    when (DeviceListType.from(device.deviceType)) {
+                                        DeviceListType.LIGHT -> navController.navigate("light_control?preview=true")
+                                        DeviceListType.SWITCH -> navController.navigate("switch_control?preview=true")
+                                        DeviceListType.AIRPURIFIER -> navController.navigate("airpurifier_control?preview=true")
+                                        DeviceListType.AUDIO -> navController.navigate("speaker_control?preview=true")
+                                        else -> Toast.makeText(
+                                            context,
+                                            "지원하지 않는 기기 타입이에요!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            )
+                        }
+                    )
                 }
             }
-
             // 제스처 선택
             // 제목
             item {
@@ -418,21 +531,29 @@ fun RoutineEditScreen(
 
         }
 
-
         // 수정 버튼
         Box(
             modifier = Modifier
-                .align(
-                    Alignment.CenterHorizontally
-                )
+                .align(Alignment.CenterHorizontally)
                 .padding(bottom = 40.dp, top = 20.dp)
-                .clickable {
-                    //todo: 수정 api 연동
-                    onRoutineEditComplete()
-                }
         ) {
-            PrimaryButton(buttonText = "수정하기", onClick = {}, modifier = Modifier.fillMaxWidth())
+            PrimaryButton(
+                buttonText = "수정하기",
+                onClick = {
+                    coroutineScope.launch {
+                        val accessToken = tokenDataStore.getAccessToken().first()
+                        viewModel.updateRoutine(
+                            routineId = viewModel.routineId.value,
+                            accessToken = accessToken,
+                            gestureId = viewModel.gestureId.value
+                        )
+                        onRoutineEditComplete()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
+
     }
 
 
@@ -471,4 +592,5 @@ fun AddDeviceCard(onClick: () -> Unit, text: String) {
             fontFamily = nanum_square_neo
         )
     }
+
 }
