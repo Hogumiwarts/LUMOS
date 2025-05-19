@@ -36,7 +36,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun DeviceGridHomeSection(
     devices: List<MyDevice>,
-    selectedDeviceId: Int? = null,
+    selectedDeviceId: Long? = null,
     onDeviceClick: (MyDevice) -> Unit = {},
     onToggleDevice: (MyDevice) -> Unit = {}
 ) {

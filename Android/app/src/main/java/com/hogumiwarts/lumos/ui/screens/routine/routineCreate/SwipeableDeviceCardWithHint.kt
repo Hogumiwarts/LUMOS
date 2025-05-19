@@ -31,7 +31,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SwipeableDeviceCardWithHint(
-    deviceId: Int,
+    deviceId: Long,
     shouldShowHint: Boolean,
     onHintShown: () -> Unit,
     onDelete: () -> Unit,

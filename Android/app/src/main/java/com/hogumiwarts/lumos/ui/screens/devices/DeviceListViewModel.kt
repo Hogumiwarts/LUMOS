@@ -55,11 +55,10 @@ class DeviceListViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val selectedDeviceId = mutableStateOf<Int?>(null)
+    val selectedDeviceId = mutableStateOf<Long?>(null)
     val showDialog = mutableStateOf(false)
 
     val clickDevice = mutableStateOf<MyDevice?>(null)
-
 
 
     private val _isLinked = MutableStateFlow(false) // SmartThings 계정 연동 여부
@@ -69,11 +68,11 @@ class DeviceListViewModel @Inject constructor(
     private val _deviceList = MutableStateFlow<List<MyDevice>>(emptyList())
     val deviceList: StateFlow<List<MyDevice>> = _deviceList
 
-    fun getJwt(){
+    fun getJwt() {
         viewModelScope.launch {
             val a = jwtUseCase.getAccessToken().first()
             Log.d("TAG", "getJwt: $a")
-            sendTokenToWatch(context,a)
+            sendTokenToWatch(context, a)
         }
 
     }
@@ -127,7 +126,6 @@ class DeviceListViewModel @Inject constructor(
     }
 
 
-
     // db에서 기기 목록 받아오기
     @SuppressLint("TimberArgTypes")
     fun loadDevicesFromServer() {
@@ -158,131 +156,147 @@ class DeviceListViewModel @Inject constructor(
 
 
     // 기기 목록 새로고침
-        @SuppressLint("TimberArgTypes")
-        fun refreshDevicesFromDiscover(context: Context) {
-            viewModelScope.launch {
-                try {
-                    val accessToken = tokenDataStore.getAccessToken().first()
-                    val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
+    @SuppressLint("TimberArgTypes")
+    fun refreshDevicesFromDiscover(context: Context) {
+        viewModelScope.launch {
+            try {
+                val accessToken = tokenDataStore.getAccessToken().first()
+                val installedAppId = "5f810cf2-432c-4c4c-bc72-c5af5abf1ef5"
 
-                    //val installedAppId = tokenDataStore.getInstalledAppId().first()
-                    val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
+                //val installedAppId = tokenDataStore.getInstalledAppId().first()
+                val newDevices = deviceRepository.discoverDevices(accessToken, installedAppId)
 
-                    Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")
-                    newDevices.forEachIndexed { index, device ->
-                        Timber.tag("DeviceDiscover").d(
-                            "[%d] 🛰️ id=%d, name=%s, type=%s, activated=%s",
-                            index,
-                            device.deviceId,
-                            device.deviceName,
-                            device.deviceType,
-                            device.activated
-                        )
-                    }
-
-                    val currentList = _deviceList.value
-                    val currentIds = currentList.map { it.deviceId }.toSet()
-
-                    val additional = newDevices
-                        .filter { it.deviceId !in currentIds }
-                        .map { it.toMyDevice() }
-
-                    _deviceList.value = currentList + additional
-
-                    //_deviceList.value = result.map { it.toMyDevice() }
-
-                    Toast.makeText(
-                        context, "기기 목록 새로고침 완료 ✨" +
-                                "", Toast.LENGTH_SHORT
-                    ).show()
-
-                } catch (e: Exception) {
-                    Timber.e(e, "❌ 기기 Discover 실패")
-                }
-            }
-        }
-
-        fun toggleDeviceState(deviceId: Int, deviceType: DeviceListType) {
-            val currentList = _deviceList.value.toMutableList()
-
-            val index = currentList.indexOfFirst { it.deviceId == deviceId }
-            if (index != -1) {
-                val target = currentList[index]
-                // 서버랑 호출
-                viewModelScope.launch {
-
-                    when(deviceType){
-                        DeviceListType.AIRPURIFIER -> {
-                            val result =  airpurifierUseCase.patchAirpurifierPower(deviceId = deviceId.toLong(), !target.isOn)
-                            when(result){
-                                is PatchAirpurifierPowerResult.Error -> {
-                                    // TODO: 에러 처리
-                                }
-                                is PatchAirpurifierPowerResult.Success -> {
-                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
-                                    currentList[index] = updated
-                                    _deviceList.value = currentList
-                                }
-                            }
-                        }
-                        DeviceListType.LIGHT -> {
-                            val result = lightUseCase.patchLightPower(deviceId = deviceId.toLong(), !target.isOn)
-                            when(result){
-                                is PatchSwitchPowerResult.Error -> {
-                                    // TODO: 에러 처리
-                                }
-                                is PatchSwitchPowerResult.Success -> {
-                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
-                                    currentList[index] = updated
-                                    _deviceList.value = currentList
-                                }
-                            }
-
-                        }
-                        DeviceListType.AUDIO -> {
-                            val result = audioUseCase.patchAudioPower(deviceId = deviceId.toLong(), !target.isOn)
-                            when(result) {
-                                is AudioPowerResult.Error -> {
-                                    // TODO: 에러 처리
-                                }
-                                is AudioPowerResult.Success -> {
-                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
-                                    currentList[index] = updated
-                                    _deviceList.value = currentList
-                                }
-                            }
-                        }
-                        DeviceListType.SWITCH -> {
-                            val result = switchUseCase.patchSwitchStatus(deviceId = deviceId.toLong(), !target.isOn)
-                            when(result) {
-                                is PatchSwitchPowerResult.Error -> {
-                                    // TODO: 에러 처리
-                                }
-                                is PatchSwitchPowerResult.Success -> {
-                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
-                                    currentList[index] = updated
-                                    _deviceList.value = currentList
-                                }
-                            }
-                        }
-                        DeviceListType.ETC -> {}
-                    }
-
-
+                Timber.tag("DeviceDiscover").d("🔄 Discover 기기 수: ${newDevices.size}")
+                newDevices.forEachIndexed { index, device ->
+                    Timber.tag("DeviceDiscover").d(
+                        "[%d] 🛰️ id=%d, name=%s, type=%s, activated=%s",
+                        index,
+                        device.deviceId,
+                        device.deviceName,
+                        device.deviceType,
+                        device.activated
+                    )
                 }
 
+                val currentList = _deviceList.value
+                val currentIds = currentList.map { it.deviceId }.toSet()
 
-                val updated = target.copy(isOn = !target.isOn) // isOn 토글
-                currentList[index] = updated
-                _deviceList.value = currentList
-            }
-        }
+                val additional = newDevices
+                    .filter { it.deviceId !in currentIds }
+                    .map { it.toMyDevice() }
 
-        private fun observeTokenChanges() {
-            viewModelScope.launch {
-                tokenDataStore.getInstalledAppId().collect { id ->
-                    _isLinked.value = id.isNotEmpty()
-                }
+                _deviceList.value = currentList + additional
+
+                //_deviceList.value = result.map { it.toMyDevice() }
+
+                Toast.makeText(
+                    context, "기기 목록 새로고침 완료 ✨" +
+                            "", Toast.LENGTH_SHORT
+                ).show()
+
+            } catch (e: Exception) {
+                Timber.e(e, "❌ 기기 Discover 실패")
             }
         }
     }
+
+    fun toggleDeviceState(deviceId: Long, deviceType: DeviceListType) {
+        val currentList = _deviceList.value.toMutableList()
+
+        val index = currentList.indexOfFirst { it.deviceId == deviceId }
+        if (index != -1) {
+            val target = currentList[index]
+            // 서버랑 호출
+            viewModelScope.launch {
+
+                when (deviceType) {
+                    DeviceListType.AIRPURIFIER -> {
+                        val result = airpurifierUseCase.patchAirpurifierPower(
+                            deviceId = deviceId.toLong(),
+                            !target.isOn
+                        )
+                        when (result) {
+                            is PatchAirpurifierPowerResult.Error -> {
+                                // TODO: 에러 처리
+                            }
+
+                            is PatchAirpurifierPowerResult.Success -> {
+                                val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                currentList[index] = updated
+                                _deviceList.value = currentList
+                            }
+                        }
+                    }
+
+                    DeviceListType.LIGHT -> {
+                        val result =
+                            lightUseCase.patchLightPower(deviceId = deviceId.toLong(), !target.isOn)
+                        when (result) {
+                            is PatchSwitchPowerResult.Error -> {
+                                // TODO: 에러 처리
+                            }
+
+                            is PatchSwitchPowerResult.Success -> {
+                                val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                currentList[index] = updated
+                                _deviceList.value = currentList
+                            }
+                        }
+
+                    }
+
+                    DeviceListType.AUDIO -> {
+                        val result =
+                            audioUseCase.patchAudioPower(deviceId = deviceId.toLong(), !target.isOn)
+                        when (result) {
+                            is AudioPowerResult.Error -> {
+                                // TODO: 에러 처리
+                            }
+
+                            is AudioPowerResult.Success -> {
+                                val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                currentList[index] = updated
+                                _deviceList.value = currentList
+                            }
+                        }
+                    }
+
+                    DeviceListType.SWITCH -> {
+                        val result = switchUseCase.patchSwitchStatus(
+                            deviceId = deviceId.toLong(),
+                            !target.isOn
+                        )
+                        when (result) {
+                            is PatchSwitchPowerResult.Error -> {
+                                // TODO: 에러 처리
+                            }
+
+                            is PatchSwitchPowerResult.Success -> {
+                                val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                currentList[index] = updated
+                                _deviceList.value = currentList
+                            }
+                        }
+                    }
+
+                    DeviceListType.ETC -> {}
+                }
+
+
+            }
+
+
+            val updated = target.copy(isOn = !target.isOn) // isOn 토글
+            currentList[index] = updated
+            _deviceList.value = currentList
+        }
+    }
+
+    private fun observeTokenChanges() {
+        viewModelScope.launch {
+            tokenDataStore.getInstalledAppId().collect { id ->
+                _isLinked.value = id.isNotEmpty()
+            }
+        }
+    }
+}

@@ -3,13 +3,14 @@ package com.hogumiwarts.lumos.ui.screens.routine.components
 import com.hogumiwarts.domain.model.routine.CommandDevice
 
 data class RoutineItem(
+    val routineId: Int,
     val routineName: String,
     val routineIcon: String,
     val devices: List<CommandDevice>,
-    val gestureId: Int,
-    val gestureName: String,
-    val gestureImageUrl: String,
-    val gestureDescription: String
+    val gestureId: Long?,
+    val gestureName: String?,
+    val gestureImageUrl: String?,
+    val gestureDescription: String?
 ) {
 //    companion object {
 //        val sample = listOf(

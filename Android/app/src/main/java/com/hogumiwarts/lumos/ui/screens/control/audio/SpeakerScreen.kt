@@ -93,7 +93,6 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
     val volumeState by viewModel.volumeState.collectAsState()
 
 
-
     var speakerDevice = remember {
         AudioStatusData(
             tagNumber = 1,
@@ -116,10 +115,11 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
     var audioImage by remember { mutableStateOf(speakerDevice.audioImg) }
 
     LaunchedEffect(state) {
-        when(state){
+        when (state) {
             is AudioStatusState.Error -> {
                 // TODO: 에러 처리
             }
+
             AudioStatusState.Idle -> {}
             is AudioStatusState.Loaded -> {
                 val data = (state as AudioStatusState.Loaded).data
@@ -128,42 +128,45 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                 volume = data.audioVolume
                 audioImage = data.audioImg
             }
+
             AudioStatusState.Loading -> {
                 // TODO: 로딩 화면
             }
         }
     }
-    
+
     LaunchedEffect(volumeState) {
-        when(volumeState){
+        when (volumeState) {
             is AudioVolumeState.Error -> {
                 // TODO: 에러처리 
             }
+
             AudioVolumeState.Idle -> {}
             is AudioVolumeState.Loaded -> {
-                volume= (volumeState as AudioVolumeState.Loaded).data.volume
+                volume = (volumeState as AudioVolumeState.Loaded).data.volume
             }
+
             AudioVolumeState.Loading -> {
                 // TODO: 로딩구현 
             }
         }
     }
 
-    when(playState){
+    when (playState) {
         is AudioPlayState.Error -> {
             // TODO: 에러 처리
         }
+
         AudioPlayState.Idle -> {}
         is AudioPlayState.Loaded -> {
-           val data =  (playState as AudioPlayState.Loaded).data
+            val data = (playState as AudioPlayState.Loaded).data
             isPlaying = data.activated
         }
+
         AudioPlayState.Loading -> {
             // TODO: 로딩 화면
         }
     }
-    
-    
 
 
     var isMuted by remember { mutableStateOf(false) }
@@ -235,7 +238,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                 modifier = Modifier
                     .border(
                         1.dp,
-                        color = if (isMuted) Color(0xFF4B5BA9) else Color(0xffD5D9EB),
+                        color = if (isMuted) Color(0xff4B5BA9) else Color(0xffFFFDFD),
                         shape = RoundedCornerShape(20.dp)
                     )
                     .clickable(
@@ -267,7 +270,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_volumn_off),
                         contentDescription = if (isMuted) "음소거 해제" else "음소거",
-                        tint = if (isMuted) Color(0xff4B5BA9) else Color.White,
+                        tint = if (isMuted) Color.White else Color(0xff4B5BA9),
                         modifier = Modifier
                             .size(18.dp)
                             .clickable(
@@ -281,7 +284,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
                 Text(
                     "음소거", fontSize = 12.sp,
-                    color = if (isMuted) Color(0xff4B5BA9) else Color.White
+                    color = if (isMuted) Color.White else Color(0xff4B5BA9),
                 )
             }
 
@@ -315,7 +318,12 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                 onValueChangeFinished = {
                     // 손을 뗐을 때 로그 출력
                     Log.d("VolumeSlider", "최종 볼륨 값: $volume")
-                        viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId=deviceId, volume = volume))
+                    viewModel.sendIntent(
+                        AudioIntent.LoadAudioVolume(
+                            deviceId = deviceId,
+                            volume = volume
+                        )
+                    )
                 },
                 valueRange = 0f..100f,
                 steps = 0,

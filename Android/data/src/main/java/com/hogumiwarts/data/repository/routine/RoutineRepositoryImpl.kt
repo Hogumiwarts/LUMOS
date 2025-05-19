@@ -59,10 +59,33 @@ class RoutineRepositoryImpl @Inject constructor(
             devices = devices.map {
                 RoutineDeviceRequest(
                     deviceId = it.deviceId,
-                    commands = it.commands.map { cmd -> cmd.toRequestCommand() }
+                    commands = it.commands?.map { cmd -> cmd.toRequestCommand() }
                 )
             }
         )
+    }
+
+    // 루틴 수정
+    override suspend fun updateRoutine(
+        routineId: Long,
+        result: CreateRoutineParam,
+        accessToken: String
+    ): RoutineResult {
+        return try {
+            val request = result.toRequest()
+            val response = routineApi.updateRoutine(routineId, request)
+            val data = response.data?.toDomain()
+                ?: return RoutineResult.Failure("응답 데이터가 없습니다.")
+            RoutineResult.EditSuccess(data)
+        } catch (e: HttpException) {
+            if (e.code() == 401) {
+                RoutineResult.Unauthorized
+            } else {
+                RoutineResult.Failure(e.message ?: "루틴 수정 실패")
+            }
+        } catch (e: Exception) {
+            RoutineResult.Failure(e.message ?: "루틴 수정 실패")
+        }
     }
 
 

@@ -12,40 +12,39 @@ import com.hogumiwarts.domain.repository.GestureRepository
 import javax.inject.Inject
 import kotlin.math.log
 
-class GestureRepositoryImpl@Inject constructor(
+class GestureRepositoryImpl @Inject constructor(
     private val gestureApi: GestureApi
 ) : GestureRepository {
 
     override suspend fun getGestureList(): GestureResult {
         return try {
             val response = gestureApi.getGestureList()
+            val data = response.data ?: return GestureResult.Error(CommonError.UnknownError)
+
             Log.d("Post", "getGestureList: $response")
             GestureResult.Success(
-                data = response.data.map { it.toModel() },
+                data = data.map { it.toModel() }
             )
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> GestureResult.Error(CommonError.UserNotFound)
                 else -> GestureResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             Log.d("Post", "getGestureList: error $e")
             GestureResult.Error(CommonError.NetworkError)
         }
     }
-}
 
-fun GetGestureListResponse.toModel(): GestureData {
-    return GestureData(
-        gestureId = this.gestureId,
-        gestureName = this.gestureName,
-        gestureDescription = this.gestureDescription,
-        gestureImageUrl = this.gestureImageUrl,
-        routineName = this.routineName?: "",
-        routineId = this.routineId ?: 0L
+    fun GetGestureListResponse.toModel(): GestureData {
+        return GestureData(
+            gestureId = this.gestureId,
+            gestureName = this.gestureName,
+            gestureDescription = this.gestureDescription,
+            gestureImageUrl = this.gestureImageUrl,
+            routineName = this.routineName ?: "",
+            routineId = this.routineId ?: 0L
 
-    )
+        )
+    }
 }

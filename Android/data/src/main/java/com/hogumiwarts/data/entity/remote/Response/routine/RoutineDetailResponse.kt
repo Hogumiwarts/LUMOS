@@ -12,14 +12,14 @@ data class RoutineDetailData(
     val routineName: String,
     val routineIcon: String,
     val devices: List<RoutineDeviceData>,
-    val gestureId: Int,
-    val gestureName: String,
-    val gestureImageUrl: String,
-    val gestureDescription: String
+    val gestureId: Long?,
+    val gestureName: String?,
+    val gestureImageUrl: String?,
+    val gestureDescription: String?
 )
 
 data class RoutineDeviceData(
-    val deviceId: Int,
+    val deviceId: Long,
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,
