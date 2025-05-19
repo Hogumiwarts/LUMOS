@@ -13,12 +13,14 @@ sealed class RoutineResult {
 
     data class EditSuccess(val data: RoutineDetail) : RoutineResult()
 
+    object DeleteSuccess : RoutineResult()
+
     object Unauthorized : RoutineResult()
 }
 
 
 data class Routine(
-    val routineId: Int,
+    val routineId: Long,
     val routineName: String,
     val routineIcon: String?,
     val gestureName: String?
@@ -51,9 +53,9 @@ data class CommandData(
 )
 
 data class RoutineCreateData(
-    val routineId: Int,
+    val routineId: Long,
     val routineName: String,
     val routineIcon: String,
-    val gestureId: Int,
+    val gestureId: Long,
     val devices: List<CommandDevice>
 )

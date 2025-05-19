@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineEdit
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -90,6 +91,7 @@ fun RoutineEditScreen(
     val selectedGesture by viewModel.selectedGesture.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+
     val tokenDataStore = TokenDataStore(context)
 
     // 바텀 시트
@@ -97,6 +99,7 @@ fun RoutineEditScreen(
     val coroutineScope = rememberCoroutineScope()
     var isSheetOpen by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
+
 
     LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
@@ -111,14 +114,21 @@ fun RoutineEditScreen(
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
                 val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
-                viewModel.updateDevice(updatedDevice)
+                val exists = viewModel.devices.value.any { it.deviceId == updatedDevice.deviceId }
+
+                if (exists) {
+                    viewModel.updateDevice(updatedDevice)
+                } else {
+                    viewModel.addDevice(updatedDevice)
+                }
+
 
                 navController.previousBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
             }
 
     }
 
-    var initialized by rememberSaveable { mutableStateOf(false) }
+    var initialized by remember { mutableStateOf(false) }
 
     if (!initialized) {
         val devices = navController.previousBackStackEntry
@@ -135,6 +145,7 @@ fun RoutineEditScreen(
         val routineId = navController.previousBackStackEntry
             ?.savedStateHandle
             ?.get<Long>("editRoutineId")
+        Log.d("routine", "✨✨✨routineid: $routineId")
 
         val routineName = navController.previousBackStackEntry
             ?.savedStateHandle
@@ -154,9 +165,10 @@ fun RoutineEditScreen(
 
         // 아이콘 문자열을 Enum으로 변환
         routineIcon?.let { iconName ->
-            RoutineIconType.entries.find { it.iconName == iconName || it.name == iconName }?.let {
-                viewModel.selectIcon(it)
-            }
+            RoutineIconType.entries.find { it.iconName == iconName || it.name == iconName }
+                ?.let {
+                    viewModel.selectIcon(it)
+                }
         }
     }
 
@@ -221,8 +233,7 @@ fun RoutineEditScreen(
                         DeviceListType.ETC -> TODO()
                     }
 
-                    val isDuplicate = deviceList.any { it.deviceId == commandDevice.deviceId }
-                    if (isDuplicate) {
+                    if (deviceList.any { it.deviceId == commandDevice.deviceId }) {
                         showDuplicateDialog.value = true
                     } else {
                         viewModel.addDevice(commandDevice)
@@ -432,9 +443,7 @@ fun RoutineEditScreen(
             }
 
             // 기기 리스트
-            items(deviceList, key = {
-                "${it.deviceId}_${it.hashCode()}"
-            }) { device ->
+            items(deviceList, key = { it.deviceId }) { device ->
                 var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
                 var shouldShowHint by remember(device.deviceId) { mutableStateOf(true) }
                 AnimatedVisibility(

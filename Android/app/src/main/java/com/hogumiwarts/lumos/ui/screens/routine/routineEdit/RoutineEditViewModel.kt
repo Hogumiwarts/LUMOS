@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,10 +48,14 @@ class RoutineEditViewModel @Inject constructor(
 
     private val _isInitialized = MutableStateFlow(false)
 
+    fun isInitialized() = _isInitialized.value
+
     fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
-        if (!_isInitialized.value) {
+        if (_isInitialized.compareAndSet(expect = false, update = true)) {
+            Timber.d("🔰 초기 기기 로드됨: $initial")
             _devices.value = initial
-            _isInitialized.value = true
+        } else {
+            Timber.d("⚠️ 이미 초기화된 상태이므로 무시")
         }
     }
 
@@ -77,6 +82,7 @@ class RoutineEditViewModel @Inject constructor(
         gestureId: Long? = null
     ) {
         viewModelScope.launch {
+
             val param = CreateRoutineParam(
                 routineName = _routineName.value,
                 routineIcon = _selectedIcon.value?.iconName ?: "default",
@@ -106,9 +112,14 @@ class RoutineEditViewModel @Inject constructor(
     }
 
     fun updateDevice(updated: CommandDevice) {
+        Timber.d("🛠 updateDevice 호출됨: $updated")
         _devices.update { list ->
-            list.map { if (it.deviceId == updated.deviceId) updated else it }
-
+            val newList = list.map {
+                if (it.deviceId == updated.deviceId) updated else it
+            }
+            _devices.value = newList.toList()
+            Timber.d("📋 업데이트된 기기 리스트: $newList")
+            newList
         }
     }
 
