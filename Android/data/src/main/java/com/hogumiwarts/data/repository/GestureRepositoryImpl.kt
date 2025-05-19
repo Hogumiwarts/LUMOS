@@ -3,11 +3,13 @@ package com.hogumiwarts.data.repository
 import android.util.Log
 import com.hogumiwarts.data.entity.remote.Response.GetGestureListResponse
 import com.hogumiwarts.data.mapper.AudioMapper
+import com.hogumiwarts.data.mapper.GestureMapper
 import com.hogumiwarts.data.source.remote.GestureApi
 import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.GestureResult
 import com.hogumiwarts.domain.model.audio.AudioPowerResult
+import com.hogumiwarts.domain.model.audio.AudioStatusResult
 import com.hogumiwarts.domain.model.gesture.GestureDetailData
 import com.hogumiwarts.domain.model.gesture.GestureDetailResult
 import com.hogumiwarts.domain.repository.GestureRepository
@@ -44,12 +46,16 @@ class GestureRepositoryImpl@Inject constructor(
     override suspend fun getGestureDetail(deviceId: Long): GestureDetailResult {
         return try {
             val response = gestureApi.getGestureDetail(deviceId)
+            val body = response.data
             Log.d("Post", "getGestureList: $response")
-            val result = response.data
-            GestureDetailResult.Success(
-                data = GestureDetailData(
-                    result!!.gestureId, gestureName = result.gestureName, gestureDescription =  result.gestureDescription, gestureImageUrl = result.gestureImageUrl)
-            )
+            if (body != null) {
+                GestureDetailResult.Success(
+                    data = GestureMapper.fromGestureDetailDataResponse(body)
+                )
+            }else{
+                GestureDetailResult.Error(CommonError.UnknownError)
+            }
+
         } catch (e: retrofit2.HttpException) {
             // 🔶 서버 에러 코드별 처리
             when (e.code()) {
