@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.lumos.GestureTestViewModel
+import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.screens.gesture.components.GestureTestCard
 import timber.log.Timber
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -55,6 +57,16 @@ fun GestureTest(
     cards: List<GestureData>,
     onGestureSelected: (GestureData) -> Unit
 ) {
+    var showAlreadySelectedDialog by remember { mutableStateOf(false) }
+
+    if (showAlreadySelectedDialog) {
+        CommonDialog(
+            showDialog = true,
+            onDismiss = { showAlreadySelectedDialog = false },
+            titleText = "이미 연결된 제스처예요",
+            bodyText = "다른 제스처를 선택하거나, 기존 루틴을 먼저 해제해주세요."
+        )
+    }
 
     LaunchedEffect(cards) {
         Timber.tag("gesture").d("📌 GestureTest 전달받은 카드 수: ${cards.size}")
@@ -181,29 +193,44 @@ fun GestureTest(
 
         // 하단 "선택하기" 버튼 (카드 선택 전만 표시)
         if (!isCardFocused) {
+            val isSelectable = selectedGesture.routineName.isBlank() // 해당 루틴이 이미 선택되었는지 여부 판단
+
             Button(
                 onClick = {
-                    onGestureSelected(selectedGesture)
+                    if (isSelectable) {
+                        onGestureSelected(selectedGesture)
+                    } else {
+                        showAlreadySelectedDialog = true
+                    }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3E4784)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xff3E4784).copy(alpha = if (isSelectable) 1f else 0.5f),
+                ),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .constrainAs(select) {
-                        top.linkTo(card.bottom, margin = 50.dp)
+                        top.linkTo(card.bottom, margin = 60.dp)
                         start.linkTo(parent.start, margin = 30.dp)
                         end.linkTo(parent.end, margin = 30.dp)
                         width = Dimension.fillToConstraints
                     }
                     .height(45.dp)
+                    .then(
+                        if (!isSelectable) Modifier.border(
+                            width = 1.dp,
+                            color = Color(0xA04C4C4C),
+                            shape = RoundedCornerShape(10.dp)
+                        ) else Modifier
+                    )
             ) {
                 Text(
-                    "선택하기",
+                    text = if (isSelectable) "선택하기" else "🔒 연결된 제스처",
                     style = TextStyle(
                         fontSize = 16.sp,
                         lineHeight = 16.sp,
                         fontFamily = nanum_square_neo,
                         fontWeight = FontWeight(800),
-                        color = Color(0xFFFFFFFF),
+                        color = Color.White.copy(alpha = if (isSelectable) 1f else 0.4f),
                         textAlign = TextAlign.Center,
                     )
                 )
@@ -211,8 +238,6 @@ fun GestureTest(
         }
     }
 }
-
-
 
 
 @RequiresApi(Build.VERSION_CODES.S)

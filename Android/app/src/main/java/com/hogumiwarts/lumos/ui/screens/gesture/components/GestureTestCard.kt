@@ -107,8 +107,6 @@ fun GestureTestCard(
 
 
             if (card.routineName != "") {
-                // todo: 루틴과 연결된 제스처라면 선택하기 버튼 비활성화 후 팝업 띄우기
-
                 Box(
                     modifier = Modifier
                         .constrainAs(routine) {
