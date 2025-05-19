@@ -36,6 +36,7 @@ import com.hogumiwarts.lumos.data.GestureData
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSwitch
 import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMode
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMonitorScreen
@@ -163,6 +164,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 //                        // 일반 네비게이션
                         else -> {
                             NavGraph(navController)
+//                            AipurifierSwitch(deviceId = 1L, navController = navController)
                         }
                     }
                 }

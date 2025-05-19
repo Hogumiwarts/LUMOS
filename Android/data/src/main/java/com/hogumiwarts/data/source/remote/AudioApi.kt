@@ -18,7 +18,7 @@ interface AudioApi {
     @GET("/device/api/devices/{deviceId}/audio/status")
     suspend fun getAudioStatus(@Path("deviceId") deviceId: Long): BaseResponse<GetAudioStatusResponse>
 
-    @PATCH("/device/api/devices/{deviceId}/audio/power")
+    @PATCH("/device/api/devices/{deviceId}/audio/playback")
     suspend fun patchAudioPower(@Path("deviceId") deviceId: Long, @Body request: PowerRequest): BaseResponse<AudioPowerResponse>
 
     @PATCH("/device/api/devices/{deviceId}/audio/volume")
