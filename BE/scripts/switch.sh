@@ -63,7 +63,7 @@ fi
 echo "$TARGET_COLOR" | sudo tee "$COLOR_FILE" > /dev/null
 
 echo "⏳ 프록시 전환 후 $TARGET_COLOR 응답 대기 중..."
-until curl -sL -L -o /dev/null -w "%{http_code}" http://localhost/ | grep -q 200
+until curl -skL -L -o /dev/null -w "%{http_code}" http://localhost/ | grep -q 200
 do
   echo "   🔄 아직 $TARGET_COLOR 응답 없음... 기다리는 중..."
   sleep 1

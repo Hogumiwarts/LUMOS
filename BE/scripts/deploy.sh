@@ -78,8 +78,8 @@ sudo docker-compose \
 # ==========================================
 echo "⏳ Gateway 준비 대기 중..."
 
-until curl -sL http://localhost:$PORT/actuator/health | grep '"status":"UP"' > /dev/null && \
-      [ "$(curl -sL -L -o /dev/null -w "%{http_code}" http://localhost:$PORT)" = "200" ]; do
+until curl -skL http://localhost:$PORT/actuator/health | grep '"status":"UP"' > /dev/null && \
+      [ "$(curl -skL -L -o /dev/null -w "%{http_code}" http://localhost:$PORT)" = "200" ]; do
   echo "   🔄 아직 gateway ($PREV_COLOR:$PORT) 준비 안 됨..."
   sleep 1
 done
@@ -96,7 +96,7 @@ sudo bash "$PROJECT_DIR/scripts/switch.sh"
 # 프록시 응답 확인
 # ==========================================
 echo "🌐 프록시 응답 확인 중..."
-until curl -sL http://localhost/actuator/health | grep -q '"status":"UP"'; do
+until curl -skL http://localhost/actuator/health | grep -q '"status":"UP"'; do
   echo "   🔄 프록시 대상 응답 없음... 기다리는 중..."
   sleep 1
 done
