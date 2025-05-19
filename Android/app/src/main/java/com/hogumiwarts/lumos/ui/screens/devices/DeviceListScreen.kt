@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.devices
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,17 +35,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toMyDevice
 import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun DeviceListScreen(
     viewModel: DeviceListViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     val showDialog by viewModel.showDialog
 
@@ -53,6 +58,33 @@ fun DeviceListScreen(
     val context = LocalContext.current
 
     val deviceList by viewModel.deviceList.collectAsState()
+
+    val clickDevice by viewModel.clickDevice
+
+    LaunchedEffect(clickDevice) {
+        clickDevice?.let {
+            Log.d("TAG", "HomeScreen: $clickDevice")
+            when(it.deviceType){
+
+
+                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.LIGHT -> navController.navigate("LIGHT/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.AUDIO -> navController.navigate("AUDIO/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.SWITCH -> navController.navigate("SWITCH/${clickDevice!!.deviceId}") {
+                    popUpTo("splash") { inclusive = true }
+                }
+                DeviceListType.ETC -> {}
+            }
+
+//            navController.navigate(it.deviceType.categoryName)
+        }
+    }
 
     // 화면이 다시 Resume되면 DB 저장 목록을 불러옴
     // 새로고침 클릭 & 계정 연동 시에만 새로운 기기 추가 가능

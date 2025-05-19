@@ -199,6 +199,7 @@ fun NavGraph(
                             val myDeviceList = MyDevice.sample
 
                             DeviceListScreen(
+                                navController = navController
                             )
                         }
 

@@ -20,12 +20,22 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.hogumiwarts.data.source.remote.AuthApi
+import com.hogumiwarts.domain.model.PatchSwitchPowerResult
+import com.hogumiwarts.domain.model.airpurifier.PatchAirpurifierPowerResult
+import com.hogumiwarts.domain.model.audio.AudioPowerResult
 import com.hogumiwarts.domain.repository.DeviceRepository
+import com.hogumiwarts.domain.usecase.AirpurifierUseCase
+import com.hogumiwarts.domain.usecase.AudioUseCase
+import com.hogumiwarts.domain.usecase.LightUseCase
+import com.hogumiwarts.domain.usecase.SwitchUseCase
 import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.mapper.toMyDevice
 import com.hogumiwarts.lumos.ui.screens.gesture.network.sendTokenToWatch
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import kotlinx.serialization.json.*
@@ -38,6 +48,10 @@ class DeviceListViewModel @Inject constructor(
     private val authApi: AuthApi,
     private val tokenDataStore: TokenDataStore,
     private val jwtUseCase: TokensUseCase,
+    private val switchUseCase: SwitchUseCase,
+    private val lightUseCase: LightUseCase,
+    private val audioUseCase: AudioUseCase,
+    private val airpurifierUseCase: AirpurifierUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -95,7 +109,8 @@ class DeviceListViewModel @Inject constructor(
 
     fun onDeviceClicked(device: MyDevice) {
         if (!device.isActive) {
-            showDialog.value = true
+//            showDialog.value = true
+            clickDevice.value = device
         } else {
             //todo: 각 기기의 제어 화면으로 이동
             clickDevice.value = device
@@ -110,6 +125,7 @@ class DeviceListViewModel @Inject constructor(
     fun getSelectedDevice(devices: List<MyDevice>): MyDevice? {
         return devices.find { it.deviceId == selectedDeviceId.value }
     }
+
 
 
     // db에서 기기 목록 받아오기
@@ -186,12 +202,76 @@ class DeviceListViewModel @Inject constructor(
             }
         }
 
-        fun toggleDeviceState(deviceId: Int) {
+        fun toggleDeviceState(deviceId: Int, deviceType: DeviceListType) {
             val currentList = _deviceList.value.toMutableList()
 
             val index = currentList.indexOfFirst { it.deviceId == deviceId }
             if (index != -1) {
                 val target = currentList[index]
+                // 서버랑 호출
+                viewModelScope.launch {
+
+                    when(deviceType){
+                        DeviceListType.AIRPURIFIER -> {
+                            val result =  airpurifierUseCase.patchAirpurifierPower(deviceId = deviceId.toLong(), !target.isOn)
+                            when(result){
+                                is PatchAirpurifierPowerResult.Error -> {
+                                    // TODO: 에러 처리
+                                }
+                                is PatchAirpurifierPowerResult.Success -> {
+                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                    currentList[index] = updated
+                                    _deviceList.value = currentList
+                                }
+                            }
+                        }
+                        DeviceListType.LIGHT -> {
+                            val result = lightUseCase.patchLightPower(deviceId = deviceId.toLong(), !target.isOn)
+                            when(result){
+                                is PatchSwitchPowerResult.Error -> {
+                                    // TODO: 에러 처리
+                                }
+                                is PatchSwitchPowerResult.Success -> {
+                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                    currentList[index] = updated
+                                    _deviceList.value = currentList
+                                }
+                            }
+
+                        }
+                        DeviceListType.AUDIO -> {
+                            val result = audioUseCase.patchAudioPower(deviceId = deviceId.toLong(), !target.isOn)
+                            when(result) {
+                                is AudioPowerResult.Error -> {
+                                    // TODO: 에러 처리
+                                }
+                                is AudioPowerResult.Success -> {
+                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                    currentList[index] = updated
+                                    _deviceList.value = currentList
+                                }
+                            }
+                        }
+                        DeviceListType.SWITCH -> {
+                            val result = switchUseCase.patchSwitchStatus(deviceId = deviceId.toLong(), !target.isOn)
+                            when(result) {
+                                is PatchSwitchPowerResult.Error -> {
+                                    // TODO: 에러 처리
+                                }
+                                is PatchSwitchPowerResult.Success -> {
+                                    val updated = target.copy(isOn = result.data.activated) // isOn 토글
+                                    currentList[index] = updated
+                                    _deviceList.value = currentList
+                                }
+                            }
+                        }
+                        DeviceListType.ETC -> {}
+                    }
+
+
+                }
+
+
                 val updated = target.copy(isOn = !target.isOn) // isOn 토글
                 currentList[index] = updated
                 _deviceList.value = currentList
