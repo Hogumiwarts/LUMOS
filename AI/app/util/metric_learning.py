@@ -71,7 +71,11 @@ def predict(x, prototypes):
     print(f"⚙️ MMD predict - 최소 거리: {min_dist:.4f}, 예측 클래스: {pred}")
     
     # 임계값 조정 - 타겟 제스처에 대한 임계값 완화
-    if min_dist > 20.0 or pred in [5, 6]:
+    # if min_dist > 20.0 or pred in [5, 6]:
+    #     pred = 0
+
+    # 05.19 (1~8번 제스처 모두 임계값 적용)
+    if min_dist > 20.0:
         pred = 0
 
     return pred

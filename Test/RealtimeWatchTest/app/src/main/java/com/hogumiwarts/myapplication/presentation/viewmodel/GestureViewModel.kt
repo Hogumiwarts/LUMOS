@@ -163,12 +163,7 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
 
     // Gesture UI 업데이트
     private fun updateUI(gestureId: Int, originalText: String) {
-        // 제스처 ID에 따른 로그 출력
-        if (gestureId != 1 && gestureId != 4 && gestureId != 5 && gestureId != 0) {
-            Log.d("WebSocket", "📊 제스처 감지: ID=$gestureId")
-        }
 
-        // UI 상태 업데이트
         if (originalText.startsWith("{")) {
             // JSON 응답인 경우
             val json = JSONObject(originalText)
@@ -176,13 +171,20 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
             _prediction.value = gestureName
             _history.add(0, gestureName)
         } else {
-            // 정지 제스처(4, 5번)는 특별 처리
-            if (gestureId != 4 && gestureId != 5) {
-                _prediction.value = originalText
-                _history.add(0, originalText)
-            } else {
-                _prediction.value = "-"
-                _history.add(0, "-")
+            // 정지 제스처(2,3) 번만 UI 처리
+            when (gestureId) {
+                1 -> {
+                    _prediction.value = "1"
+                    // 히스토리에 추가 ❌
+                }
+                2, 3 -> {
+                    _prediction.value = originalText
+                    _history.add(0, originalText)  // 히스토리 기록
+                }
+                else -> {
+                    _prediction.value = "-"
+//                    _history.add(0, originalText)  // 히스토리 기록 x => 버퍼 아닌 단순 UI용
+                }
             }
         }
     }
@@ -209,6 +211,23 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
      * 활성화 상태의 제스처(2,3) 처리
      */
     private fun handleActiveGesture(gestureId: Int) {
+        val currentTime = System.currentTimeMillis()
+
+        // 제스처별 디바운싱 적용
+        if (gestureId == 2) {
+            if (currentTime - lastGesture2DetectionTime < DEBOUNCE_TIME) {
+                Log.d("GestureViewModel", "---- (제스처 2 디바운싱: 무시됨)")
+                return
+            }
+            lastGesture2DetectionTime = currentTime
+        } else if (gestureId == 3) {
+            if (currentTime - lastGesture3DetectionTime < DEBOUNCE_TIME) {
+                Log.d("GestureViewModel", "---- (제스처 3 디바운싱: 무시됨)")
+                return
+            }
+            lastGesture3DetectionTime = currentTime
+        }
+
         // 활성 모드에서만 처리
         if (!isGestureRecognitionActive()) return
 
@@ -249,6 +268,10 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
      */
     // 제스처 1 감지 관련 변수들
     private var lastGesture1DetectionTime = 0L
+    private var lastGesture2DetectionTime = 0L  // 새로 추가
+    private var lastGesture3DetectionTime = 0L  // 새로 추가
+    private val DEBOUNCE_TIME = GestureConstants.GESTURE1_DEBOUNCE_MS  // 모든 제스처에 적용할 동일한 디바운싱 시간
+
     private var awaitingSecondGesture = false
     private var secondGestureTimer: Job? = null
 
@@ -256,8 +279,8 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
     fun processGesture1Detection() {
         val currentTime = System.currentTimeMillis()
 
-        // 디바운싱: 연속 감지 방지
-        if (currentTime - lastGesture1DetectionTime < GestureConstants.GESTURE1_DEBOUNCE_MS) {
+        // 디바운싱: 연속 감지 방지 (특정 시간내에 중복 감지된 제스처 1 무시)
+        if (currentTime - lastGesture1DetectionTime < DEBOUNCE_TIME) {
 //            Log.d("GestureMode", "제스처 1 감지: 디바운스 시간 내 무시됨")
             return
         }
@@ -304,12 +327,8 @@ class GestureViewModel @Inject constructor() : ViewModel(), DefaultLifecycleObse
             awaitingSecondGesture = true
 
             // 첫 번째 제스처는 햅틱 피드백 없음 (혼란 방지)
-
-            // 두 번째 제스처 대기 타이머 시작
-            startSecondGestureTimer()
-
-            // 콜백 호출
-            onGesture1Detected?.invoke()
+            startSecondGestureTimer() // 두 번째 제스처 대기 타이머 시작
+            onGesture1Detected?.invoke() // 콜백 호출
         }
     }
 

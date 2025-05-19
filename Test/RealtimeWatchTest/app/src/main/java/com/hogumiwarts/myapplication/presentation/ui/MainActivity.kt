@@ -130,7 +130,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         // 제스처 콜백 설정
         gestureViewModel.onGesture1Detected = {
-            Log.d("Gesture", "제스처 1 감지됨: 활성화/비활성화 토글")
+            Log.d("Gesture", "제스처 1 감지됨 ")
+//            clearIMUDataAndPauseCollection() // 이 함수를 사용하면 버퍼를 지우고 무조건 1500ms 대기하게 됨
+            imuDataList.clear()
         }
 
         gestureViewModel.onGesture2Detected = {

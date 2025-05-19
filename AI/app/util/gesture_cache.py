@@ -232,11 +232,20 @@ class GestureCache:
             if user_distances:
                 print(f"⚙️ 사용자 제스처 거리: {user_distances}")   
         
-        # 거리가 너무 크면 인식되지 않음 (0)
+        # 거리가 너무 크면 인식되지 않음 (0), 단 특정 제스처는 예외
         if min_dist > 20.0:
             print(f"⚙️ 거리가 너무 큼 ({min_dist:.4f}), 제스처 없음(0) 반환")
             pred = 0
         
+        # 05.19 : 6번(가만히) 제스처에 대한 임계값 범위 여유롭게 설정.
+        # if pred == 6:
+        #     threshold = 30.0  # 6번에게만 더 관대한 임계값 적용
+        # else:
+        #     threshold = 20.0  # 다른 제스처는 기존 임계값 유지
+        # if min_dist > threshold:
+        #     print(f"⚙️ 거리가 너무 큼 ({min_dist:.4f}), 제스처 없음(0) 반환")
+        #     pred = 0
+
         print(f"⚙️ 최종 예측: {pred}, 거리: {min_dist:.4f}")
         return pred
 
