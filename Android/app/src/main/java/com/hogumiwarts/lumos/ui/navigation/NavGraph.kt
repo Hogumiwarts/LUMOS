@@ -81,7 +81,6 @@ fun NavGraph(
             }
 
         } else "welcome"
-        //val startDestination = "welcome"
 
         NavHost(
             navController = navController,
