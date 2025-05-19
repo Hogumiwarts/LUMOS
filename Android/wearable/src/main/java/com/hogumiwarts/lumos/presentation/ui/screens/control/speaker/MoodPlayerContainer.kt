@@ -311,9 +311,7 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
         when(volumeState){
             is AudioVolumeState.Error -> {}
             AudioVolumeState.Idle -> {}
-            is AudioVolumeState.Loaded -> {
-                volumePercent= (volumeState as AudioVolumeState.Loaded).data.volume
-            }
+            is AudioVolumeState.Loaded -> {}
             AudioVolumeState.Loading -> {}
         }
     }

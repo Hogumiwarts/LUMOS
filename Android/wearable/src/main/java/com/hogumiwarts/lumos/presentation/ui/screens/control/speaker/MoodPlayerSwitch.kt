@@ -235,7 +235,9 @@ fun MoodPlayerSwitch(
         AudioPowerState.Idle -> {
 
         }
-        is AudioPowerState.Loaded -> {isPlaying = (powerState as AudioPowerState.Loaded).data.activated}
+        is AudioPowerState.Loaded -> {
+            isPlaying = !isPlaying
+        }
         AudioPowerState.Loading -> {}
     }
 
