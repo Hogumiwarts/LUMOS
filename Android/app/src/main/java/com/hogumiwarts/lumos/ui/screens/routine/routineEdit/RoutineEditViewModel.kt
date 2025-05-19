@@ -50,6 +50,17 @@ class RoutineEditViewModel @Inject constructor(
 
     fun isInitialized() = _isInitialized.value
 
+    fun setNameBlankError(message: String) {
+        _state.value = state.value.copy(nameBlankMessage = message)
+    }
+
+    fun clearNameError() {
+        _state.value = state.value.copy(nameBlankMessage = null)
+    }
+
+    fun setDeviceEmptyError(message: String?) {
+        _state.update { it.copy(deviceEmptyMessage = message) }
+    }
     fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
         if (_isInitialized.compareAndSet(expect = false, update = true)) {
             Timber.d("🔰 초기 기기 로드됨: $initial")
