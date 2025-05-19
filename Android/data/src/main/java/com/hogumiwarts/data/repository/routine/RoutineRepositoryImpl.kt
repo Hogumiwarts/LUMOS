@@ -59,7 +59,7 @@ class RoutineRepositoryImpl @Inject constructor(
             devices = devices.map {
                 RoutineDeviceRequest(
                     deviceId = it.deviceId,
-                    commands = it.commands.map { cmd -> cmd.toRequestCommand() }
+                    commands = it.commands?.map { cmd -> cmd.toRequestCommand() }
                 )
             }
         )

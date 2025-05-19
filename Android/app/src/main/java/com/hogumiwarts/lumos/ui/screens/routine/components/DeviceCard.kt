@@ -107,37 +107,39 @@ fun DeviceCard(
                 // on/off 여부
 
 
-                val isStopped = commandDevice.commands.any {
+                val isStopped = commandDevice.commands?.any {
                     it.capability == "mediaPlayback" && it.command == "stop"
                 }
 
-                val isOff = commandDevice.commands.any {
+                val isOff = commandDevice.commands?.any {
                     it.capability == "switch" && it.command == "off"
                 }
 
-                val filteredCommands = commandDevice.commands.filterNot {
-                    (isStopped || isOff) && it.capability == "audioVolume" && it.command == "setVolume"
+                val filteredCommands = commandDevice.commands?.filterNot {
+                    (isStopped == true || isOff == true) && it.capability == "audioVolume" && it.command == "setVolume"
                 }
 
                 val commandText =
-                    if (filteredCommands.any { it.capability == "switch" && it.command == "off" }) {
+                    if (filteredCommands?.any { it.capability == "switch" && it.command == "off" } == true) {
                         getKoreanDescription(filteredCommands.first { it.capability == "switch" && it.command == "off" })
                     } else {
-                        filteredCommands.joinToString(", ") {
+                        filteredCommands?.joinToString(", ") {
                             getKoreanDescription(it)
                         }
                     }
 
-                Text(
-                    text = commandText,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 13.sp,
-                        lineHeight = 16.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(800),
-                        color = Color(0xFFFFA754)
+                if (commandText != null) {
+                    Text(
+                        text = commandText,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 13.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(800),
+                            color = Color(0xFFFFA754)
+                        )
                     )
-                )
+                }
 
 
             }
