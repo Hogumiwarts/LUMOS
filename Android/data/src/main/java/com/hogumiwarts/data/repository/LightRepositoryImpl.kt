@@ -16,131 +16,115 @@ import com.hogumiwarts.domain.model.light.LightTemperatureResult
 import com.hogumiwarts.domain.repository.LightRepository
 import javax.inject.Inject
 
-class LightRepositoryImpl@Inject constructor(
+class LightRepositoryImpl @Inject constructor(
     private val lightApi: LightApi // 🔹 Retrofit API 인터페이스 주입
 ) : LightRepository {
 
     // 🔸 기기 데이터를 API로부터 받아오는 함수
     override suspend fun getLightStatus(deviceId: Long): GetLightStatusResult {
         return try {
-            // ✅ API 호출
             val response = lightApi.getLightStatus(deviceId)
+            val data = response.data ?: return GetLightStatusResult.Error(CommonError.UnknownError)
 
             Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
+
             GetLightStatusResult.Success(
-                data = LightMapper.fromSwitchStatusDataResponse(response.data)
+                data = LightMapper.fromSwitchStatusDataResponse(data)
             )
 
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> GetLightStatusResult.Error(CommonError.UserNotFound)
                 else -> GetLightStatusResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             GetLightStatusResult.Error(CommonError.NetworkError)
         }
     }
 
-    override suspend fun patchLightPower(deviceId: Long, activated: Boolean): PatchSwitchPowerResult {
+
+    override suspend fun patchLightPower(
+        deviceId: Long,
+        activated: Boolean
+    ): PatchSwitchPowerResult {
         return try {
-            // ✅ API 호출
             val response = lightApi.patchLightPower(deviceId, PowerRequest(activated))
+            val data =
+                response.data ?: return PatchSwitchPowerResult.Error(CommonError.UnknownError)
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
             PatchSwitchPowerResult.Success(
-                data = LightMapper.fromSwitchPowerResponse(response.data)
+                data = LightMapper.fromSwitchPowerResponse(data)
             )
-
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> PatchSwitchPowerResult.Error(CommonError.UserNotFound)
                 else -> PatchSwitchPowerResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             PatchSwitchPowerResult.Error(CommonError.NetworkError)
         }
     }
 
     override suspend fun patchLightBright(deviceId: Long, brightness: Int): LightBrightResult {
         return try {
-            // ✅ API 호출
             val response = lightApi.patchLightBright(deviceId, PatchLightBrightRequest(brightness))
+            val data = response.data ?: return LightBrightResult.Error(CommonError.UnknownError)
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
             LightBrightResult.Success(
-                data = LightMapper.fromLightBrightResponse(response.data)
+                data = LightMapper.fromLightBrightResponse(data)
             )
-
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> LightBrightResult.Error(CommonError.UserNotFound)
                 else -> LightBrightResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             LightBrightResult.Error(CommonError.NetworkError)
         }
     }
 
-    override suspend fun patchLightColor(deviceId: Long, color: Float,saturation: Float): LightColorResult {
-
+    override suspend fun patchLightColor(
+        deviceId: Long,
+        color: Float,
+        saturation: Float
+    ): LightColorResult {
         return try {
-            // ✅ API 호출
-            val response = lightApi.patchLightColor(deviceId, PatchLightColorRequest(color,100.0f))
+            val response =
+                lightApi.patchLightColor(deviceId, PatchLightColorRequest(color, saturation))
+            val data = response.data ?: return LightColorResult.Error(CommonError.UnknownError)
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래
             LightColorResult.Success(
-                data = LightMapper.fromLightColorResponse(response.data)
+                data = LightMapper.fromLightColorResponse(data)
             )
-
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> LightColorResult.Error(CommonError.UserNotFound)
                 else -> LightColorResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             LightColorResult.Error(CommonError.NetworkError)
         }
     }
 
     override suspend fun patchLightTemperature(
         deviceId: Long,
-        temperature: Int,
+        temperature: Int
     ): LightTemperatureResult {
         return try {
-            // ✅ API 호출
-            val response = lightApi.patchLightTemperature(deviceId, LightTemperatureRequest(temperature))
+            val response =
+                lightApi.patchLightTemperature(deviceId, LightTemperatureRequest(temperature))
+            val data =
+                response.data ?: return LightTemperatureResult.Error(CommonError.UnknownError)
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래
             LightTemperatureResult.Success(
-                data = LightMapper.fromLightTemperatureResponse(response.data)
+                data = LightMapper.fromLightTemperatureResponse(data)
             )
-
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> LightTemperatureResult.Error(CommonError.UserNotFound)
                 else -> LightTemperatureResult.Error(CommonError.UnknownError)
             }
-
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             LightTemperatureResult.Error(CommonError.NetworkError)
         }
     }

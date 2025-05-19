@@ -10,4 +10,10 @@ interface RoutineRepository {
         result: CreateRoutineParam,
         accessToken: String
     ): RoutineResult
+
+    suspend fun updateRoutine(
+        routineId: Long,
+        result: CreateRoutineParam,
+        accessToken: String
+    ): RoutineResult
 }

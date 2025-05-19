@@ -30,7 +30,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 @Composable
 fun DeviceGridSection(
     devices: List<MyDevice>,
-    selectedDeviceId: Int? = null,
+    selectedDeviceId: Long? = null,
     onDeviceClick: (MyDevice) -> Unit = {}
 ) {
 

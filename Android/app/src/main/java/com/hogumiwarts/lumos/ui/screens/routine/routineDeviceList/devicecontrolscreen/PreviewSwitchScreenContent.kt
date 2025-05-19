@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -173,18 +174,21 @@ fun PreviewSwitchScreenContent(
             PrimaryButton(
                 buttonText = "설정하기",
                 onClick = {
-//                    val commandDevice = selectedDevice.toCommandDeviceForSwitch(isOn = isChecked)
-//                    val json = Gson().toJson(commandDevice)
-//                    navController.previousBackStackEntry?.savedStateHandle?.set(
-//                        "commandDeviceJson",
-//                        json
-//                    )
-//                    navController.popBackStack()
+                    val commandDevice =
+                        selectedDevice.toCommandDeviceForSwitch(isOn = isChecked)
+
+                    Log.d("routine", "ischecked: $isChecked")
+
+                    val json = Gson().toJson(commandDevice)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "commandDeviceJson",
+                        json
+                    )
+                    navController.popBackStack()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 27.dp)
-
             )
         }
     }

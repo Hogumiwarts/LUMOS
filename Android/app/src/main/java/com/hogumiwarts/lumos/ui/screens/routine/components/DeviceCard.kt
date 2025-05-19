@@ -105,20 +105,41 @@ fun DeviceCard(
                 Spacer(modifier = Modifier.weight(1f))
 
                 // on/off 여부
-                val commandText = commandDevice.commands.joinToString(", ") {
-                    getKoreanDescription(it)
+
+
+                val isStopped = commandDevice.commands?.any {
+                    it.capability == "mediaPlayback" && it.command == "stop"
                 }
 
-                Text(
-                    text = commandText,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 13.sp,
-                        lineHeight = 16.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(800),
-                        color = Color(0xFFFFA754)
+                val isOff = commandDevice.commands?.any {
+                    it.capability == "switch" && it.command == "off"
+                }
+
+                val filteredCommands = commandDevice.commands?.filterNot {
+                    (isStopped == true || isOff == true) && it.capability == "audioVolume" && it.command == "setVolume"
+                }
+
+                val commandText =
+                    if (filteredCommands?.any { it.capability == "switch" && it.command == "off" } == true) {
+                        getKoreanDescription(filteredCommands.first { it.capability == "switch" && it.command == "off" })
+                    } else {
+                        filteredCommands?.joinToString(", ") {
+                            getKoreanDescription(it)
+                        }
+                    }
+
+                if (commandText != null) {
+                    Text(
+                        text = commandText,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 13.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(800),
+                            color = Color(0xFFFFA754)
+                        )
                     )
-                )
+                }
 
 
             }

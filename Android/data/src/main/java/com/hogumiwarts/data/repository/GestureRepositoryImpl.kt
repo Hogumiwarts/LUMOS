@@ -21,9 +21,11 @@ class GestureRepositoryImpl@Inject constructor(
     override suspend fun getGestureList(): GestureResult {
         return try {
             val response = gestureApi.getGestureList()
+            val data = response.data ?: return GestureResult.Error(CommonError.UnknownError)
+
             Log.d("Post", "getGestureList: $response")
             GestureResult.Success(
-                data = response.data.map { it.toModel() },
+                data = data.map { it.toModel() }
             )
         } catch (e: retrofit2.HttpException) {
             // 🔶 서버 에러 코드별 처리
@@ -45,7 +47,8 @@ class GestureRepositoryImpl@Inject constructor(
             Log.d("Post", "getGestureList: $response")
             val result = response.data
             GestureDetailResult.Success(
-                data = GestureDetailData(result.gestureId, gestureName = result.gestureName, gestureDescription =  result.gestureDescription, gestureImageUrl = result.gestureImageUrl)
+                data = GestureDetailData(
+                    result!!.gestureId, gestureName = result.gestureName, gestureDescription =  result.gestureDescription, gestureImageUrl = result.gestureImageUrl)
             )
         } catch (e: retrofit2.HttpException) {
             // 🔶 서버 에러 코드별 처리
@@ -62,14 +65,14 @@ class GestureRepositoryImpl@Inject constructor(
     }
 }
 
-fun GetGestureListResponse.toModel(): GestureData {
-    return GestureData(
-        gestureId = this.gestureId,
-        gestureName = this.gestureName,
-        gestureDescription = this.gestureDescription,
-        gestureImageUrl = this.gestureImageUrl,
-        routineName = this.routineName?: "",
-        routineId = this.routineId ?: 0L
+    fun GetGestureListResponse.toModel(): GestureData {
+        return GestureData(
+            gestureId = this.gestureId,
+            gestureName = this.gestureName,
+            gestureDescription = this.gestureDescription,
+            gestureImageUrl = this.gestureImageUrl,
+            routineName = this.routineName ?: "",
+            routineId = this.routineId ?: 0L
 
-    )
-}
+        )
+    }

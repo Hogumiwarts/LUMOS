@@ -36,7 +36,7 @@ class RoutineDetailViewModel @Inject constructor(
                 is RoutineResult.DetailSuccess -> {
                     val detail = result.detail
                     _state.value = RoutineDetailState.Success(
-                        routine = detail.toRoutineItem(),
+                        routine = detail.toRoutineItem(routineId.toInt()),
                         devices = detail.devices
                     )
                 }

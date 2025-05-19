@@ -6,7 +6,7 @@ import com.hogumiwarts.domain.model.routine.CommandData
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 
 data class MyDevice(
-    val deviceId: Int,
+    val deviceId: Long,
     val deviceName: String,
     val isOn: Boolean,
     val isActive: Boolean,
@@ -15,7 +15,7 @@ data class MyDevice(
 
 ) : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(deviceId)
+        parcel.writeLong(deviceId)
         parcel.writeString(deviceName)
         parcel.writeByte(if (isOn) 1 else 0)
         parcel.writeByte(if (isActive) 1 else 0)
@@ -27,7 +27,7 @@ data class MyDevice(
     companion object CREATOR : Parcelable.Creator<MyDevice> {
         override fun createFromParcel(parcel: Parcel): MyDevice {
             return MyDevice(
-                deviceId = parcel.readInt(),
+                deviceId = parcel.readLong(),
                 deviceName = parcel.readString() ?: "",
                 isOn = parcel.readByte() != 0.toByte(),
                 isActive = parcel.readByte() != 0.toByte(),

@@ -41,7 +41,7 @@ fun RoutineDeviceListScreen(
     showDuplicateDialog: MutableState<Boolean>,
     onDismissDuplicateDialog: () -> Unit,
     navController: NavController,
-    alreadyAddedDeviceIds: List<Int>
+    alreadyAddedDeviceIds: List<Long>
 
 ) {
     // 선택 기기 상태

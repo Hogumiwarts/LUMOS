@@ -5,6 +5,8 @@ import com.hogumiwarts.lumos.data.entity.remote.routine.PostRoutineResponse
 import com.hogumiwarts.lumos.data.entity.remote.BaseResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface RoutineApi {
 

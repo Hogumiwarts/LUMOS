@@ -175,7 +175,7 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
                                 is RangingResultPosition -> {
                                     // 장치 MAC 주소 추출
                                     val deviceAddress = result.device.address.toString()
-                                    Log.d("UwbRanging", "Position update from: $deviceAddress")
+//                                    Log.d("UwbRanging", "Position update from: $deviceAddress")
 
                                     // 결과 저장 - 맵 업데이트
                                     rangingPositions =
