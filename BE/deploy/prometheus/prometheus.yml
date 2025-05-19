@@ -2,101 +2,44 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+
+  # Node Exporter
   - job_name: 'node'
     static_configs:
       - targets: ['lumos-node-exporter:9100']
 
+  # cAdvisor
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['lumos-cadvisor:8080']
-  
-  - job_name: 'gateway-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['lumos-gateway-service:8080']
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
-        target_label: job
-        replacement: '$1'
-      
-  - job_name: 'auth-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['lumos-auth-service:8080']
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
-        target_label: job
-        replacement: '$1'
-        
-  - job_name: 'member-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['lumos-member-service:8080']
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
-        target_label: job
-        replacement: '$1'
-      
-  - job_name: 'gesture-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['lumos-gesture-service:8080']
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
-        target_label: job
-        replacement: '$1'
 
-  - job_name: 'gesture-sensor-service'
-    metrics_path: '/actuator/prometheus'
+  # Spring Boot Services (blue/green 모두 대응)
+  - job_name: 'spring-services'
+    metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ['lumos-gesture-sensor-service:8080']
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
-        target_label: job
-        replacement: '$1'
-      
-  - job_name: 'device-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['lumos-device-service:8080']
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
-        target_label: job
-        replacement: '$1'
+      - targets:
+          - lumos-gateway-service-blue:8080
+          - lumos-gateway-service-green:8080
+          - lumos-auth-service-blue:8080
+          - lumos-auth-service-green:8080
+          - lumos-member-service-blue:8080
+          - lumos-member-service-green:8080
+          - lumos-device-service-blue:8080
+          - lumos-device-service-green:8080
+          - lumos-gesture-service-blue:8080
+          - lumos-gesture-service-green:8080
+          - lumos-gesture-sensor-service-blue:8080
+          - lumos-gesture-sensor-service-green:8080
+          - lumos-routine-service-blue:8080
+          - lumos-routine-service-green:8080
 
-  - job_name: 'routine-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['lumos-routine-service:8080']
     relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
+      - source_labels: [__address__]
+        regex: 'lumos-(.*)-service-(blue|green):8080'
         target_label: instance
-      - source_labels: [__meta_docker_container_name]
-        regex: '/lumos-(.*)-service'
+        replacement: '${1}-service-${2}'
+
+      - source_labels: [__address__]
+        regex: 'lumos-(.*)-service-(blue|green):8080'
         target_label: job
-        replacement: '$1'
+        replacement: '${1}'
