@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  # Node Exporter
+  - job_name: 'node'
+    static_configs:
+      - targets: ['lumos-node-exporter:9100']
+
+  # cAdvisor
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['lumos-cadvisor:8080']
+
+  # Spring Boot Services (blue/green 모두 대응)
+  - job_name: 'spring-services'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - lumos-gateway-service-{{color}}:8080
+          - lumos-auth-service-{{color}}:8080
+          - lumos-member-service-{{color}}:8080
+          - lumos-device-service-{{color}}:8080
+          - lumos-gesture-service-{{color}}:8080
+          - lumos-gesture-sensor-service-{{color}}:8080
+          - lumos-routine-service-{{color}}:8080
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: 'lumos-(.*)-service-{{color}}:8080'
+        target_label: instance
+        replacement: '${1}-service-{{color}}'
+      - source_labels: [__address__]
+        regex: 'lumos-(.*)-service-{{color}}:8080'
+        target_label: job
+        replacement: '${1}'

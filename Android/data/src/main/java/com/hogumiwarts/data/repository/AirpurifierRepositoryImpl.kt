@@ -14,81 +14,84 @@ import javax.inject.Inject
 
 class AirpurifierRepositoryImpl @Inject constructor(
     private val airpurifierApi: AirpurifierApi // 🔹 Retrofit API 인터페이스 주입
-):AirpurifierRepository {
-    override suspend fun getAirpurifierStatus(deviceId: Int): AirpurifierResult {
+) : AirpurifierRepository {
+    override suspend fun getAirpurifierStatus(deviceId: Long): AirpurifierResult {
         return try {
-            // ✅ API 호출
             val response = airpurifierApi.getAirpurifierStatus(deviceId)
+            val body = response.data
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
-            AirpurifierResult.Success(
-                data = AirpurifierMapper.fromAirpurifierDataResponse(response.data)
-            )
+            if (body != null) {
+                AirpurifierResult.Success(
+                    data = AirpurifierMapper.fromAirpurifierDataResponse(body)
+                )
+            } else {
+                AirpurifierResult.Error(CommonError.UnknownError)
+            }
 
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
+                401-> AirpurifierResult.Error(CommonError.UnauthorizedAccess)
                 404 -> AirpurifierResult.Error(CommonError.UserNotFound)
                 else -> AirpurifierResult.Error(CommonError.UnknownError)
             }
 
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             AirpurifierResult.Error(CommonError.NetworkError)
         }
     }
 
     override suspend fun patchAirpurifierPower(
-        deviceId: Int,
+        deviceId: Long,
         activated: Boolean,
     ): PatchAirpurifierPowerResult {
         return try {
-            // ✅ API 호출
             val response = airpurifierApi.patchAirpurifierPower(deviceId, PowerRequest(activated))
+            val body = response.data
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
-            PatchAirpurifierPowerResult.Success(
-                data = AirpurifierMapper.fromPowerResponse(response.data)
-            )
+            if (body != null) {
+                PatchAirpurifierPowerResult.Success(
+                    data = AirpurifierMapper.fromPowerResponse(body)
+                )
+            } else {
+                PatchAirpurifierPowerResult.Error(CommonError.UnknownError)
+            }
 
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
+                401 -> PatchAirpurifierPowerResult.Error(CommonError.UnauthorizedAccess)
                 404 -> PatchAirpurifierPowerResult.Error(CommonError.UserNotFound)
                 else -> PatchAirpurifierPowerResult.Error(CommonError.UnknownError)
             }
 
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             PatchAirpurifierPowerResult.Error(CommonError.NetworkError)
         }
     }
 
     override suspend fun patchAirpurifierFanMode(
-        deviceId: Int,
+        deviceId: Long,
         fanMode: String,
     ): PatchAirpurifierFanModeResult {
         return try {
-            // ✅ API 호출
             val response = airpurifierApi.patchAirpurifierFanMode(deviceId, FanModeRequest(fanMode))
+            val body = response.data
 
-            Log.d("TAG", "getSwitchStatus: $response")
-            // ✅ 응답 데이터 매핑 후 성공 결과로 래핑
-            PatchAirpurifierFanModeResult.Success(
-                data = AirpurifierMapper.fromPowerResponse(response.data)
-            )
+            if (body != null) {
+                PatchAirpurifierFanModeResult.Success(
+                    data = AirpurifierMapper.fromPowerResponse(body)
+                )
+            } else {
+                PatchAirpurifierFanModeResult.Error(CommonError.UnknownError)
+            }
 
         } catch (e: retrofit2.HttpException) {
-            // 🔶 서버 에러 코드별 처리
             when (e.code()) {
                 404 -> PatchAirpurifierFanModeResult.Error(CommonError.UserNotFound)
+                401 -> PatchAirpurifierFanModeResult.Error(CommonError.UnauthorizedAccess)
                 else -> PatchAirpurifierFanModeResult.Error(CommonError.UnknownError)
             }
 
         } catch (e: Exception) {
-            // 🔶 기타 네트워크/변환 등 예외 처리
             PatchAirpurifierFanModeResult.Error(CommonError.NetworkError)
         }
     }

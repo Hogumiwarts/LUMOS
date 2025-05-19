@@ -18,7 +18,7 @@ class RoutineDeviceListViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
-    val selectedDeviceId = mutableStateOf<Int?>(null)
+    val selectedDeviceId = mutableStateOf<Long?>(null)
     val showDialog = mutableStateOf(false)
     val devices = mutableStateOf<List<MyDevice>>(emptyList())
 
@@ -52,5 +52,10 @@ class RoutineDeviceListViewModel @Inject constructor(
     fun getSelectedDevice(): MyDevice? {
         return devices.value.find { it.deviceId == selectedDeviceId.value }
     }
+
+    fun clearSelectedDevice() {
+        selectedDeviceId.value = null
+    }
+
 
 }

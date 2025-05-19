@@ -11,12 +11,16 @@ sealed class RoutineResult {
 
     data class CreateSuccess(val routine: RoutineCreateData) : RoutineResult()
 
+    data class EditSuccess(val data: RoutineDetail) : RoutineResult()
+
+    object DeleteSuccess : RoutineResult()
+
     object Unauthorized : RoutineResult()
 }
 
 
 data class Routine(
-    val routineId: Int,
+    val routineId: Long,
     val routineName: String,
     val routineIcon: String?,
     val gestureName: String?
@@ -27,14 +31,14 @@ data class RoutineDetailData(
     val routineName: String,
     val routineIcon: String,
     val devices: List<CommandDevice>,
-    val gestureId: Int,
-    val gestureName: String,
-    val gestureImageUrl: String,
-    val gestureDescription: String
+    val gestureId: Long?,
+    val gestureName: String?,
+    val gestureImageUrl: String?,
+    val gestureDescription: String?
 )
 
 data class CommandDevice(
-    val deviceId: Int,
+    val deviceId: Long,
     val deviceName: String,
     val deviceType: String,
     val deviceImageUrl: String?,
@@ -45,13 +49,13 @@ data class CommandData(
     val component: String,
     val capability: String,
     val command: String,
-    val arguments: List<Any>
+    val arguments: List<@JvmSuppressWildcards Any>? = emptyList() // nullable 또는 기본값
 )
 
 data class RoutineCreateData(
-    val routineId: Int,
+    val routineId: Long,
     val routineName: String,
     val routineIcon: String,
-    val gestureId: Int,
+    val gestureId: Long,
     val devices: List<CommandDevice>
 )

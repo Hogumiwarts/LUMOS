@@ -14,6 +14,8 @@ import com.hogumiwarts.data.source.remote.LightApi
 import com.hogumiwarts.data.source.remote.MemberApi
 import com.hogumiwarts.data.source.remote.RoutineApi
 import com.hogumiwarts.data.source.remote.SmartThingsApi
+import com.hogumiwarts.data.source.remote.SwitchApi
+import com.hogumiwarts.data.source.remote.WearableDevicesApi
 import com.hogumiwarts.data.token.TokenStorage
 import com.hogumiwarts.domain.repository.GestureRepository
 import com.hogumiwarts.domain.repository.MemberRepository
@@ -29,6 +31,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -72,6 +76,11 @@ object NetworkModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
+    @Provides
+    @Singleton
+    fun provideGson(): Gson = GsonBuilder()
+        .serializeNulls() // null도 JSON에 포함되도록 설정
+        .create()
 
     @Provides
     @Singleton
@@ -103,7 +112,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGestureApi(retrofit: Retrofit): GestureApi = retrofit.create(GestureApi::class.java)
+    fun provideGestureApi(@Named("BaseRetrofit")retrofit: Retrofit): GestureApi = retrofit.create(GestureApi::class.java)
 
     // smartThings API 등록
     @Provides
@@ -139,11 +148,12 @@ object NetworkModule {
     @Named("BaseRetrofit")
     fun provideBaseRetrofit(
         okHttpClient: OkHttpClient,
+        gson: Gson,
         @Named("BASE_URL") baseUrl: String
     ): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     // 디바이스 관련
@@ -157,11 +167,12 @@ object NetworkModule {
     @Named("deviceRetrofit")
     fun provideDeviceApiRetrofit(
         okHttpClient: OkHttpClient,
+        gson: Gson,
         @Named("DEVICE_BASE_URL") baseUrl: String
     ): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     @Provides
@@ -181,16 +192,28 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideWearableDevicesApi(@Named("BaseRetrofit") retrofit: Retrofit): WearableDevicesApi =
+        retrofit.create(WearableDevicesApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideSwitchApi(@Named("BaseRetrofit") retrofit: Retrofit): SwitchApi =
+        retrofit.create(SwitchApi::class.java)
+
+    @Provides
+    @Singleton
     fun provideDevicedListApi(@Named("deviceRetrofit") retrofit: Retrofit): DeviceApi =
         retrofit.create(DeviceApi::class.java)
 
     @Provides
     @Singleton
     @Named("memberRetrofit")
-    fun provideMemberRetrofit(): Retrofit {
+    fun provideMemberRetrofit(
+        gson: Gson
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -209,11 +232,12 @@ object NetworkModule {
     @Singleton
     @Named("refresh")
     fun provideRefreshAuthApi(
-        @Named("AUTH_BASE_URL") baseUrl: String
-    ): AuthApi {
+        @Named("AUTH_BASE_URL") baseUrl: String,
+        gson: Gson
+        ): AuthApi {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(AuthApi::class.java)
     }

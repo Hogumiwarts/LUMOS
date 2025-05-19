@@ -22,7 +22,7 @@ class RoutineDetailViewModel @Inject constructor(
     val state: StateFlow<RoutineDetailState> = _state
 
 
-    fun loadRoutine(routineId: String?) {
+    fun loadRoutine(routineId: Long?) {
         viewModelScope.launch {
             _state.value = RoutineDetailState.Loading
 
@@ -32,11 +32,12 @@ class RoutineDetailViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = routineRepository.getRoutineDetail(accessToken, routineId.toInt())) {
+            when (val result =
+                routineRepository.getRoutineDetail(accessToken, routineId.toLong())) {
                 is RoutineResult.DetailSuccess -> {
                     val detail = result.detail
                     _state.value = RoutineDetailState.Success(
-                        routine = detail.toRoutineItem(),
+                        routine = detail.toRoutineItem(routineId.toLong()),
                         devices = detail.devices
                     )
                 }
@@ -56,7 +57,27 @@ class RoutineDetailViewModel @Inject constructor(
         }
     }
 
-    fun setError(message: String) {
-        _state.value = RoutineDetailState.Error(message)
+    // 삭제 확인 누르면 띄울 삭제 함수
+    fun deleteRoutine(routineId: Long) {
+        viewModelScope.launch {
+            val accessToken = tokenRepository.getAccessToken().first()
+
+            when (val result = routineRepository.deleteRoutine(accessToken, routineId)) {
+                is RoutineResult.DeleteSuccess -> {
+                    _state.value = RoutineDetailState.Deleted
+                }
+
+                is RoutineResult.Unauthorized -> {
+                    _state.value = RoutineDetailState.Error("⚠️ 로그인 정보가 만료되었습니다.")
+                }
+
+                is RoutineResult.Failure -> {
+                    _state.value = RoutineDetailState.Error(result.message)
+                }
+
+                else -> Unit
+            }
+        }
     }
+
 }

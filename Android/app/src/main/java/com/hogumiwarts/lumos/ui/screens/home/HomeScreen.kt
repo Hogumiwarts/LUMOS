@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.home
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.hogumiwarts.domain.model.WeatherInfo
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
@@ -53,10 +55,12 @@ import com.hogumiwarts.lumos.ui.common.DeviceGridHomeSection
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.SkeletonComponent
+import com.hogumiwarts.lumos.ui.screens.control.ControlViewModel
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.devices.NotLinkedScreen
 import com.hogumiwarts.lumos.ui.screens.home.components.LightDeviceItem
 import com.hogumiwarts.lumos.ui.screens.home.components.WeatherCardView
+import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import com.hogumiwarts.lumos.utils.CommonUtils
@@ -68,7 +72,9 @@ import timber.log.Timber
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
-   tokenDataStore: TokenDataStore
+    controlViewModel: ControlViewModel = hiltViewModel(),
+   tokenDataStore: TokenDataStore,
+    navController: NavController
     ) {
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
@@ -79,8 +85,18 @@ fun HomeScreen(
 
     val HomeState by homeViewModel.collectAsState()
 
+    val clickDevice by deviceViewModel.clickDevice
+
+
+
+
 
     LaunchedEffect(Unit) {
+        Log.d("TAG", "HomeScreen: 호출")
+        deviceViewModel.getJwt()
+
+        controlViewModel.prepareSession()
+
         deviceViewModel.checkAccountLinked()
 
         val location = getCurrentLocation(context)
@@ -144,7 +160,7 @@ fun HomeScreen(
 
 
             Text(
-                text = "${HomeState.userName ?: "루모스"}님\n집에 돌아오신 걸 환영해요.",
+                text = "${HomeState.userName ?: "루모스"}님 ${controlViewModel.localAddress}\n집에 돌아오신 걸 환영해요. ",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
@@ -190,10 +206,29 @@ fun HomeScreen(
                     DeviceGridHomeSection(
                         devices = myDevices,
                         selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
-                        onDeviceClick = { deviceViewModel.onDeviceClicked(it) },
+                        onDeviceClick = {
+//                            deviceViewModel.onDeviceClicked(it)
+                            when(it.deviceType){
+
+                                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.ETC -> {}
+                            }
+                                        },
                         onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
-                            deviceViewModel.toggleDeviceState(device.deviceId)
+
+                            deviceViewModel.toggleDeviceState(device.deviceId, device.deviceType)
                         }
                     )
                 }

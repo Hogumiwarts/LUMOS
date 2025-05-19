@@ -1,5 +1,8 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +26,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -40,11 +45,15 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.domain.model.airpurifier.AirpurifierData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.presentation.ui.common.AnimatedMobile
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
 import com.hogumiwarts.lumos.presentation.ui.common.OnOffSwitch
+import com.hogumiwarts.lumos.presentation.ui.function.sendOpenLightMessage
 import com.hogumiwarts.lumos.presentation.ui.screens.control.minibig.SwitchStatusState
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.AirpurifierViewModel
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun AipurifierSwitch(
@@ -53,6 +62,8 @@ fun AipurifierSwitch(
     viewModel: AirpurifierViewModel = hiltViewModel()
 ) {
     val switchState = remember { mutableStateOf(true) }
+
+
 
     // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
@@ -68,6 +79,13 @@ fun AipurifierSwitch(
             when ((state as AirpurifierStatusState.Error).error) {
                 CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
                 CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                CommonError.UnauthorizedAccess->{
+                    navController.navigate("login") {
+                        // 뒤로가기 시 로그인 화면으로 못 돌아가게 스택 클리어 옵션 추가 가능
+                        popUpTo("home") { inclusive = true } // 필요에 따라 홈 등 이전 화면 지정
+                        launchSingleTop = true
+                    }
+                }
                 else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
             }
         }
@@ -92,11 +110,16 @@ private fun leaded(
     switchState: Boolean,
     data: AirpurifierData,
     deviceId: Long,
-    viewModel: AirpurifierViewModel = hiltViewModel()
+    viewModel: AirpurifierViewModel = hiltViewModel(),
+    viewModel1: DeviceViewModel = hiltViewModel()
 ) {
 
     val isOn by viewModel.isOn.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
+    viewModel1.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MDM1MDI0LCJleHAiOjE3NDcxMjE0MjR9.fZSp8dEpCWN-k1bB2zF_IEVn1Yi7_lIeev_zTJERnqY","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
+
+    // 폰에서 세부 설정 클릭시 애니메이션 효과 여부
+    var showAnimation by remember { mutableStateOf(false) }
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -184,16 +207,22 @@ private fun leaded(
                 )
             }
         }
-
+        val context = LocalContext.current
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color(0x10FFFFFF),
-            modifier = Modifier.constrainAs(arrow) {
-                top.linkTo(toggle.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }
+            modifier = Modifier
+                .constrainAs(arrow) {
+                    top.linkTo(toggle.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                }
+                .clip(RoundedCornerShape(16.dp))
+                .clickable {
+                    showAnimation = true
+                    sendOpenLightMessage(context, deviceId = deviceId, deviceType = "AIRPURIFIER")
+                }
         ) {
             Text(
                 text = "폰에서 세부 제어",
@@ -203,8 +232,39 @@ private fun leaded(
             )
         }
     }
+    Box(modifier = Modifier.fillMaxSize()){
+        AnimatedVisibility(
+            visible = showAnimation,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            AnimatedMobile()
+        }
+    }
+    // ✅ 2초 후 자동으로 사라지기
+    LaunchedEffect(showAnimation) {
+        if (showAnimation) {
+            delay(2000)
+            showAnimation = false
+        }
+    }
+
     when(powerState){
-        is AirpurifierPowerState.Error -> {}
+        is AirpurifierPowerState.Error -> {
+            when ((powerState as AirpurifierStatusState.Error).error) {
+                CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
+                CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
+                CommonError.UnauthorizedAccess->{
+                    navController.navigate("login") {
+                        // 뒤로가기 시 로그인 화면으로 못 돌아가게 스택 클리어 옵션 추가 가능
+                        popUpTo("home") { inclusive = true } // 필요에 따라 홈 등 이전 화면 지정
+                        launchSingleTop = true
+                    }
+                }
+                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+            }
+        }
         AirpurifierPowerState.Idle -> {}
         is AirpurifierPowerState.Loaded -> {}
         AirpurifierPowerState.Loading -> {

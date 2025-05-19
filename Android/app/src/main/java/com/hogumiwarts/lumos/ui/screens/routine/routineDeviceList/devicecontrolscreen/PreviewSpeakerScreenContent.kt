@@ -1,30 +1,31 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -38,21 +39,20 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDevice
-import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.control.SpeakerDevice
-import com.hogumiwarts.lumos.ui.screens.control.components.GradientCircularProgressIndicator
+import com.hogumiwarts.lumos.ui.screens.control.audio.SpeakerDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import timber.log.Timber
 
 @Composable
 fun PreviewSpeakerScreenContent(
     navController: NavController,
     selectedDevice: MyDevice
 ) {
+    // todo: 실제 최근 재생 곡 정보 받아오기
     val speakerDevice = remember {
         SpeakerDevice(
             tagNumber = 1,
@@ -72,28 +72,33 @@ fun PreviewSpeakerScreenContent(
 
     var volume by remember { mutableIntStateOf(speakerDevice.audioVolume) }
     var isMuted by remember { mutableStateOf(false) }
+    var isPlaying: Boolean? by remember { mutableStateOf(null) } // null: 선택 전
     val primaryColor = Color(0xFF4A5BB9)
-    var isPlaying by remember { mutableStateOf(false) }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "회전 애니메이션 트랜잭션")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 5000,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
+    // 음소거 상태에 따라 UI 노출 여부 조절
+    val showControls = !isMuted
 
     // card 테두리 색상
     val gradientColors = listOf(Color(0xFFDCDFF6), Color(0xFF717BBC))
     val gradientBrush = Brush.horizontalGradient(colors = gradientColors)
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    var showDialog by remember { mutableStateOf(false) }
 
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("알림") },
+            text = { Text("재생 또는 일시정지 상태를 선택해주세요.") },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("확인")
+                }
+            }
+        )
+    }
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -108,7 +113,7 @@ fun PreviewSpeakerScreenContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "무드 플레이어",
+                    text = speakerDevice.deviceName,
                     style = TextStyle(
                         fontSize = 20.sp,
                         lineHeight = 16.sp,
@@ -134,153 +139,6 @@ fun PreviewSpeakerScreenContent(
             )
 
             Spacer(modifier = Modifier.height(12.dp))
-
-            // Volume Section
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "볼륨",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        lineHeight = 16.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(800),
-                        color = Color(0xFF000000),
-                    )
-                )
-
-                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-
-                Row(
-                    modifier = Modifier
-                        .wrapContentWidth() // Row 너비를 내용물에 맞춤
-                        .border(
-                            1.dp,
-                            color = if (isMuted) Color(0xFF4B5BA9) else Color(0xffD5D9EB),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            // 음소거 토글 및 볼륨 처리
-                            isMuted = !isMuted
-                            if (isMuted) {
-                                // 음소거 시 볼륨 0으로 설정
-                                volume = 0
-                            }
-                        }
-                        .background(
-                            color = if (isMuted) Color(0xffFFFDFD) else Color(0xff4B5BA9),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically)
-                        .clip(RoundedCornerShape(20.dp)),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_volumn_off),
-                            contentDescription = if (isMuted) "음소거 해제" else "음소거",
-                            tint = if (isMuted) Color(0xff4B5BA9) else Color.White,
-                            modifier = Modifier
-                                .size(18.dp)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    role = Role.Button,
-                                    onClick = { }
-                                )
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(5.dp))
-
-                    androidx.compose.material.Text(
-                        "음소거", fontSize = 12.sp,
-                        color = if (isMuted) Color(0xff4B5BA9) else Color.White
-                    )
-                }
-
-            }
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_volumn_zero),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-                Slider(
-                    value = volume.toFloat(),
-                    modifier = Modifier.weight(1f),
-                    onValueChange = {
-                        volume = it.toInt()
-                        // 볼륨이 0이면 음소거 활성화
-                        if (it == 0f) {
-                            isMuted = true
-                        }
-                        // 볼륨이 0보다 크면 음소거 해제
-                        else if (isMuted && it > 0) {
-                            isMuted = false
-                        }
-                    },
-                    valueRange = 0f..100f,
-                    steps = 0,
-                    colors = SliderDefaults.colors(
-                        thumbColor = primaryColor,
-                        activeTrackColor = primaryColor,
-                        inactiveTrackColor = Color.LightGray
-                    ),
-                )
-
-//            Icon(
-//                painter = painterResource(id = R.drawable.ic_volumn_max),
-//                contentDescription = null,
-//                modifier = Modifier.size(24.dp)
-//            )
-
-
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "0%",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(350),
-                        color = Color(0xFFB9C0D4),
-                        textAlign = TextAlign.Center,
-                    )
-                )
-                Text(
-                    text = "100%",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(350),
-                        color = Color(0xFFB9C0D4),
-                        textAlign = TextAlign.Center,
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(15.dp))
-
 
             Column(
             ) {
@@ -308,9 +166,15 @@ fun PreviewSpeakerScreenContent(
                         Image(
                             painter = painterResource(id = R.drawable.bg_sample_album_cover),
                             contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
+                        )
+
+                        // 어두운 반투명 오버레이
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.3f))
                         )
 
                         // 타이틀 & 가수
@@ -352,25 +216,58 @@ fun PreviewSpeakerScreenContent(
                             Spacer(modifier = Modifier.weight(1f))
 
                             //재생 or 일시정지
-                            Box(
+                            Column(
                                 modifier = Modifier
-                                    .size(45.dp),
-                                contentAlignment = Alignment.Center
+                                    .width(70.dp)
+                                    .height(70.dp),
+                                verticalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                Icon(
-                                    painterResource(id = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play),
-                                    contentDescription = if (isPlaying) "일시정지" else "재생",
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null,  // ripple 효과 제거
-                                            role = Role.Button,
-                                            onClick = { isPlaying = !isPlaying }
-                                        ),
-                                    tint = Color.White
-                                )
+                                listOf(true to "재생", false to "일시정지").forEach { (state, label) ->
+                                    val selected = isPlaying == state
+                                    val borderColor =
+                                        if (selected) primaryColor else Color(0xFFD9DCE8)
+                                    val backgroundColor =
+                                        if (selected) primaryColor else Color.White
+                                    val textColor = if (selected) Color.White else Color.Black
+
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxWidth()
+                                            .border(
+                                                width = 1.dp,
+                                                color = borderColor,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .background(
+                                                color = backgroundColor,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = rememberRipple(
+                                                    bounded = true,
+                                                    color = primaryColor
+                                                )
+                                            ) {
+                                                isPlaying = state
+                                            }
+                                            .padding(vertical = 2.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            color = textColor,
+                                            fontFamily = nanum_square_neo,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                }
                             }
+
                         }
                     }
 
@@ -391,7 +288,148 @@ fun PreviewSpeakerScreenContent(
                 )
             }
 
+            Spacer(modifier = Modifier.height(30.dp))
 
+// Volume Section
+
+            AnimatedVisibility(
+                visible = isPlaying != false && !isMuted,
+                exit = fadeOut(animationSpec = tween(durationMillis = 300))
+            ) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "볼륨",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(800),
+                            color = Color(0xFF000000),
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .wrapContentWidth() // Row 너비를 내용물에 맞춤
+                            .border(
+                                1.dp,
+                                color = if (isMuted) Color(0xFF4B5BA9) else Color(0xffD5D9EB),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                // 음소거 토글 및 볼륨 처리
+                                isMuted = !isMuted
+                                if (isMuted) {
+                                    // 음소거 시 볼륨 0으로 설정
+                                    volume = 0
+                                }
+                            }
+                            .background(
+                                color = if (isMuted) Color(0xff4B5BA9) else Color(0xffFFFDFD),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                            .align(Alignment.CenterVertically)
+                            .clip(RoundedCornerShape(20.dp)),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_volumn_off),
+                                contentDescription = if (isMuted) "음소거 해제" else "음소거",
+                                tint = if (isMuted) Color.White else Color(0xff4B5BA9),
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                        role = Role.Button,
+                                        onClick = {
+                                            isMuted = true
+                                        }
+                                    )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(5.dp))
+
+                        androidx.compose.material.Text(
+                            "음소거", fontSize = 12.sp,
+                            color = if (isMuted) Color.White else Color(0xff4B5BA9),
+                        )
+                    }
+
+                }
+
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 30.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_volumn_zero),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Slider(
+                            value = volume.toFloat(),
+                            modifier = Modifier.weight(1f),
+                            onValueChange = {
+                                volume = it.toInt()
+                                isMuted = it == 0f
+                            },
+                            valueRange = 0f..100f,
+                            steps = 0,
+                            colors = SliderDefaults.colors(
+                                thumbColor = primaryColor,
+                                activeTrackColor = primaryColor,
+                                inactiveTrackColor = Color.LightGray
+                            ),
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "0%",
+                            style = TextStyle(
+                                fontSize = 11.sp,
+                                fontFamily = nanum_square_neo,
+                                fontWeight = FontWeight(350),
+                                color = Color(0xFFB9C0D4),
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                        Text(
+                            text = "100%",
+                            style = TextStyle(
+                                fontSize = 11.sp,
+                                fontFamily = nanum_square_neo,
+                                fontWeight = FontWeight(350),
+                                color = Color(0xFFB9C0D4),
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
             Spacer(modifier = Modifier.height(24.dp))
 
             // 기기 정보
@@ -475,17 +513,24 @@ fun PreviewSpeakerScreenContent(
             PrimaryButton(
                 buttonText = "설정하기",
                 onClick = {
+                    if (isPlaying == null) {
+                        showDialog = true
+                        return@PrimaryButton
+                    }
+
                     val commandDevice = selectedDevice.toCommandDeviceForSpeaker(
                         isOn = !isMuted,
-                        volume = volume
+                        volume = volume,
+                        isPlaying = isPlaying!!
                     )
 
-
                     val json = Gson().toJson(commandDevice)
+
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "commandDeviceJson",
                         json
                     )
+
                     navController.popBackStack()
                 },
                 modifier = Modifier

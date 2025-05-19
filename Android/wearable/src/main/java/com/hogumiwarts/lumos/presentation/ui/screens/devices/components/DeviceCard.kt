@@ -28,13 +28,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Text
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.domain.model.DeviceListData
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceType
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.gradientBrush
 
 // 각 기기를 표시하는 카드 UI
 @Composable
-fun DeviceCard(device: DeviceListData, navController: NavHostController) {
+fun DeviceCard(device: com.hogumiwarts.domain.model.devices.DeviceListData, navController: NavHostController) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = Color(0x33FFFFFF), // 반투명 흰색 배경

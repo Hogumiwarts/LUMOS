@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDeviceList.devicecontrolscreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
+import com.hogumiwarts.domain.model.minibig.SwitchDevice
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
-import com.hogumiwarts.lumos.ui.screens.control.SwitchDevice
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
@@ -32,7 +33,21 @@ fun PreviewSwitchScreenContent(
     navController: NavController,
     selectedDevice: MyDevice
 ) {
-    var isChecked by remember { mutableStateOf(selectedDevice.isOn) }
+    val commandJson =
+        navController.previousBackStackEntry?.savedStateHandle?.get<String>("commandDeviceJson")
+    var isChecked by remember {
+        mutableStateOf(
+            commandJson?.let {
+                val commandDevice = Gson().fromJson(
+                    it,
+                    com.hogumiwarts.domain.model.routine.CommandDevice::class.java
+                )
+                val switchCommand =
+                    commandDevice.commands.find { cmd -> cmd.capability == "switch" }
+                switchCommand?.command == "on"
+            } ?: selectedDevice.isOn
+        )
+    }
 
     // todo: 더미 데이터 api 연동....!
     val switchDevice = remember {
@@ -53,6 +68,8 @@ fun PreviewSwitchScreenContent(
             .fillMaxSize()
             .background(Color.White)
     ) {
+        Spacer(modifier = Modifier.height(40.dp))
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -157,7 +174,11 @@ fun PreviewSwitchScreenContent(
             PrimaryButton(
                 buttonText = "설정하기",
                 onClick = {
-                    val commandDevice = selectedDevice.toCommandDeviceForSwitch(isOn = isChecked)
+                    val commandDevice =
+                        selectedDevice.toCommandDeviceForSwitch(isOn = isChecked)
+
+                    Log.d("routine", "ischecked: $isChecked")
+
                     val json = Gson().toJson(commandDevice)
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "commandDeviceJson",
@@ -165,7 +186,9 @@ fun PreviewSwitchScreenContent(
                     )
                     navController.popBackStack()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 27.dp)
             )
         }
     }

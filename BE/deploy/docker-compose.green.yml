@@ -1,0 +1,119 @@
+services:
+
+  # Spring Cloud Gateway
+  gateway-service:
+    image: itsanisland/lumos-gateway-service:green
+    container_name: lumos-gateway-service-green
+    ports:
+      - "8082:8080"
+    env_file:
+      - .env.prod
+    depends_on:
+      - gesture-sensor-service
+      - auth-service
+      - member-service
+      - smartthings-service
+    networks:
+      - app-network
+
+  # 제스처 센서 서비스
+  gesture-sensor-service:
+    image: itsanisland/lumos-gesture-sensor-service:green
+    container_name: lumos-gesture-sensor-service-green
+    expose:
+      - "8080"  # 내부 통신용
+    env_file:
+      - .env.prod
+      - ./gesture-sensor-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 인증 서비스
+  auth-service:
+    image: itsanisland/lumos-auth-service:green
+    container_name: lumos-auth-service-green
+    expose:
+      - "8080"
+    env_file:
+      - .env.prod
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 회원 서비스
+  member-service:
+    image: itsanisland/lumos-member-service:green
+    container_name: lumos-member-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ./member-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 기기 서비스
+  device-service:
+    image: itsanisland/lumos-device-service:green
+    container_name: lumos-device-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ./device-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 제스처 서비스
+  gesture-service:
+    image: itsanisland/lumos-gesture-service:green
+    container_name: lumos-gesture-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ./gesture-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 루틴 서비스
+  routine-service:
+    image: itsanisland/lumos-routine-service:green
+    container_name: lumos-routine-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ./routine-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+
+  # SmartThings 서비스
+  smartthings-service:
+    image: itsanisland/lumos-smartthings-service:green
+    container_name: lumos-smartthings-service-green
+    expose:
+      - "3000"
+    env_file:
+      - ./smartthings-service/.env
+    volumes:
+      - ./smartthings-service/data:/app/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true

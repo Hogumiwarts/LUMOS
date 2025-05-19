@@ -111,8 +111,8 @@ fun DeviceRoutineCard(
                     // endPadding을 입력 받아서 아이콘마다 여백 지정
                     .padding(end = endPadding)
                     .size(iconSize)
-                    .graphicsLayer{
-                        alpha = if(isActive) 1f else 0.4f
+                    .graphicsLayer {
+                        alpha = if (isActive) 1f else 0.4f
                     },
                 contentAlignment = Alignment.TopEnd
             ) {
@@ -143,7 +143,9 @@ fun DeviceRoutineCard(
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight(800),
                         fontFamily = nanum_square_neo,
-                        color = if(isActive) colorResource(id = R.color.black_primary) else Color(0xFF606069)
+                        color = if (isActive) colorResource(id = R.color.black_primary) else Color(
+                            0xFF606069
+                        )
                     )
 
                 )
@@ -154,7 +156,11 @@ fun DeviceRoutineCard(
                     text = cardSubtitle,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = nanum_square_neo,
-                        color = if(isActive) colorResource(id = R.color.gray_light) else Color(0xFFB6B6B6)
+                        color = when {
+                            !isActive -> Color(0xFFB6B6B6)
+                            cardSubtitle == "제스처 없음" -> Color(0xFFE0E0E0)
+                            else -> colorResource(id = R.color.gray_light)
+                        }
                     )
                 )
             }
@@ -177,7 +183,7 @@ fun DeviceRoutineCardPreview() {
             modifier = Modifier
                 .width(160.dp) // 전체 380dp 중 절반 정도로 설정
                 .aspectRatio(1f), // 정사각형 비율 유지
-            showToggle = false,
+            showToggle = true,
             cardTitle = "거실 조명",
             cardSubtitle = "조명",
             cardIcon = {
@@ -194,7 +200,7 @@ fun DeviceRoutineCardPreview() {
             isOn = isOn,
             onToggle = { isOn = !isOn },
             endPadding = 7.dp,
-            isActive = false
+            isActive = true
         )
     }
 }

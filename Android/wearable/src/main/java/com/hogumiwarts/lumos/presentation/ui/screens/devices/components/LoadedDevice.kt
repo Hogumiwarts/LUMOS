@@ -20,13 +20,12 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.domain.model.DeviceListData
 
 
 @Composable
 @OptIn(ExperimentalHorologistApi::class)
 fun LoadedDevice(
-    devices: List<DeviceListData>,
+    devices: List<com.hogumiwarts.domain.model.devices.DeviceListData>,
     listState: ScalingLazyColumnState,
     navController: NavHostController,
 ) {

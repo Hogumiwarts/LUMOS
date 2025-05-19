@@ -82,7 +82,6 @@ fun RoutineScreen(
     }
 
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,7 +107,7 @@ fun RoutineScreen(
                 .fillMaxHeight()
         ) {
             items(routineList) { routine ->
-                routine.gestureName?.let {
+                routine.gestureName.let {
                     DeviceRoutineCard(
                         modifier = Modifier
                             .aspectRatio(1.05f)
@@ -122,7 +121,7 @@ fun RoutineScreen(
                             ),
                         showToggle = false, // 토글 X
                         cardTitle = routine.routineName,
-                        cardSubtitle = it,
+                        cardSubtitle = routine.gestureName ?: "제스처 없음",
                         isOn = false,
                         iconSize = DpSize(80.dp, 80.dp),
                         cardIcon = { size ->

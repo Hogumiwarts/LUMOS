@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,11 +37,12 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun RoutineDeviceListScreen(
     viewModel: RoutineDeviceListViewModel = hiltViewModel(),
-    devices: List<MyDevice>,
     onSelectComplete: (MyDevice) -> Unit,
-    showDuplicateDialog: Boolean,
+    showDuplicateDialog: MutableState<Boolean>,
     onDismissDuplicateDialog: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    alreadyAddedDeviceIds: List<Long>
+
 ) {
     // 선택 기기 상태
     val selectedDeviceId by viewModel.selectedDeviceId
@@ -108,10 +110,21 @@ fun RoutineDeviceListScreen(
             buttonText = "선택하기",
             onClick = {
                 viewModel.getSelectedDevice()?.let { selected ->
+                    if (alreadyAddedDeviceIds.contains(selected.deviceId)) {
+                        showDuplicateDialog.value = false // 먼저 끔
+                        showDuplicateDialog.value = true  // 다시 켬
+                        return@let
+                    }
+
+
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "selectedDevice",
                         selected
                     )
+
+                    onSelectComplete(selected)
+
+                    viewModel.clearSelectedDevice() // 선택 후 상태 초기화
 
                     when (selected.deviceType) {
                         DeviceListType.LIGHT -> {
@@ -144,27 +157,22 @@ fun RoutineDeviceListScreen(
         // 다이얼로그 설정
         CommonDialog(
             showDialog = showDialog,
-            onDismiss = { viewModel.dismissDialog() },
-            titleText = "선택할 수 없는 기기예요!",
+            onDismiss = {
+                viewModel.clearSelectedDevice()
+                onDismissDuplicateDialog()
+            }, titleText = "선택할 수 없는 기기예요!",
             bodyText = "기기 상태가 비활성화로 감지되어 제어할 수 없습니다. 거리가 멀어지면 비활성화로 전환될 수 있어요."
         )
 
         // 중복 기기용 다이얼로그
         CommonDialog(
-            showDialog = showDuplicateDialog,
-            onDismiss = onDismissDuplicateDialog,
-            titleText = "이미 선택한 기기예요!",
-            bodyText = "같은 기기 + 같은 상태 조합은 한 번만 사용할 수 있어요. 새로운 조합으로 시도해볼까요? ✨"
+            showDialog = showDuplicateDialog.value,
+            onDismiss = {
+                viewModel.clearSelectedDevice()
+                onDismissDuplicateDialog()
+            }, titleText = "이미 선택한 기기예요!",
+            bodyText = "같은 기기는 한 번만 설정할 수 있어요. 다른 기기로 시도해볼까요? ✨"
         )
     }
 }
 
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun RoutineDeviceListScreenPreview() {
-//    RoutineDeviceListScreen(
-//        devices = MyDevice.sample,
-//        onSelectComplete = {},
-//    )
-//}

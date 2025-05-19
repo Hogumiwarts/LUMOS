@@ -1,0 +1,119 @@
+services:
+
+  # Spring Cloud Gateway
+  gateway-service:
+    build:
+      context: ../gateway-service
+    image: lumos-gateway-service:green
+    container_name: lumos-gateway-service-green
+    ports:
+      - "8082:8080"
+    env_file:
+      - .env.dev
+    depends_on:
+      - gesture-sensor-service
+      - auth-service
+      - member-service
+      - device-service
+      - gesture-service
+      - routine-service
+      - smartthings-service
+    networks:
+      - app-network
+
+  # 제스처 센서 서비스
+  gesture-sensor-service:
+    build:
+      context: ../gesture-sensor-service
+    image: lumos-gesture-sensor-service:green
+    container_name: lumos-gesture-sensor-service-green
+    expose:
+      - "8080"  # 내부 통신용
+    env_file:
+      - .env.dev
+      - ../gesture-sensor-service/.env
+    networks:
+      - app-network
+  
+  # 인증 서비스
+  auth-service:
+    build:
+      context: ../auth-service
+    image: lumos-auth-service:green
+    container_name: lumos-auth-service-green
+    expose:
+      - "8080"
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
+  
+  # 회원 서비스
+  member-service:
+    build:
+      context: ../member-service
+    image: lumos-member-service:green
+    container_name: lumos-member-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ../member-service/.env
+    networks:
+      - app-network
+  
+  # 기기 서비스
+  device-service:
+    build:
+      context: ../device-service
+    image: lumos-device-service:green
+    container_name: lumos-device-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ../device-service/.env
+    networks:
+      - app-network
+  
+  # 제스처 서비스
+  gesture-service:
+    build:
+      context: ../gesture-service
+    image: lumos-gesture-service:green
+    container_name: lumos-gesture-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ../gesture-service/.env
+    networks:
+      - app-network
+  
+  # 루틴 서비스
+  routine-service:
+    build:
+      context: ../routine-service
+    image: lumos-routine-service:green
+    container_name: lumos-routine-service-green
+    expose:
+      - "8080"
+    env_file:
+      - ../routine-service/.env
+    networks:
+      - app-network
+  
+  # SmartThings 서버
+  smartthings-service:
+    build:
+      context: ../smartthings-service
+    image: lumos-smartthings-service:green
+    container_name: lumos-smartthings-service-green
+    expose:
+      - "3000"
+    env_file:
+      - ../smartthings-service/.env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+

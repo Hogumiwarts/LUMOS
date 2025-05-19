@@ -1,6 +1,7 @@
 // 필요한 컴포즈 및 리소스 관련 import
 package com.hogumiwarts.lumos.presentation.ui.screens.devices
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -19,12 +20,10 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults.ItemType
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
-import com.hogumiwarts.lumos.domain.model.CommonError
+import com.hogumiwarts.domain.model.CommonError
 import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.AudioIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadedDevice
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
-import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
 
 @OptIn(ExperimentalHorologistApi::class)
@@ -36,10 +35,9 @@ fun DevicesScreen(
 
     // 최초 진입 시 DeviceIntent 전송
     LaunchedEffect(Unit) {
-
-        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mzc4MTEwLCJleHAiOjE3NDc0NjQ1MTB9.sdOs-PHeJjeQOEhrzAqA-ldDVMbzZqgHjo3rIlsVypw","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
+        Log.d("TAG", "DevicesScreen: 호출")
+//        viewModel.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MDM1MDI0LCJleHAiOjE3NDcxMjE0MjR9.fZSp8dEpCWN-k1bB2zF_IEVn1Yi7_lIeev_zTJERnqY","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
         viewModel.sendIntent(DeviceIntent.LoadDevice)
-
     }
 
 
@@ -85,7 +83,9 @@ fun DevicesScreen(
                     ErrorMessage("사용자를 찾을 수 없습니다.")
                 }
                 else -> {
-                    ErrorMessage("알 수 없는 오류가 발생했습니다.")
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
+                    }
                 }
             }
         }
