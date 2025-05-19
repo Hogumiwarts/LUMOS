@@ -25,7 +25,8 @@ mkdir -p $PROJECT_DIR/{nginx,redis,prometheus,promtail,scripts}
 sudo mv /tmp/docker-compose.*.yml $PROJECT_DIR/
 sudo mv /tmp/nginx.conf $PROJECT_DIR/nginx/nginx.conf
 sudo mv /tmp/redis.conf $PROJECT_DIR/redis/redis.conf
-sudo mv /tmp/prometheus/*.yml $PROJECT_DIR/prometheus/
+sudo mv /tmp/prometheus.template.yml $PROJECT_DIR/prometheus/prometheus.template.yml
+sudo mv /tmp/prometheus.yml $PROJECT_DIR/prometheus/prometheus.yml
 sudo mv /tmp/config.yml $PROJECT_DIR/promtail/config.yml
 sudo mv /tmp/*.sh $PROJECT_DIR/scripts/
 sudo chmod +x $PROJECT_DIR/scripts/*.sh
