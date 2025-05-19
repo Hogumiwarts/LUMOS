@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -189,260 +192,266 @@ fun AirpurifierScreen(
     }
 
 
+    Column (modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)){
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.Start,
-    ) {
-
-        Spacer(modifier = Modifier.height(40.dp))
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+        Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .background(Color.White)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            horizontalAlignment = Alignment.Start,
         ) {
-            Text(
-                text = name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                textAlign = TextAlign.Center
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(41.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "공기청정기",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
+
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId, it))
+//                    checked = it
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Color(0xff3E4784),
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Color(0xFFB0B0B0)
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(17.dp))
+            Image(
+                painter = painterResource(id = R.drawable.ic_airpur),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.CenterHorizontally)
             )
-        }
 
-        Spacer(modifier = Modifier.height(41.dp))
+            Spacer(modifier = Modifier.height(17.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(17.dp))
+
             Text(
-                "공기청정기",
-                fontWeight = FontWeight.ExtraBold,
+                "현재 공기 질",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(8.dp, shape = RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = Color(0xffC3C8E8),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 0.dp
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .clip(CircleShape)
+                                .background(airQualityColor)
+                        )
+
+                        Text(
+                            text = " $airQualityText",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 미세먼지 정보
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "\uD83E\uDE84  ",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "미세먼지 농도 ${dustLevel} μg/m³",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    // 초미세먼지 정보
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "\uD83E\uDE84  ",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+
+                        Text(
+                            text = "초미세먼지 농도 ${fineDustLevel} μg/m³",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                }
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .border(
+                            1.dp, color = Color(0xffC3C8E8),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text("미세먼지 $airQualityText")
+                }
+
+                Box(
+                    modifier = Modifier
+                        .border(
+                            1.dp, color = Color(0xffC3C8E8),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text("냄새 ${mapNumberToText(odorLevel)}")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(17.dp))
+
+            Text(
+                "팬 속도",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 팬 속도 옵션 배열
+                val fanModes = listOf("auto", "low", "medium", "high", "quiet")
+
+                // 각 팬 속도 옵션에 대한 버튼 생성
+                fanModes.forEach { mode ->
+                    FanButton(
+                        mode = mode,
+                        isSelected = selectedFanMode == mode,
+                        onClick = {
+                            selectedFanMode = mode
+                            Log.d("TAG", "AirpurifierScreen: $selectedFanMode  $mode")
+                            viewModel.sendIntent(
+                                AirpurifierIntent.ChangeAirpurifierFenMode(
+                                    deviceId,
+                                    selectedFanMode
+                                )
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+
+            Spacer(modifier = Modifier.height(17.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(17.dp))
+
+            // 기기 정보
+            Text(
+                text = "기기 정보",
+                fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
 
-            Switch(
-                checked = checked,
-                onCheckedChange = {
-                    viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId, it))
-//                    checked = it
-                },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = Color(0xff3E4784),
-                    uncheckedThumbColor = Color.White,
-                    uncheckedTrackColor = Color(0xFFB0B0B0)
-                )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "필터 사용 시간 | ${filterUsageTime}시간",
+                fontSize = 14.sp,
+                color = Color.DarkGray
             )
-        }
 
-        Spacer(modifier = Modifier.height(17.dp))
-        Image(
-            painter = painterResource(id = R.drawable.ic_airpur),
-            contentDescription = null,
-            modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(17.dp))
-
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(17.dp))
-
-        Text(
-            "현재 공기 질",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(8.dp, shape = RoundedCornerShape(12.dp))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xffC3C8E8),
-                    shape = RoundedCornerShape(12.dp)
-                ),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 0.dp
+            Text(
+                text = "모델명 | ${deviceModel}",
+                fontSize = 14.sp,
+                color = Color.DarkGray
             )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
 
-                    Box(
-                        modifier = Modifier
-                            .size(15.dp)
-                            .clip(CircleShape)
-                            .background(airQualityColor)
-                    )
+            Text(
+                text = "제조사 | ${manufacturerCode}",
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
 
-                    Text(
-                        text = " $airQualityText",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+            Spacer(modifier = Modifier.height(50.dp))
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // 미세먼지 정보
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "\uD83E\uDE84  ",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "미세먼지 농도 ${dustLevel} μg/m³",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                }
-
-                // 초미세먼지 정보
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "\uD83E\uDE84  ",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-
-                    Text(
-                        text = "초미세먼지 농도 ${fineDustLevel} μg/m³",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                }
-
-            }
         }
-
-        Spacer(modifier = Modifier.height(15.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .border(
-                        1.dp, color = Color(0xffC3C8E8),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                Text("미세먼지 $airQualityText")
-            }
-
-            Box(
-                modifier = Modifier
-                    .border(
-                        1.dp, color = Color(0xffC3C8E8),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                Text("냄새 ${mapNumberToText(odorLevel)}")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(17.dp))
-
-        Text(
-            "팬 속도",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // 팬 속도 옵션 배열
-            val fanModes = listOf("auto", "low", "medium", "high", "quiet")
-
-            // 각 팬 속도 옵션에 대한 버튼 생성
-            fanModes.forEach { mode ->
-                FanButton(
-                    mode = mode,
-                    isSelected = selectedFanMode == mode,
-                    onClick = {
-                        selectedFanMode = mode
-                        Log.d("TAG", "AirpurifierScreen: $selectedFanMode  $mode")
-                        viewModel.sendIntent(
-                            AirpurifierIntent.ChangeAirpurifierFenMode(
-                                deviceId,
-                                selectedFanMode
-                            )
-                        )
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-
-        Spacer(modifier = Modifier.height(17.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(17.dp))
-
-        // 기기 정보
-        Text(
-            text = "기기 정보",
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "필터 사용 시간 | ${filterUsageTime}시간",
-            fontSize = 14.sp,
-            color = Color.DarkGray
-        )
-
-        Text(
-            text = "모델명 | ${deviceModel}",
-            fontSize = 14.sp,
-            color = Color.DarkGray
-        )
-
-        Text(
-            text = "제조사 | ${manufacturerCode}",
-            fontSize = 14.sp,
-            color = Color.DarkGray
-        )
-
-        Spacer(modifier = Modifier.height(150.dp))
-
     }
+
+    
 
     when (powerState) {
         is AirpurifierPowerState.Error -> {}
