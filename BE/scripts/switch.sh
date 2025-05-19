@@ -25,7 +25,7 @@ fi
 CURRENT_COLOR=$(cat "$COLOR_FILE")
 
 # ======================
-# 살아있는 gateway 확인
+# 살아있는 gateway 컨테이너 확인
 # ======================
 gateway_exists() {
   sudo docker ps --format '{{.Names}}' | grep -q "$1"
@@ -40,39 +40,50 @@ else
   exit 1
 fi
 
+if [ "$CURRENT_COLOR" == "$TARGET_COLOR" ]; then
+  echo "ℹ️ 현재 프록시 상태($CURRENT_COLOR)와 동일하므로 전환하지 않습니다."
+  exit 0
+fi
+
 echo "▶ Switching from $CURRENT_COLOR to $TARGET_COLOR"
 
 # ======================
-# nginx.conf 내 프록시 대상 강제 변경
+# nginx.conf proxy_pass 및 upstream 강제 변경
 # ======================
 sudo sed -i "s|proxy_pass http://lumos-gateway-service-[a-z]\+:8080;|proxy_pass http://lumos-gateway-service-${TARGET_COLOR}:8080;|" "$NGINX_CONF"
-
-# 변경 확인 로그
-echo "📝 nginx.conf 프록시 대상 변경됨:"
-grep "server lumos-gateway-service" "$NGINX_CONF"
+sudo sed -i "s|server lumos-gateway-service-[a-z]\+:8080;|server lumos-gateway-service-${TARGET_COLOR}:8080;|" "$NGINX_CONF"
 
 # ======================
-# nginx reload
+# 변경 확인
+# ======================
+echo "📝 nginx.conf 프록시 대상 변경됨:"
+grep "lumos-gateway-service" "$NGINX_CONF"
+
+# ======================
+# Nginx Reload
 # ======================
 if sudo docker ps --format '{{.Names}}' | grep -q "$NGINX_CONTAINER_NAME"; then
-  echo "🔍 nginx 설정 파일 문법 검사"
+  echo "🔍 nginx 설정 문법 검사"
   if ! sudo docker exec "$NGINX_CONTAINER_NAME" nginx -t; then
-    echo "❌ nginx 설정 문법 오류! 재시작 중단"
-    exit 1
+    echo "⚠️ nginx 설정 오류 → 컨테이너 재시작 시도"
+    sudo docker restart "$NGINX_CONTAINER_NAME"
+  else
+    echo "🔄 Reloading Nginx"
+    sudo docker exec "$NGINX_CONTAINER_NAME" nginx -s reload
   fi
-
-  echo "🔄 Restarting Nginx"
-  sudo docker restart "$NGINX_CONTAINER_NAME"
 else
-  echo "❌ Nginx 컨테이너 $NGINX_CONTAINER_NAME 가 존재하지 않습니다."
+  echo "❌ nginx 컨테이너 $NGINX_CONTAINER_NAME 이 존재하지 않습니다."
   exit 1
 fi
 
 # ======================
-# 상태 기록 및 응답 확인
+# 상태 파일 갱신
 # ======================
 echo "$TARGET_COLOR" | sudo tee "$COLOR_FILE" > /dev/null
 
+# ======================
+# 응답 확인
+# ======================
 echo "⏳ 프록시 전환 후 $TARGET_COLOR 응답 대기 중..."
 
 RETRY=0
@@ -90,7 +101,7 @@ done
 echo "✅ Nginx now proxies to: $TARGET_COLOR"
 
 # ======================
-# Prometheus 설정 자동 생성
+# Prometheus 설정 갱신
 # ======================
 if [ -x ./scripts/generate-prometheus-config.sh ]; then
   sudo bash ./scripts/generate-prometheus-config.sh
