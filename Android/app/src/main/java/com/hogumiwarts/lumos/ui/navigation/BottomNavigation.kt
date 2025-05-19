@@ -1,8 +1,10 @@
 package com.hogumiwarts.lumos.ui.navigation
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -36,9 +38,9 @@ fun BottomNavigation(
     // 화면 순서 정의 (왼쪽에서 오른쪽 순서로)
     val routes = items.map { it?.route }
 
+
     NavigationBar(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier,
         containerColor = Color.White,
         tonalElevation = 10.dp
     ) {

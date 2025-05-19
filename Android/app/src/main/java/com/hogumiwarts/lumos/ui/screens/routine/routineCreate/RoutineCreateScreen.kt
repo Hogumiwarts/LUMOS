@@ -592,15 +592,3 @@ fun String.appendSubject(): String {
 fun SelectIcon() {
     TODO("Not yet implemented")
 }
-
-//@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-//@Composable
-//fun RoutineCreateScreenPreview() {
-//    val fakeViewModel = remember { RoutineCreateViewModel() }
-//
-//    RoutineCreateScreen(
-//        viewModel = fakeViewModel,
-//        onRoutineCreateComplete = {},
-//        navController = rememberNavController()
-//    )
-//}
