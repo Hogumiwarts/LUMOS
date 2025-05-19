@@ -151,21 +151,19 @@ fun GestureCard(
     }
 }
 
-//@Preview(
-//    showBackground = true,
-//    widthDp = 380,
-//    heightDp = 862
-//)
-//@Composable
-//fun GestureCardPreview() {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(20.dp)
-//    ) {
-//        GestureCard(
-//            selectedGesture = GestureData(),
-//            true
-//        )
-//    }
-//}
+@Preview(showBackground = true, widthDp = 380, heightDp = 100)
+@Composable
+fun GestureCardPreview() {
+    GestureCard(
+        selectedGesture = GestureData(
+            gestureId = 1,
+            gestureName = "두 번 박수",
+            gestureDescription = "가슴 앞에서 두 번 박수칩니다",
+            gestureImageUrl = "https://example.com/sample1.png",
+            routineName = "취침 루틴",
+            routineId = 1
+        ),
+        isEditMode = true,
+        onChangeGestureClick = {}
+    )
+}

@@ -166,7 +166,7 @@ fun GestureTestCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    card.gestureName,
+                    card.gestureName.trim(),
                     style = TextStyle(
                         fontSize = 18.sp,
                         lineHeight = 16.sp,
