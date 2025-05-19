@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
@@ -116,6 +117,11 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
     var isPlaying by remember { mutableStateOf(speakerDevice.activated) }
     var volume by remember { mutableIntStateOf(speakerDevice.audioVolume) }
     var audioImage by remember { mutableStateOf(speakerDevice.audioImg) }
+    var deviceName by remember { mutableStateOf(speakerDevice.deviceName) }
+    var manufacturerCode by remember { mutableStateOf(speakerDevice.manufacturerCode) }
+    var deviceModel by remember { mutableStateOf(speakerDevice.deviceModel) }
+    var audioName by remember { mutableStateOf(speakerDevice.audioName) }
+    var audioArtist by remember { mutableStateOf(speakerDevice.audioArtist) }
 
     LaunchedEffect(state) {
         when (state) {
@@ -126,7 +132,13 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
             AudioStatusState.Idle -> {}
             is AudioStatusState.Loaded -> {
                 val data = (state as AudioStatusState.Loaded).data
+                Log.d("TAG", "loadAudioStatus: ${data}")
                 speakerDevice = data
+                deviceName = data.deviceName
+                manufacturerCode = data.manufacturerCode
+                audioArtist = data.audioArtist
+                deviceModel = data.deviceModel
+                audioName = data.audioName
                 isPlaying = data.activated
                 volume = data.audioVolume
                 audioImage = data.audioImg
@@ -146,7 +158,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
             AudioVolumeState.Idle -> {}
             is AudioVolumeState.Loaded -> {
-                volume = (volumeState as AudioVolumeState.Loaded).data.volume
+//                volume = (volumeState as AudioVolumeState.Loaded).data.volume
             }
 
             AudioVolumeState.Loading -> {
@@ -207,7 +219,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = speakerDevice.deviceName,
+                text = deviceName,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
                 textAlign = TextAlign.Center
@@ -239,6 +251,13 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
             Row(
                 modifier = Modifier
+                    .padding(4.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        role = Role.Button,
+                        onClick = { }
+                    )
                     .border(
                         1.dp,
                         color = if (isMuted) Color(0xff4B5BA9) else Color(0xffFFFDFD),
@@ -250,10 +269,12 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                     ) {
                         // 음소거 토글 및 볼륨 처리
                         isMuted = !isMuted
-                        if (isMuted) {
-                            // 음소거 시 볼륨 0으로 설정
-                            volume = 0
+                        if(isMuted){
+                            viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId,0))
+                        }else{
+                            viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId,volume))
                         }
+
                     }
                     .background(
                         color = if (isMuted) Color(0xffFFFDFD) else Color(0xff4B5BA9),
@@ -267,27 +288,25 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
                 Box(
                     modifier = Modifier
+
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_volumn_off),
-                        contentDescription = if (isMuted) "음소거 해제" else "음소거",
-                        tint = if (isMuted) Color.White else Color(0xff4B5BA9),
+                        contentDescription = if (!isMuted) "음소거 해제" else "음소거",
+                        tint = if (!isMuted) Color.White else Color(0xff4B5BA9),
                         modifier = Modifier
                             .size(18.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                role = Role.Button,
-                                onClick = { }
-                            )
+
                     )
                 }
 
                 Text(
+
                     "음소거", fontSize = 12.sp,
-                    color = if (isMuted) Color.White else Color(0xff4B5BA9),
+                    color = if (!isMuted) Color.White else Color(0xff4B5BA9),
+                    modifier = Modifier.padding(end = 8.dp),
                 )
             }
 
@@ -306,33 +325,32 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
             )
             Slider(
                 value = volume.toFloat(),
-                modifier = Modifier.weight(1f),
                 onValueChange = {
                     volume = it.toInt()
-                    // 볼륨이 0이면 음소거 활성화
-                    if (it == 0f) {
-                        isMuted = true
-                    }
-                    // 볼륨이 0보다 크면 음소거 해제
-                    else if (isMuted && it > 0) {
-                        isMuted = false
-                    }
+                    isMuted = false
+
                 },
                 onValueChangeFinished = {
-                    // 손을 뗐을 때 로그 출력
-                    Log.d("VolumeSlider", "최종 볼륨 값: $volume")
-                    viewModel.sendIntent(
-                        AudioIntent.LoadAudioVolume(
-                            deviceId = deviceId,
-                            volume = volume
+                    if (!isMuted) {
+                        Log.d("VolumeSlider", "최종 볼륨 값: $volume")
+                        viewModel.sendIntent(
+                            AudioIntent.LoadAudioVolume(
+                                deviceId = deviceId,
+                                volume = volume
+                            )
                         )
-                    )
+                    }
                 },
+                modifier = Modifier
+                    .weight(1f)
+                    .then(if (isMuted) Modifier.alpha(0.4f) else Modifier), // 시각적 비활성화 효과
+
+
                 valueRange = 0f..100f,
                 steps = 0,
                 colors = SliderDefaults.colors(
-                    thumbColor = primaryColor,
-                    activeTrackColor = primaryColor,
+                    thumbColor = if (isMuted) Color.Gray else primaryColor,
+                    activeTrackColor = if (isMuted) Color.Gray else primaryColor,
                     inactiveTrackColor = Color.LightGray
                 ),
             )
@@ -452,7 +470,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = speakerDevice.audioName,
+                            text = audioName,
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp,
                             maxLines = 2,
@@ -460,7 +478,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                         )
 
                         Text(
-                            text = speakerDevice.audioArtist,
+                            text = audioArtist,
                             fontSize = 20.sp,
                             color = Color.Gray,
                             maxLines = 1,
@@ -511,13 +529,13 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "제조사 | ${speakerDevice.manufacturerCode}",
+            text = "제조사 | ${manufacturerCode}",
             fontSize = 14.sp,
             color = Color.DarkGray
         )
 
         Text(
-            text = "모델명 | ${speakerDevice.deviceModel}",
+            text = "모델명 | ${deviceModel}",
             fontSize = 14.sp,
             color = Color.DarkGray
         )

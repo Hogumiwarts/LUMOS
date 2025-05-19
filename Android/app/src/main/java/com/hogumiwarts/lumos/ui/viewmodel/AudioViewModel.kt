@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.domain.model.airpurifier.AirpurifierResult
@@ -76,6 +77,7 @@ class AudioViewModel@Inject constructor(
                 }
                 is AudioStatusResult.Success -> {
                     _state.value = AudioStatusState.Loaded(result.data)
+
                 }
             }
         }
