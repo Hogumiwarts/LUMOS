@@ -48,12 +48,7 @@ class RoutineEditViewModel @Inject constructor(
 
     private val _isInitialized = MutableStateFlow(false)
 
-    data class DeviceUIState(
-        val device: CommandDevice,
-        val isRemoved: Boolean = false,
-        val showHint: Boolean = true
-    )
-
+    fun isInitialized() = _isInitialized.value
 
     fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
         if (_isInitialized.compareAndSet(expect = false, update = true)) {
@@ -87,6 +82,7 @@ class RoutineEditViewModel @Inject constructor(
         gestureId: Long? = null
     ) {
         viewModelScope.launch {
+
             val param = CreateRoutineParam(
                 routineName = _routineName.value,
                 routineIcon = _selectedIcon.value?.iconName ?: "default",
@@ -109,26 +105,21 @@ class RoutineEditViewModel @Inject constructor(
     }
 
     fun addDevice(device: CommandDevice) {
-        Timber.d("🆕 addDevice 호출됨: $device")
-        _devices.value = _devices.value + device
-        Timber.d("📋 추가 후 기기 리스트: ${_devices.value}")
+        val current = _devices.value
+        if (current.none { it.deviceId == device.deviceId }) {
+            _devices.value = current + device
+        }
     }
-
 
     fun updateDevice(updated: CommandDevice) {
         Timber.d("🛠 updateDevice 호출됨: $updated")
-        val newList = _devices.value.map {
-            if (it.deviceId == updated.deviceId) updated else it
-        }
-        _devices.value = newList.toList() // 새로운 참조로 강제 갱신
-        Timber.d("📋 업데이트된 기기 리스트: ${_devices.value}")
-    }
-
-    fun upsertDevice(device: CommandDevice) {
-        if (_devices.value.any { it.deviceId == device.deviceId }) {
-            updateDevice(device)
-        } else {
-            addDevice(device)
+        _devices.update { list ->
+            val newList = list.map {
+                if (it.deviceId == updated.deviceId) updated else it
+            }
+            _devices.value = newList.toList()
+            Timber.d("📋 업데이트된 기기 리스트: $newList")
+            newList
         }
     }
 

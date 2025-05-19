@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -194,7 +195,10 @@ fun NavGraph(
                     // 각 화면에 맞는 Composable 함수 호출
                     when (item) {
                         BottomNavItem.Home -> {
-                            HomeScreen(tokenDataStore = tokenDataStore, navController = navController)
+                            HomeScreen(
+                                tokenDataStore = tokenDataStore,
+                                navController = navController
+                            )
 //                            LightScreen()
 //                            GestureScreen()
                         }
@@ -272,26 +276,30 @@ fun NavGraph(
             // 루틴 상세
             composable(
                 "routine_detail/{routineId}",
-                enterTransition = { fadeIn(tween(300)) },
-                popExitTransition = { fadeOut(tween(300)) }
+                arguments = listOf(navArgument("routineId") { type = NavType.LongType })
             ) { backStackEntry ->
-                val routineId = backStackEntry.arguments?.getString("routineId")
+                val routineId = backStackEntry.arguments?.getLong("routineId")
                 val viewModel = hiltViewModel<RoutineDetailViewModel>()
 
-                RoutineDetailScreen(
-                    routineId = routineId,
-                    viewModel = viewModel,
-                    navController = navController,
-                    onEdit = {
-                        navController.navigate("routine_edit/$routineId")
-                    }
-                )
+                if (routineId != null) {
+                    RoutineDetailScreen(
+                        routineId = routineId,
+                        viewModel = viewModel,
+                        navController = navController,
+                        onEdit = {
+                            navController.navigate("routine_edit/$routineId")
+                        }
+                    )
+                }
 
             }
 
             // 루틴 수정
-            composable("routine_edit/{routineId}") { navBackStackEntry ->
-                val routineId = navBackStackEntry.arguments?.getLong("routineId")
+            composable(
+                "routine_edit/{routineId}",
+                arguments = listOf(navArgument("routineId") { type = NavType.LongType })
+            ) { navBackStackEntry ->
+                val routineId = navBackStackEntry.arguments?.getString("routineId")?.toLongOrNull()
                 val viewModel = hiltViewModel<RoutineEditViewModel>()
                 val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
                 val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")

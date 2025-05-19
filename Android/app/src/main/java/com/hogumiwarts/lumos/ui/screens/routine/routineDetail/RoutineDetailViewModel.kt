@@ -22,7 +22,7 @@ class RoutineDetailViewModel @Inject constructor(
     val state: StateFlow<RoutineDetailState> = _state
 
 
-    fun loadRoutine(routineId: String?) {
+    fun loadRoutine(routineId: Long?) {
         viewModelScope.launch {
             _state.value = RoutineDetailState.Loading
 
@@ -56,7 +56,7 @@ class RoutineDetailViewModel @Inject constructor(
 
         }
     }
-    
+
     // 삭제 확인 누르면 띄울 삭제 함수
     fun deleteRoutine(routineId: Long) {
         viewModelScope.launch {

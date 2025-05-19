@@ -51,7 +51,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun RoutineDetailScreen(
-    routineId: String?,
+    routineId: Long?,
     viewModel: RoutineDetailViewModel,
     onEdit: () -> Unit = {},
     navController: NavController
@@ -114,7 +114,7 @@ fun RoutineDetailScreen(
         onConfirm = {
             showDeleteDialog = false
 
-            routineId?.toLongOrNull()?.let {
+            routineId?.let {
                 viewModel.deleteRoutine(it) // 실제 삭제 요청
             } ?: run {
                 Toast.makeText(context, "삭제할 루틴 ID가 유효하지 않아요!", Toast.LENGTH_SHORT).show()
@@ -191,7 +191,7 @@ fun RoutineDetailContent(
                     "수정",
                     modifier = Modifier.clickable {
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
-                            set("editRoutineId", routine.routineId.toLong())
+                            set("editRoutineId", routine.routineId)
                             set("editRoutineName", routine.routineName)
                             set("editRoutineIcon", routine.routineIcon)
                             set("editDevices", devices)
@@ -202,8 +202,8 @@ fun RoutineDetailContent(
                                     routine.gestureImageUrl?.let { it1 ->
                                         routine.gestureId?.let { it2 ->
                                             GestureData(
-                                                routineId = routine.routineId.toLong(),
-                                                gestureId = it2.toLong(),
+                                                routineId = routine.routineId,
+                                                gestureId = it2,
                                                 gestureName = routine.gestureName,
                                                 gestureDescription = it,
                                                 gestureImageUrl = it1,
