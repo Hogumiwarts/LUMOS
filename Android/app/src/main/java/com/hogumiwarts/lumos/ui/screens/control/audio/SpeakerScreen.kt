@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.screens.control.audio
 
 import android.util.Log
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -63,6 +64,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientCircularProgressIndicator
@@ -166,23 +172,22 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
             }
         }
     }
+    LaunchedEffect(playState) {
+        when (playState) {
+            is AudioPlayState.Error -> {
+                // TODO: 에러 처리
+            }
 
-    when (playState) {
-        is AudioPlayState.Error -> {
-            // TODO: 에러 처리
-        }
+            AudioPlayState.Idle -> {}
+            is AudioPlayState.Loaded -> {
+                isPlaying = !isPlaying
+            }
 
-        AudioPlayState.Idle -> {}
-        is AudioPlayState.Loaded -> {
-            val data = (playState as AudioPlayState.Loaded).data
-            isPlaying = data.activated
-        }
-
-        AudioPlayState.Loading -> {
-            // TODO: 로딩 화면
+            AudioPlayState.Loading -> {
+                // TODO: 로딩 화면
+            }
         }
     }
-
 
     var isMuted by remember { mutableStateOf(false) }
     val primaryColor = Color(0xFF4A5BB9)
@@ -406,18 +411,60 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 
                 Box(
                     modifier = Modifier
-                        .size(300.dp)
+                        .size(350.dp)
                         .align(Alignment.CenterStart)
-                        .offset(x = (-150).dp),
+                        .offset(x = (-175).dp),
                     contentAlignment = Alignment.Center
                 ) {
                     // Album image
-                    AsyncImage(
-                        model = audioImage,
-                        contentDescription = null,
-                        modifier = Modifier.size(220.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.am_lp))
+                    val animatable = remember { Animatable(0.1f) }
+                    val progress = animatable.value
+
+                    LaunchedEffect(composition) {
+                        animatable.animateTo(
+                            targetValue = 0.9f,  // 종료는 90%
+                            animationSpec = tween(durationMillis = 3000) // 재생 시간 조절
+                        )
+                    }
+
+                    if (isPlaying) {
+
+                        Box(
+                            modifier = Modifier
+                                .size(250.dp)
+                                .offset(x = -35.dp)
+                                .rotate(rotation)
+                        ) {
+                            GradientCircularProgressIndicator(
+                                modifier = Modifier.fillMaxSize(),
+                                strokeWidth = 15f,
+                                strokeCap = StrokeCap.Round
+                            )
+                        }
+                        LottieAnimation(
+                            composition = composition,
+                            progress = {progress},
+                            modifier = Modifier.size(350.dp)
+                        )
+                    } else {
+                        // Paused state indicator
+                        CircularProgressIndicator(
+                            progress = 1f,
+                            modifier = Modifier.size(300.dp),
+                            color = Color(0xFFE0E0E0), // Gray
+                            strokeWidth = 6.dp,
+                            strokeCap = StrokeCap.Round,
+                        )
+                    }
+
+
+//                    AsyncImage(
+//                        model = audioImage,
+//                        contentDescription = null,
+//                        modifier = Modifier.size(220.dp),
+//                        contentScale = ContentScale.Fit
+//                    )
 //                    Image(
 //                        painter = painterResource(id = R.drawable.wish),
 //                        contentDescription = null,
@@ -432,28 +479,7 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
 //                        contentDescription = "앨범 사진" )
 
                     // indicator
-                    if (isPlaying) {
-                        Box(
-                            modifier = Modifier
-                                .size(300.dp)
-                                .rotate(rotation)
-                        ) {
-                            GradientCircularProgressIndicator(
-                                modifier = Modifier.fillMaxSize(),
-                                strokeWidth = 15f,
-                                strokeCap = StrokeCap.Round
-                            )
-                        }
-                    } else {
-                        // Paused state indicator
-                        CircularProgressIndicator(
-                            progress = 1f,
-                            modifier = Modifier.size(300.dp),
-                            color = Color(0xFFE0E0E0), // Gray
-                            strokeWidth = 6.dp,
-                            strokeCap = StrokeCap.Round,
-                        )
-                    }
+
                 }
 
 
