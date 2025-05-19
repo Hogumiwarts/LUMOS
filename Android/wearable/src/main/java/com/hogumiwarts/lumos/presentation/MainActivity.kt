@@ -7,7 +7,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
@@ -18,27 +17,24 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.wearable.Wearable
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.data.GestureData
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMode
-import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMonitorScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,8 +73,13 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val text = intent.getStringExtra("text") ?: ""
-        val mode = intent.getStringExtra("mode") ?: "continuous"
-        gestureMode = if (mode == "test") GestureMode.TEST else GestureMode.CONTINUOUS
+        gestureMode = if (text.isNotEmpty()) {
+            GestureMode.TEST
+        } else {
+            GestureMode.CONTINUOUS
+        }
+        Log.d("Gesture", "결정된 모드: $gestureMode (text 존재: ${text.isNotEmpty()})")
+
 
         if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1001)
@@ -90,11 +91,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
 
+        // 항상 웹소켓 연결 및 센서 시작 (백그라운드 제스처 감지)
         isMeasuring = true
         startIMU()
         webSocketViewModel.connectWebSocket(gestureMode) // 모드 전달
         Log.d("Gesture", "모드: $gestureMode, 웹소켓 연결 및 센서 수집 시작 ${text}")
-
 
 
         setContent {
@@ -139,30 +140,16 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                                 finish()
                             }
                         }
+
                         // 연속 감지 모드
-                        gestureMode == GestureMode.CONTINUOUS -> {
-                            GestureMonitorScreen(
-                                isMonitoring = isMeasuring,
-                                onToggleMonitoring = {
-                                    isMeasuring = !isMeasuring
-                                    if (isMeasuring) {
-                                        startIMU()
-                                        webSocketViewModel.connectWebSocket(gestureMode)
-                                    } else {
-                                        stopIMU()
-                                        webSocketViewModel.disconnectWebSocket()
-                                    }
-                                },
-                                onStop = {
-                                    stopIMU()
-                                    webSocketViewModel.disconnectWebSocket()
-                                    finish()
-                                }
-                            )
-                        }
-                        // 일반 네비게이션
                         else -> {
+
                             NavGraph(navController)
+
+                            if (prediction == "1") {
+                                LightScreen(deviceId = 9L)
+                                // TODO 제스처가 감지 되면 센서 감지 정지 시키고 루틴 실행이 되었습니다 화면 띄우고 종류 될떄 다시 센서 감지 실행
+                            }
                         }
                     }
                 }

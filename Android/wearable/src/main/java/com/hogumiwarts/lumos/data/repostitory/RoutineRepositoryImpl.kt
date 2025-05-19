@@ -16,7 +16,7 @@ class RoutineRepositoryImpl @Inject constructor(
 
     override suspend fun executeRoutine(gestureId: Long): PostRoutineResult {
         return try {
-            val request = PostRoutineRequest(gestureId = gestureId)
+
             val response = routineApi.executeRoutine(gestureId)
 
             PostRoutineResult.Success(
