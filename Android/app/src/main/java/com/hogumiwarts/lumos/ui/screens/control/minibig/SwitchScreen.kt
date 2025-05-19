@@ -69,28 +69,31 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
             activated = true
         )
     }
-    when(state){
-        is SwitchStatusState.Error -> {
-            // TODO: 에러 처리
-        }
-        SwitchStatusState.Idle -> {}
-        is SwitchStatusState.Loaded -> {
-            val data = (state as SwitchStatusState.Loaded).data
-            checked= data.activated
-            switchDevice = data
-        }
-        SwitchStatusState.Loading -> {
-            // TODO: 로딩 화면
+    LaunchedEffect(state) {
+        when (state) {
+            is SwitchStatusState.Error -> {
+                // TODO: 에러 처리
+            }
+
+            SwitchStatusState.Idle -> {}
+            is SwitchStatusState.Loaded -> {
+                val data = (state as SwitchStatusState.Loaded).data
+                checked = data.activated
+                switchDevice = data
+            }
+
+            SwitchStatusState.Loading -> {
+                // TODO: 로딩 화면
+            }
         }
     }
-
     when(powerState){
         is SwitchPowerState.Error -> {
             // TODO: 에러 처리
         }
         SwitchPowerState.Idle -> {}
         is SwitchPowerState.Loaded -> {
-            checked = (powerState as SwitchPowerState.Loaded).data.activated
+            checked = !checked
         }
         SwitchPowerState.Loading -> {
             // TODO: 로딩 화면
