@@ -112,7 +112,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGestureApi(retrofit: Retrofit): GestureApi = retrofit.create(GestureApi::class.java)
+    fun provideGestureApi(@Named("BaseRetrofit")retrofit: Retrofit): GestureApi = retrofit.create(GestureApi::class.java)
 
     // smartThings API 등록
     @Provides
