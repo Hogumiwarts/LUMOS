@@ -53,6 +53,20 @@ echo "🌐 Docker 네트워크 확인"
 sudo docker network ls | grep -q app-network || sudo docker network create app-network
 
 # ==========================================
+# 공용 인프라 서비스 실행
+# ==========================================
+echo "🧱 공용 인프라(infra + ingress) 실행"
+sudo docker-compose \
+  --project-name infra \
+  -f $PROJECT_DIR/docker-compose.infrastructure.yml \
+  --env-file $PROJECT_DIR/.env.prod up -d
+
+sudo docker-compose \
+  --project-name ingress \
+  -f $PROJECT_DIR/docker-compose.ingress.yml \
+  --env-file $PROJECT_DIR/.env.prod up -d
+
+# ==========================================
 # 앱 실행 (새로운 버전)
 # ==========================================
 echo "▶ $PREV_COLOR 앱 실행..."
