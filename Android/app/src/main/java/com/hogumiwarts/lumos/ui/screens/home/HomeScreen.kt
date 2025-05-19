@@ -232,7 +232,8 @@ fun HomeScreen(
                         onDeviceClick = { deviceViewModel.onDeviceClicked(it) },
                         onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
-                            deviceViewModel.toggleDeviceState(device.deviceId)
+
+                            deviceViewModel.toggleDeviceState(device.deviceId, device.deviceType)
                         }
                     )
                 }

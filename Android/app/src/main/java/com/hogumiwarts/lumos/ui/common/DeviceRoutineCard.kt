@@ -183,7 +183,7 @@ fun DeviceRoutineCardPreview() {
             modifier = Modifier
                 .width(160.dp) // 전체 380dp 중 절반 정도로 설정
                 .aspectRatio(1f), // 정사각형 비율 유지
-            showToggle = false,
+            showToggle = true,
             cardTitle = "거실 조명",
             cardSubtitle = "조명",
             cardIcon = {
@@ -200,7 +200,7 @@ fun DeviceRoutineCardPreview() {
             isOn = isOn,
             onToggle = { isOn = !isOn },
             endPadding = 7.dp,
-            isActive = false
+            isActive = true
         )
     }
 }
