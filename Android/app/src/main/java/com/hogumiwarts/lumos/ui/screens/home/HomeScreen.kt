@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -23,7 +24,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -73,9 +76,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
     controlViewModel: ControlViewModel = hiltViewModel(),
-   tokenDataStore: TokenDataStore,
+    tokenDataStore: TokenDataStore,
     navController: NavController
-    ) {
+) {
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
     val isWeatherLoading = weatherState.isLoading
@@ -85,18 +88,11 @@ fun HomeScreen(
 
     val HomeState by homeViewModel.collectAsState()
 
-    val clickDevice by deviceViewModel.clickDevice
-
-
-
-
-
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
+
         deviceViewModel.getJwt()
-
         controlViewModel.prepareSession()
-
         deviceViewModel.checkAccountLinked()
 
         val location = getCurrentLocation(context)
@@ -119,6 +115,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(PaddingValues(0.dp))
             .background(Color.White)
     ) {
         Box(
@@ -143,6 +140,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .padding(bottom = 120.dp)
                 .padding(horizontal = 28.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -160,7 +158,7 @@ fun HomeScreen(
 
 
             Text(
-                text = "${HomeState.userName ?: "루모스"}님 ${controlViewModel.localAddress}\n집에 돌아오신 걸 환영해요. ",
+                text = "${HomeState.userName ?: ""}님 ${controlViewModel.localAddress}\n집에 돌아오신 걸 환영해요. ",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
@@ -208,23 +206,27 @@ fun HomeScreen(
                         selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
                         onDeviceClick = {
 //                            deviceViewModel.onDeviceClicked(it)
-                            when(it.deviceType){
+                            when (it.deviceType) {
 
                                 DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.ETC -> {}
                             }
-                                        },
+                        },
                         onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
 
