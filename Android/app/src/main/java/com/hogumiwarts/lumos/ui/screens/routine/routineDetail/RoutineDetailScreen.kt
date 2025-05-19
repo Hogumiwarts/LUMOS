@@ -47,6 +47,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GestureCard
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import kotlinx.coroutines.delay
 
 @Composable
 fun RoutineDetailScreen(
@@ -93,6 +94,17 @@ fun RoutineDetailScreen(
             )
         }
 
+        RoutineDetailState.Deleted -> {
+            LaunchedEffect(state) {
+                if (state is RoutineDetailState.Deleted) {
+                    delay(300) // ViewModel 작업 종료 대기
+                    navController.popBackStack()
+
+                    Toast.makeText(context, "루틴이 삭제되었습니다!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     }
 
     ConfirmCancelDialog(
@@ -101,7 +113,12 @@ fun RoutineDetailScreen(
         bodyText = "루틴을 삭제하면 설정된 기기 동작도 모두 사라져요. 그래도 삭제하시겠어요?",
         onConfirm = {
             showDeleteDialog = false
-            // TODO: 삭제 API 호출 or navigation.popBackStack()
+
+            routineId?.toLongOrNull()?.let {
+                viewModel.deleteRoutine(it) // 실제 삭제 요청
+            } ?: run {
+                Toast.makeText(context, "삭제할 루틴 ID가 유효하지 않아요!", Toast.LENGTH_SHORT).show()
+            }
         },
         onCancel = { showDeleteDialog = false }
     )

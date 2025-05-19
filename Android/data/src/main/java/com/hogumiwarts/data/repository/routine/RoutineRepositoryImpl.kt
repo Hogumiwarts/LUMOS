@@ -35,7 +35,7 @@ class RoutineRepositoryImpl @Inject constructor(
     }
 
     // 루틴 상세 조회
-    override suspend fun getRoutineDetail(accessToken: String, routineId: Int): RoutineResult {
+    override suspend fun getRoutineDetail(accessToken: String, routineId: Long): RoutineResult {
         return try {
             val response = routineApi.getRoutineDetail("Bearer $accessToken", routineId)
             RoutineResult.DetailSuccess(response.data.toDomain())
@@ -85,6 +85,25 @@ class RoutineRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             RoutineResult.Failure(e.message ?: "루틴 수정 실패")
+        }
+    }
+
+    // 루틴 삭제
+    override suspend fun deleteRoutine(
+        accessToken: String,
+        routineId: Long
+    ): RoutineResult {
+        return try {
+            routineApi.deleteRoutine("Bearer $accessToken", routineId)
+            RoutineResult.DeleteSuccess
+        } catch (e: HttpException) {
+            if (e.code() == 401) {
+                RoutineResult.Unauthorized
+            } else {
+                RoutineResult.Failure(e.message ?: "루틴 삭제 실패")
+            }
+        } catch (e: Exception) {
+            RoutineResult.Failure(e.message ?: "루틴 삭제 실패")
         }
     }
 

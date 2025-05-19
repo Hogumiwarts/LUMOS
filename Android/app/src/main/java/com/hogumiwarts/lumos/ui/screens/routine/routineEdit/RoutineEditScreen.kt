@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineEdit
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -76,6 +77,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,7 +88,17 @@ fun RoutineEditScreen(
 ) {
     val selectedIcon by viewModel.selectedIcon.collectAsState()
     val routineName by viewModel.routineName.collectAsState()
-    val deviceList by viewModel.devices.collectAsState()
+
+    val deviceListState = viewModel.devices.collectAsState()
+    val deviceList = deviceListState.value
+
+    LaunchedEffect(deviceList.size) {
+        Timber.d("🧩 LazyColumn용 deviceList 사이즈=${deviceList.size}")
+        deviceList.forEachIndexed { idx, device ->
+            Timber.d("🧩 [$idx] deviceId=${device.deviceId}, name=${device.deviceName}, commands=${device.commands}")
+        }
+    }
+
     val selectedGesture by viewModel.selectedGesture.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -110,10 +122,21 @@ fun RoutineEditScreen(
             ?.savedStateHandle
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
+                Timber.d("💬 받은 JSON: $json")
                 val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
-                viewModel.updateDevice(updatedDevice)
+                Timber.d("📦 파싱된 CommandDevice: $updatedDevice")
 
-                navController.previousBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
+                val currentDevices = viewModel.devices.value
+                currentDevices.forEachIndexed { index, device ->
+                    Timber.d("📌 [$index] 현재 목록 deviceId=${device.deviceId}, deviceName=${device.deviceName}")
+                }
+                Timber.d("🎯 비교 대상 updatedDevice.deviceId=${updatedDevice.deviceId}, deviceName=${updatedDevice.deviceName}")
+
+
+                viewModel.upsertDevice(updatedDevice)
+
+
+                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
             }
 
     }
@@ -147,6 +170,7 @@ fun RoutineEditScreen(
         val gestureData = navController.previousBackStackEntry
             ?.savedStateHandle
             ?.get<GestureData>("selectedGesture")
+
 
         routineId?.let { viewModel.setRoutineId(it) }
         gestureData?.let { viewModel.setGestureData(it) }
@@ -432,9 +456,10 @@ fun RoutineEditScreen(
             }
 
             // 기기 리스트
-            items(deviceList, key = {
-                "${it.deviceId}_${it.hashCode()}"
-            }) { device ->
+            items(
+                deviceList,
+                key = { it.deviceId }
+            ) { device ->
                 var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
                 var shouldShowHint by remember(device.deviceId) { mutableStateOf(true) }
                 AnimatedVisibility(
@@ -446,9 +471,11 @@ fun RoutineEditScreen(
                         shouldShowHint = shouldShowHint,
                         onHintShown = { shouldShowHint = false },
                         onDelete = {
+                            Timber.d("👋 삭제 요청됨: ${device.deviceId}")
                             shouldRemove = true
                             coroutineScope.launch {
                                 delay(300)
+                                Timber.d("🗑 deleteDevice 실행: ${device.deviceId}")
                                 viewModel.deleteDevice(device)
                             }
                         },

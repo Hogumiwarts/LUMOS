@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,10 +48,19 @@ class RoutineEditViewModel @Inject constructor(
 
     private val _isInitialized = MutableStateFlow(false)
 
+    data class DeviceUIState(
+        val device: CommandDevice,
+        val isRemoved: Boolean = false,
+        val showHint: Boolean = true
+    )
+
+
     fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
-        if (!_isInitialized.value) {
+        if (_isInitialized.compareAndSet(expect = false, update = true)) {
+            Timber.d("🔰 초기 기기 로드됨: $initial")
             _devices.value = initial
-            _isInitialized.value = true
+        } else {
+            Timber.d("⚠️ 이미 초기화된 상태이므로 무시")
         }
     }
 
@@ -99,16 +109,26 @@ class RoutineEditViewModel @Inject constructor(
     }
 
     fun addDevice(device: CommandDevice) {
-        val current = _devices.value
-        if (current.none { it.deviceId == device.deviceId }) {
-            _devices.value = current + device
-        }
+        Timber.d("🆕 addDevice 호출됨: $device")
+        _devices.value = _devices.value + device
+        Timber.d("📋 추가 후 기기 리스트: ${_devices.value}")
     }
 
-    fun updateDevice(updated: CommandDevice) {
-        _devices.update { list ->
-            list.map { if (it.deviceId == updated.deviceId) updated else it }
 
+    fun updateDevice(updated: CommandDevice) {
+        Timber.d("🛠 updateDevice 호출됨: $updated")
+        val newList = _devices.value.map {
+            if (it.deviceId == updated.deviceId) updated else it
+        }
+        _devices.value = newList.toList() // 새로운 참조로 강제 갱신
+        Timber.d("📋 업데이트된 기기 리스트: ${_devices.value}")
+    }
+
+    fun upsertDevice(device: CommandDevice) {
+        if (_devices.value.any { it.deviceId == device.deviceId }) {
+            updateDevice(device)
+        } else {
+            addDevice(device)
         }
     }
 

@@ -6,7 +6,7 @@ import com.hogumiwarts.domain.model.routine.RoutineDetailData
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 
-fun RoutineDetailData.toRoutineItem(routineId: Int): RoutineItem {
+fun RoutineDetailData.toRoutineItem(routineId: Long): RoutineItem {
     return RoutineItem(
         routineId = routineId,
         routineName = routineName,

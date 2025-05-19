@@ -13,6 +13,8 @@ sealed class RoutineResult {
 
     data class EditSuccess(val data: RoutineDetail) : RoutineResult()
 
+    object DeleteSuccess : RoutineResult()
+
     object Unauthorized : RoutineResult()
 }
 
