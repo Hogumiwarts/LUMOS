@@ -59,32 +59,7 @@ fun DeviceListScreen(
 
     val deviceList by viewModel.deviceList.collectAsState()
 
-    val clickDevice by viewModel.clickDevice
 
-    LaunchedEffect(clickDevice) {
-        clickDevice?.let {
-            Log.d("TAG", "HomeScreen: $clickDevice")
-            when(it.deviceType){
-
-
-                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.LIGHT -> navController.navigate("LIGHT/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.AUDIO -> navController.navigate("AUDIO/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.SWITCH -> navController.navigate("SWITCH/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.ETC -> {}
-            }
-
-//            navController.navigate(it.deviceType.categoryName)
-        }
-    }
 
     // 화면이 다시 Resume되면 DB 저장 목록을 불러옴
     // 새로고침 클릭 & 계정 연동 시에만 새로운 기기 추가 가능
@@ -135,6 +110,7 @@ fun DeviceListScreen(
             if (!isLinked) {
                 NotLinkedScreen(
                     onClickLink = {
+
                         viewModel.requestAuthAndOpen(context)
                     },
                     viewModel,
@@ -145,7 +121,25 @@ fun DeviceListScreen(
                 DeviceGridSection(
                     devices = myDevices,
                     selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
-                    onDeviceClick = { viewModel.onDeviceClicked(it) }
+                    onDeviceClick = {
+                        when(it.deviceType){
+
+                            DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                            DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                            DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                            DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                            DeviceListType.ETC -> {}
+                        }
+//                        viewModel.onDeviceClicked(it)
+                    }
                 )
 
             }

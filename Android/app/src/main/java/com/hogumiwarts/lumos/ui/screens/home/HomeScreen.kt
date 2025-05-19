@@ -87,30 +87,7 @@ fun HomeScreen(
 
     val clickDevice by deviceViewModel.clickDevice
 
-    LaunchedEffect(clickDevice) {
-        clickDevice?.let {
-            Log.d("TAG", "HomeScreen: $clickDevice")
-            when(it.deviceType){
 
-
-                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.LIGHT -> navController.navigate("LIGHT/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.AUDIO -> navController.navigate("AUDIO/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.SWITCH -> navController.navigate("SWITCH/${clickDevice!!.deviceId}") {
-                    popUpTo("splash") { inclusive = true }
-                }
-                DeviceListType.ETC -> {}
-            }
-
-//            navController.navigate(it.deviceType.categoryName)
-        }
-    }
 
 
 
@@ -229,7 +206,25 @@ fun HomeScreen(
                     DeviceGridHomeSection(
                         devices = myDevices,
                         selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
-                        onDeviceClick = { deviceViewModel.onDeviceClicked(it) },
+                        onDeviceClick = {
+//                            deviceViewModel.onDeviceClicked(it)
+                            when(it.deviceType){
+
+                                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.ETC -> {}
+                            }
+                                        },
                         onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
 
