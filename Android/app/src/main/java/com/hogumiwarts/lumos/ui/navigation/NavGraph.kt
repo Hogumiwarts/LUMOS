@@ -39,6 +39,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineEdit.RoutineEditViewModel
 import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.OnBoardingScreen
+import com.hogumiwarts.lumos.ui.screens.auth.onboarding.PermissionsScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
@@ -82,9 +83,6 @@ fun NavGraph(
         modifier = modifier
     ) {
 
-        composable("onboarding") {
-            OnBoardingScreen({})
-        }
 
         composable("splash",
             enterTransition = { fadeIn(animationSpec = tween(700)) },
@@ -109,6 +107,7 @@ fun NavGraph(
             }
 
         }
+
         // 시작 화면
         composable("welcome") {
             WelcomeScreen(
@@ -276,13 +275,14 @@ fun NavGraph(
         composable("login") {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate("home") {
+                    // 로그인 성공 시 온보딩 화면으로 이동
+                    navController.navigate("onboarding") {
                         popUpTo("login") { inclusive = true }
-                        launchSingleTop = true
                     }
                 }
             )
         }
+
         composable("signup") {
             SignupScreen(
                 onSignupSuccess = {
@@ -292,6 +292,30 @@ fun NavGraph(
                 }
             )
         }
+        // 온보딩 화면
+        composable("onboarding") {
+            OnBoardingScreen(
+                onFinish = {
+                    // 온보딩 완료 시 권한 화면으로 이동
+                    navController.navigate("permissions")
+                }
+            )
+        }
+
+        // 권한 설정 화면
+        composable("permissions") {
+            PermissionsScreen(
+                onPermissionsGranted = {
+                    // 권한 설정 완료 후 홈 화면으로 이동
+                    navController.navigate("home") {
+                        // 이전 화면들을 백스택에서 제거
+                        popUpTo("welcome") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
 
         // 루틴 상세
         composable(
