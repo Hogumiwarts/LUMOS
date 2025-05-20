@@ -77,20 +77,15 @@ fun LoadedDevice(
                 // 상단 타이틀 + 활성화 영역 구분선
 
                 item {
-                    Row(modifier = Modifier) {
-                        Text(
-                            text = "나의 기기 목록",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.ExtraBold,
 
-                            )
+                    Text(
+                        text = "나의 기기 목록",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
 
-                        GestureActiveIndicator(
-                            isActive = isGestureActive,
-                            isActivating = recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVATING
                         )
-                    }
                 }
+
 
                 item {
                     DividerWithLabel("활성화")
@@ -116,39 +111,6 @@ fun LoadedDevice(
                     WearIconButton()
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun GestureActiveIndicator(
-    isActive: Boolean,
-    isActivating: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.padding(12.dp)
-    ) {
-        Canvas(
-            modifier = Modifier.size(12.dp)
-        ) {
-            val color = when {
-                isActive -> Color.Green
-                isActivating -> Color.Yellow
-                else -> Color.Gray
-            }
-
-            // 외부 원
-            drawCircle(
-                color = color.copy(alpha = 0.3f),
-                radius = size.minDimension / 2f
-            )
-
-            // 내부 원
-            drawCircle(
-                color = color,
-                radius = size.minDimension / 3f
-            )
         }
     }
 }

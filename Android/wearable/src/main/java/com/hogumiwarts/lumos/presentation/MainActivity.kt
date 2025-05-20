@@ -69,6 +69,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     // 현재 제스처 모드
     private var gestureMode = GestureMode.CONTINUOUS
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -171,7 +172,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             LUMOSTheme {
 
                 val prediction by webSocketViewModel.prediction
-                val recognitionMode by webSocketViewModel.recognitionMode.collectAsState()
+                val currentExecutingRoutine by webSocketViewModel.currentExecutingRoutine.collectAsState()
 
                 Box(
                     modifier = Modifier
@@ -213,15 +214,20 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                             val navController = rememberNavController()
                             NavGraph(navController)
 
-                            // 예측값이 숫자이고 실행 대상인 경우
-                            if (recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVE) {
-                                prediction.toLongOrNull()?.let { longValue ->
-                                    if (longValue in listOf(2L, 3L)) {
-                                        Log.d("Routine", "ACTIVE 모드에서 루틴 화면 표시: 제스처 $longValue")
-                                        RoutineExecuteScreen(longValue)
-                                    }
-                                }
+                            // 루틴 실행 화면 띄우기
+                            currentExecutingRoutine?.let { routineId ->
+                                Log.d("Execution", "루틴 화면 표시: 제스처 $routineId")
+                                RoutineExecuteScreen(routineId)
                             }
+
+//                            if (recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVE) {
+//                                prediction.toLongOrNull()?.let { longValue ->
+//                                    if (longValue in listOf(2L, 3L)) {
+//                                        Log.d("Routine", "ACTIVE 모드에서 루틴 화면 표시: 제스처 $longValue")
+//                                        RoutineExecuteScreen(longValue)
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
