@@ -41,7 +41,7 @@ fun DeviceGridHomeSection(
     onToggleDevice: (MyDevice) -> Unit = {}
 ) {
     Column {
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(15.dp))
 
         Text(
             text = "현재 작동 상태",

@@ -236,47 +236,78 @@ fun HomeScreen(
             }
 
             // 하단 기기 작동 상태 영역
-            Box{
-                if (!isLinked) {
-                    NotLinkedHomeScreen(
-                        onClickLink = {
-                            deviceViewModel.requestAuthAndOpen(context)
-                        }, deviceViewModel, context
-                    )
-                } else {
-                    val myDevices = deviceList.map { it }
-                    DeviceGridHomeSection(
-                        devices = myDevices,
-                        selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
-                        onDeviceClick = {
-//                            deviceViewModel.onDeviceClicked(it)
-                            when (it.deviceType) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)) {
+                when {
+                    !isLinked -> {
+                        NotLinkedHomeScreen(
+                            onClickLink = {
+                                deviceViewModel.requestAuthAndOpen(context)
+                            },
+                            deviceViewModel,
+                            context
+                        )
+                    }
 
-                                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.ETC -> {}
+                    deviceList.isEmpty() -> {
+                        // 로딩 중일 때 보여줄 UI
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(350.dp)
+                                .background(Color.White),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(350.dp)
+                                    .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Text(
+                                    text = "기기 상태를 불러오는 중이에요...☁️",
+                                    fontSize = 12.sp,
+                                    fontFamily = nanum_square_neo,
+                                    color = Color.Gray
+                                )
                             }
-                        },
-                        onToggleDevice = { device ->
-                            // viewModel에서 상태 반전 요청
-
-                            deviceViewModel.toggleDeviceState(device.deviceId, device.deviceType)
                         }
-                    )
+                    }
+
+                    else -> {
+                        val myDevices = deviceList.map { it }
+                        DeviceGridHomeSection(
+                            devices = myDevices,
+                            selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
+                            onDeviceClick = {
+                                when (it.deviceType) {
+                                    DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.ETC -> {}
+                                }
+                            },
+                            onToggleDevice = {
+                                deviceViewModel.toggleDeviceState(it.deviceId, it.deviceType)
+                            }
+                        )
+                    }
                 }
             }
         }
