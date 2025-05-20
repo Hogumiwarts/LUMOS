@@ -41,534 +41,538 @@ fun ControlScreen(
     bleViewModel: BleScannerViewModel = hiltViewModel(),
     controlViewModel: ControlViewModel = hiltViewModel()
 ) {
-//    val context = LocalContext.current
-//    val devices by bleViewModel.devices.collectAsState()
-//    val savedDevices by bleViewModel.savedDevices.collectAsState()
-//    val connectionState by bleViewModel.connectionState.collectAsState()
-//    val selectedDevice by bleViewModel.selectedDevice.collectAsState()
-//
-//    // 멀티
-////    val ranging by controlViewModel.multiRangingPositions.collectAsState()
-//
-//    val sessionReady = controlViewModel.sessionReady
-//
-//    val scrollState = rememberScrollState()
-//
-//    // UWB 기기 주소값
-//    var destinationAddress by remember { mutableStateOf("00:00") }
-//
-//
-//    // 컴포넌트가 처음 표시될 때 저장된 기기 로드
-//    LaunchedEffect(Unit) {
-////        bleViewModel.loadSavedDevices()
-////        if (controlViewModel.rangingActive) {
-////            Toast.makeText(
-////                context,
-////                "Ranging session active!",
-////                Toast.LENGTH_SHORT
-////            ).show()
-////        } else {
-////            controlViewModel.prepareSession()
-////        }
-//    }
-//
-//    Scaffold(
-//        topBar = {
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(64.dp)
-//                    .background(Color.Transparent)
-//                    .statusBarsPadding()
-//                    .padding(horizontal = 24.dp),
-//                verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_arrow_back),
-//                    contentDescription = null,
-//                    modifier = Modifier.clickable(
-//                        interactionSource = remember { MutableInteractionSource() },
-//                        indication = null,
-//                        onClick = {
-////                            navController.popBackStack()
-//                        }
-//                    ),
-//                    tint = Color.White
-//                )
-//            }
-//
-//        }
-//    ) { innerPadding ->
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//                .background(Color.White)
-//                .padding(16.dp)
-//                .verticalScroll(scrollState)
-//        ) {
-//            // 상단 카드: UWB 상태 정보
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 16.dp),
-//                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-//                colors = CardDefaults.cardColors(
-//                    containerColor = MaterialTheme.colorScheme.surface
-//                )
-//            ) {
-//                Column(
-//                    modifier = Modifier.padding(16.dp)
-//                ) {
-//                    Text(
-//                        text = "UWB 장치 연결",
-//                        style = MaterialTheme.typography.headlineSmall
-//                    )
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    // 로컬 주소 표시
-//                    Text("Local address: ${controlViewModel.localAddress}")
-//
-//                    Spacer(modifier = Modifier.height(16.dp))
-//
-//                    Row(
-//                        Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        Button(onClick = {
-//                            if (controlViewModel.rangingActive) {
-//                                Toast.makeText(
-//                                    context,
-//                                    "Ranging session active!",
-//                                    Toast.LENGTH_SHORT
-//                                ).show()
-//                            } else {
-//                                controlViewModel.prepareSession()
-//                            }
-//                        }) {
-//                            Text("세션 준비")
-//                        }
-//                        Button(onClick = {
-//                            controlViewModel.resetSession()
-//                        }) {
-//                            Text("세션 초기화")
-//                        }
-//
-//                    }
-//
-//                }
-//            }
-//
-//            // 레인징 제어
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 16.dp),
-//                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-//                colors = CardDefaults.cardColors(
-//                    containerColor = MaterialTheme.colorScheme.surface
-//                )
-//            ) {
-//                Column(
-//                    modifier = Modifier.padding(16.dp)
-//                ) {
-//
-//                    Spacer(modifier = Modifier.height(8.dp))
-//                    Text("설정된 컨트롤리 주소: ${controlViewModel.controleeAddresses.joinToString(", ")}")
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    Row(
-//                        Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        Button(
-//                            onClick = {
-//                                if (!sessionReady) {
-//                                    Toast.makeText(context, "세션이 준비되지 않았습니다!", Toast.LENGTH_SHORT).show()
-//                                } else {
-////                                    controlViewModel.startMulti()        // ← 여기로 교체
-//                                }
-//                            },
-//                            enabled = sessionReady && !controlViewModel.rangingActive
-//                        ) { Text("멀티 레인징 시작") }
-//
-//                        Button(
-//                            onClick = {
-////                                controlViewModel.stopMulti()
-//                                      },  // ← 교체
-//                            enabled = controlViewModel.rangingActive
-//                        ) { Text("레인징 중지") }
-//                    }
-//                }
-//            }
-//
-//            // 모든 장치의 레인징 결과
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 16.dp),
-//                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-//                colors = CardDefaults.cardColors(
-//                    containerColor = MaterialTheme.colorScheme.surface
-//                )
-//            ) {
-//                Column(
-//                    modifier = Modifier.padding(16.dp)
-//                ) {
-//                    Text(
-//                        text = "레인징 결과",
-//                        style = MaterialTheme.typography.headlineSmall
-//                    )
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    // 연결된 장치 수 표시
-//                    Text(
-//                        text = if (controlViewModel.connectedDevices.isEmpty())
-//                            "연결된 장치가 없습니다"
-//                        else
-//                            "연결된 장치: ${controlViewModel.connectedDevices.size}개",
-//                        style = MaterialTheme.typography.bodyMedium,
-//                        color = if (controlViewModel.connectedDevices.isEmpty()) Color.Red else Color.Green
-//                    )
-//
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    // 장치 결과 표시
-//                    Column(
-//                        verticalArrangement = Arrangement.spacedBy(8.dp)
-//                    ) {
-//                        controlViewModel.controleeAddresses.forEach { address ->
-////                            val position = controlViewModel.getDevicePosition(address)
-//                            val position = ranging[address]
-//                            val isConnected = position != null
-//
-//                            Card(
-//                                modifier = Modifier
-//                                    .fillMaxWidth(),
-//                                colors = CardDefaults.cardColors(
-//                                    containerColor = if (isConnected)
-//                                        Color(0xFFE3F2FD) // 연결됨 - 밝은 파란색
-//                                    else
-//                                        Color(0xFFEEEEEE) // 연결 안됨 - 회색
-//                                )
-//                            ) {
-//                                Column(
-//                                    modifier = Modifier.padding(12.dp)
-//                                ) {
-//                                    Row(
-//                                        modifier = Modifier.fillMaxWidth(),
-//                                        horizontalArrangement = Arrangement.SpaceBetween
-//                                    ) {
-//                                        Text(
-//                                            text = "장치: $address",
-//                                            style = MaterialTheme.typography.bodyLarge
-//                                        )
-//                                        Text(
-//                                            text = if (isConnected) "연결됨" else "연결 안됨",
-//                                            color = if (isConnected) Color.Green else Color.Red
-//                                        )
-//                                    }
-//
-//                                    Spacer(modifier = Modifier.height(4.dp))
-//
-//                                    if (position != null) {
-//                                        // 거리 정보
-//                                        Row {
-//                                            Text(
-//                                                text = "거리:",
-//                                                style = MaterialTheme.typography.bodyMedium,
-//                                                modifier = Modifier.width(80.dp)
-//                                            )
-//                                            Text(
-//                                                text = "${position.distance?.value ?: "N/A"} m",
-//                                                style = MaterialTheme.typography.bodyMedium
-//                                            )
-//                                        }
-//
-//                                        // 방위각 정보
-//                                        Row {
-//                                            Text(
-//                                                text = "방위각:",
-//                                                style = MaterialTheme.typography.bodyMedium,
-//                                                modifier = Modifier.width(80.dp)
-//                                            )
-//                                            Text(
-//                                                text = "${position.azimuth?.value ?: "N/A"} °",
-//                                                style = MaterialTheme.typography.bodyMedium
-//                                            )
-//                                        }
-//
-//                                        // 고도 정보
-//                                        Row {
-//                                            Text(
-//                                                text = "고도:",
-//                                                style = MaterialTheme.typography.bodyMedium,
-//                                                modifier = Modifier.width(80.dp)
-//                                            )
-//                                            Text(
-//                                                text = "${position.elevation?.value ?: "N/A"} °",
-//                                                style = MaterialTheme.typography.bodyMedium
-//                                            )
-//                                        }
-//
-//                                        // 경과 시간 정보
-//                                        Row {
-//                                            Text(
-//                                                text = "경과 시간:",
-//                                                style = MaterialTheme.typography.bodyMedium,
-//                                                modifier = Modifier.width(80.dp)
-//                                            )
-//                                            Text(
-//                                                text = "${position.elapsedRealtimeNanos} ns",
-//                                                style = MaterialTheme.typography.bodyMedium
-//                                            )
-//                                        }
-//
-//                                        Spacer(Modifier.height(12.dp))
-//
-//                                        position.azimuth?.value?.let { azimuth ->
-//                                            ArrowIndicator(
-//                                                azimuthDeg = azimuth*(-1),
-//                                                modifier = Modifier.align(Alignment.CenterHorizontally)
-//                                            )
-//                                        }
-//                                    } else {
-//                                        Text(
-//                                            text = "데이터 없음",
-//                                            style = MaterialTheme.typography.bodyMedium,
-//                                            color = Color.Gray
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                            Spacer(Modifier.height(8.dp))
-//
-//                            Button(
-//                                onClick = {
-//                                    if (controlViewModel.rangingActive)
-//                                        controlViewModel.startDetection()
-//                                },
-//                                enabled = controlViewModel.rangingActive && position != null
-//                            ) {
-//                                Text("탐지시작")
-//                            }
-//
-//                            controlViewModel.detectedDeviceName?.let { name ->
-//                                Text(
-//                                    text = "탐지 결과: $name",
-//                                    style = MaterialTheme.typography.titleLarge,
-//                                    color = Color.Magenta,
-//                                    modifier = Modifier
-//                                        .fillMaxWidth()
-//                                        .padding(vertical = 8.dp)
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//
-//            // 스캔 제어 버튼
-//            Row(
-//                Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                // 전체 스캔
-//                Button(onClick = { bleViewModel.startScan() }) {
-//                    Text("스캔 시작")
-//                }
-//                // DWM3001-CDK 필터 스캔
-//                OutlinedButton(onClick = { bleViewModel.startScan(onlyDwm = true) }) {
-//                    Text("DWM 전용")
-//                }
-//                // 스캔 중지
-//                Button(onClick = { bleViewModel.stopScan() }) {
-//                    Text("스캔 중지")
-//                }
-//            }
-//
-//            Spacer(Modifier.height(16.dp))
-//
-//            // 연결 상태 표시
-//            when (connectionState) {
-//                GattConnector.ConnectionState.CONNECTING ->
-//                    Text("연결 중...", color = Color.Yellow)
-//
-//                GattConnector.ConnectionState.CONNECTED ->
-//                    Text("연결됨", color = Color.Green)
-//
-//                GattConnector.ConnectionState.SERVICES_DISCOVERED ->
-//                    Text("서비스 탐색 완료", color = Color.Green)
-//
-//                GattConnector.ConnectionState.READY ->
-//                    Text("UWB 준비 완료", color = Color.Green)
-//
-//                GattConnector.ConnectionState.FAILED ->
-//                    Text("연결 실패", color = Color.Red)
-//
-//                else -> {}
-//            }
-//
-//            if (selectedDevice != null) {
-//                Text("선택된 기기: ${selectedDevice?.name ?: "이름 없음"} (${selectedDevice?.address})")
-//            }
-//
-//            Spacer(Modifier.height(16.dp))
-//
-//            // 저장된 UWB 기기 목록 섹션
-//            Text(
-//                "저장된 UWB 기기",
-//                style = MaterialTheme.typography.titleMedium,
-//                color = Color.Black
-//            )
-//
-//            Spacer(Modifier.height(8.dp))
-//
-//            if (savedDevices.isEmpty()) {
-//                Text(
-//                    "저장된 UWB 기기가 없습니다.",
-//                    color = Color.Black,
-//                    style = MaterialTheme.typography.bodyMedium
-//                )
-//            } else {
-//                LazyColumn(
-//                    verticalArrangement = Arrangement.spacedBy(8.dp),
-//                    modifier = Modifier
-//                        .weight(0.5f)
-//                        .fillMaxWidth()
-//                ) {
-//
-//                    items(savedDevices) { device ->
-//                        SavedDeviceCard(
-//                            device = device,
-//                            onConnect = {
-//                                bleViewModel.stopScan()
-//                                bleViewModel.connectToSavedDevice(device)
-//                            }
-//                        )
-//                    }
-//                }
-//            }
-//
-//            Spacer(Modifier.height(16.dp))
-//
-//            // 탐지된 기기 리스트 (기존 코드 수정)
-//            Text(
-//                "BLE 스캔 결과",
-//                style = MaterialTheme.typography.titleMedium,
-//                color = Color.Black
-//            )
-//
-//            Spacer(Modifier.height(8.dp))
-//
-//            // 탐지된 기기 리스트
-//            if (devices.isEmpty()) {
-//                Text(
-//                    "주변 BLE 기기를 찾는 중입니다…",
-//                    color = Color.Black,
-//                    style = MaterialTheme.typography.bodyLarge
-//                )
-//            } else {
-//                LazyColumn(
-//                    verticalArrangement = Arrangement.spacedBy(8.dp),
-//                    modifier = Modifier
-//                        .weight(0.5f)
-//                        .fillMaxWidth()
-//                ) {
-//                    items(devices) { device ->
-//                        ScannedDeviceCard(
-//                            device = device,
-//                            isSelected = selectedDevice?.address == device.address,
-//                            onSelect = { bleViewModel.connectToDevice(device) }
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun SavedDeviceCard(
-//    device: SavedUwbDevice,
-//    onConnect: () -> Unit
-//) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable(onClick = onConnect)
-//    ) {
-//        Column(
-//            modifier = Modifier.padding(12.dp)
-//        ) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                Text(
-//                    text = "저장된 UWB 기기",
-//                    style = MaterialTheme.typography.bodyLarge
-//                )
-//                Icon(
-//                    imageVector = Icons.Default.Check,
-//                    contentDescription = "등록됨",
-//                    tint = Color.Green
-//                )
-//            }
-//
-//            Text(
-//                text = device.address,
-//                style = MaterialTheme.typography.bodyMedium
-//            )
-//
-//            Text(
-//                text = "채널: ${device.uwbParams.channel}",
-//                style = MaterialTheme.typography.bodySmall
-//            )
-//
-//            // 마지막 연결 시간 표시
-//            if (device.lastConnected > 0) {
-//                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-//                val lastConnectedText = dateFormat.format(Date(device.lastConnected))
-//                Text(
-//                    text = "마지막 연결: $lastConnectedText",
-//                    style = MaterialTheme.typography.bodySmall,
-//                    color = Color.Gray
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun ScannedDeviceCard(
-//    device: BleDevice,
-//    isSelected: Boolean,
-//    onSelect: () -> Unit
-//) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable(onClick = onSelect),
-//        colors = CardDefaults.cardColors(
-//            containerColor = if (isSelected) Color(0xFFE3F2FD) else MaterialTheme.colorScheme.surface
-//        )
-//    ) {
-//        Column(Modifier.padding(12.dp)) {
-//            Text(
-//                text = device.name ?: "이름 없음",
-//                style = MaterialTheme.typography.bodyLarge
-//            )
-//            Text(
-//                text = device.address,
-//                style = MaterialTheme.typography.bodyMedium
-//            )
-//            Text(
-//                text = "RSSI: ${device.rssi} dBm",
-//                style = MaterialTheme.typography.bodySmall
-//            )
-//        }
-//    }
+    val context = LocalContext.current
+    val devices by bleViewModel.devices.collectAsState()
+    val savedDevices by bleViewModel.savedDevices.collectAsState()
+    val connectionState by bleViewModel.connectionState.collectAsState()
+    val selectedDevice by bleViewModel.selectedDevice.collectAsState()
+
+
+    val sessionReady = controlViewModel.sessionReady
+
+    val scrollState = rememberScrollState()
+
+    // UWB 기기 주소값
+    var destinationAddress by remember { mutableStateOf("00:00") }
+
+
+    // 컴포넌트가 처음 표시될 때 저장된 기기 로드
+    LaunchedEffect(Unit) {
+        bleViewModel.loadSavedDevices()
+        if (controlViewModel.rangingActive) {
+            Toast.makeText(
+                context,
+                "Ranging session active!",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            controlViewModel.prepareSession()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(Color.Transparent)
+                    .statusBarsPadding()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_back),
+                    contentDescription = null,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ),
+                    tint = Color.White
+                )
+            }
+
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(Color.White)
+                .padding(16.dp)
+                .verticalScroll(scrollState)
+        ) {
+            // 상단 카드: UWB 상태 정보
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "UWB 장치 연결",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 로컬 주소 표시
+                    Text("Local address: ${controlViewModel.localAddress}")
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(onClick = {
+                            if (controlViewModel.rangingActive) {
+                                Toast.makeText(
+                                    context,
+                                    "Ranging session active!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                controlViewModel.prepareSession()
+                            }
+                        }) {
+                            Text("세션 준비")
+                        }
+                        Button(onClick = {
+                            controlViewModel.resetSession()
+                        }) {
+                            Text("세션 초기화")
+                        }
+
+                    }
+
+                }
+            }
+
+            // 레인징 제어
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("설정된 컨트롤리 주소: ${controlViewModel.controleeAddresses.joinToString(", ")}")
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = {
+                                if (
+                                    !controlViewModel.startSingleRanging()
+//                                    !controlViewModel.startRanging()
+                                ) {
+                                    Toast.makeText(
+                                        context,
+                                        "세션이 초기화되지 않았습니다!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            enabled = sessionReady && !controlViewModel.rangingActive
+                        ) {
+                            Text("멀티 레인징 시작")
+                        }
+
+                        Button(
+                            onClick = { controlViewModel.stopRanging() },
+                            enabled = controlViewModel.rangingActive
+                        ) {
+                            Text("레인징 중지")
+                        }
+                    }
+                }
+            }
+
+            // 모든 장치의 레인징 결과
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "레인징 결과",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 연결된 장치 수 표시
+                    Text(
+                        text = if (controlViewModel.connectedDevices.isEmpty())
+                            "연결된 장치가 없습니다"
+                        else
+                            "연결된 장치: ${controlViewModel.connectedDevices.size}개",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (controlViewModel.connectedDevices.isEmpty()) Color.Red else Color.Green
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 장치 결과 표시
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        controlViewModel.controleeAddresses.forEach { address ->
+                            val position = controlViewModel.getDevicePosition(address)
+                            val isConnected = position != null
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isConnected)
+                                        Color(0xFFE3F2FD) // 연결됨 - 밝은 파란색
+                                    else
+                                        Color(0xFFEEEEEE) // 연결 안됨 - 회색
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "장치: $address",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        Text(
+                                            text = if (isConnected) "연결됨" else "연결 안됨",
+                                            color = if (isConnected) Color.Green else Color.Red
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                    if (position != null) {
+                                        // 거리 정보
+                                        Row {
+                                            Text(
+                                                text = "거리:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.distance?.value ?: "N/A"} m",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 방위각 정보
+                                        Row {
+                                            Text(
+                                                text = "방위각:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.azimuth?.value ?: "N/A"} °",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 고도 정보
+                                        Row {
+                                            Text(
+                                                text = "고도:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.elevation?.value ?: "N/A"} °",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 경과 시간 정보
+                                        Row {
+                                            Text(
+                                                text = "경과 시간:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.elapsedRealtimeNanos} ns",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        Spacer(Modifier.height(12.dp))
+
+                                        position.azimuth?.value?.let { azimuth ->
+                                            ArrowIndicator(
+                                                azimuthDeg = azimuth*(-1),
+                                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                            )
+                                        }
+                                    } else {
+                                        Text(
+                                            text = "데이터 없음",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+
+                            Button(
+                                onClick = {
+                                    if (controlViewModel.rangingActive)
+                                        controlViewModel.startDetection()
+                                },
+                                enabled = controlViewModel.rangingActive
+                            ) {
+                                Text("탐지시작")
+                            }
+
+                            controlViewModel.detectedDeviceName?.let { name ->
+                                Text(
+                                    text = "탐지 결과: $name",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Color.Magenta,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // 스캔 제어 버튼
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // 전체 스캔
+                Button(onClick = { bleViewModel.startScan() }) {
+                    Text("스캔 시작")
+                }
+                // DWM3001-CDK 필터 스캔
+                OutlinedButton(onClick = { bleViewModel.startScan(onlyDwm = true) }) {
+                    Text("DWM 전용")
+                }
+                // 스캔 중지
+                Button(onClick = { bleViewModel.stopScan() }) {
+                    Text("스캔 중지")
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // 연결 상태 표시
+            when (connectionState) {
+                GattConnector.ConnectionState.CONNECTING ->
+                    Text("연결 중...", color = Color.Yellow)
+
+                GattConnector.ConnectionState.CONNECTED ->
+                    Text("연결됨", color = Color.Green)
+
+                GattConnector.ConnectionState.SERVICES_DISCOVERED ->
+                    Text("서비스 탐색 완료", color = Color.Green)
+
+                GattConnector.ConnectionState.READY ->
+                    Text("UWB 준비 완료", color = Color.Green)
+
+                GattConnector.ConnectionState.FAILED ->
+                    Text("연결 실패", color = Color.Red)
+
+                else -> {}
+            }
+
+            if (selectedDevice != null) {
+                Text("선택된 기기: ${selectedDevice?.name ?: "이름 없음"} (${selectedDevice?.address})")
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // 저장된 UWB 기기 목록 섹션
+            Text(
+                "저장된 UWB 기기",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            if (savedDevices.isEmpty()) {
+                Text(
+                    "저장된 UWB 기기가 없습니다.",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .fillMaxWidth()
+                ) {
+
+                    items(savedDevices) { device ->
+                        SavedDeviceCard(
+                            device = device,
+                            onConnect = {
+                                bleViewModel.stopScan()
+                                bleViewModel.connectToSavedDevice(device)
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // 탐지된 기기 리스트 (기존 코드 수정)
+            Text(
+                "BLE 스캔 결과",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // 탐지된 기기 리스트
+            if (devices.isEmpty()) {
+                Text(
+                    "주변 BLE 기기를 찾는 중입니다…",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .fillMaxWidth()
+                ) {
+                    items(devices) { device ->
+                        ScannedDeviceCard(
+                            device = device,
+                            isSelected = selectedDevice?.address == device.address,
+                            onSelect = { bleViewModel.connectToDevice(device) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SavedDeviceCard(
+    device: SavedUwbDevice,
+    onConnect: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onConnect)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "저장된 UWB 기기",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "등록됨",
+                    tint = Color.Green
+                )
+            }
+
+            Text(
+                text = device.address,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = "채널: ${device.uwbParams.channel}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            // 마지막 연결 시간 표시
+            if (device.lastConnected > 0) {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                val lastConnectedText = dateFormat.format(Date(device.lastConnected))
+                Text(
+                    text = "마지막 연결: $lastConnectedText",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScannedDeviceCard(
+    device: BleDevice,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onSelect),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) Color(0xFFE3F2FD) else MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(
+                text = device.name ?: "이름 없음",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = device.address,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "RSSI: ${device.rssi} dBm",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
 }

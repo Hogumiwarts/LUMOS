@@ -51,9 +51,9 @@ class ControlViewModel @Inject constructor(
     var detectedDeviceName by mutableStateOf<String?>(null)
         private set
 
-//    // 멀티
-//    val multiRangingPositions = uwbRanging.ranging
-//    fun getMultiPosition(addr: String) = uwbRanging.rangingPositions[addr]
+    // 멀티
+    val multiRangingPositions = uwbRanging.ranging
+    fun getMultiPosition(addr: String) = uwbRanging.rangingPositions[addr]
 
     /** ★ 10 초 타임아웃 + 3 초 연속 구간 유지 로직 */
     fun startDetection() {
