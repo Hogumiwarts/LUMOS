@@ -46,10 +46,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus  # Prometheus endpoint 포함
+        include: health,info,prometheus,readiness,liveness
   endpoint:
     prometheus:
       enabled: true
+    health:
+      probes:
+        enabled: true
   metrics:
     tags:
       application: gateway-service
@@ -59,3 +62,8 @@ management:
     metrics:
       export:
         enabled: true
+  health:
+    readinessState:
+      enabled: true
+    livenessState:
+      enabled: true

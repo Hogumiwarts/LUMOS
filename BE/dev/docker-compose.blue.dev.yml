@@ -2,12 +2,14 @@ services:
 
   # Spring Cloud Gateway
   gateway-service:
-    image: itsanisland/lumos-gateway-service:blue
+    build:
+      context: ../gateway-service
+    image: lumos-gateway-service:blue
     container_name: lumos-gateway-service-blue
     ports:
       - "8081:8080"
     env_file:
-      - .env.prod
+      - .env.dev
     depends_on:
       - gesture-sensor-service
       - auth-service
@@ -21,81 +23,93 @@ services:
 
   # 제스처 센서 서비스
   gesture-sensor-service:
-    image: itsanisland/lumos-gesture-sensor-service:blue
+    build:
+      context: ../gesture-sensor-service
+    image: lumos-gesture-sensor-service:blue
     container_name: lumos-gesture-sensor-service-blue
     expose:
       - "8080"  # 내부 통신용
     env_file:
-      - .env.prod
-      - ./gesture-sensor-service/.env
+      - .env.dev
+      - ../gesture-sensor-service/.env
     networks:
       - app-network
   
   # 인증 서비스
   auth-service:
-    image: itsanisland/lumos-auth-service:blue
+    build:
+      context: ../auth-service
+    image: lumos-auth-service:blue
     container_name: lumos-auth-service-blue
     expose:
       - "8080"
     env_file:
-      - .env.prod
+      - .env.dev
     networks:
       - app-network
   
   # 회원 서비스
   member-service:
-    image: itsanisland/lumos-member-service:blue
+    build:
+      context: ../member-service
+    image: lumos-member-service:blue
     container_name: lumos-member-service-blue
     expose:
       - "8080"
     env_file:
-      - ./member-service/.env
+      - ../member-service/.env
     networks:
       - app-network
   
   # 기기 서비스
   device-service:
-    image: itsanisland/lumos-device-service:blue
+    build:
+      context: ../device-service
+    image: lumos-device-service:blue
     container_name: lumos-device-service-blue
     expose:
       - "8080"
     env_file:
-      - ./device-service/.env
+      - ../device-service/.env
     networks:
       - app-network
   
   # 제스처 서비스
   gesture-service:
-    image: itsanisland/lumos-gesture-service:blue
+    build:
+      context: ../gesture-service
+    image: lumos-gesture-service:blue
     container_name: lumos-gesture-service-blue
     expose:
       - "8080"
     env_file:
-      - ./gesture-service/.env
+      - ../gesture-service/.env
     networks:
       - app-network
   
   # 루틴 서비스
   routine-service:
-    image: itsanisland/lumos-routine-service:blue
+    build:
+      context: ../routine-service
+    image: lumos-routine-service:blue
     container_name: lumos-routine-service-blue
     expose:
       - "8080"
     env_file:
-      - ./routine-service/.env
+      - ../routine-service/.env
     networks:
       - app-network
-
-  # SmartThings 서비스
+  
+  # SmartThings 서버
   smartthings-service:
-    image: itsanisland/lumos-smartthings-service:blue
+    build:
+      context: ../smartthings-service
+    image: lumos-smartthings-service:blue
     container_name: lumos-smartthings-service-blue
     expose:
       - "3000"
     env_file:
-      - ./smartthings-service/.env
-    volumes:
-      - ./smartthings-service/data:/app/data
+      - ../smartthings-service/.env
     networks:
       - app-network
 

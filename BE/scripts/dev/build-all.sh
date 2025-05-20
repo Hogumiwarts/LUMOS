@@ -15,7 +15,7 @@ services=(
 # 각 서비스 디렉토리에서 빌드 실행
 for service in "${services[@]}"
 do
-  service_path="../$service"
+  service_path="../../$service"
   echo "🔨 Building $service..."
 
   if [ -f "$service_path/gradlew" ]; then

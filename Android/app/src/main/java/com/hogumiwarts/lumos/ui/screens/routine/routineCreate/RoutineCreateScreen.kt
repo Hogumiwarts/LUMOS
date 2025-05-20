@@ -149,60 +149,21 @@ fun RoutineCreateScreen(
                         ?.savedStateHandle
                         ?.get<String>("commandDeviceJson")
 
-                    val commandDevice = when (selectedDevice.deviceType) {
-                        DeviceListType.LIGHT -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDevice(
-                                isOn = true,
-                                brightness = 50,
-                                hue = null,
-                                saturation = null
-                            )
+                    if (json != null) {
+                        val commandDevice = Gson().fromJson(json, CommandDevice::class.java)
+
+                        if (devices.any { it.deviceId == commandDevice.deviceId }) {
+                            showDuplicateDialog.value = true
+                        } else {
+                            viewModel.addDevice(commandDevice)
                         }
 
-                        DeviceListType.AIRPURIFIER -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForAirPurifier(
-                                isOn = false,
-                                fanMode = "auto"
-                            )
-                        }
-
-                        DeviceListType.AUDIO -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForSpeaker(
-                                isOn = true,
-                                volume = 30,
-                                isPlaying = true
-                            )
-                        }
-
-                        DeviceListType.SWITCH -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForSwitch(
-                                isOn = true
-                            )
-                        }
-
-                        DeviceListType.ETC -> TODO()
-                    }
-
-                    if (devices.any { it.deviceId == commandDevice.deviceId }) {
-                        showDuplicateDialog.value = true
-                    } else {
-                        viewModel.addDevice(commandDevice)
-
-                        // 추가 후 commandDeviceJson 초기화
                         navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.remove<String>("commandDeviceJson")
-
-                        isSheetOpen = false
                     }
+
+                    isSheetOpen = false
                 },
                 showDuplicateDialog = showDuplicateDialog,
                 onDismissDuplicateDialog = { showDuplicateDialog.value = false },
@@ -592,15 +553,3 @@ fun String.appendSubject(): String {
 fun SelectIcon() {
     TODO("Not yet implemented")
 }
-
-//@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-//@Composable
-//fun RoutineCreateScreenPreview() {
-//    val fakeViewModel = remember { RoutineCreateViewModel() }
-//
-//    RoutineCreateScreen(
-//        viewModel = fakeViewModel,
-//        onRoutineCreateComplete = {},
-//        navController = rememberNavController()
-//    )
-//}

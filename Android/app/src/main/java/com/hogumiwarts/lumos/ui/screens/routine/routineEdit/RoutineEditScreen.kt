@@ -100,6 +100,7 @@ fun RoutineEditScreen(
     var isSheetOpen by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val deviceErrorMessage = remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
@@ -335,6 +336,7 @@ fun RoutineEditScreen(
 
                 // 루틴 이름 입력창
                 OutlinedTextField(
+
                     value = routineName,
                     onValueChange = { viewModel.onRoutineNameChanged(it) },
                     isError = state.nameBlankMessage != null,
@@ -375,6 +377,17 @@ fun RoutineEditScreen(
                         }
                     }
                 )
+
+                if (state.nameBlankMessage != null) {
+                    Text(
+                        text = state.nameBlankMessage ?: "",
+                        color = Color(0xFFF26D6D),
+                        fontSize = 12.sp,
+                        fontFamily = nanum_square_neo,
+                        modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                    )
+                }
+
             }
 
             item { Box(modifier = Modifier.height(1.dp)) {} }
@@ -438,6 +451,7 @@ fun RoutineEditScreen(
                                 modifier = Modifier.padding(top = 6.dp, start = 4.dp)
                             )
                         }
+
                     }
                 }
             }
@@ -502,7 +516,19 @@ fun RoutineEditScreen(
                         }
                     )
                 }
+
+                // 기기 0개일 때 수정 버튼 클릭 시 띄울 에러 메시지
+                deviceErrorMessage.value?.let {
+                    Text(
+                        text = it,
+                        color = Color(0xFFF26D6D),
+                        fontSize = 12.sp,
+                        fontFamily = nanum_square_neo,
+                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                    )
+                }
             }
+
             // 제스처 선택
             // 제목
             item {
@@ -549,6 +575,17 @@ fun RoutineEditScreen(
             PrimaryButton(
                 buttonText = "수정하기",
                 onClick = {
+                    if (deviceList.isEmpty()) {
+                        viewModel.setDeviceEmptyError("기기를 한 개 이상 추가해주세요.")
+                        return@PrimaryButton
+                    }
+
+                    if (routineName.isBlank()) {
+                        viewModel.setNameBlankError("루틴 이름을 입력해주세요.")
+                        return@PrimaryButton
+                    }
+
+
                     coroutineScope.launch {
                         val accessToken = tokenDataStore.getAccessToken().first()
                         viewModel.updateRoutine(

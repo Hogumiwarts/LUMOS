@@ -47,9 +47,15 @@ class RoutineCreateViewModel @Inject constructor(
     fun setGestureData(gesture: GestureData) {
         Timber.tag("gesture").d("🧩 setGestureData 호출됨: $gesture")
 
-        _selectedGesture.value = gesture
-        _gestureId.value = gesture.gestureId
+        val cleanedGesture = gesture.copy(
+            gestureName = gesture.gestureName.trim(),
+            gestureDescription = gesture.gestureDescription.trim()
+        )
+
+        _selectedGesture.value = cleanedGesture
+        _gestureId.value = cleanedGesture.gestureId
     }
+
 
     fun setGesture(id: Long) {
         _gestureId.value = id
