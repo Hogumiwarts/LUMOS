@@ -61,6 +61,17 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
     // 고정된 컨트롤리 주소 목록
     private val controleeAddresses = listOf("00:01", "00:02")
 
+
+    // 멀티 레인징
+    private data class SessionHandle(
+        val scope: UwbControllerSessionScope,
+        val job: Job
+    )
+    private val sessions = mutableMapOf<String, SessionHandle>()
+
+    private val _ranging = MutableStateFlow<Map<String, RangingPosition>>(emptyMap())
+    val ranging: StateFlow<Map<String, RangingPosition>> = _ranging.asStateFlow()
+
     var rangingPosition by mutableStateOf(
         RangingPosition(
             RangingMeasurement(0F), // 거리 초기값
@@ -134,6 +145,106 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
         localAdr = "XX:XX"
     }
 
+    private fun shortMacToBytes(str: String): ByteArray {
+        val bytes = str.split(":").map { it.toInt(16).toByte() }.toByteArray()
+        require(bytes.size == 2) { "UWB short address는 2바이트여야 합니다: $str" }
+        return bytes
+    }
+    @Suppress("MissingPermission")
+    fun startMultiRanging(): Boolean {
+
+        if (rangingActive) {
+            Timber.i("멀티 레인징 이미 활성 상태")        // ✔︎
+            return true
+        }
+        if (!sessionReady) {
+            Timber.w("세션이 아직 준비되지 않음 → startMultiRanging() 중단")
+            return false
+        }
+
+        Timber.i("🔵 멀티 레인징 시작 — 컨트롤리 ${controleeAddresses.size}개")
+
+        controleeAddresses.forEachIndexed { idx, macStr ->
+
+            CoroutineScope(Dispatchers.IO).launch {
+
+                /* 1) 세션 스코프 생성 */
+                val scope = uwbManager.controllerSessionScope()
+                Timber.d("[$macStr] 컨트롤러 세션 스코프 생성 완료")
+
+                /* 2) 대상 디바이스 객체 */
+                val controlee = UwbDevice(UwbAddress(shortMacToBytes(macStr)))
+
+                /* 3) 세션 파라미터 */
+                val params = RangingParameters(
+                    uwbConfigType  = RangingParameters.CONFIG_UNICAST_DS_TWR,
+                    sessionKeyInfo = byteArrayOf(
+                        0x08, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
+                    ).map { it.toByte() }.toByteArray(),   // 8B Static STS
+                    complexChannel = UwbComplexChannel(9, 9),
+                    peerDevices    = listOf(controlee),
+                    updateRateType = RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+                    sessionId      = 0x100 + idx,
+                    subSessionId   = 0,
+                    subSessionKeyInfo = null
+                )
+                Timber.d("[$macStr] 세션 파라미터 준비(sessionId=${0x100+idx})")
+
+                /* 4) 결과 수집 Job */
+                val innerJob = launch {
+                    Timber.d("Job 실행")
+                    try {
+                        scope.prepareSession(params).collect { res ->
+                            Timber.d(
+                                "[peer 정보] ${res.device.address}"
+                            )
+
+                            when (res) {
+                                is RangingResultPosition -> {
+                                    val peer = res.device.address.toString()
+                                    rangingPositions =
+                                        rangingPositions + (peer to res.position)
+
+                                    Timber.v(
+                                        "[$peer] 거리=%.2f, 방위=%.1f"
+                                            .format(
+                                                res.position.distance?.value ?: -1f,
+                                                res.position.azimuth?.value ?: 0f
+                                            )
+                                    )
+                                }
+                                is RangingResultPeerDisconnected -> {
+                                    val peer = res.device.address.toString()
+                                    rangingPositions = rangingPositions - peer
+                                    Timber.w("[$peer] 🚫 연결 끊김")
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "[$macStr] ❌ 레인징 수집 중 예외 발생")
+                    }
+                }
+
+                Timber.i("[$macStr] ✅ 세션 시작 완료")
+                sessions[macStr] = SessionHandle(scope, innerJob)
+            }
+        }
+
+        rangingActive = true
+        Timber.i("🟢 멀티 레인징 활성화 플래그 ON")
+        return true
+    }
+
+    /* ------------ 세션 정리 ------------ */
+    suspend fun stopAllRanging() {
+        sessions.values.forEach { handle ->
+            handle.job.cancelAndJoin()
+            (handle.scope as AutoCloseable).close()   // 캐스팅 후 close()
+        }
+        sessions.clear()
+        rangingActive = false
+    }
+
     /**
      * 첫 번째 디바이스 레인징을 시작하는 함수
      */
@@ -165,6 +276,7 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
                 subSessionId = 0,
                 subSessionKeyInfo = null
             )
+            Timber.tag(TAG).d("🔧 RangingParameters built for peer=$firstControlee")
 
             /* 2) 레인징 수집 코루틴 */
             rangingActive = true
