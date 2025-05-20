@@ -214,6 +214,7 @@ fun PreviewLightScreenContent(
                         "commandDeviceJson",
                         json
                     )
+
                     navController.popBackStack()
                 },
                 modifier = Modifier
