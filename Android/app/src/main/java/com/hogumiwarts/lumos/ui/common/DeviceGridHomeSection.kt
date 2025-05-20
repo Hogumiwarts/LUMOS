@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -55,14 +56,14 @@ fun DeviceGridHomeSection(
             )
         )
 
-
+        Spacer(modifier = Modifier.height(6.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(
                 start = 0.dp,
                 end = 0.dp,
                 top = 15.dp,
-                bottom = 25.dp
+                bottom = 40.dp
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -79,7 +80,7 @@ fun DeviceGridHomeSection(
                             .fillMaxSize()
                             .clickable {
                                 onDeviceClick(device)
-                                       },
+                            },
                         showToggle = true,
                         cardTitle = device.deviceName,
                         cardSubtitle = device.deviceType.categoryName,
@@ -119,6 +120,7 @@ fun DeviceGridHomeSection(
                 }
             }
         }
+
     }
 
 }

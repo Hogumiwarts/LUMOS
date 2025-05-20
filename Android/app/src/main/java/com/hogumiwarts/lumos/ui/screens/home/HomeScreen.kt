@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -24,7 +25,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -90,10 +93,9 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
+
         deviceViewModel.getJwt()
-
         controlViewModel.prepareSession()
-
         deviceViewModel.checkAccountLinked()
 
         val location = getCurrentLocation(context)
@@ -116,6 +118,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(PaddingValues(0.dp))
             .background(Color.White)
     ) {
         Box(
@@ -140,8 +143,10 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .padding(bottom = 120.dp)
                 .padding(horizontal = 28.dp)
         ) {
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Column() {
@@ -179,10 +184,8 @@ fun HomeScreen(
                 letterSpacing = 0.4.sp,
                 lineHeight = 32.sp
             )
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 날씨 카드
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -232,7 +235,6 @@ fun HomeScreen(
                         }
                     }
                 }
-
             }
 
             // 하단 기기 작동 상태 영역
@@ -255,7 +257,7 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(350.dp)
+                                .height(300.dp)
                                 .background(Color.White),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -263,7 +265,7 @@ fun HomeScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(350.dp)
+                                    .height(300.dp)
                                     .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
                                 contentAlignment = Alignment.Center
                             ){
