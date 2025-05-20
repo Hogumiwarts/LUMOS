@@ -344,7 +344,6 @@ fun RoutineEditScreen(
 
                 // 루틴 이름 입력창
                 OutlinedTextField(
-
                     value = routineName,
                     onValueChange = { viewModel.onRoutineNameChanged(it) },
                     isError = state.nameBlankMessage != null,
@@ -361,7 +360,7 @@ fun RoutineEditScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(51.dp)
+                        .height(53.dp)
                         .then( // 이름 입력 안했으면 빨간색으로 강조하여 알림
                             if (state.nameBlankMessage != null) Modifier
                                 .border(
