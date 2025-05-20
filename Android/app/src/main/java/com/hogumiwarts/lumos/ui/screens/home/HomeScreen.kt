@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -73,9 +74,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
     controlViewModel: ControlViewModel = hiltViewModel(),
-   tokenDataStore: TokenDataStore,
+    tokenDataStore: TokenDataStore,
     navController: NavController
-    ) {
+) {
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
     val isWeatherLoading = weatherState.isLoading
@@ -147,20 +148,33 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = CommonUtils.getFormattedToday(),
-                fontSize = 14.sp,
-                fontFamily = nanum_square_neo,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End
-            )
-            Spacer(modifier = Modifier.height(36.dp))
+            Column() {
+                Text(
+                    text = CommonUtils.getFormattedToday(),
+                    fontSize = 14.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
 
+                Text(
+                    text = "${controlViewModel.localAddress}",
+                    fontSize = 9.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFA1A1A1),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
 
             Text(
-                text = "${HomeState.userName ?: "루모스"}님 ${controlViewModel.localAddress}\n집에 돌아오신 걸 환영해요. ",
+                text = "${HomeState.userName ?: "루모스"}님\n집에 돌아오신 걸 환영해요. ",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
@@ -169,6 +183,7 @@ fun HomeScreen(
                 letterSpacing = 0.4.sp,
                 lineHeight = 32.sp
             )
+
             Spacer(modifier = Modifier.height(20.dp))
 
             Card(
@@ -208,23 +223,27 @@ fun HomeScreen(
                         selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
                         onDeviceClick = {
 //                            deviceViewModel.onDeviceClicked(it)
-                            when(it.deviceType){
+                            when (it.deviceType) {
 
                                 DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.ETC -> {}
                             }
-                                        },
+                        },
                         onToggleDevice = { device ->
                             // viewModel에서 상태 반전 요청
 
