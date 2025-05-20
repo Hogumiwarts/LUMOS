@@ -77,6 +77,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,34 +116,41 @@ fun RoutineEditScreen(
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
                 val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
-                val exists = viewModel.devices.value.any { it.deviceId == updatedDevice.deviceId }
 
-                if (exists) {
-                    viewModel.updateDevice(updatedDevice)
+                val currentList = viewModel.devices.value
+                val existingDevice = currentList.find { it.deviceId == updatedDevice.deviceId }
+
+                if (existingDevice == updatedDevice) {
+                    Timber.d("⚠️ 기존과 동일한 기기 → 반영 생략")
                 } else {
-                    viewModel.addDevice(updatedDevice)
+                    if (viewModel.devices.value.any { it.deviceId == updatedDevice.deviceId }) {
+                        viewModel.updateDevice(updatedDevice)
+                    } else {
+                        viewModel.addDevice(updatedDevice)
+                    }
                 }
-
 
                 navController.previousBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
             }
 
     }
 
-    var initialized by remember { mutableStateOf(false) }
+//    var initialized by remember { mutableStateOf(false) }
+//        initialized = true
 
-    if (!initialized) {
-        val devices = navController.previousBackStackEntry
-            ?.savedStateHandle
-            ?.get<List<CommandDevice>>("editDevices")
-
-        viewModel.loadInitialDevicesOnce(devices ?: emptyList())
-
-        initialized = true
-    }
 
     // 초기 데이터 설정
     LaunchedEffect(Unit) {
+        if (!viewModel.isInitialized) {
+            val devices = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<List<CommandDevice>>("editDevices")
+
+            viewModel.loadInitialDevicesOnce(devices ?: emptyList())
+
+            navController.previousBackStackEntry?.savedStateHandle?.remove<List<CommandDevice>>("editDevices")
+        }
+
         val routineId = navController.previousBackStackEntry
             ?.savedStateHandle
             ?.get<Long>("editRoutineId")
@@ -473,6 +481,11 @@ fun RoutineEditScreen(
                             coroutineScope.launch {
                                 delay(300)
                                 viewModel.deleteDevice(device)
+
+                                // 🧹 삭제 직후 savedStateHandle 정리
+                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>(
+                                    "commandDeviceJson"
+                                )
                             }
                         },
                         deviceContent = {
@@ -483,6 +496,9 @@ fun RoutineEditScreen(
                                     coroutineScope.launch {
                                         delay(300)
                                         viewModel.deleteDevice(device)
+                                        navController.currentBackStackEntry?.savedStateHandle?.remove<String>(
+                                            "commandDeviceJson"
+                                        )
                                     }
                                 },
                                 onClick = {
