@@ -27,6 +27,9 @@ class SwitchViewModel  @Inject constructor(
     private val _state = MutableStateFlow<SwitchStatusState>(SwitchStatusState.Idle)
     val state: StateFlow<SwitchStatusState> = _state
 
+    private val _isOn = MutableStateFlow(false)
+    val isOn: StateFlow<Boolean> = _isOn
+
     private val _powerState = MutableStateFlow<SwitchPowerState>(SwitchPowerState.Idle)
     val powerState: StateFlow<SwitchPowerState> = _powerState
 
@@ -67,6 +70,7 @@ class SwitchViewModel  @Inject constructor(
                 is GetSwitchStatusResult.Success -> {
                     val  data =result.data
                     _state.value = SwitchStatusState.Loaded(result.data)
+                    _isOn.value = data.activated
                 }
             }
         }
@@ -82,8 +86,7 @@ class SwitchViewModel  @Inject constructor(
                     _powerState.value = SwitchPowerState.Error(result.error)
                 }
                 is PatchSwitchPowerResult.Success -> {
-                    val  data =result.data
-                    _powerState.value = SwitchPowerState.Loaded(result.data)
+                    _isOn.value = activated
                 }
             }
         }

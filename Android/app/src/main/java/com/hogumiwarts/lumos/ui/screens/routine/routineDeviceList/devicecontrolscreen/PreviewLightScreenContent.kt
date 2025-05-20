@@ -204,7 +204,7 @@ fun PreviewLightScreenContent(
                         selectedDevice.toCommandDevice(
                             isOn = true,
                             brightness = brightness,
-                            hue = hue,
+                            hue = hue * 36 / 10,
                             saturation = saturation
                         )
                     }
@@ -214,6 +214,7 @@ fun PreviewLightScreenContent(
                         "commandDeviceJson",
                         json
                     )
+
                     navController.popBackStack()
                 },
                 modifier = Modifier

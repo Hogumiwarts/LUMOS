@@ -42,6 +42,7 @@ import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
+import com.hogumiwarts.lumos.ui.common.SkeletonComponent
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
@@ -118,29 +119,56 @@ fun DeviceListScreen(
                 )
             } else {
                 val myDevices = deviceList.map { it }
-                DeviceGridSection(
-                    devices = myDevices,
-                    selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
-                    onDeviceClick = {
-                        when(it.deviceType){
-
-                            DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
-                                popUpTo("splash") { inclusive = true }
-                            }
-                            DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
-                                popUpTo("splash") { inclusive = true }
-                            }
-                            DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
-                                popUpTo("splash") { inclusive = true }
-                            }
-                            DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
-                                popUpTo("splash") { inclusive = true }
-                            }
-                            DeviceListType.ETC -> {}
+                if (deviceList.isEmpty()){
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .background(Color.White),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "기기 상태를 불러오는 중이에요...☁️",
+                                fontSize = 12.sp,
+                                fontFamily = nanum_square_neo,
+                                color = Color.Gray
+                            )
                         }
-//                        viewModel.onDeviceClicked(it)
                     }
-                )
+                }else{
+                    DeviceGridSection(
+                        devices = myDevices,
+                        selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
+                        onDeviceClick = {
+                            when(it.deviceType){
+
+                                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                                DeviceListType.ETC -> {}
+                            }
+//                        viewModel.onDeviceClicked(it)
+                        }
+                    )
+                }
+
 
             }
         }

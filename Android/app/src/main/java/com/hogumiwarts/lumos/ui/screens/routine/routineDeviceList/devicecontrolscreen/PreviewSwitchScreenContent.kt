@@ -184,6 +184,11 @@ fun PreviewSwitchScreenContent(
                         "commandDeviceJson",
                         json
                     )
+
+
+                    // 🧹 나가기 전에 자기 자신(cleanup)
+                    navController.currentBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
+
                     navController.popBackStack()
                 },
                 modifier = Modifier

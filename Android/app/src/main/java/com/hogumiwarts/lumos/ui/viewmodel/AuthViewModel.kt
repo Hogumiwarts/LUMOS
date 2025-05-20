@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
@@ -8,6 +9,7 @@ import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.domain.repository.AuthRepository
 import com.hogumiwarts.domain.usecase.TokensUseCase
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
+import com.hogumiwarts.lumos.ui.screens.gesture.network.sendTokenToWatch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,20 +120,26 @@ class AuthViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+
                 val refreshToken = tokenDataStore.getRefreshToken().first()
+                Log.d("Post", "refreshToken: $refreshToken")
                 val refreshResponse = authApi.refresh(RefreshRequest(refreshToken))
 
                 // 서버에서 새로 받아온 토큰
                 val newAccessToken = refreshResponse.data.accessToken
-
+//                Log.d("Post", "newAccessToken: $newAccessToken")
                 val name = tokenDataStore.getUserName().first()
-
+//                sendTokenToWatch(context, newAccessToken)
 
 
                 // 새 토큰 저장
                 tokenDataStore.saveTokens(
                     accessToken = newAccessToken, refreshToken = refreshToken, name = name
                 )
+                saveJwt(newAccessToken,refreshToken)
+
+                Log.d("Post", "refreshToken: $refreshToken")
+
 
                 _isLoggedIn.value = true
                 onSuccess()

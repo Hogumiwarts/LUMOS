@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -105,21 +109,26 @@ fun RealLightScreenContent(
             else -> {}
         }
     }
+    Column (modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)){
 
+        Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .weight(1f)
             .background(Color.White)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
+
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = lightDevice?.deviceName ?: "",
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 20.sp
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(41.dp))
@@ -173,7 +182,7 @@ fun RealLightScreenContent(
                     brightness = it.toInt()
                 },
                 onValueChangeFinished = {
-                    viewModel.sendIntent(LightIntent.ChangeLightBright(9, brightness))
+                    viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -263,24 +272,27 @@ fun RealLightScreenContent(
                     // Color -> HSV 변환
                     val hsv = FloatArray(3)
 //                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
-                    android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(),hsv)
+                    android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(), hsv)
 
 
                     val hue = hsv[0]
                     val saturation = hsv[1]
                     val saturation1 = hsv[2]
 
-                    if(isColor == true){
+                    if (isColor == true) {
 
-                    } else{
+                    } else {
                         debounceJob?.cancel()
                         debounceJob = coroutineScope.launch {
                             delay(300)
-                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation, saturation1: $saturation1")
+                            Log.d(
+                                "ColorPicker",
+                                "Hue: $hue, Saturation: $saturation, saturation1: $saturation1"
+                            )
                             Log.d("ColorPicker", "Hue: $selectedColorCode")
                             viewModel.sendIntent(
                                 LightIntent.ChangeLightColor(
-                                    9,
+                                    deviceId,
                                     (hue * 10 / 36),
                                     saturation * 100
                                 )
@@ -343,6 +355,7 @@ fun RealLightScreenContent(
 
         Spacer(modifier = Modifier.height(100.dp))
     }
+}
 
     when (powerState) {
         is ControlState.Error -> {}
@@ -368,12 +381,13 @@ fun RealLightScreenContent(
 
         LightBrightState.Loading -> LoadingComponent()
     }
+    LaunchedEffect(colorState) {
 
-    when (colorState) {
-        is LightColorState.Error -> {}
-        LightColorState.Idle -> {}
-        is LightColorState.Loaded -> {
-            LaunchedEffect(colorState) {
+        when (colorState) {
+            is LightColorState.Error -> {}
+            LightColorState.Idle -> {}
+            is LightColorState.Loaded -> {
+
                 isColor = true
                 val data = (colorState as LightColorState.Loaded).data
                 controller.selectByHsv(
@@ -384,11 +398,13 @@ fun RealLightScreenContent(
                     false
                 )
 
-            }
-        }
 
-        LightColorState.Loading -> LoadingComponent()
+            }
+
+            LightColorState.Loading -> {}
+        }
     }
+
     when (temperatureState) {
         is LightTemperatureState.Error -> {}
         LightTemperatureState.Idle -> {}

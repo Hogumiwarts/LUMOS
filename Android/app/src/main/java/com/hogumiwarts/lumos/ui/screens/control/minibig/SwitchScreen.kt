@@ -1,16 +1,20 @@
 package com.hogumiwarts.lumos.ui.screens.control
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +49,9 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
     var checked by remember { mutableStateOf(true) }
     var name by remember { mutableStateOf("스위치") }
+    var image by remember { mutableStateOf("") }
+    var deviceModel by remember { mutableStateOf("") }
+    var deviceType by remember { mutableStateOf("") }
 
 // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
@@ -52,6 +60,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
     val state by viewModel.state.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
+    val isOn by viewModel.isOn.collectAsState()
 
     var switchDevice = remember {
         SwitchStatusData(
@@ -65,28 +74,35 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
             activated = true
         )
     }
-    when(state){
-        is SwitchStatusState.Error -> {
-            // TODO: 에러 처리
-        }
-        SwitchStatusState.Idle -> {}
-        is SwitchStatusState.Loaded -> {
-            val data = (state as SwitchStatusState.Loaded).data
-            checked= data.activated
-            switchDevice = data
-        }
-        SwitchStatusState.Loading -> {
-            // TODO: 로딩 화면
+    LaunchedEffect(state) {
+        when (state) {
+            is SwitchStatusState.Error -> {
+                // TODO: 에러 처리
+            }
+
+            SwitchStatusState.Idle -> {}
+            is SwitchStatusState.Loaded -> {
+                val data = (state as SwitchStatusState.Loaded).data
+                checked = data.activated
+                switchDevice = data
+                name = data.deviceName
+                image = data.deviceImg?:""
+                deviceModel = data.deviceModel
+                deviceType = data.deviceType
+            }
+
+            SwitchStatusState.Loading -> {
+                // TODO: 로딩 화면
+            }
         }
     }
-
     when(powerState){
         is SwitchPowerState.Error -> {
             // TODO: 에러 처리
         }
         SwitchPowerState.Idle -> {}
         is SwitchPowerState.Loaded -> {
-            checked = (powerState as SwitchPowerState.Loaded).data.activated
+            checked = !checked
         }
         SwitchPowerState.Loading -> {
             // TODO: 로딩 화면
@@ -94,21 +110,19 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
     }
     // 더미
 
-
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(40.dp),
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
+        Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
         Text(
-            text = switchDevice.deviceName,
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 20.sp
+            text = name,
+            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(41.dp))
@@ -124,7 +138,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
                 fontSize = 18.sp
             )
             Switch(
-                checked = checked,
+                checked = isOn,
                 onCheckedChange = {
                     viewModel.sendIntent(SwitchIntent.ChangeSwitchPower(deviceId, activated = it))
                     checked = it
@@ -142,7 +156,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
         // TODO: DB에서 imageUrl 받으면 바꾸기
         AsyncImage(
-            model = switchDevice.deviceImg,
+            model = image,
             contentDescription = null,
             modifier = Modifier.size(250.dp),
             contentScale = ContentScale.Fit
@@ -174,7 +188,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
             )
 
             Text(
-                "모델명 | ${switchDevice.deviceModel}",
+                "모델명 | ${deviceModel}",
                 fontSize = 12.sp
             )
             Text(
@@ -182,7 +196,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
                 fontSize = 12.sp
             )
             Text(
-                "기기 타입 | ${switchDevice.deviceType}",
+                "기기 타입 | ${deviceType}",
                 fontSize = 12.sp
             )
 

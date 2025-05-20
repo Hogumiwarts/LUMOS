@@ -1,7 +1,7 @@
 package com.hogumiwarts.data.entity.remote.Response.audio
 
 data class GetAudioStatusResponse (
-    val tagNumber: Int,
+    val tagNumber: Int?,
     val deviceId: Long,                 // SmartThigns 에 저장된 기기명
     val deviceImg: String?,
     val deviceName: String,
