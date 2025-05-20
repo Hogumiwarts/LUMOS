@@ -127,9 +127,9 @@ class AuthViewModel @Inject constructor(
 
                 // 서버에서 새로 받아온 토큰
                 val newAccessToken = refreshResponse.data.accessToken
-
+//                Log.d("Post", "newAccessToken: $newAccessToken")
                 val name = tokenDataStore.getUserName().first()
-
+//                sendTokenToWatch(context, newAccessToken)
 
 
                 // 새 토큰 저장
@@ -138,7 +138,8 @@ class AuthViewModel @Inject constructor(
                 )
                 saveJwt(newAccessToken,refreshToken)
 
-                sendTokenToWatch(context, newAccessToken)
+                Log.d("Post", "refreshToken: $refreshToken")
+
 
                 _isLoggedIn.value = true
                 onSuccess()

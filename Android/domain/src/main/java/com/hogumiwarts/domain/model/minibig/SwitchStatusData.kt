@@ -1,7 +1,7 @@
 package com.hogumiwarts.domain.model.minibig
 
 data class SwitchStatusData(
-    val tagNumber: Long,
+    val tagNumber: Long?,
     val deviceId: Int,
     val deviceImg: String?,
     val deviceName: String,
