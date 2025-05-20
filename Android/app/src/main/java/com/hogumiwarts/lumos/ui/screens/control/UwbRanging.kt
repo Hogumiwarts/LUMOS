@@ -15,19 +15,29 @@ import androidx.core.uwb.RangingResult.*
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbComplexChannel
+import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbDevice
 import androidx.core.uwb.UwbManager
 import androidx.core.uwb.UwbRangeDataNtfConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.security.SecureRandom
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
 class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
+
+    companion object { private const val TAG = "class UwbRanging" }
 
     private lateinit var rangingJob: Job // 레인징 작업을 위한 코루틴 Job 객체
     private var clientSession: UwbClientSessionScope? = null // UWB 클라이언트 세션 범위
@@ -49,7 +59,18 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
     var rangingPositions by mutableStateOf(mapOf<String, RangingPosition>())
 
     // 고정된 컨트롤리 주소 목록
-    private val controleeAddresses = listOf("00:01")
+    private val controleeAddresses = listOf("00:01", "00:02")
+
+
+    // 멀티 레인징
+    private data class SessionHandle(
+        val scope: UwbControllerSessionScope,
+        val job: Job
+    )
+    private val sessions = mutableMapOf<String, SessionHandle>()
+
+    private val _ranging = MutableStateFlow<Map<String, RangingPosition>>(emptyMap())
+    val ranging: StateFlow<Map<String, RangingPosition>> = _ranging.asStateFlow()
 
     var rangingPosition by mutableStateOf(
         RangingPosition(
@@ -68,46 +89,38 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
      * @param controller 이 장치가 컨트롤러인지 컨트롤리인지 여부
      */
     fun prepareSession() {
-        // 레인징이 활성화된 상태에서는 세션을 새로 준비하지 않음
+        Timber.tag(TAG).d("▶️ prepareSession()  rangingActive=$rangingActive, isSessionInitialized=$isSessionInitialized")
+
         if (rangingActive) {
+            Timber.tag(TAG).i("⏭  레인징 활성 상태이므로 세션 재준비 생략")
             return
         }
-
-        // 세션이 이미 초기화되어 있다면 먼저 정리
-        if (isSessionInitialized) {
-            cleanupSession()
-        }
+        if (isSessionInitialized) cleanupSession()
 
         CoroutineScope(Dispatchers.Main.immediate).launch {
-
             try {
-                // Session 생성 시 로그 추가
-                Log.d("UwbRanging", "Creating controller session scope")
-
-                // 컨트롤러 세션 스코프 생성
+                Timber.tag(TAG).d("💠 controllerSessionScope() 생성 시도")
                 clientSession = uwbManager.controllerSessionScope()
 
                 if (clientSession == null) {
-                    Log.e("UwbRanging", "Failed to create controller session")
+                    Timber.tag(TAG).e("❌ controllerSessionScope() 반환값이 null → 세션 준비 실패")
                     return@launch
                 }
 
-                // 주소가 아직 초기화되지 않은 경우에만 새 주소 할당
                 if (!isAddressInitialized) {
-                    localAdr = clientSession?.localAddress.toString()
-                    Log.d("UwbRanging", "Local address initialized: $localAdr")
+                    localAdr = clientSession!!.localAddress.toString()
+                    Timber.tag(TAG).d("📡 Local UWB Address = $localAdr")
                     isAddressInitialized = true
                 }
 
                 isSessionInitialized = true
                 sessionReady = true
-                Log.d("UwbRanging", "Session prepared successfully")
+                Timber.tag(TAG).i("✅ Session prepared  (sessionReady=$sessionReady)")
             } catch (e: Exception) {
-                Log.e("UwbRanging", "Error preparing session: ${e.message}", e)
                 sessionReady = false
                 isSessionInitialized = false
+                Timber.tag(TAG).e(e, "🔥 Session 준비 중 예외 발생")
             }
-
         }
     }
 
@@ -115,112 +128,179 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
      * 주소를 강제로 초기화하는 함수
      */
     fun resetAddress() {
-        isAddressInitialized = false
+        this.isAddressInitialized = false
         localAdr = "XX:XX"
     }
 
+    private fun shortMacToBytes(str: String): ByteArray {
+        val bytes = str.split(":").map { it.toInt(16).toByte() }.toByteArray()
+        require(bytes.size == 2) { "UWB short address는 2바이트여야 합니다: $str" }
+        return bytes
+    }
+    @Suppress("MissingPermission")
+    fun startMultiRanging(): Boolean {
 
+        if (rangingActive) {
+            Timber.i("멀티 레인징 이미 활성 상태")        // ✔︎
+            return true
+        }
+        if (!sessionReady) {
+            Timber.w("세션이 아직 준비되지 않음 → startMultiRanging() 중단")
+            return false
+        }
+
+        Timber.i("🔵 멀티 레인징 시작 — 컨트롤리 ${controleeAddresses.size}개")
+
+        controleeAddresses.forEachIndexed { idx, macStr ->
+
+            CoroutineScope(Dispatchers.IO).launch {
+
+                /* 1) 세션 스코프 생성 */
+                val scope = uwbManager.controllerSessionScope()
+                Timber.d("[$macStr] 컨트롤러 세션 스코프 생성 완료")
+
+                /* 2) 대상 디바이스 객체 */
+                val controlee = UwbDevice(UwbAddress(shortMacToBytes(macStr)))
+
+                /* 3) 세션 파라미터 */
+                val params = RangingParameters(
+                    uwbConfigType  = RangingParameters.CONFIG_UNICAST_DS_TWR,
+                    sessionKeyInfo = byteArrayOf(
+                        0x08, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
+                    ).map { it.toByte() }.toByteArray(),   // 8B Static STS
+                    complexChannel = UwbComplexChannel(9, 9),
+                    peerDevices    = listOf(controlee),
+                    updateRateType = RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+                    sessionId      = 0x100 + idx,
+                    subSessionId   = 0,
+                    subSessionKeyInfo = null
+                )
+                Timber.d("[$macStr] 세션 파라미터 준비(sessionId=${0x100+idx})")
+
+                /* 4) 결과 수집 Job */
+                val innerJob = launch {
+                    Timber.d("Job 실행")
+                    try {
+                        scope.prepareSession(params).collect { res ->
+                            Timber.d(
+                                "[peer 정보] ${res.device.address}"
+                            )
+
+                            when (res) {
+                                is RangingResultPosition -> {
+                                    val peer = res.device.address.toString()
+                                    rangingPositions =
+                                        rangingPositions + (peer to res.position)
+
+                                    Timber.v(
+                                        "[$peer] 거리=%.2f, 방위=%.1f"
+                                            .format(
+                                                res.position.distance?.value ?: -1f,
+                                                res.position.azimuth?.value ?: 0f
+                                            )
+                                    )
+                                }
+                                is RangingResultPeerDisconnected -> {
+                                    val peer = res.device.address.toString()
+                                    rangingPositions = rangingPositions - peer
+                                    Timber.w("[$peer] 🚫 연결 끊김")
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "[$macStr] ❌ 레인징 수집 중 예외 발생")
+                    }
+                }
+
+                Timber.i("[$macStr] ✅ 세션 시작 완료")
+                sessions[macStr] = SessionHandle(scope, innerJob)
+            }
+        }
+
+        rangingActive = true
+        Timber.i("🟢 멀티 레인징 활성화 플래그 ON")
+        return true
+    }
+
+    /* ------------ 세션 정리 ------------ */
+    suspend fun stopAllRanging() {
+        sessions.values.forEach { handle ->
+            handle.job.cancelAndJoin()
+            (handle.scope as AutoCloseable).close()   // 캐스팅 후 close()
+        }
+        sessions.clear()
+        rangingActive = false
+    }
 
     /**
      * 첫 번째 디바이스 레인징을 시작하는 함수
      */
     fun startSingleRanging(): Boolean {
+        Timber.tag(TAG).d("▶️ startSingleRanging()  sessionReady=$sessionReady, rangingActive=$rangingActive")
+
+        // 세션 준비 안 됐으면 바로 리턴
         if (clientSession == null || !sessionReady) {
-            Log.e("UwbRanging", "Session not initialized")
+            Timber.tag(TAG).w("⚠️  세션이 초기화되지 않음 → startSingleRanging() 중단")
             return false
         }
-
         if (rangingActive) {
+            Timber.tag(TAG).i("⏩ 이미 레인징 중 – 중복 호출 무시")
             return true
         }
 
-        try {
-            // 컨트롤리 UWB 디바이스 목록 생성 - 유효한 첫 번째 주소만 사용하는 방식으로 시도
-            val firstDevice = UwbDevice(UwbAddress(controleeAddresses.first()))
-
-            // 2. 모든 디바이스를 한 번에 사용하는 대신 한 개의 디바이스만 먼저 시도
-            val uwbDevices = listOf(firstDevice)
-
-            val partnerParameters = RangingParameters(
+        return try {
+            /* 1) 파라미터 구성 */
+            val firstControlee = UwbDevice(UwbAddress(controleeAddresses.first()))
+            val params = RangingParameters(
                 uwbConfigType = RangingParameters.CONFIG_UNICAST_DS_TWR,
                 sessionKeyInfo = byteArrayOf(0x08, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
                 complexChannel = UwbComplexChannel(9, 9),
-                peerDevices = uwbDevices,
+                peerDevices = listOf(firstControlee),
                 updateRateType = RangingParameters.RANGING_UPDATE_RATE_FREQUENT,
                 sessionId = 42,
                 subSessionId = 0,
                 subSessionKeyInfo = null
             )
+            Timber.tag(TAG).d("🔧 RangingParameters built for peer=$firstControlee")
 
-            // 세션 준비 전에 rangingActive 설정
+            /* 2) 레인징 수집 코루틴 */
             rangingActive = true
-
             rangingJob = CoroutineScope(Dispatchers.Main.immediate).launch {
+                Timber.tag(TAG).d("⌛ prepareSession().collect() 시작")
                 try {
-                    Log.d("UwbRanging", "Preparing session with parameters")
-                    val sessionFlow = clientSession?.prepareSession(partnerParameters)
-
-                    if (sessionFlow == null) {
-                        Log.e("UwbRanging", "Session flow is null")
-                        rangingActive = false
-                        return@launch
-                    }
-
-                    delay(100)  // 100ms 지연으로 API 호출 사이에 시간 여유 추가
-
-                    // 5. try-catch 블록으로 collect 호출 래핑
-                    try {
-                        sessionFlow.collect { result ->
-                            when (result) {
-                                is RangingResultPosition -> {
-                                    // 장치 MAC 주소 추출
-                                    val deviceAddress = result.device.address.toString()
-//                                    Log.d("UwbRanging", "Position update from: $deviceAddress")
-
-                                    // 결과 저장 - 맵 업데이트
-                                    rangingPositions =
-                                        rangingPositions + (deviceAddress to result.position)
-                                }
-
-                                is RangingResultPeerDisconnected -> {
-                                    val deviceAddress = result.device.address.toString()
-                                    Log.d("UwbRanging", "Peer disconnected: $deviceAddress")
-
-                                    // 연결 해제된 장치 결과 제거
-                                    rangingPositions = rangingPositions - deviceAddress
-                                }
+                    clientSession!!.prepareSession(params).collect { result ->
+                        when (result) {
+                            is RangingResultPosition -> {
+                                val peer = result.device.address.toString()
+                                rangingPositions = rangingPositions + (peer to result.position)
+                                Timber.tag(TAG).v("📍[$peer] dist=%.2f az=%.1f"
+                                    .format(
+                                        result.position.distance?.value ?: -1f,
+                                        result.position.azimuth?.value ?: 0f
+                                    )
+                                )
+                            }
+                            is RangingResultPeerDisconnected -> {
+                                val peer = result.device.address.toString()
+                                rangingPositions = rangingPositions - peer
+                                Timber.tag(TAG).w("🚫[$peer] Peer disconnected")
                             }
                         }
-                    } catch (e: Exception) {
-                        // 코루틴 취소는 정상 동작이므로 구분하여 처리
-                        if (e is kotlinx.coroutines.CancellationException) {
-                            Log.d("UwbRanging", "Ranging collection was cancelled normally")
-                        } else {
-                            Log.e("UwbRanging", "Error during collection: ${e.message}", e)
-                            rangingActive = false
-                        }
                     }
-
-
+                } catch (ce: CancellationException) {
+                    Timber.tag(TAG).d("🔄 레인징 collect 취소 (정상)")
                 } catch (e: Exception) {
-                    Log.e("UwbRanging", "Ranging failed: ${e.message}", e)
-                    // 오류 발생 시 rangingActive를 false로 설정
                     rangingActive = false
-
-                    // 세션 재준비는 지연 실행
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(500)  // 0.5초 지연 후 세션 재설정
-                        cleanupSession()
-                        delay(500)  // 추가 지연
-                        prepareSession()
-                    }
+                    Timber.tag(TAG).e(e, "🔥 레인징 collect 중 예외")
                 }
             }
-            return true
+
+            Timber.tag(TAG).i("🟢 레인징 시작 완료 (sessionId=42)")
+            true
         } catch (e: Exception) {
-            Log.e("UwbRanging", "startMulti error", e)
             rangingActive = false
-            return false
+            Timber.tag(TAG).e(e, "🔥 startSingleRanging() 실패")
+            false
         }
     }
 
