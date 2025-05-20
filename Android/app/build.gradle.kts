@@ -175,5 +175,7 @@ dependencies {
     // color-picker
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
 
+    // indicator
+    implementation("mx.platacard:compose-pager-indicator:0.0.8")
 
 }
