@@ -72,6 +72,7 @@ class DeviceListViewModel @Inject constructor(
         viewModelScope.launch {
             val a = jwtUseCase.getAccessToken().first()
             Log.d("TAG", "getJwt: $a")
+
             sendTokenToWatch(context, a)
         }
 

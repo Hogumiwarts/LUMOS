@@ -1,5 +1,6 @@
 package com.hogumiwarts.data.di
 
+import android.util.Log
 import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
 import com.hogumiwarts.data.source.remote.AuthApi
 import com.hogumiwarts.data.token.TokenStorage
@@ -23,6 +24,7 @@ class TokenAuthenticator @Inject constructor(
         return try {
             runBlocking {
                 val refreshToken = tokenDataStore.getRefreshToken().first()
+                Log.d("Post", "authenticate: $refreshToken")
 
                 val refreshResponse = authApi.refresh(RefreshRequest(refreshToken))
                 val newAccessToken = refreshResponse.data.accessToken

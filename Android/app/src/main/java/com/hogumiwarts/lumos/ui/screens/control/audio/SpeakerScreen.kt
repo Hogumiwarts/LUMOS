@@ -413,19 +413,27 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                     modifier = Modifier
                         .size(350.dp)
                         .align(Alignment.CenterStart)
-                        .offset(x = (-175).dp),
+                        .offset(x = (-150).dp),
                     contentAlignment = Alignment.Center
                 ) {
                     // Album image
                     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.am_lp))
-                    val animatable = remember { Animatable(0.1f) }
+                    val animatable = remember { Animatable(0f) } // 처음은 0%
+                    var isFirstPlay by remember { mutableStateOf(true) }
                     val progress = animatable.value
 
-                    LaunchedEffect(composition) {
-                        animatable.animateTo(
-                            targetValue = 0.9f,  // 종료는 90%
-                            animationSpec = tween(durationMillis = 3000) // 재생 시간 조절
-                        )
+                    LaunchedEffect(composition, isPlaying) {
+
+                            animatable.stop() // 이전 애니메이션 중지
+                            val start = if (isFirstPlay) 0f else 0.1f
+                            isFirstPlay = false
+
+                            animatable.snapTo(start)
+                            animatable.animateTo(
+                                targetValue = 0.9f,
+                                animationSpec = tween(durationMillis = 3000)
+                            )
+
                     }
 
                     if (isPlaying) {
@@ -442,22 +450,23 @@ fun SpeakerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()) {
                                 strokeCap = StrokeCap.Round
                             )
                         }
-                        LottieAnimation(
-                            composition = composition,
-                            progress = {progress},
-                            modifier = Modifier.size(350.dp)
-                        )
+
                     } else {
                         // Paused state indicator
                         CircularProgressIndicator(
                             progress = 1f,
-                            modifier = Modifier.size(300.dp),
+                            modifier = Modifier.size(250.dp)
+                                .offset(x = -35.dp),
                             color = Color(0xFFE0E0E0), // Gray
                             strokeWidth = 6.dp,
                             strokeCap = StrokeCap.Round,
                         )
                     }
-
+                    LottieAnimation(
+                        composition = composition,
+                        progress = {progress},
+                        modifier = Modifier.size(350.dp)
+                    )
 
 //                    AsyncImage(
 //                        model = audioImage,
