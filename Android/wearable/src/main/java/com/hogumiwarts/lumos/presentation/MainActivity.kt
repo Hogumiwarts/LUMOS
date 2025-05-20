@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.wearable.Wearable
 import com.hogumiwarts.lumos.R
@@ -39,6 +40,7 @@ import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.routine.RoutineExecuteScreen
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -61,8 +63,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private val webSocketViewModel: WebSocketViewModel by viewModels()
 
     private val SLIDING_WINDOW_SIZE = 50
-    private val SLIDING_STEP = 5
-    private val SENSOR_DELAY = SensorManager.SENSOR_DELAY_NORMAL
+    private val SLIDING_STEP = 10
+    private val SENSOR_DELAY = SensorManager.SENSOR_DELAY_GAME
 
     // 현재 제스처 모드
     private var gestureMode = GestureMode.CONTINUOUS
@@ -80,6 +82,39 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             GestureMode.CONTINUOUS
         }
         Log.d("Gesture", "결정된 모드: $gestureMode (text 존재: ${text.isNotEmpty()})")
+
+        lifecycleScope.launch {
+            webSocketViewModel.test1.collect { value ->
+                // 필요한 처리
+                if (value){
+                    imuDataList.clear()
+                    webSocketViewModel.resetTest1()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            webSocketViewModel.isTest.collect { value ->
+                // 필요한 처리
+                if (value){
+                    Log.d("테스트 실행 여부", "onCreate: 실행")
+                }else{
+                    Log.d("테스트 실행 여부", "onCreate: 정지")
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            webSocketViewModel.gesture2.collect { value ->
+                // 필요한 처리
+                if (value){
+                    Log.d("제스처2", "onCreate: 인식")
+                }else{
+                    Log.d("제스처2", "onCreate: 해제")
+                }
+            }
+        }
+
 
 
         if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
@@ -216,11 +251,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         // 잠시 측정 중단 플래그 설정
         isMeasuring = false
 
-        // 1.5초 후 측정 재개
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            isMeasuring = true
-            Log.d("IMU", "데이터 수집 재개")
-        }, 1500)
+//        // 1.5초 후 측정 재개
+//        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+//            isMeasuring = true
+//            Log.d("IMU", "데이터 수집 재개")
+//        }, 1500)
     }
 
     override fun onSensorChanged(event: SensorEvent?) {

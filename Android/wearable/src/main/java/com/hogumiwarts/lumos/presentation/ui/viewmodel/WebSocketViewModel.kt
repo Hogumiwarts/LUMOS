@@ -41,6 +41,22 @@ class WebSocketViewModel @Inject constructor(
     private val _prediction = mutableStateOf("예측 없음")
     val prediction: State<String> = _prediction
 
+    // 1번 제스처 인식
+    private val _test1 = MutableStateFlow(false)
+    val test1: StateFlow<Boolean> = _test1
+
+    // 테스트 실행 여부
+    private val _isTest = MutableStateFlow(false)
+    val isTest: StateFlow<Boolean> = _isTest
+
+    // 테스트 실행 여부
+    private val _gesture2 = MutableStateFlow(false)
+    val gesture2: StateFlow<Boolean> = _gesture2
+
+    fun resetTest1(){
+        _test1.value = false
+    }
+
     private var webSocket: WebSocket? = null
     private var currentMode = GestureMode.TEST
 
@@ -118,6 +134,9 @@ class WebSocketViewModel @Inject constructor(
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("WebSocket", "📩 받은 메시지: $text (모드: $currentMode)")
+                if(text=="1" || text=="2" || text=="3" || text=="4"){
+                    _test1.value = true
+                }
 
                 // 메시지 파싱
                 val label = if (text.startsWith("{")) {
@@ -179,13 +198,17 @@ class WebSocketViewModel @Inject constructor(
     /**
      * CONTINUOUS 모드에서 제스처 처리
      */
+
     private fun handleGestureInContinuousMode(gestureId: Int, label: String) {
         when (gestureId) {
             1 -> {
                 // 1번 제스처: 활성화/비활성화 토글 (두 번 연속 필요)
                 processGesture1Detection()
             }
-            2, 3 -> {
+            2->{
+                processGesture2Detection()
+            }
+                3 -> {
                 // 2,3번 제스처: ACTIVE 상태에서만 처리
                 if (_recognitionMode.value == GestureRecognitionMode.ACTIVE) {
                     handleActiveGesture(gestureId, label)
@@ -203,6 +226,37 @@ class WebSocketViewModel @Inject constructor(
     /**
      * 제스처 1 감지 처리 - 두 번 연속으로 활성화/비활성화 토글
      */
+    private var gesture1Count = 0
+    private var gesture1Timer: Job? = null
+
+    private var gesture2Count = 0
+    private var gesture2Timer: Job? = null
+
+    private fun processGesture2Detection() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastGesture2DetectionTime < DEBOUNCE_TIME) {
+            Log.d("GestureViewModel", "---- (제스처 2 디바운싱: 무시됨)")
+            return
+        }
+        lastGesture1DetectionTime = currentTime
+
+        gesture2Count++
+        gesture2Timer?.cancel()
+        gesture2Timer = viewModelScope.launch {
+            delay(1500) // 1.5초 안에 연속 감지 안 되면 초기화
+            Log.d("결과", "🎯 제스처 1번 2회 감지 → 초기화")
+            gesture2Count = 0
+        }
+        if (gesture2Count >= 2) {
+            Log.d("결과", "🎯 제스처 1번 2회 감지 → 테스트 실행")
+            _gesture2.value = true
+            executeGestureRoutine("2")
+            gesture2Count = 0
+//            handleActiveGesture(3, "3") // 제스처 3으로 처리
+            return
+        }
+
+    }
     private fun processGesture1Detection() {
         val currentTime = System.currentTimeMillis()
 
@@ -213,65 +267,86 @@ class WebSocketViewModel @Inject constructor(
 //
 //        lastGesture1DetectionTime = currentTime
 
-        if (awaitingSecondGesture) {
-            // 두 번째 제스처 감지됨 - 모드 토글
-            Log.d("GestureMode", "제스처 1 감지: 두 번째 제스처 확인! 모드 전환")
-
-            secondGestureTimer?.cancel()
-
-            // 모드 전환
-            if (_recognitionMode.value == GestureRecognitionMode.INACTIVE) {
-                _recognitionMode.value = GestureRecognitionMode.ACTIVE
-                activationTimestamp = System.currentTimeMillis()
-                _uiState.update {
-                    it.copy(
-                        isListening = true,
-                        showActivationIndicator = true,
-                        activationProgress = 1f
-                    )
-                }
-                Log.d("GestureMode", "🟢 제스처 인식 활성화 - 2,3번 제스처 처리 시작")
-            } else {
-                _recognitionMode.value = GestureRecognitionMode.INACTIVE
-                _uiState.update {
-                    it.copy(
-                        isListening = false,
-                        showActivationIndicator = false,
-                        activationProgress = 0f
-                    )
-                }
-                Log.d("GestureMode", "🔴 제스처 인식 비활성화 - 2,3번 제스처 처리 중단")
-            }
-
-            // 모드 전환 피드백
-            provideHapticFeedback(FeedbackPattern.MODE_CHANGE)
-            awaitingSecondGesture = false
-
-        } else {
-            // 첫 번째 제스처 감지 - ACTIVATING 상태로 전환
-            Log.d("GestureMode", "제스처 1 감지: 첫 번째 제스처, ACTIVATING 상태로 전환")
-//            _recognitionMode.value = GestureRecognitionMode.ACTIVATING
-
-            // ✅ 첫 번째 제스처 감지 - 디바운싱 적용
-            if (currentTime - lastGesture1DetectionTime < DEBOUNCE_TIME) {
-                Log.d("GestureMode", "제스처 1 감지: 디바운싱으로 무시됨 (${currentTime - lastGesture1DetectionTime}ms < ${DEBOUNCE_TIME}ms)")
-                return
-            }
-
-            lastGesture1DetectionTime = currentTime
-            awaitingSecondGesture = true
-
-            // UI 상태 업데이트 (활성화 진행 중 표시)
-            _uiState.update {
-                it.copy(
-                    showActivationIndicator = true,
-                    activationProgress = 0.5f // 50% 진행
-                )
-            }
-
-//            startSecondGestureTimer()
-            onGesture1Detected?.invoke()
+        if (currentTime - lastGesture1DetectionTime < DEBOUNCE_TIME) {
+            Log.d("GestureViewModel", "---- (제스처 2 디바운싱: 무시됨)")
+            return
         }
+        lastGesture1DetectionTime = currentTime
+
+        gesture1Count++
+        gesture1Timer?.cancel()
+        gesture1Timer = viewModelScope.launch {
+            delay(1500) // 1.5초 안에 연속 감지 안 되면 초기화
+            Log.d("결과", "🎯 제스처 1번 2회 감지 → 초기화")
+            gesture1Count = 0
+        }
+        if (gesture1Count >= 2) {
+            Log.d("결과", "🎯 제스처 1번 2회 감지 → 테스트 실행")
+            executeGestureRoutine("1")
+            _isTest.value = !_isTest.value
+            gesture1Count = 0
+//            handleActiveGesture(3, "3") // 제스처 3으로 처리
+            return
+        }
+//        if (awaitingSecondGesture) {
+//            // 두 번째 제스처 감지됨 - 모드 토글
+//            Log.d("GestureMode", "제스처 1 감지: 두 번째 제스처 확인! 모드 전환")
+//
+//            secondGestureTimer?.cancel()
+//
+//            // 모드 전환
+//            if (_recognitionMode.value == GestureRecognitionMode.INACTIVE) {
+//                _recognitionMode.value = GestureRecognitionMode.ACTIVE
+//                activationTimestamp = System.currentTimeMillis()
+//                _uiState.update {
+//                    it.copy(
+//                        isListening = true,
+//                        showActivationIndicator = true,
+//                        activationProgress = 1f
+//                    )
+//                }
+//                Log.d("GestureMode", "🟢 제스처 인식 활성화 - 2,3번 제스처 처리 시작")
+//            } else {
+//                _recognitionMode.value = GestureRecognitionMode.INACTIVE
+//                _uiState.update {
+//                    it.copy(
+//                        isListening = false,
+//                        showActivationIndicator = false,
+//                        activationProgress = 0f
+//                    )
+//                }
+//                Log.d("GestureMode", "🔴 제스처 인식 비활성화 - 2,3번 제스처 처리 중단")
+//            }
+//
+//            // 모드 전환 피드백
+//            provideHapticFeedback(FeedbackPattern.MODE_CHANGE)
+//            awaitingSecondGesture = false
+//
+//        } else {
+//            // 첫 번째 제스처 감지 - ACTIVATING 상태로 전환
+//            Log.d("GestureMode", "제스처 1 감지: 첫 번째 제스처, ACTIVATING 상태로 전환")
+////            _recognitionMode.value = GestureRecognitionMode.ACTIVATING
+//
+//            // ✅ 첫 번째 제스처 감지 - 디바운싱 적용
+//            if (currentTime - lastGesture1DetectionTime < DEBOUNCE_TIME) {
+//                Log.d("GestureMode", "제스처 1 감지: 디바운싱으로 무시됨 (${currentTime - lastGesture1DetectionTime}ms < ${DEBOUNCE_TIME}ms)")
+//                return
+//            }
+//
+//            lastGesture1DetectionTime = currentTime
+//            awaitingSecondGesture = true
+//
+//            // UI 상태 업데이트 (활성화 진행 중 표시)
+//            _uiState.update {
+//                it.copy(
+//                    showActivationIndicator = true,
+//                    activationProgress = 0.5f // 50% 진행
+//                )
+//            }
+//
+////            startSecondGestureTimer()
+//            onGesture1Detected?.invoke()
+//        }
     }
 
     /**
@@ -352,7 +427,8 @@ class WebSocketViewModel @Inject constructor(
     /**
      * 제스처 루틴 실행
      */
-    private fun executeGestureRoutine(gestureId: String) {
+
+    fun executeGestureRoutine(gestureId: String) {
         Log.d("Routine", "🚀 제스처 $gestureId 루틴 실행 시작")
 
         viewModelScope.launch {
