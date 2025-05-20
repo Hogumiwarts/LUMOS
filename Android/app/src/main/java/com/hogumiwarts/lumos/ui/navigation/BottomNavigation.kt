@@ -40,9 +40,11 @@ fun BottomNavigation(
 
 
     NavigationBar(
-        modifier = Modifier,
+        modifier = Modifier
+            .shadow(elevation = 8.dp, shape = RoundedCornerShape(0.dp)) // 그림자 추가
+            .background(Color.White), // 배경색도 명시
         containerColor = Color.White,
-        tonalElevation = 10.dp
+        tonalElevation = 0.dp
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route

@@ -35,6 +35,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -55,6 +58,7 @@ import androidx.navigation.NavController
 import com.hogumiwarts.domain.model.WeatherInfo
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.common.CommonDialog
 import com.hogumiwarts.lumos.ui.common.DeviceGridHomeSection
 import com.hogumiwarts.lumos.ui.common.DeviceGridSection
 import com.hogumiwarts.lumos.ui.common.MyDevice
@@ -85,6 +89,8 @@ fun HomeScreen(
     val context = LocalContext.current
     val weatherState by homeViewModel.collectAsState()
     val isWeatherLoading = weatherState.isLoading
+
+    val showDialog by deviceViewModel.showDialog
 
     val isLinked by deviceViewModel.isLinked.collectAsState()
     val deviceList by deviceViewModel.deviceList.collectAsState()
@@ -319,6 +325,18 @@ fun HomeScreen(
                 }
             }
         }
+
+        var showAlreadySelectedDialog by remember { mutableStateOf(false) }
+        if (showAlreadySelectedDialog){
+            CommonDialog(
+                showDialog = true,
+                onDismiss = {
+                    showAlreadySelectedDialog = false
+                }, titleText = "인터넷이 연결되어 있지 않습니다!",
+                bodyText = "와이파이 또는 셀룰러 연결 상태를 확인해주세요"
+            )
+        }
+
 
     }
 }

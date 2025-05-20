@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.control
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +49,9 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
     var checked by remember { mutableStateOf(true) }
     var name by remember { mutableStateOf("스위치") }
+    var image by remember { mutableStateOf("") }
+    var deviceModel by remember { mutableStateOf("") }
+    var deviceType by remember { mutableStateOf("") }
 
 // 최초 진입 시 상태 요청
     LaunchedEffect(Unit) {
@@ -56,6 +60,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
     val state by viewModel.state.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
+    val isOn by viewModel.isOn.collectAsState()
 
     var switchDevice = remember {
         SwitchStatusData(
@@ -80,6 +85,10 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
                 val data = (state as SwitchStatusState.Loaded).data
                 checked = data.activated
                 switchDevice = data
+                name = data.deviceName
+                image = data.deviceImg?:""
+                deviceModel = data.deviceModel
+                deviceType = data.deviceType
             }
 
             SwitchStatusState.Loading -> {
@@ -110,7 +119,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
     ) {
         Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
         Text(
-            text = switchDevice.deviceName,
+            text = name,
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp,
             textAlign = TextAlign.Center
@@ -129,7 +138,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
                 fontSize = 18.sp
             )
             Switch(
-                checked = checked,
+                checked = isOn,
                 onCheckedChange = {
                     viewModel.sendIntent(SwitchIntent.ChangeSwitchPower(deviceId, activated = it))
                     checked = it
@@ -147,7 +156,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
         // TODO: DB에서 imageUrl 받으면 바꾸기
         AsyncImage(
-            model = switchDevice.deviceImg,
+            model = image,
             contentDescription = null,
             modifier = Modifier.size(250.dp),
             contentScale = ContentScale.Fit
@@ -179,7 +188,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
             )
 
             Text(
-                "모델명 | ${switchDevice.deviceModel}",
+                "모델명 | ${deviceModel}",
                 fontSize = 12.sp
             )
             Text(
@@ -187,7 +196,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
                 fontSize = 12.sp
             )
             Text(
-                "기기 타입 | ${switchDevice.deviceType}",
+                "기기 타입 | ${deviceType}",
                 fontSize = 12.sp
             )
 
