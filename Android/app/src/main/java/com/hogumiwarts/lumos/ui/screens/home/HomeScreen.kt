@@ -23,7 +23,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -94,7 +96,6 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
         deviceViewModel.getJwt()
-
         controlViewModel.prepareSession()
 
         deviceViewModel.checkAccountLinked()
@@ -145,6 +146,7 @@ fun HomeScreen(
                 .statusBarsPadding()
                 .padding(horizontal = 28.dp)
         ) {
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(

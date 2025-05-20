@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.Surface
@@ -147,7 +148,7 @@ class MainActivity : ComponentActivity() {
 
                         MainScreen(deviceId, deviceType)
 
-                        Spacer(modifier = Modifier.height(navBarHeight)) 
+                        Spacer(modifier = Modifier.height(navBarHeight))
                     }
                 }
             }

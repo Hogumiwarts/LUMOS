@@ -23,6 +23,7 @@ import com.hogumiwarts.lumos.presentation.ui.common.ErrorMessage
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightIntent
 import com.hogumiwarts.lumos.presentation.ui.screens.control.light.LightStatusState
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.components.LoadingDevice
+import com.hogumiwarts.lumos.presentation.ui.screens.error.ErrorServerScreen
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
 
 
@@ -43,7 +44,13 @@ fun MoodPlayerScreen(deviceId: Long, viewModel: AudioViewModel = hiltViewModel()
             when ((state as AudioStatusState.Error).error) {
                 CommonError.NetworkError -> ErrorMessage("인터넷 연결을 확인해주세요.")
                 CommonError.UserNotFound -> ErrorMessage("사용자를 찾을 수 없습니다.")
-                else -> ErrorMessage("알 수 없는 오류가 발생했습니다.")
+                else -> ErrorServerScreen {
+                    viewModel.sendIntent(
+                        AudioIntent.LoadAudioStatus(
+                            deviceId
+                        )
+                    )
+                }
             }
         }
         AudioStatusState.Idle -> {}

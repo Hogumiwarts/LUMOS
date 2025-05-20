@@ -39,6 +39,9 @@ class AudioViewModel@Inject constructor(
     private val _volumeState = MutableStateFlow<AudioVolumeState>(AudioVolumeState.Idle)
     val volumeState: StateFlow<AudioVolumeState> = _volumeState
 
+    private val _isPower = MutableStateFlow(false)
+    val isPower: StateFlow<Boolean> = _isPower
+
 
     val intentFlow = MutableSharedFlow<AudioIntent>()
 
@@ -86,6 +89,7 @@ class AudioViewModel@Inject constructor(
             when (val result = audioUseCase.patchAudioPower(deviceId, activated = activated)) {
                 is AudioPowerResult.Success -> {
                     _powerState.value = AudioPowerState.Loaded(result.data)
+                    _isPower.value = activated
                 }
                 is AudioPowerResult.Error -> {
                     _powerState.value = AudioPowerState.Error(result.error)
