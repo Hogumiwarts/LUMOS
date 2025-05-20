@@ -77,7 +77,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
     controlViewModel: ControlViewModel = hiltViewModel(),
-    tokenDataStore: TokenDataStore,
+
+    authViewModel: AuthViewModel = hiltViewModel(),
+   tokenDataStore: TokenDataStore,
     navController: NavController
 ) {
     val context = LocalContext.current
@@ -94,10 +96,12 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
 
-        deviceViewModel.getJwt()
+
         controlViewModel.prepareSession()
         deviceViewModel.checkAccountLinked()
 
+
+        authViewModel.refreshToken()
         val location = getCurrentLocation(context)
 
         if (location != null) {

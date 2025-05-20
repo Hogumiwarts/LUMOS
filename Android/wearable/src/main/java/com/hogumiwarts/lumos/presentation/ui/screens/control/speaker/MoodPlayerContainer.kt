@@ -146,7 +146,7 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
                         // 볼륨 조절 중일 때만 볼륨 처리
                         if (isDraggingVolume) {
                             // 드래그 거리 누적 - 민감도 증가를 위해 1.5배 증폭
-                            accumulatedVolumeGesture += dragAmount.y * 1.5f
+                            accumulatedVolumeGesture += dragAmount.y * 1f
 
                             // 이전 볼륨값 저장
                             val oldVolume = volumePercent

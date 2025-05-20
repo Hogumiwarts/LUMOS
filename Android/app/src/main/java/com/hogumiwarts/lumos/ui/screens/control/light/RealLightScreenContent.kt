@@ -182,7 +182,7 @@ fun RealLightScreenContent(
                     brightness = it.toInt()
                 },
                 onValueChangeFinished = {
-                    viewModel.sendIntent(LightIntent.ChangeLightBright(9, brightness))
+                    viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
                 },
                 valueRange = 0f..100f,
                 steps = 0,
@@ -292,7 +292,7 @@ fun RealLightScreenContent(
                             Log.d("ColorPicker", "Hue: $selectedColorCode")
                             viewModel.sendIntent(
                                 LightIntent.ChangeLightColor(
-                                    9,
+                                    deviceId,
                                     (hue * 10 / 36),
                                     saturation * 100
                                 )
