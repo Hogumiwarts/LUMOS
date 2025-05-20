@@ -273,7 +273,7 @@ fun RoutineCreateScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(51.dp)
+                        .height(53.dp)
                         .then( // 이름 입력 안했으면 빨간색으로 강조하여 알림
                             if (state.nameBlankMessage != null) Modifier
                                 .border(
