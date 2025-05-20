@@ -38,6 +38,7 @@ import com.hogumiwarts.lumos.ui.screens.routine.routineEdit.RoutineEditScreen
 import com.hogumiwarts.lumos.ui.screens.routine.routineEdit.RoutineEditViewModel
 import com.hogumiwarts.lumos.ui.screens.routine.routineList.RoutineScreen
 import com.hogumiwarts.lumos.ui.screens.auth.login.LoginScreen
+import com.hogumiwarts.lumos.ui.screens.auth.onboarding.OnBoardingScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
@@ -81,6 +82,10 @@ fun NavGraph(
         modifier = modifier
     ) {
 
+        composable("onboarding") {
+            OnBoardingScreen({})
+        }
+
         composable("splash",
             enterTransition = { fadeIn(animationSpec = tween(700)) },
             exitTransition = { fadeOut(animationSpec = tween(700)) })
@@ -88,7 +93,7 @@ fun NavGraph(
             SplashScreen()
             // 스플래시 화면이 표시되고 나서 적절한 화면으로 이동
             LaunchedEffect(key1 = isLoggedIn) {
-                delay(4000) // 4초 후에 다음 화면으로 이동 (로티 애니메이션 보여줄 시간)
+                delay(4000)
 
                 // 로그인 상태에 따라 다음 화면 결정
                 val nextDestination = if (isLoggedIn == true) {
