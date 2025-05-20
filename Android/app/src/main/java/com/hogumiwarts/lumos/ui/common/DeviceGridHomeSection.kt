@@ -70,7 +70,9 @@ fun DeviceGridHomeSection(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            itemsIndexed(devices) { index, device ->
+            val visibleDevices = devices.filter { it.deviceType.categoryName != "Etc" }
+
+            itemsIndexed(visibleDevices) { index, device ->
                 val isSelected = selectedDeviceId == device.deviceId
                 val rows = (devices.size + 1) / 2
                 val currentRow = index / 2
