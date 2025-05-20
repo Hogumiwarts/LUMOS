@@ -8,7 +8,6 @@ if [[ "$COLOR" != "blue" && "$COLOR" != "green" ]]; then
   exit 1
 fi
 
-echo "🧹 $COLOR 앱 종료 중..."
 sudo docker-compose \
   --project-name "$COLOR" \
   -f ./docker-compose.$COLOR.yml \

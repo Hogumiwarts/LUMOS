@@ -12,6 +12,9 @@ services:
       - gesture-sensor-service
       - auth-service
       - member-service
+      - device-service
+      - gesture-service
+      - routine-service
       - smartthings-service
     networks:
       - app-network
@@ -25,9 +28,6 @@ services:
     env_file:
       - .env.prod
       - ./gesture-sensor-service/.env
-    depends_on:
-      - postgres
-      - redis
     networks:
       - app-network
   
@@ -39,9 +39,6 @@ services:
       - "8080"
     env_file:
       - .env.prod
-    depends_on:
-      - postgres
-      - redis
     networks:
       - app-network
   
@@ -53,9 +50,6 @@ services:
       - "8080"
     env_file:
       - ./member-service/.env
-    depends_on:
-      - postgres
-      - redis
     networks:
       - app-network
   
@@ -67,9 +61,6 @@ services:
       - "8080"
     env_file:
       - ./device-service/.env
-    depends_on:
-      - postgres
-      - redis
     networks:
       - app-network
   
@@ -81,9 +72,6 @@ services:
       - "8080"
     env_file:
       - ./gesture-service/.env
-    depends_on:
-      - postgres
-      - redis
     networks:
       - app-network
   
@@ -95,9 +83,6 @@ services:
       - "8080"
     env_file:
       - ./routine-service/.env
-    depends_on:
-      - postgres
-      - redis
     networks:
       - app-network
 
