@@ -38,9 +38,6 @@ fun PreviewAirPurifierScreenContent(
     var selectedFanMode by remember { mutableStateOf("auto") }
     var checked by remember { mutableStateOf(selectedDevice.isOn) }
 
-    Timber.d("[DEBUG] 초기 전원 상태: $checked, 팬 속도: $selectedFanMode")
-
-    // 실시간 API 연동 제거됨. 모든 상태는 로컬에서 처리
 
     Box(
         modifier = Modifier
@@ -149,15 +146,19 @@ fun PreviewAirPurifierScreenContent(
                         isOn = checked,
                         fanMode = selectedFanMode
                     )
+
                     val json = Gson().toJson(deviceWithCommands)
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
+
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
                         "commandDeviceJson",
                         json
                     )
+
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "fanMode",
                         selectedFanMode
                     )
+
                     navController.currentBackStackEntry?.savedStateHandle?.set("isOn", checked)
 
                     coroutineScope.launch {
