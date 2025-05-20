@@ -35,22 +35,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.google.gson.Gson
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
+import com.hogumiwarts.lumos.ui.screens.control.audio.AudioIntent
 import com.hogumiwarts.lumos.ui.screens.control.audio.SpeakerDevice
 import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceListType
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
+import com.hogumiwarts.lumos.ui.viewmodel.AudioViewModel
 import timber.log.Timber
 
 @Composable
 fun PreviewSpeakerScreenContent(
     navController: NavController,
-    selectedDevice: MyDevice
+    selectedDevice: MyDevice,
+    viewModel: AudioViewModel = hiltViewModel()
 ) {
     // todo: 실제 최근 재생 곡 정보 받아오기
     val speakerDevice = remember {
@@ -70,10 +75,18 @@ fun PreviewSpeakerScreenContent(
         )
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.sendIntent(AudioIntent.LoadAudioStatus(selectedDevice.deviceId))
+    }
+
     var volume by remember { mutableIntStateOf(speakerDevice.audioVolume) }
     var isMuted by remember { mutableStateOf(false) }
     var isPlaying: Boolean? by remember { mutableStateOf(null) } // null: 선택 전
     val primaryColor = Color(0xFF4A5BB9)
+
+    var audioImage by remember { mutableStateOf(speakerDevice.audioImg) }
+    var audioName by remember { mutableStateOf(speakerDevice.audioName) }
+    var audioArtist by remember { mutableStateOf(speakerDevice.audioArtist) }
 
     // 음소거 상태에 따라 UI 노출 여부 조절
     val showControls = !isMuted
@@ -163,8 +176,8 @@ fun PreviewSpeakerScreenContent(
                         contentAlignment = Alignment.Center
                     ) {
                         //커버
-                        Image(
-                            painter = painterResource(id = R.drawable.bg_sample_album_cover),
+                        AsyncImage(
+                            model = audioImage,
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -189,7 +202,7 @@ fun PreviewSpeakerScreenContent(
                                 horizontalAlignment = Alignment.Start
                             ) {
                                 Text(
-                                    text = "WISH",
+                                    text = audioName,
                                     style = TextStyle(
                                         fontSize = 20.sp,
                                         lineHeight = 16.sp,
@@ -202,7 +215,7 @@ fun PreviewSpeakerScreenContent(
                                 Spacer(modifier = Modifier.height(7.dp))
 
                                 Text(
-                                    text = "NCT WISH",
+                                    text = audioArtist,
                                     style = TextStyle(
                                         fontSize = 16.sp,
                                         lineHeight = 16.sp,
@@ -375,7 +388,8 @@ fun PreviewSpeakerScreenContent(
 
                 Column {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(top = 30.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
