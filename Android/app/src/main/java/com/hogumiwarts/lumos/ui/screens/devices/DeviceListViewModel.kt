@@ -190,10 +190,10 @@ class DeviceListViewModel @Inject constructor(
 
                 //_deviceList.value = result.map { it.toMyDevice() }
 
-                Toast.makeText(
-                    context, "기기 목록 새로고침 완료 ✨" +
-                            "", Toast.LENGTH_SHORT
-                ).show()
+//                Toast.makeText(
+//                    context, "기기 목록 새로고침 완료 ✨" +
+//                            "", Toast.LENGTH_SHORT
+//                ).show()
 
             } catch (e: Exception) {
                 Timber.e(e, "❌ 기기 Discover 실패")
