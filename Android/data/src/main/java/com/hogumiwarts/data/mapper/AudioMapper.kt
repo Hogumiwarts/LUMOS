@@ -34,10 +34,7 @@ object AudioMapper {
         return AudioPowerData(
 
             activated = response.activated,
-            tagNumber = response.tagNumber,
-            deviceId = response.deviceId,
-            deviceImg = response.deviceImg,
-            deviceName = response.deviceName,
+            success = response.success,
         )
 
     }

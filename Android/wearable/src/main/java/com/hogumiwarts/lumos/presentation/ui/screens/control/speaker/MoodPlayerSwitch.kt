@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.speaker
 
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,8 +71,30 @@ fun MoodPlayerSwitch(
 ) {
 
     var isPlaying by remember { mutableStateOf(data.activated) }
+
+
+
+
     // 상태 관찰
     val powerState by viewModel.powerState.collectAsState()
+
+    // 재생 여부
+    val isPower by viewModel.isPower.collectAsState()
+    LaunchedEffect(isPower) {
+        isPlaying = isPower
+    }
+
+
+    when(powerState){
+        is AudioPowerState.Error ->{}
+        AudioPowerState.Idle -> {
+
+        }
+        is AudioPowerState.Loaded -> {
+
+        }
+        AudioPowerState.Loading -> {}
+    }
 
     ConstraintLayout(
         modifier = Modifier
@@ -181,7 +205,7 @@ fun MoodPlayerSwitch(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) {
-
+                            Log.d("Post", "MoodPlayerSwitch: $isPlaying")
                             viewModel.sendIntent(
                                 AudioIntent.LoadAudioPower(
                                     deviceId = deviceId,
@@ -230,15 +254,6 @@ fun MoodPlayerSwitch(
         )
     }
 
-    when(powerState){
-        is AudioPowerState.Error ->{}
-        AudioPowerState.Idle -> {
 
-        }
-        is AudioPowerState.Loaded -> {
-            isPlaying = !isPlaying
-        }
-        AudioPowerState.Loading -> {}
-    }
 
 }
