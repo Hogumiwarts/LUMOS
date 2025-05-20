@@ -234,7 +234,7 @@ class DeviceListViewModel @Inject constructor(
                             lightUseCase.patchLightPower(deviceId = deviceId.toLong(), !target.isOn)
                         when (result) {
                             is PatchSwitchPowerResult.Error -> {
-                                // TODO: 에러 처리
+                                
                             }
 
                             is PatchSwitchPowerResult.Success -> {
