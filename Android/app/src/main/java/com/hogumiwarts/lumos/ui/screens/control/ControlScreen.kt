@@ -577,6 +577,8 @@ fun ControlScreen(
     val connectionState by bleViewModel.connectionState.collectAsState()
     val selectedDevice by bleViewModel.selectedDevice.collectAsState()
 
+    // 멀티
+    val ranging by controlViewModel.multiRangingPositions.collectAsState()
 
     val sessionReady = controlViewModel.sessionReady
 
@@ -619,7 +621,7 @@ fun ControlScreen(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            navController.popBackStack()
+//                            navController.popBackStack()
                         }
                     ),
                     tint = Color.White
@@ -712,28 +714,19 @@ fun ControlScreen(
                     ) {
                         Button(
                             onClick = {
-                                if (
-                                    !controlViewModel.startSingleRanging()
-//                                    !controlViewModel.startRanging()
-                                ) {
-                                    Toast.makeText(
-                                        context,
-                                        "세션이 초기화되지 않았습니다!",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                if (!sessionReady) {
+                                    Toast.makeText(context, "세션이 준비되지 않았습니다!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    controlViewModel.startMulti()        // ← 여기로 교체
                                 }
                             },
                             enabled = sessionReady && !controlViewModel.rangingActive
-                        ) {
-                            Text("멀티 레인징 시작")
-                        }
+                        ) { Text("멀티 레인징 시작") }
 
                         Button(
-                            onClick = { controlViewModel.stopRanging() },
+                            onClick = { controlViewModel.stopMulti() },  // ← 교체
                             enabled = controlViewModel.rangingActive
-                        ) {
-                            Text("레인징 중지")
-                        }
+                        ) { Text("레인징 중지") }
                     }
                 }
             }
@@ -774,7 +767,8 @@ fun ControlScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         controlViewModel.controleeAddresses.forEach { address ->
-                            val position = controlViewModel.getDevicePosition(address)
+//                            val position = controlViewModel.getDevicePosition(address)
+                            val position = ranging[address]
                             val isConnected = position != null
 
                             Card(
@@ -883,7 +877,7 @@ fun ControlScreen(
                                     if (controlViewModel.rangingActive)
                                         controlViewModel.startDetection()
                                 },
-                                enabled = controlViewModel.rangingActive
+                                enabled = controlViewModel.rangingActive && position != null
                             ) {
                                 Text("탐지시작")
                             }
