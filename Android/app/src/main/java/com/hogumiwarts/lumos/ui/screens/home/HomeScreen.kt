@@ -88,10 +88,6 @@ fun HomeScreen(
 
     val clickDevice by deviceViewModel.clickDevice
 
-
-
-
-
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
         deviceViewModel.getJwt()
@@ -186,30 +182,61 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // 날씨 카드
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(148.dp)
+                    .height(130.dp)
                     .shadow(
                         elevation = 4.dp, shape = RoundedCornerShape(20.dp), clip = true
                     ),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
             ) {
-                if (isWeatherLoading && weatherState.weatherInfo == null) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(SkeletonComponent())
-                    )
-                } else {
-                    weatherState.weatherInfo?.let { WeatherCardView(it) }
+                when {
+                    isWeatherLoading -> {
+                        // 로딩 중
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(SkeletonComponent()),
+                            contentAlignment = Alignment.Center
+
+                        ) {
+                            Text(
+                                text = "날씨 정보를 불러오는 중이에요...☁️",
+                                fontSize = 11.sp,
+                                fontFamily = nanum_square_neo,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    weatherState.weatherInfo != null -> {
+                        // 날씨 정보 있음
+                        WeatherCardView(weatherState.weatherInfo!!)
+                    }
+
+                    weatherState.errorMessage != null -> {
+                        // 날씨 정보 없음 (API 실패)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = weatherState.errorMessage ?: "날씨 정보를 불러오지 못했어요.",
+                                fontSize = 11.sp,
+                                fontFamily = nanum_square_neo,
+                                color = Color.Gray
+                            )
+                        }
+                    }
                 }
+
             }
 
             // 하단 기기 작동 상태 영역
-            Box(
-            ) {
+            Box{
                 if (!isLinked) {
                     NotLinkedHomeScreen(
                         onClickLink = {
