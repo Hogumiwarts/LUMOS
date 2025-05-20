@@ -1,7 +1,7 @@
-INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('핑거스냅', 'https://example.com/img/gesture_snap.png', '손가락을 튕깁니다.', now(), now());
+INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('손목 회전', 'https://d2zh8kn4686cr4.cloudfront.net/gesture-image/fist-hand-gesture.png', '손목을 오른쪽으로 두번 회전합니다.', now(), now());
 
-INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('주먹쥐기', 'https://example.com/img/gesture_fist.png', '주먹을 쥡니다.', now(), now());
+INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('박수', 'https://d2zh8kn4686cr4.cloudfront.net/gesture-image/clap-hand-gesture.png', '박수를 두번 칩니다.', now(), now());
 
-INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('제스처3', 'https://example.com/img/gesture_3.png', '제스처3 설명', now(), now());
+INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('왼쪽 스와이프', 'https://d2zh8kn4686cr4.cloudfront.net/gesture-image/swipe-left-hand-gesture.png', '손을 왼쪽으로 스와이프 합니다.', now(), now());
 
-INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('제스처4', 'https://example.com/img/gesture_4.png', '제스처4 설명', now(), now());
+INSERT INTO gesture (gesture_name, image_url, description, created_at, updated_at) VALUES ('오른쪽 스와이프', 'https://d2zh8kn4686cr4.cloudfront.net/gesture-image/swipe-right-hand-gesture.png', '손을 오른쪽으로 스와이프 합니다.', now(), now());

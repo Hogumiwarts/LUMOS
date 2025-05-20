@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -41,7 +43,7 @@ fun DeviceGridHomeSection(
     onToggleDevice: (MyDevice) -> Unit = {}
 ) {
     Column {
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(15.dp))
 
         Text(
             text = "현재 작동 상태",
@@ -55,14 +57,14 @@ fun DeviceGridHomeSection(
             )
         )
 
-
+        Spacer(modifier = Modifier.height(6.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(
                 start = 0.dp,
                 end = 0.dp,
                 top = 15.dp,
-                bottom = 25.dp
+                bottom = 40.dp
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -79,7 +81,7 @@ fun DeviceGridHomeSection(
                             .fillMaxSize()
                             .clickable {
                                 onDeviceClick(device)
-                                       },
+                            },
                         showToggle = true,
                         cardTitle = device.deviceName,
                         cardSubtitle = device.deviceType.categoryName,
@@ -90,6 +92,7 @@ fun DeviceGridHomeSection(
                                 painter = painterResource(id = device.deviceType.iconResId),
                                 contentDescription = null,
                                 modifier = Modifier.size(size)
+                                    .alpha(if(device.isActive)1f else 0.5f)
                             )
 
                         },
@@ -119,6 +122,7 @@ fun DeviceGridHomeSection(
                 }
             }
         }
+
     }
 
 }

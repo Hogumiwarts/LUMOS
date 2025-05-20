@@ -75,34 +75,6 @@ fun DeviceRoutineCard(
             .border(border = borderStyle, shape = RoundedCornerShape(10.dp))
     ) {
         // 비활성화인 기기의 경우 카드를 회색으로 처리해서 선택 불가능함을 표시
-        if (!isActive) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFEEEEEE))
-            )
-
-            // 비활성화 텍스트
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(10.dp)
-                    .background(Color(0xFFD9D9D9), shape = RoundedCornerShape(5.dp))
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = "비활성화",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 11.sp,
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFF606060),
-                        letterSpacing = 0.4.sp,
-                    )
-                )
-            }
-        }
-
 
         cardIcon?.let {
             Box(
@@ -112,7 +84,7 @@ fun DeviceRoutineCard(
                     .padding(end = endPadding)
                     .size(iconSize)
                     .graphicsLayer {
-                        alpha = if (isActive) 1f else 0.4f
+                        alpha = 1f
                     },
                 contentAlignment = Alignment.TopEnd
             ) {
@@ -128,14 +100,12 @@ fun DeviceRoutineCard(
                 .padding(top = 12.dp, bottom = 18.dp, start = 15.dp), // end 패딩은 없음
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if (showToggle && isActive) {
+
                 VerticalToggle(
                     isOn = isOn,
                     onToggle = { onToggle?.invoke() }
                 )
-            } else {
-                Spacer(modifier = Modifier.height(24.dp)) // 토글 없을 때도 상단 자리 확보를 위해 추가함
-            }
+
 
             Column {
                 Text(

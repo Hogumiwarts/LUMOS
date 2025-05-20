@@ -87,6 +87,8 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
     val volumeState by viewModel.volumeState.collectAsState()
 
 
+
+
     // 햅틱 피드백을 위한 현재 뷰 가져오기
     val view = LocalView.current
 
@@ -103,6 +105,12 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
     // 이전 볼륨 값 추적 (변경 여부 확인용)
     var prevVolumePercent by remember { mutableIntStateOf(volumePercent) }
     var isPlaying by remember { mutableStateOf(data.activated) }
+
+    // 재생 여부
+    val isPower by viewModel.isPower.collectAsState()
+    LaunchedEffect(isPower) {
+        isPlaying = isPower
+    }
 
     Box(
         modifier = Modifier
@@ -138,7 +146,7 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
                         // 볼륨 조절 중일 때만 볼륨 처리
                         if (isDraggingVolume) {
                             // 드래그 거리 누적 - 민감도 증가를 위해 1.5배 증폭
-                            accumulatedVolumeGesture += dragAmount.y * 1.5f
+                            accumulatedVolumeGesture += dragAmount.y * 1f
 
                             // 이전 볼륨값 저장
                             val oldVolume = volumePercent
@@ -170,18 +178,10 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
         contentAlignment = Alignment.Center
     ) {
 
-        // 배경
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = null,
-            alpha = 0.6f,
-            modifier = Modifier.fillMaxSize()
-        )
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f))
         )
 
         // 볼륨 값 표시 (드래그 중에만 표시)
@@ -304,16 +304,14 @@ fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () ->
             AudioPowerState.Idle -> {
 
             }
-            is AudioPowerState.Loaded -> {isPlaying = (powerState as AudioPowerState.Loaded).data.activated}
+            is AudioPowerState.Loaded -> {}
             AudioPowerState.Loading -> {}
         }
 
         when(volumeState){
             is AudioVolumeState.Error -> {}
             AudioVolumeState.Idle -> {}
-            is AudioVolumeState.Loaded -> {
-                volumePercent= (volumeState as AudioVolumeState.Loaded).data.volume
-            }
+            is AudioVolumeState.Loaded -> {}
             AudioVolumeState.Loading -> {}
         }
     }

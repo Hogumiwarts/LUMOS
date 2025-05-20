@@ -1,7 +1,7 @@
 package com.hogumiwarts.data.entity.remote.Response.minibig
 
 data class GetSwitchStatusResponse(
-    val tagNumber: Long,
+    val tagNumber: Long?,
     val deviceId: Int,
     val deviceImg: String?,
     val deviceName: String,

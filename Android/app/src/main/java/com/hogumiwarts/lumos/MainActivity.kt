@@ -10,7 +10,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,6 +33,8 @@ import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
 import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
 import com.hogumiwarts.lumos.ui.screens.control.UwbRanging
+import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -35,11 +44,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     @Inject
     lateinit var tokenDataStore: TokenDataStore
     private val deviceListViewModel: DeviceListViewModel by viewModels()
-
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -81,7 +88,8 @@ class MainActivity : ComponentActivity() {
                         "SmartThings 연동 완료!",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Timber.tag("smartthings").d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
+                    Timber.tag("smartthings")
+                        .d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
                 }
             }
         }
@@ -102,8 +110,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    lateinit var uwbManager : UwbManager // UWB 관리자 객체
-    @Inject lateinit var uwbRanging : UwbRanging // UWB 레인징 객체
+    lateinit var uwbManager: UwbManager // UWB 관리자 객체
+    @Inject
+    lateinit var uwbRanging: UwbRanging // UWB 레인징 객체
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,9 +144,14 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = Color.Transparent
                 ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // 네비게이션 바 높이를 받아와서 그만큼 하단 여백 추가
+                        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
                         MainScreen(deviceId, deviceType)
 
+                        Spacer(modifier = Modifier.height(navBarHeight))
+                    }
                 }
             }
         }
@@ -166,21 +180,37 @@ class MainActivity : ComponentActivity() {
             }
         } else {
             // 이전 버전에서는 BLUETOOTH, BLUETOOTH_ADMIN 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH)
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_ADMIN)
             }
         }
 
         // 위치 권한 확인 (BLE 스캔에 필요)
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         // UWB 권한 확인
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.UWB_RANGING) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.UWB_RANGING
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             permissionsToRequest.add(Manifest.permission.UWB_RANGING)
         }
 
@@ -205,6 +235,6 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     LUMOSTheme {
         val navController = rememberNavController()
-        NavGraph(1,"",navController = navController)
+        NavGraph(1, "", navController = navController)
     }
 }

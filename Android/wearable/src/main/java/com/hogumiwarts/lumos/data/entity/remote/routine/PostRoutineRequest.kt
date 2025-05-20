@@ -1,4 +1,4 @@
-package com.hogumiwarts.data.entity.remote.Request.routine
+package com.hogumiwarts.lumos.data.entity.remote.routine
 
 data class PostRoutineRequest(
     val gestureId: Long

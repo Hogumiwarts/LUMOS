@@ -16,10 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,12 +34,14 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
     Row(
         modifier = Modifier
             .fillMaxSize()
+            .padding(end = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_sun_wind),
             contentDescription = null,
             modifier = Modifier
-                .fillMaxHeight()
+                .height(120.dp)
                 .aspectRatio(1.2f)
                 .graphicsLayer {
                     scaleX = 1.2f
@@ -49,89 +53,91 @@ fun WeatherCardView(weatherInfo: WeatherInfo) {
         Column(
             Modifier
                 .fillMaxHeight()
-                .padding(end = 12.dp, top = 12.dp, bottom = 12.dp)
+                .padding(end = 35.dp, top = 25.dp, bottom = 12.dp)
         ) {
             Text(
                 text = "구미시",
-                fontFamily = nanum_square_neo,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = colorResource(id = R.color.gray_light),
-                letterSpacing = 0.4.sp
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight(700),
+                    color = Color(0xFFB1B1B1),
+                    letterSpacing = 0.4.sp,
+                )
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+
+            Spacer(modifier = Modifier.height(7.dp))
+
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = "${weatherInfo.currentTemp}°C",
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp,
-                    modifier = Modifier.alignBy(LastBaseline),
-                    letterSpacing = 0.4.sp
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(800),
+                        color = Color(0xFF333333),
+                        letterSpacing = 0.4.sp,
+                    )
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+
+                Spacer(modifier = Modifier.width(6.dp))
+
                 Text(
                     text = "${weatherInfo.minTemp - 8}°C / ${weatherInfo.maxTemp + 3}°C",
-                    fontFamily = nanum_square_neo,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 10.sp,
-                    color = colorResource(id = R.color.gray_medium),
-                    modifier = Modifier.alignBy(LastBaseline),
-                    letterSpacing = 0.4.sp
+                    style = TextStyle(
+                        fontSize = 9.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFF606060),
+                        letterSpacing = 0.4.sp,
+                    )
                 )
             }
+
             Row(modifier = Modifier.padding(top = 10.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-//                    Text(
-//                        text = "강수확률",
-//                        fontFamily = nanum_square_neo,
-//                        fontWeight = FontWeight.Bold,
-//                        fontSize = 13.sp,
-//                        color = colorResource(id = R.color.gray_medium),
-//                        letterSpacing = 0.4.sp
-//                    )
                     Text(
                         text = "강수확률",
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = colorResource(id = R.color.gray_medium),
-                        letterSpacing = 0.4.sp
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF606060),
+                            letterSpacing = 0.4.sp,
+                        )
                     )
                     Text(
                         text = "습도",
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = colorResource(id = R.color.gray_medium),
-                        letterSpacing = 0.4.sp
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF606060),
+                            letterSpacing = 0.4.sp,
+                        )
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-//                    Text(
-//                        text = "좋음",
-//                        fontFamily = nanum_square_neo,
-//                        fontWeight = FontWeight.Bold,
-//                        fontSize = 13.sp,
-//                        color = colorResource(id = R.color.gray_medium),
-//                        letterSpacing = 0.4.sp
-//                    )
                     Text(
                         text = "${weatherInfo.rainProbability}%",
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = colorResource(id = R.color.gray_medium),
-                        letterSpacing = 0.4.sp
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF606060),
+                            letterSpacing = 0.4.sp,
+                        )
                     )
                     Text(
                         text = "${weatherInfo.humidity}%",
-                        fontFamily = nanum_square_neo,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = colorResource(id = R.color.gray_medium),
-                        letterSpacing = 0.4.sp
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = nanum_square_neo,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF606060),
+                            letterSpacing = 0.4.sp,
+                        )
                     )
                 }
             }

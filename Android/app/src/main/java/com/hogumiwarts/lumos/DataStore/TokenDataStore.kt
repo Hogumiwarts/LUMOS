@@ -30,6 +30,14 @@ class TokenDataStore @Inject constructor(
         }
     }
 
+    override suspend fun saveAccessTokens(accessToken: String, refreshToken: String) {
+        context.dataStore.edit {
+            it[ACCESS_TOKEN_KEY] = accessToken
+            it[REFRESH_TOKEN_KEY] = refreshToken
+        }
+    }
+
+
     // AccessToken 가져오기
     override suspend fun getAccessToken(): Flow<String> {
         return context.dataStore.data.map { it[ACCESS_TOKEN_KEY] ?: "" }
