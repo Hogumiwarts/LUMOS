@@ -47,8 +47,7 @@ class RoutineEditViewModel @Inject constructor(
     val selectedGesture: StateFlow<GestureData?> = _selectedGesture
 
     private val _isInitialized = MutableStateFlow(false)
-
-    fun isInitialized() = _isInitialized.value
+    val isInitialized: Boolean get() = _isInitialized.value
 
     fun setNameBlankError(message: String) {
         _state.value = state.value.copy(nameBlankMessage = message)
@@ -61,6 +60,7 @@ class RoutineEditViewModel @Inject constructor(
     fun setDeviceEmptyError(message: String?) {
         _state.update { it.copy(deviceEmptyMessage = message) }
     }
+
     fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
         if (_isInitialized.compareAndSet(expect = false, update = true)) {
             Timber.d("🔰 초기 기기 로드됨: $initial")

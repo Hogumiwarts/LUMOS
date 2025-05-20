@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -88,6 +89,8 @@ fun HomeScreen(
 
     val HomeState by homeViewModel.collectAsState()
 
+    val clickDevice by deviceViewModel.clickDevice
+
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
 
@@ -146,20 +149,33 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = CommonUtils.getFormattedToday(),
-                fontSize = 14.sp,
-                fontFamily = nanum_square_neo,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End
-            )
-            Spacer(modifier = Modifier.height(36.dp))
+            Column() {
+                Text(
+                    text = CommonUtils.getFormattedToday(),
+                    fontSize = 14.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
 
+                Text(
+                    text = "${controlViewModel.localAddress}",
+                    fontSize = 9.sp,
+                    fontFamily = nanum_square_neo,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFA1A1A1),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
 
             Text(
-                text = "${HomeState.userName ?: ""}님 ${controlViewModel.localAddress}\n집에 돌아오신 걸 환영해요. ",
+                text = "${HomeState.userName ?: "루모스"}님\n집에 돌아오신 걸 환영해요. ",
                 fontSize = 24.sp,
                 fontFamily = nanum_square_neo,
                 fontWeight = FontWeight.Bold,
@@ -173,67 +189,127 @@ fun HomeScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(148.dp)
+                    .height(130.dp)
                     .shadow(
                         elevation = 4.dp, shape = RoundedCornerShape(20.dp), clip = true
                     ),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
             ) {
-                if (isWeatherLoading && weatherState.weatherInfo == null) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(SkeletonComponent())
-                    )
-                } else {
-                    weatherState.weatherInfo?.let { WeatherCardView(it) }
+                when {
+                    isWeatherLoading -> {
+                        // 로딩 중
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(SkeletonComponent()),
+                            contentAlignment = Alignment.Center
+
+                        ) {
+                            Text(
+                                text = "날씨 정보를 불러오는 중이에요...☁️",
+                                fontSize = 11.sp,
+                                fontFamily = nanum_square_neo,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    weatherState.weatherInfo != null -> {
+                        // 날씨 정보 있음
+                        WeatherCardView(weatherState.weatherInfo!!)
+                    }
+
+                    weatherState.errorMessage != null -> {
+                        // 날씨 정보 없음 (API 실패)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = weatherState.errorMessage ?: "날씨 정보를 불러오지 못했어요.",
+                                fontSize = 11.sp,
+                                fontFamily = nanum_square_neo,
+                                color = Color.Gray
+                            )
+                        }
+                    }
                 }
             }
 
             // 하단 기기 작동 상태 영역
-            Box(
-            ) {
-                if (!isLinked) {
-                    NotLinkedHomeScreen(
-                        onClickLink = {
-                            deviceViewModel.requestAuthAndOpen(context)
-                        }, deviceViewModel, context
-                    )
-                } else {
-                    val myDevices = deviceList.map { it }
-                    DeviceGridHomeSection(
-                        devices = myDevices,
-                        selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
-                        onDeviceClick = {
-//                            deviceViewModel.onDeviceClicked(it)
-                            when (it.deviceType) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)) {
+                when {
+                    !isLinked -> {
+                        NotLinkedHomeScreen(
+                            onClickLink = {
+                                deviceViewModel.requestAuthAndOpen(context)
+                            },
+                            deviceViewModel,
+                            context
+                        )
+                    }
 
-                                DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-
-                                DeviceListType.ETC -> {}
+                    deviceList.isEmpty() -> {
+                        // 로딩 중일 때 보여줄 UI
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .background(Color.White),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(300.dp)
+                                    .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Text(
+                                    text = "기기 상태를 불러오는 중이에요...☁️",
+                                    fontSize = 12.sp,
+                                    fontFamily = nanum_square_neo,
+                                    color = Color.Gray
+                                )
                             }
-                        },
-                        onToggleDevice = { device ->
-                            // viewModel에서 상태 반전 요청
-
-                            deviceViewModel.toggleDeviceState(device.deviceId, device.deviceType)
                         }
-                    )
+                    }
+
+                    else -> {
+                        val myDevices = deviceList.map { it }
+                        DeviceGridHomeSection(
+                            devices = myDevices,
+                            selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,
+                            onDeviceClick = {
+                                when (it.deviceType) {
+                                    DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+
+                                    DeviceListType.ETC -> {}
+                                }
+                            },
+                            onToggleDevice = {
+                                deviceViewModel.toggleDeviceState(it.deviceId, it.deviceType)
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -77,6 +77,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,34 +116,41 @@ fun RoutineEditScreen(
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
                 val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
-                val exists = viewModel.devices.value.any { it.deviceId == updatedDevice.deviceId }
 
-                if (exists) {
-                    viewModel.updateDevice(updatedDevice)
+                val currentList = viewModel.devices.value
+                val existingDevice = currentList.find { it.deviceId == updatedDevice.deviceId }
+
+                if (existingDevice == updatedDevice) {
+                    Timber.d("⚠️ 기존과 동일한 기기 → 반영 생략")
                 } else {
-                    viewModel.addDevice(updatedDevice)
+                    if (viewModel.devices.value.any { it.deviceId == updatedDevice.deviceId }) {
+                        viewModel.updateDevice(updatedDevice)
+                    } else {
+                        viewModel.addDevice(updatedDevice)
+                    }
                 }
-
 
                 navController.previousBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
             }
 
     }
 
-    var initialized by remember { mutableStateOf(false) }
+//    var initialized by remember { mutableStateOf(false) }
+//        initialized = true
 
-    if (!initialized) {
-        val devices = navController.previousBackStackEntry
-            ?.savedStateHandle
-            ?.get<List<CommandDevice>>("editDevices")
-
-        viewModel.loadInitialDevicesOnce(devices ?: emptyList())
-
-        initialized = true
-    }
 
     // 초기 데이터 설정
     LaunchedEffect(Unit) {
+        if (!viewModel.isInitialized) {
+            val devices = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<List<CommandDevice>>("editDevices")
+
+            viewModel.loadInitialDevicesOnce(devices ?: emptyList())
+
+            navController.previousBackStackEntry?.savedStateHandle?.remove<List<CommandDevice>>("editDevices")
+        }
+
         val routineId = navController.previousBackStackEntry
             ?.savedStateHandle
             ?.get<Long>("editRoutineId")
@@ -336,7 +344,6 @@ fun RoutineEditScreen(
 
                 // 루틴 이름 입력창
                 OutlinedTextField(
-
                     value = routineName,
                     onValueChange = { viewModel.onRoutineNameChanged(it) },
                     isError = state.nameBlankMessage != null,
@@ -353,7 +360,7 @@ fun RoutineEditScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(51.dp)
+                        .height(53.dp)
                         .then( // 이름 입력 안했으면 빨간색으로 강조하여 알림
                             if (state.nameBlankMessage != null) Modifier
                                 .border(
@@ -473,6 +480,11 @@ fun RoutineEditScreen(
                             coroutineScope.launch {
                                 delay(300)
                                 viewModel.deleteDevice(device)
+
+                                // 🧹 삭제 직후 savedStateHandle 정리
+                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>(
+                                    "commandDeviceJson"
+                                )
                             }
                         },
                         deviceContent = {
@@ -483,6 +495,9 @@ fun RoutineEditScreen(
                                     coroutineScope.launch {
                                         delay(300)
                                         viewModel.deleteDevice(device)
+                                        navController.currentBackStackEntry?.savedStateHandle?.remove<String>(
+                                            "commandDeviceJson"
+                                        )
                                     }
                                 },
                                 onClick = {
@@ -529,14 +544,20 @@ fun RoutineEditScreen(
                 }
             }
 
+            item { Box(modifier = Modifier.height(1.dp)) {} }
+
+
             // 제스처 선택
             // 제목
             item {
                 Text(
-                    "제스처 선택", style = MaterialTheme.typography.titleMedium.copy(
+                    "제스처 선택",
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = nanum_square_neo
+                        lineHeight = 16.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(800),
+                        color = Color(0xFF000000),
                     )
                 )
             }
