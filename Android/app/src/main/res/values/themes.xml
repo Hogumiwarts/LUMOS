@@ -7,7 +7,7 @@
 
         <!-- 상태바 투명 처리 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
-
+        <item name="android:windowIsTranslucent">true</item>
         <!-- 네비게이션 바 투명 처리 -->
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

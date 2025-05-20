@@ -154,7 +154,7 @@ fun SwitchScreen(deviceId: Long, viewModel: SwitchViewModel = hiltViewModel()) {
 
         Spacer(modifier = Modifier.height(17.dp))
 
-        // TODO: DB에서 imageUrl 받으면 바꾸기
+
         AsyncImage(
             model = image,
             contentDescription = null,
