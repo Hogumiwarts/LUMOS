@@ -239,7 +239,16 @@ fun RoutineEditScreen(
                             )
                         }
 
-                        DeviceListType.ETC -> TODO()
+                        DeviceListType.ETC -> {
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDevice(
+                                isOn = true,
+                                brightness = 50,
+                                hue = null,
+                                saturation = null
+                            )
+                        }
                     }
 
                     if (deviceList.any { it.deviceId == commandDevice.deviceId }) {

@@ -177,7 +177,7 @@ fun RoutineCreateScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 28.dp)
+            .padding(start = 28.dp, end = 28.dp, bottom = 80.dp)
             .statusBarsPadding(),
     ) {
         LazyColumn(
