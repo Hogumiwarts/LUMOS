@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.ui.screens.setting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,7 +73,7 @@ fun HeaderSection() {
                 ),
                 shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
             )
-            .padding(16.dp)
+            .padding(32.dp)
     ) {
 
         Row(
@@ -96,7 +97,7 @@ fun HeaderSection() {
                         color = Color(0xffFFFFFF).copy(0.1f),
                         shape = RoundedCornerShape(20)
                     )
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                    .padding(horizontal = 32.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -119,12 +120,18 @@ fun HeaderSection() {
 @Composable
 fun MenuItems(authViewModel: AuthViewModel, navController: NavController) {
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(24.dp)
     ) {
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    // TODO:: smartthings 화면 연결
+                }
                 .padding(vertical = 16.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -140,6 +147,34 @@ fun MenuItems(authViewModel: AuthViewModel, navController: NavController) {
             )
         }
 
+
+        Divider()
+
+        // 제스처 테스트 화면
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    navController.navigate("gesture_select")
+                },
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_edit),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "제스처 테스트",
+                fontSize = 18.sp
+            )
+        }
+
         Divider()
 
         // Logout
@@ -147,7 +182,10 @@ fun MenuItems(authViewModel: AuthViewModel, navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
-                .clickable {
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
                     authViewModel.logOut(
                         onSuccess = { navController.navigate("login") },
                         onFailure = {

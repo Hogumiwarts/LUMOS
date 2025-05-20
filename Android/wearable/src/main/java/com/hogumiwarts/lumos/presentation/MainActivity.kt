@@ -7,7 +7,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
@@ -18,31 +17,30 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.wearable.Wearable
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.data.GestureData
 import com.hogumiwarts.lumos.presentation.theme.LUMOSTheme
 import com.hogumiwarts.lumos.presentation.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
-import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSwitch
-import com.hogumiwarts.lumos.presentation.ui.screens.control.speaker.MoodPlayerScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMode
-import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureMonitorScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.gesture.GestureTestScreen
+import com.hogumiwarts.lumos.presentation.ui.screens.routine.RoutineExecuteScreen
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -65,11 +63,12 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private val webSocketViewModel: WebSocketViewModel by viewModels()
 
     private val SLIDING_WINDOW_SIZE = 50
-    private val SLIDING_STEP = 5
-    private val SENSOR_DELAY = SensorManager.SENSOR_DELAY_NORMAL
+    private val SLIDING_STEP = 10
+    private val SENSOR_DELAY = SensorManager.SENSOR_DELAY_GAME
 
     // 현재 제스처 모드
     private var gestureMode = GestureMode.CONTINUOUS
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -78,30 +77,102 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val text = intent.getStringExtra("text") ?: ""
-        val mode = intent.getStringExtra("mode") ?: "continuous"
-        gestureMode = if (mode == "test") GestureMode.TEST else GestureMode.CONTINUOUS
+        gestureMode = if (text.isNotEmpty()) {
+            GestureMode.TEST
+        } else {
+            GestureMode.CONTINUOUS
+        }
+        Log.d("Gesture", "결정된 모드: $gestureMode (text 존재: ${text.isNotEmpty()})")
+
+        lifecycleScope.launch {
+            webSocketViewModel.test1.collect { value ->
+                // 필요한 처리
+                if (value){
+                    imuDataList.clear()
+                    webSocketViewModel.resetTest1()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            webSocketViewModel.isTest.collect { value ->
+                // 필요한 처리
+                if (value){
+                    Log.d("테스트 실행 여부", "onCreate: 실행")
+                }else{
+                    Log.d("테스트 실행 여부", "onCreate: 정지")
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            webSocketViewModel.gesture2.collect { value ->
+                // 필요한 처리
+                if (value){
+                    Log.d("제스처2", "onCreate: 인식")
+                }else{
+                    Log.d("제스처2", "onCreate: 해제")
+                }
+            }
+        }
+
+
 
         if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1001)
         }
 
+        // 진동 권한 확인 (API 33 이상에서 필요)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.VIBRATE), 1002)
+            }
+        }
+
+        // 센서 초기화
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         linearAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
+        // 진동 초기화
+        webSocketViewModel.initVibrator(this)
 
-        isMeasuring = true
-        startIMU()
-        webSocketViewModel.connectWebSocket(gestureMode) // 모드 전달
-        Log.d("Gesture", "모드: $gestureMode, 웹소켓 연결 및 센서 수집 시작 ${text}")
+        // 제스처 콜백 설정 (중요!)
+        webSocketViewModel.onGesture1Detected = {
+            Log.d("Gesture", "제스처 1 감지됨")
+            // 1번 제스처는 단순히 모드 토글용이므로 버퍼만 지우기
+            imuDataList.clear()
+        }
 
+        webSocketViewModel.onGesture2Detected = {
+            Log.d("Gesture", "ACTIVE 상태: 제스처 2 감지됨")
+            // 2,3번 제스처 감지 후 잠시 데이터 수집 중단 (연속 감지 방지)
+            clearIMUDataAndPauseCollection()
+        }
+
+        webSocketViewModel.onGesture3Detected = {
+            Log.d("Gesture", "ACTIVE 상태: 제스처 3 감지됨")
+            // 2,3번 제스처 감지 후 잠시 데이터 수집 중단 (연속 감지 방지)
+            clearIMUDataAndPauseCollection()
+        }
+
+        // CONTINUOUS 모드에서만 자동으로 시작
+        if (gestureMode == GestureMode.CONTINUOUS) {
+            isMeasuring = true
+            startIMU()
+            webSocketViewModel.connectWebSocket(gestureMode)
+            Log.d("Gesture", "CONTINUOUS 모드 - 웹소켓 연결 및 센서 수집 시작")
+        } else {
+            Log.d("Gesture", "TEST 모드 - 수동 시작 대기 중")
+        }
 
 
         setContent {
             LUMOSTheme {
 
                 val prediction by webSocketViewModel.prediction
+                val currentExecutingRoutine by webSocketViewModel.currentExecutingRoutine.collectAsState()
 
                 Box(
                     modifier = Modifier
@@ -115,11 +186,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                         modifier = Modifier.fillMaxSize(),
                     )
 
-
-                    val navController = rememberNavController()
-                    when {
+                    when (gestureMode) {
                         // 테스트 모드
-                        text.isNotEmpty() && gestureMode == GestureMode.TEST -> {
+                        GestureMode.TEST -> {
                             GestureTestScreen(
                                 type = text,
                                 isMeasuring = isMeasuring,
@@ -141,38 +210,29 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                             }
                         }
                         // 연속 감지 모드
-//                        gestureMode == GestureMode.CONTINUOUS -> {
-//                            GestureMonitorScreen(
-//                                isMonitoring = isMeasuring,
-//                                onToggleMonitoring = {
-//                                    isMeasuring = !isMeasuring
-//                                    if (isMeasuring) {
-//                                        startIMU()
-//                                        webSocketViewModel.connectWebSocket(gestureMode)
-//                                    } else {
-//                                        stopIMU()
-//                                        webSocketViewModel.disconnectWebSocket()
-//                                    }
-//                                },
-//                                onStop = {
-//                                    stopIMU()
-//                                    webSocketViewModel.disconnectWebSocket()
-//                                    finish()
-//                                }
-//                            )
-//                        }
-//                        // 일반 네비게이션
-                        else -> {
+                        GestureMode.CONTINUOUS -> {
+                            val navController = rememberNavController()
                             NavGraph(navController)
-//                            AipurifierSwitch(deviceId = 1L, navController = navController)
+
+                            // 루틴 실행 화면 띄우기
+                            currentExecutingRoutine?.let { routineId ->
+                                Log.d("Execution", "루틴 화면 표시: 제스처 $routineId")
+                                RoutineExecuteScreen(routineId)
+                            }
+
+//                            if (recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVE) {
+//                                prediction.toLongOrNull()?.let { longValue ->
+//                                    if (longValue in listOf(2L, 3L)) {
+//                                        Log.d("Routine", "ACTIVE 모드에서 루틴 화면 표시: 제스처 $longValue")
+//                                        RoutineExecuteScreen(longValue)
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
-
             }
-
         }
-
     }
 
     private fun startIMU() {
@@ -187,6 +247,21 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
         isMeasuring = false
         imuDataList.clear()
+    }
+
+    // 데이터 수집 일시 정지 함수 추가
+    private fun clearIMUDataAndPauseCollection() {
+        // 버퍼 지우기
+        imuDataList.clear()
+
+        // 잠시 측정 중단 플래그 설정
+        isMeasuring = false
+
+//        // 1.5초 후 측정 재개
+//        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+//            isMeasuring = true
+//            Log.d("IMU", "데이터 수집 재개")
+//        }, 1500)
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
