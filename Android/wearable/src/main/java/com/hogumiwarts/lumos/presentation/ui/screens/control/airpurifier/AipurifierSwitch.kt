@@ -111,12 +111,12 @@ private fun leaded(
     data: AirpurifierData,
     deviceId: Long,
     viewModel: AirpurifierViewModel = hiltViewModel(),
-    viewModel1: DeviceViewModel = hiltViewModel()
+//    viewModel1: DeviceViewModel = hiltViewModel()
 ) {
 
     val isOn by viewModel.isOn.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
-    viewModel1.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MDM1MDI0LCJleHAiOjE3NDcxMjE0MjR9.fZSp8dEpCWN-k1bB2zF_IEVn1Yi7_lIeev_zTJERnqY","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
+//    viewModel1.saveJwt("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3MDM1MDI0LCJleHAiOjE3NDcxMjE0MjR9.fZSp8dEpCWN-k1bB2zF_IEVn1Yi7_lIeev_zTJERnqY","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzQ3Mjg5MDAzLCJleHAiOjE3NDc4OTM4MDN9.XLnwDciZxOjolAJfpM1Ej7a_UNB9-kRphbvZL5RIOHo")
 
     // 폰에서 세부 설정 클릭시 애니메이션 효과 여부
     var showAnimation by remember { mutableStateOf(false) }

@@ -35,7 +35,7 @@ fun MessageReceiver(viewModel: GestureTestViewModel) {
 }
 
 // 앱에서 워치로 토큰 보내기
-fun sendTokenToWatch(context: Context, token: String, ) {
+fun sendTokenToWatch(context: Context, token: String) {
     val messageClient = Wearable.getMessageClient(context)
     val path = "/launch_send_token"
 

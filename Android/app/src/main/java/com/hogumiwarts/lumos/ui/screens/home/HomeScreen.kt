@@ -79,7 +79,7 @@ fun HomeScreen(
     controlViewModel: ControlViewModel = hiltViewModel(),
 
     authViewModel: AuthViewModel = hiltViewModel(),
-   tokenDataStore: TokenDataStore,
+    tokenDataStore: TokenDataStore,
     navController: NavController
 ) {
     val context = LocalContext.current
@@ -96,12 +96,12 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         Log.d("TAG", "HomeScreen: 호출")
 
-
+        deviceViewModel.getJwt()
         controlViewModel.prepareSession()
         deviceViewModel.checkAccountLinked()
 
 
-        authViewModel.refreshToken()
+//        authViewModel.refreshToken()
         val location = getCurrentLocation(context)
 
         if (location != null) {
@@ -242,9 +242,11 @@ fun HomeScreen(
             }
 
             // 하단 기기 작동 상태 영역
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp)
+            ) {
                 when {
                     !isLinked -> {
                         NotLinkedHomeScreen(
@@ -272,7 +274,7 @@ fun HomeScreen(
                                     .height(300.dp)
                                     .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
                                 contentAlignment = Alignment.Center
-                            ){
+                            ) {
                                 Text(
                                     text = "기기 상태를 불러오는 중이에요...☁️",
                                     fontSize = 12.sp,

@@ -160,7 +160,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         // CONTINUOUS 모드에서만 자동으로 시작
         if (gestureMode == GestureMode.CONTINUOUS) {
             isMeasuring = true
-            startIMU()
+//            startIMU()
             webSocketViewModel.connectWebSocket(gestureMode)
             Log.d("Gesture", "CONTINUOUS 모드 - 웹소켓 연결 및 센서 수집 시작")
         } else {
