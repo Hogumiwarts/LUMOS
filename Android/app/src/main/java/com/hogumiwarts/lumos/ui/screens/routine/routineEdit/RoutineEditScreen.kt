@@ -544,14 +544,20 @@ fun RoutineEditScreen(
                 }
             }
 
+            item { Box(modifier = Modifier.height(1.dp)) {} }
+
+
             // 제스처 선택
             // 제목
             item {
                 Text(
-                    "제스처 선택", style = MaterialTheme.typography.titleMedium.copy(
+                    "제스처 선택",
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = nanum_square_neo
+                        lineHeight = 16.sp,
+                        fontFamily = nanum_square_neo,
+                        fontWeight = FontWeight(800),
+                        color = Color(0xFF000000),
                     )
                 )
             }
