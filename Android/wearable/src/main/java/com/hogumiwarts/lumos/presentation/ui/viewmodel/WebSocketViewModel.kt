@@ -125,7 +125,7 @@ class WebSocketViewModel @Inject constructor(
         }
 
         val client = OkHttpClient()
-        val request = Request.Builder().url("ws://lipit.store/ws/gesture").build()
+        val request = Request.Builder().url(BuildConfig.IP_ADDRESS).build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {

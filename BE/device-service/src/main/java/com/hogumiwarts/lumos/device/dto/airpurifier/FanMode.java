@@ -22,7 +22,7 @@ public enum FanMode {
 
     @JsonValue
     public String getMode() {
-        return mode;
+        return mode.toLowerCase();  // 예: "Auto" → "auto"
     }
 
     @JsonCreator
