@@ -18,7 +18,7 @@ app = FastAPI(lifespan=lifespan)
 # CORS 설정 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 실제 환경에서는 구체적인 출처 지정
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
