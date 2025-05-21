@@ -125,10 +125,10 @@ fun LoadedDevice(
                             DeviceCard(it, navController)
                         }
 
-                        // 마지막 여백
-                        item {
-                            WearIconButton()
-                        }
+                    }
+                    // 마지막 여백
+                    item {
+                        WearIconButton()
                     }
                 }
 
