@@ -1,6 +1,7 @@
 package com.hogumiwarts.lumos.data.repostitory
 
 
+import android.util.Log
 import com.hogumiwarts.lumos.data.entity.remote.routine.PostRoutineRequest
 import com.hogumiwarts.lumos.domain.model.CommonError
 import com.hogumiwarts.lumos.data.entity.mapper.RoutineMapper
@@ -18,15 +19,17 @@ class RoutineRepositoryImpl @Inject constructor(
         return try {
 
             val response = routineApi.executeRoutine(gestureId)
-
+            Log.d("결과", "executeRoutine: $response")
             PostRoutineResult.Success(
                 data = RoutineMapper.fromPostRoutineResponse(response.data)
             )
 
         } catch (e: Exception) {
+            Log.d("결과", "executeRoutine: $e")
             PostRoutineResult.Error(
                 CommonError.NetworkError
             )
+
         }
     }
 
