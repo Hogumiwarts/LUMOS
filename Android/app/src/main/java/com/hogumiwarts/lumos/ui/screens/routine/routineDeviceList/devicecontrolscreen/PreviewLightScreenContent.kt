@@ -33,7 +33,8 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.google.gson.Gson
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDevice
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForLightOff
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForLightOn
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.screens.control.components.GradientColorSlider
@@ -200,9 +201,9 @@ fun PreviewLightScreenContent(
                 buttonText = "설정하기",
                 onClick = {
                     val deviceWithCommands = if (!isOn) {
-                        selectedDevice.toCommandDevice(isOn = false)
+                        selectedDevice.toCommandDeviceForLightOff(isOn = false)
                     } else {
-                        selectedDevice.toCommandDevice(
+                        selectedDevice.toCommandDeviceForLightOn(
                             isOn = true,
                             brightness = brightness,
                             hue = hue * 10 / 36,
