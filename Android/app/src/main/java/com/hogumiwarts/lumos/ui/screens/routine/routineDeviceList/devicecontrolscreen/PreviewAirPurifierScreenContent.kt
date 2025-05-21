@@ -20,7 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifierOff
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifierOn
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
@@ -142,10 +143,16 @@ fun PreviewAirPurifierScreenContent(
             PrimaryButton(
                 buttonText = "설정하기",
                 onClick = {
-                    val deviceWithCommands = selectedDevice.toCommandDeviceForAirPurifier(
-                        isOn = checked,
-                        fanMode = selectedFanMode
-                    )
+                    val deviceWithCommands = if(selectedDevice.isOn){
+                        selectedDevice.toCommandDeviceForAirPurifierOn(
+                            isOn = checked,
+                            fanMode = selectedFanMode
+                        )
+                    } else{
+                        selectedDevice.toCommandDeviceForAirPurifierOff(
+                            isOn = checked
+                        )
+                    }
 
                     val json = Gson().toJson(deviceWithCommands)
 
