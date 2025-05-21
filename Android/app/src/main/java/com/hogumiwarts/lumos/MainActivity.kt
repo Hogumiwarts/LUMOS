@@ -201,7 +201,7 @@ class MainActivity : ComponentActivity() {
         controller.isAppearanceLightNavigationBars = true
 
         // 권한 확인 및 요청
-        checkAndRequestPermissions()
+//        checkAndRequestPermissions()
 
         // 네트워크 콜백 등록
         registerNetworkCallback()

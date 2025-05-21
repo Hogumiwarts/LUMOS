@@ -28,6 +28,7 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceType
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 
 
@@ -39,17 +40,19 @@ fun LoadedDevice(
     navController: NavHostController,
 ) {
 
-    // WebSocketViewModel에서 제스처 인식 상태 관찰
-    val webSocketViewModel: WebSocketViewModel = hiltViewModel()
-    val recognitionMode by webSocketViewModel.recognitionMode.collectAsState()
-
-    // 제스처 인식 활성화 상태 확인
-    val isGestureActive = recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVE ||
-            recognitionMode == WebSocketViewModel.GestureRecognitionMode.ACTIVATING
+    val filteredDevices = devices.filter { device ->
+        val deviceType = DeviceType.fromId(device.deviceType)
+        deviceType != null
+                && (deviceType == DeviceType.LIGHT
+                || deviceType == DeviceType.MINIBIG
+                || deviceType == DeviceType.SPEAKER
+                || deviceType == DeviceType.AIR_PURIFIER
+                )
+    }
 
 
     // 활성화 여부에 따라 리스트 분리
-    val (activatedDevices, deactivatedDevices) = devices.partition { it.activated }
+    val (activatedDevices, deactivatedDevices) = filteredDevices.partition { it.activated }
 
     ScreenScaffold(
         scrollState = listState,
@@ -75,7 +78,6 @@ fun LoadedDevice(
                     .padding(horizontal = 12.dp),
             ) {
                 // 상단 타이틀 + 활성화 영역 구분선
-
                 item {
 
                     Text(
@@ -86,30 +88,50 @@ fun LoadedDevice(
                         )
                 }
 
+                if (filteredDevices.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .padding(vertical = 16.dp)
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "제어 가능한 기기가 없습니다",
+                                fontSize = 12.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                } else {
+                    if (activatedDevices.isNotEmpty()) {
+                        item {
+                            DividerWithLabel("ON")
+                        }
 
-                item {
-                    DividerWithLabel("활성화")
+                        // 활성화된 기기 리스트 렌더링
+                        items(activatedDevices) {
+                            DeviceCard(it, navController)
+                        }
+                    }
+                    if (deactivatedDevices.isNotEmpty()) {
+                        // 비활성화 영역 구분선
+                        item {
+                            DividerWithLabel("OFF")
+                        }
+
+                        // 비활성화된 기기 리스트 렌더링
+                        items(deactivatedDevices) {
+                            DeviceCard(it, navController)
+                        }
+
+                        // 마지막 여백
+                        item {
+                            WearIconButton()
+                        }
+                    }
                 }
 
-                // 활성화된 기기 리스트 렌더링
-                items(activatedDevices) {
-                    DeviceCard(it, navController)
-                }
-
-                // 비활성화 영역 구분선
-                item {
-                    DividerWithLabel("비활성화")
-                }
-
-                // 비활성화된 기기 리스트 렌더링
-                items(deactivatedDevices) {
-                    DeviceCard(it, navController)
-                }
-
-                // 마지막 여백
-                item {
-                    WearIconButton()
-                }
             }
         }
     }
