@@ -100,7 +100,7 @@ fun MyDevice.toCommandDeviceForLightOff(
     )
 }
 
-fun MyDevice.toCommandDeviceForAirPurifier(
+fun MyDevice.toCommandDeviceForAirPurifierOn(
     isOn: Boolean,
     fanMode: String
 ): CommandDevice {
@@ -116,6 +116,27 @@ fun MyDevice.toCommandDeviceForAirPurifier(
             capability = "airConditionerFanMode",
             command = "setFanMode",
             arguments = listOf(fanMode)
+        )
+    )
+
+    return CommandDevice(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType.toString(),
+        deviceImageUrl = "",
+        commands = commands
+    )
+}
+
+fun MyDevice.toCommandDeviceForAirPurifierOff(
+    isOn: Boolean,
+): CommandDevice {
+    val commands = listOf(
+        CommandData(
+            component = "main",
+            capability = "switch",
+            command = if (isOn) "on" else "off",
+            arguments = emptyList()
         )
     )
 

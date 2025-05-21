@@ -61,7 +61,7 @@ import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifierOn
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForLightOn
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
@@ -217,7 +217,7 @@ fun RoutineEditScreen(
                         DeviceListType.AIRPURIFIER -> {
                             json?.let {
                                 Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForAirPurifier(
+                            } ?: selectedDevice.toCommandDeviceForAirPurifierOn(
                                 isOn = false,
                                 fanMode = "auto"
                             )
