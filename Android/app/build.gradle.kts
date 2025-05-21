@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.util.Properties
 
 plugins {
@@ -6,6 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
+    id("kotlin-parcelize")
+
 }
 
 val localProperties = Properties().apply {
@@ -31,6 +34,7 @@ android {
         buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         buildConfigField("String", "DEVICE_BASE_URL", "\"$deviceBaseUrl\"")
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -170,7 +174,6 @@ dependencies {
 
     // color-picker
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
-
 
 
 }

@@ -5,31 +5,29 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
+import androidx.core.uwb.UwbManager
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
-import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
-import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
-import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
-import com.hogumiwarts.lumos.ui.screens.control.FindDeviceScreen
+import com.hogumiwarts.lumos.ui.screens.devices.DeviceListViewModel
+import com.hogumiwarts.lumos.ui.screens.control.UwbRanging
+import com.hogumiwarts.lumos.ui.screens.control.light.RealLightScreenContent
+import com.hogumiwarts.lumos.ui.screens.gesture.GestureScreen
 import com.hogumiwarts.lumos.ui.theme.LUMOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -42,6 +40,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var tokenDataStore: TokenDataStore
+    private val deviceListViewModel: DeviceListViewModel by viewModels()
+
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -58,28 +58,32 @@ class MainActivity : ComponentActivity() {
     private fun handleSmartThingsRedirect(intent: Intent?) {
         val uri = intent?.data ?: return
 
+        Timber.tag("smartthings").d("🧭 Redirect URI = $uri")
+
         if (uri.scheme == "smartthingslogin" && uri.host == "oauth-callback") {
             val installedAppId = uri.getQueryParameter("installedAppId")
-            Timber.d("🔥 installedAppId = $installedAppId")
-
             val name = uri.getQueryParameter("name")
-
             val authToken = uri.getQueryParameter("authToken")
+
+            Timber.tag("smartthings").d("🔥 installedAppId in MainActivity = $installedAppId")
+            Timber.tag("smartthings").d("🔥 name: $name, authToken: $authToken")
 
             if (!installedAppId.isNullOrEmpty() && !authToken.isNullOrEmpty()) {
                 lifecycleScope.launch {
-                    // 받아온 토큰 값들 저장
-                    if (name != null) {
-                        tokenDataStore.saveSmartThingsTokens(installedAppId, authToken, name)
-                    }
+                    tokenDataStore.saveSmartThingsTokens(
+                        installedAppId,
+                        authToken,
+                        name ?: "Unknown"
+                    )
+
+                    deviceListViewModel.checkAccountLinked()
+
                     Toast.makeText(
                         this@MainActivity,
                         "SmartThings 연동 완료!",
                         Toast.LENGTH_SHORT
                     ).show()
-
-                    Timber.tag("smartthings")
-                        .d("🪄 연동 완료!! :: installedAppId - " + installedAppId + ", authToken - " + authToken)
+                    Timber.tag("smartthings").d("🪄 연동 완료!! :: installedAppId - $installedAppId, authToken - $authToken")
                 }
             }
         }
@@ -92,16 +96,23 @@ class MainActivity : ComponentActivity() {
     ) { permissions ->
         val allGranted = permissions.entries.all { it.value }
         if (allGranted) {
-            Toast.makeText(this, "필요한 모든 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "필요한 모든 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
 
         } else {
-            Toast.makeText(this, "앱 기능을 사용하려면 모든 권한이 필요합니다.", Toast.LENGTH_LONG).show()
+            checkAndRequestPermissions()
+//            Toast.makeText(this, "앱 기능을 사용하려면 모든 권한이 필요합니다.", Toast.LENGTH_LONG).show()
         }
     }
 
+    lateinit var uwbManager : UwbManager // UWB 관리자 객체
+    @Inject lateinit var uwbRanging : UwbRanging // UWB 레인징 객체
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val deviceId = intent.getLongExtra("deviceId", -1L) // 기본값 -1
+        val deviceType = intent.getStringExtra("deviceType") ?: ""
+
 
         // 시스템 바 영역까지 앱이 확장되도록
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -127,7 +138,8 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent
                 ) {
 
-                    MainScreen()
+                        MainScreen(deviceId, deviceType)
+
                 }
             }
         }
@@ -182,6 +194,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        uwbRanging.cleanupAll()
+    }
+
 
 }
 
@@ -190,6 +207,6 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     LUMOSTheme {
         val navController = rememberNavController()
-        NavGraph(navController = navController)
+        NavGraph(1,"",navController = navController)
     }
 }

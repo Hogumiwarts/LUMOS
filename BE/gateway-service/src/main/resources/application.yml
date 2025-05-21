@@ -41,3 +41,21 @@ springdoc:
         url: /routine/v3/api-docs
       - name: smartthings-service
         url: /smart/v3/api-docs/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus  # Prometheus endpoint 포함
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: gateway-service
+    enable:
+      hikari: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true

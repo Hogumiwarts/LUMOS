@@ -7,13 +7,17 @@ import com.hogumiwarts.domain.repository.WeatherRepository
 import com.hogumiwarts.data.repository.GestureRepositoryImpl
 import com.hogumiwarts.data.repository.AirpurifierRepositoryImpl
 import com.hogumiwarts.data.repository.AudioRepositoryImpl
+import com.hogumiwarts.data.repository.LightRepositoryImpl
 import com.hogumiwarts.data.repository.MemberRepositoryImpl
+import com.hogumiwarts.data.repository.SwitchRepositoryImpl
 import com.hogumiwarts.data.repository.routine.RoutineRepositoryImpl
 import com.hogumiwarts.domain.repository.AirpurifierRepository
 import com.hogumiwarts.domain.repository.AudioRepository
 import com.hogumiwarts.domain.repository.GestureRepository
+import com.hogumiwarts.domain.repository.LightRepository
 import com.hogumiwarts.domain.repository.MemberRepository
 import com.hogumiwarts.domain.repository.RoutineRepository
+import com.hogumiwarts.domain.repository.SwitchRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -65,4 +69,15 @@ abstract class RepositoryModule {
     abstract fun bindRoutineRepository(
         routineRepositoryImpl: RoutineRepositoryImpl
     ): RoutineRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLightRepository(
+        impl: LightRepositoryImpl
+    ): LightRepository
+
+    @Binds
+    abstract fun bindSwitchRepository(
+        impl: SwitchRepositoryImpl
+    ): SwitchRepository
 }

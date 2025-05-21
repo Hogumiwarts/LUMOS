@@ -2,10 +2,13 @@ package com.example.myapplication.presentation.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -151,6 +154,16 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             }
         }
     }
+
+    fun openAppOnPhone(context: Context) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse("yourappscheme://open")
+            addCategory(Intent.CATEGORY_BROWSABLE)
+        }
+
+        RemoteIntent.startRemoteActivity(context, intent, null)
+    }
+
 
     // 임시 데이터가 모두 모였으면 저장
     private fun trySaveIMUData() {

@@ -47,7 +47,7 @@ class AddAuthInterceptor @Inject constructor(
 
         // 🔹 토큰이 존재하면 Authorization 헤더 추가
         val newRequest = if (accessToken?.isNotEmpty() == true) {
-            Log.d("TAG", "intercept: $accessToken")
+            Log.d("TAG", "intercept:sdafa ${accessToken}")
             originalRequest.newBuilder()
                 .header("Authorization", "Bearer $accessToken")
                 .build()

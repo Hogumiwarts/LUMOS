@@ -1,6 +1,5 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
 import com.hogumiwarts.lumos.ui.common.DeviceRoutineCard
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,7 +51,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hogumiwarts.domain.model.Routine
+import com.hogumiwarts.domain.model.routine.Routine
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
 import timber.log.Timber
 
@@ -84,7 +82,6 @@ fun RoutineScreen(
     }
 
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -110,36 +107,38 @@ fun RoutineScreen(
                 .fillMaxHeight()
         ) {
             items(routineList) { routine ->
-                DeviceRoutineCard(
-                    modifier = Modifier
-                        .aspectRatio(1.05f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .combinedClickable(
-                            onClick = { onRoutineClick(routine) },
-                            onLongClick = {
-                                setSelectedRoutine(routine)
-                                coroutineScope.launch { isSheetVisible = true }
-                            }
-                        ),
-                    showToggle = false, // 토글 X
-                    cardTitle = routine.routineName,
-                    cardSubtitle = routine.gestureName,
-                    isOn = false,
-                    iconSize = DpSize(80.dp, 80.dp),
-                    cardIcon = { size ->
-                        Image(
-                            painter = painterResource(
-                                id = RoutineIconType.getResIdByName(routine.routineIcon)
+                routine.gestureName.let {
+                    DeviceRoutineCard(
+                        modifier = Modifier
+                            .aspectRatio(1.05f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .combinedClickable(
+                                onClick = { onRoutineClick(routine) },
+                                onLongClick = {
+                                    setSelectedRoutine(routine)
+                                    coroutineScope.launch { isSheetVisible = true }
+                                }
                             ),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(top = 5.dp)
-                                .size(size)
-                        )
-                    },
-                    endPadding = 3.dp,
-                    isActive = true,
-                )
+                        showToggle = false, // 토글 X
+                        cardTitle = routine.routineName,
+                        cardSubtitle = routine.gestureName ?: "제스처 없음",
+                        isOn = false,
+                        iconSize = DpSize(80.dp, 80.dp),
+                        cardIcon = { size ->
+                            Image(
+                                painter = painterResource(
+                                    id = RoutineIconType.getResIdByName(routine.routineIcon)
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 5.dp)
+                                    .size(size)
+                            )
+                        },
+                        endPadding = 3.dp,
+                        isActive = true,
+                    )
+                }
             }
         }
     }

@@ -19,6 +19,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
 	@Override
 	protected String[] getPermitAllPaths() {
 		return new String[] {
+			"/actuator/prometheus",
 			"/api/signup",
 			"/api/login",
 			"/api/refresh"

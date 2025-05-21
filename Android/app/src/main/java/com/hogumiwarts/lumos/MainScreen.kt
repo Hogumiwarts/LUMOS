@@ -24,7 +24,7 @@ import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
 
 @Composable
-fun MainScreen() {
+fun MainScreen(deviceId: Long, deviceType: String) {
     val navController = rememberNavController()
 
     // 현재 백스택 엔트리 가져오기
@@ -53,7 +53,7 @@ fun MainScreen() {
             if (isNavOn) {
                 FloatingActionButton(
                     onClick = {
-                        navController.navigate("controlScreen")
+                        navController.navigate("findDeviceScreen")
 
                     },
                     modifier = Modifier
@@ -78,6 +78,7 @@ fun MainScreen() {
 
     ) { innerPadding ->
         NavGraph(
+            deviceId= deviceId, deviceType= deviceType,
             navController = navController,
             modifier = Modifier.fillMaxSize()
         )

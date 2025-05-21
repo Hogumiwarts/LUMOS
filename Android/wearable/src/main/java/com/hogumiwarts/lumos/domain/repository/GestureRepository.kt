@@ -1,7 +1,10 @@
 package com.hogumiwarts.lumos.domain.repository
 
-import com.hogumiwarts.lumos.domain.model.GestureResult
+import com.hogumiwarts.domain.model.GestureResult
+import com.hogumiwarts.domain.model.PredictionResult
 
 interface GestureRepository {
-    suspend fun predictGesture(normalizedData: Array<FloatArray>): GestureResult
+    suspend fun predictGesture(normalizedData: Array<FloatArray>): PredictionResult
+    suspend fun getGestureList(): GestureResult
+
 }

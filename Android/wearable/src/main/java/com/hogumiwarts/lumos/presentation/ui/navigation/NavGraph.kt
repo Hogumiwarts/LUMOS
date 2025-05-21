@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.wear.compose.material.Text
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.hogumiwarts.lumos.presentation.ui.screens.LoginScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.SplashScreen
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSetting
 import com.hogumiwarts.lumos.presentation.ui.screens.control.airpurifier.AipurifierSwitch
@@ -33,11 +34,16 @@ fun NavGraph(
 
         // 🔸 SplashScreen → Main으로 이동
         composable("splash") {
-            SplashScreen {
+            SplashScreen(onTimeout = {
                 navController.navigate("main") {
                     popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
                 }
-            }
+            },
+                goLogin = {
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
+                    }
+                })
         }
 
         // 🔸 DevicesScreen (메인 화면)
@@ -55,6 +61,12 @@ fun NavGraph(
             }
         ) {
             DevicesScreen(navController)
+        }
+
+        composable(
+            "login",
+        ) {
+            LoginScreen(navController)
         }
 
         // 🔸 Light 기기 제어 화면
@@ -154,7 +166,7 @@ fun NavGraph(
             val deviceId = it.arguments?.getString("deviceId")
 
             if (type != null && deviceId != null) {
-                AipurifierSetting(deviceId = deviceId.toLong(), type = type)
+                AipurifierSetting(deviceId = deviceId.toLong(), type = type, navController)
             }
 
         }

@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.di
 
 import com.hogumiwarts.lumos.data.source.remote.DevicesApi
 import com.hogumiwarts.lumos.data.source.remote.LightApi
+import com.hogumiwarts.lumos.data.source.remote.RoutineApi
 import com.hogumiwarts.lumos.data.source.remote.SwitchApi
 import dagger.Module
 import dagger.Provides
@@ -29,4 +30,8 @@ object ServiceModule {
     @Singleton
     @Provides
     fun providesLightService(@Named("WearableRetrofit")retrofit: Retrofit) : LightApi = retrofit.create(LightApi::class.java)
+
+    @Singleton
+    @Provides
+    fun providesRoutineService(@Named("WearableRetrofit")retrofit: Retrofit) : RoutineApi = retrofit.create(RoutineApi::class.java)
 }

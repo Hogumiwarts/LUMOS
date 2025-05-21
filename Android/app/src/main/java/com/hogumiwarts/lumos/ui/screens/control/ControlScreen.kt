@@ -1,20 +1,32 @@
 package com.hogumiwarts.lumos.ui.screens.control
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.common.CommonTopBar
+import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 import com.hogumiwarts.lumos.utils.uwb.BleDevice
 import com.hogumiwarts.lumos.utils.uwb.GattConnector
 import com.hogumiwarts.lumos.utils.uwb.SavedUwbDevice
@@ -26,30 +38,64 @@ import java.util.Locale
 @Composable
 fun ControlScreen(
     navController: NavController,
-    bleViewModel: BleScannerViewModel = hiltViewModel()
+    bleViewModel: BleScannerViewModel = hiltViewModel(),
+    controlViewModel: ControlViewModel = hiltViewModel()
 ) {
-
+    val context = LocalContext.current
     val devices by bleViewModel.devices.collectAsState()
     val savedDevices by bleViewModel.savedDevices.collectAsState()
     val connectionState by bleViewModel.connectionState.collectAsState()
     val selectedDevice by bleViewModel.selectedDevice.collectAsState()
 
+
+    val sessionReady = controlViewModel.sessionReady
+
+    val scrollState = rememberScrollState()
+
+    // UWB 기기 주소값
+    var destinationAddress by remember { mutableStateOf("00:00") }
+
+
     // 컴포넌트가 처음 표시될 때 저장된 기기 로드
     LaunchedEffect(Unit) {
         bleViewModel.loadSavedDevices()
+        if (controlViewModel.rangingActive) {
+            Toast.makeText(
+                context,
+                "Ranging session active!",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            controlViewModel.prepareSession()
+        }
     }
 
     Scaffold(
         topBar = {
-            CommonTopBar(
-                barTitle = "UWB 제어",
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                isRightBtnVisible = false,
-                onRightBtnClick = {},
-                isBackBtnVisible = true
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(Color.Transparent)
+                    .statusBarsPadding()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_back),
+                    contentDescription = null,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ),
+                    tint = Color.White
+                )
+            }
+
         }
     ) { innerPadding ->
         Column(
@@ -58,7 +104,276 @@ fun ControlScreen(
                 .padding(innerPadding)
                 .background(Color.White)
                 .padding(16.dp)
+                .verticalScroll(scrollState)
         ) {
+            // 상단 카드: UWB 상태 정보
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "UWB 장치 연결",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 로컬 주소 표시
+                    Text("Local address: ${controlViewModel.localAddress}")
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(onClick = {
+                            if (controlViewModel.rangingActive) {
+                                Toast.makeText(
+                                    context,
+                                    "Ranging session active!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                controlViewModel.prepareSession()
+                            }
+                        }) {
+                            Text("세션 준비")
+                        }
+                        Button(onClick = {
+                            controlViewModel.resetSession()
+                        }) {
+                            Text("세션 초기화")
+                        }
+
+                    }
+
+                }
+            }
+
+            // 레인징 제어
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("설정된 컨트롤리 주소: ${controlViewModel.controleeAddresses.joinToString(", ")}")
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = {
+                                if (
+                                    !controlViewModel.startSingleRanging()
+//                                    !controlViewModel.startRanging()
+                                ) {
+                                    Toast.makeText(
+                                        context,
+                                        "세션이 초기화되지 않았습니다!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            enabled = sessionReady && !controlViewModel.rangingActive
+                        ) {
+                            Text("멀티 레인징 시작")
+                        }
+
+                        Button(
+                            onClick = { controlViewModel.stopRanging() },
+                            enabled = controlViewModel.rangingActive
+                        ) {
+                            Text("레인징 중지")
+                        }
+                    }
+                }
+            }
+
+            // 모든 장치의 레인징 결과
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "레인징 결과",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 연결된 장치 수 표시
+                    Text(
+                        text = if (controlViewModel.connectedDevices.isEmpty())
+                            "연결된 장치가 없습니다"
+                        else
+                            "연결된 장치: ${controlViewModel.connectedDevices.size}개",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (controlViewModel.connectedDevices.isEmpty()) Color.Red else Color.Green
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 장치 결과 표시
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        controlViewModel.controleeAddresses.forEach { address ->
+                            val position = controlViewModel.getDevicePosition(address)
+                            val isConnected = position != null
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isConnected)
+                                        Color(0xFFE3F2FD) // 연결됨 - 밝은 파란색
+                                    else
+                                        Color(0xFFEEEEEE) // 연결 안됨 - 회색
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "장치: $address",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        Text(
+                                            text = if (isConnected) "연결됨" else "연결 안됨",
+                                            color = if (isConnected) Color.Green else Color.Red
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                    if (position != null) {
+                                        // 거리 정보
+                                        Row {
+                                            Text(
+                                                text = "거리:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.distance?.value ?: "N/A"} m",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 방위각 정보
+                                        Row {
+                                            Text(
+                                                text = "방위각:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.azimuth?.value ?: "N/A"} °",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 고도 정보
+                                        Row {
+                                            Text(
+                                                text = "고도:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.elevation?.value ?: "N/A"} °",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        // 경과 시간 정보
+                                        Row {
+                                            Text(
+                                                text = "경과 시간:",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                text = "${position.elapsedRealtimeNanos} ns",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+
+                                        Spacer(Modifier.height(12.dp))
+
+                                        position.azimuth?.value?.let { azimuth ->
+                                            ArrowIndicator(
+                                                azimuthDeg = azimuth*(-1),
+                                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                            )
+                                        }
+                                    } else {
+                                        Text(
+                                            text = "데이터 없음",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+
+                            Button(
+                                onClick = {
+                                    if (controlViewModel.rangingActive)
+                                        controlViewModel.startDetection()
+                                },
+                                enabled = controlViewModel.rangingActive
+                            ) {
+                                Text("탐지시작")
+                            }
+
+                            controlViewModel.detectedDeviceName?.let { name ->
+                                Text(
+                                    text = "탐지 결과: $name",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Color.Magenta,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+
             // 스캔 제어 버튼
             Row(
                 Modifier.fillMaxWidth(),
@@ -84,14 +399,19 @@ fun ControlScreen(
             when (connectionState) {
                 GattConnector.ConnectionState.CONNECTING ->
                     Text("연결 중...", color = Color.Yellow)
+
                 GattConnector.ConnectionState.CONNECTED ->
                     Text("연결됨", color = Color.Green)
+
                 GattConnector.ConnectionState.SERVICES_DISCOVERED ->
                     Text("서비스 탐색 완료", color = Color.Green)
+
                 GattConnector.ConnectionState.READY ->
                     Text("UWB 준비 완료", color = Color.Green)
+
                 GattConnector.ConnectionState.FAILED ->
                     Text("연결 실패", color = Color.Red)
+
                 else -> {}
             }
 
@@ -127,7 +447,10 @@ fun ControlScreen(
                     items(savedDevices) { device ->
                         SavedDeviceCard(
                             device = device,
-                            onConnect = { bleViewModel.connectToSavedDevice(device) }
+                            onConnect = {
+                                bleViewModel.stopScan()
+                                bleViewModel.connectToSavedDevice(device)
+                            }
                         )
                     }
                 }
@@ -170,7 +493,6 @@ fun ControlScreen(
         }
     }
 }
-
 
 @Composable
 fun SavedDeviceCard(

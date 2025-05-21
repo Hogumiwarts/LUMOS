@@ -12,6 +12,9 @@ val localProperties = Properties().apply {
     load(rootProject.file("local.properties").inputStream())
 }
 val baseUrl = localProperties["AUTH_BASE_URL"] as String
+val ipAddress = localProperties["IP_ADDRESS"] as String
+
+
 android {
     namespace = "com.hogumiwarts.lumos"
     compileSdk = 34
@@ -23,6 +26,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "AUTH_BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "IP_ADDRESS", "\"$ipAddress\"")
 
         vectorDrawables {
             useSupportLibrary = true
@@ -63,6 +67,12 @@ dependencies {
     // 하위 모듈
     implementation(project(":domain"))
     implementation(project(":data"))
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
     // Wearable Services
     implementation(libs.play.services.wearable)
@@ -105,6 +115,9 @@ dependencies {
     implementation(libs.retrofit.moshi)
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging)
+
+    //Coil
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     // Hilt
     implementation(libs.hilt.android)

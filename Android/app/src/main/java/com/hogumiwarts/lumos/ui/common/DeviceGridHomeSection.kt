@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -30,14 +31,13 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.ui.screens.routine.components.DeviceType
 import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 
 @Composable
 fun DeviceGridHomeSection(
     devices: List<MyDevice>,
-    selectedDeviceId: String? = null,
+    selectedDeviceId: Long? = null,
     onDeviceClick: (MyDevice) -> Unit = {},
     onToggleDevice: (MyDevice) -> Unit = {}
 ) {
@@ -56,14 +56,14 @@ fun DeviceGridHomeSection(
             )
         )
 
-
+        Spacer(modifier = Modifier.height(6.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(
                 start = 0.dp,
                 end = 0.dp,
                 top = 15.dp,
-                bottom = 25.dp
+                bottom = 40.dp
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -78,7 +78,9 @@ fun DeviceGridHomeSection(
                     DeviceRoutineCard(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clickable { onDeviceClick(device) },
+                            .clickable {
+                                onDeviceClick(device)
+                            },
                         showToggle = true,
                         cardTitle = device.deviceName,
                         cardSubtitle = device.deviceType.categoryName,
@@ -118,6 +120,7 @@ fun DeviceGridHomeSection(
                 }
             }
         }
+
     }
 
 }

@@ -45,34 +45,27 @@ public class RoutineService {
             routineRepository.clearGestureBinding(memberId, gestureId);
         });
 
-        // 디바이스 ID만 추출 후 상세 정보 조회
+        // 디바이스 ID만 추출
         List<Long> deviceIds = request.getDevices().stream()
             .map(DevicesCreateRequest::getDeviceId)
             .toList();
 
+        // 디바이스 상세 정보 조회
         List<DevicesResponse> deviceDetails = deviceServiceClient.getDeviceDetailsByIds(deviceIds);
 
-        // List → Map 변환으로 빠른 조회
+        // List → Map 변환
         Map<Long, DevicesResponse> deviceDetailMap = deviceDetails.stream()
             .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
 
-        // 제어 정보 병합
-        List<DevicesSaveRequest> devicesWithControlInfo = request.getDevices().stream()
-            .map(deviceReq -> {
-                DevicesResponse detail = deviceDetailMap.get(deviceReq.getDeviceId());
-                if (detail == null) {
-                    log.error("❌ 디바이스 정보를 찾을 수 없습니다. deviceId={}", deviceReq.getDeviceId());
-                    throw new CustomException(ErrorCode.DEVICE_NOT_FOUND);
-                }
-
-                return DevicesSaveRequest.builder()
-                    .deviceId(deviceReq.getDeviceId())
-                    .installedAppId(detail.getInstalledAppId())
-                    .controlId(detail.getControlId())
-                    .commands(deviceReq.getCommands())
-                    .build();
-            })
+        // 존재하지 않는 디바이스 ID 확인
+        List<Long> notFoundDeviceIds = deviceIds.stream()
+            .filter(id -> !deviceDetailMap.containsKey(id))
             .toList();
+
+        if (!notFoundDeviceIds.isEmpty()) {
+            log.warn("❌ 존재하지 않는 디바이스 ID: {}", notFoundDeviceIds);
+            throw new CustomException(ErrorCode.DEVICE_NOT_FOUND, "존재하지 않는 디바이스 ID: " + notFoundDeviceIds);
+        }
 
         // 루틴 생성
         Routine routine = Routine.builder()
@@ -80,7 +73,7 @@ public class RoutineService {
             .gestureId(request.getGestureId().orElse(null))
             .routineName(request.getRoutineName())
             .routineIcon(request.getRoutineIcon())
-            .devices(devicesWithControlInfo)
+            .devices(request.getDevices())
             .build();
 
         routineRepository.save(routine);
@@ -133,7 +126,7 @@ public class RoutineService {
 
         // 3. control 안의 deviceId 목록 추출
         List<Long> deviceIds = routine.getDevices().stream()
-            .map(DevicesSaveRequest::getDeviceId)
+            .map(DevicesCreateRequest::getDeviceId)
             .toList();
 
         // 4. device-service에서 상세 정보 조회
@@ -180,10 +173,8 @@ public class RoutineService {
                 throw new CustomException(ErrorCode.GESTURE_NOT_FOUND);
             }
 
-            // 동일 제스처를 가진 다른 루틴이 있다면 연결 해제
-            routineRepository.findByMemberIdAndGestureId(memberId, gestureId)
-                .filter(r -> !r.getRoutineId().equals(routineId))
-                .ifPresent(r -> r.setGestureId(null));
+            // 중복 gesture 해제 (현재 루틴 제외하고)
+            routineRepository.clearGestureBindingExcludeCurrent(memberId, gestureId, routineId);
 
             routine.setGestureId(gestureId);
         });
@@ -206,17 +197,15 @@ public class RoutineService {
             Map<Long, DevicesResponse> deviceDetailMap = deviceDetails.stream()
                 .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
 
-            List<DevicesSaveRequest> mergedDevices = deviceRequest.stream()
+            List<DevicesCreateRequest> mergedDevices = deviceRequest.stream()
                 .map(req -> {
                     DevicesResponse match = deviceDetailMap.get(req.getDeviceId());
                     if (match == null) {
                         throw new CustomException(ErrorCode.DEVICE_NOT_FOUND);
                     }
 
-                    return DevicesSaveRequest.builder()
+                    return DevicesCreateRequest.builder()
                         .deviceId(req.getDeviceId())
-                        .installedAppId(match.getInstalledAppId())
-                        .controlId(match.getControlId())
                         .commands(req.getCommands())
                         .build();
                 })
@@ -227,7 +216,7 @@ public class RoutineService {
 
         routineRepository.save(routine);
 
-        // 5. 응답 변환: 저장된 DevicesSaveRequest → DevicesResponse 로 변환
+        // 5. 응답 변환
         Map<Long, DevicesResponse> detailMap = deviceDetails.stream()
             .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
 
@@ -256,7 +245,7 @@ public class RoutineService {
         routineRepository.delete(routine);
     }
 
-    // 루틴 실행
+    // 제스처로 루틴 실행
     @Transactional
     public void executeRoutineByGestureId(Long gestureId) {
         Long memberId = AuthUtil.getMemberId();
@@ -265,17 +254,37 @@ public class RoutineService {
         Routine routine = routineRepository.findByMemberIdAndGestureId(memberId, gestureId)
             .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_GESTURE_NOT_FOUND));
 
-        // 2. 실패 디바이스 리스트
+        // 2. deviceId 리스트 추출
+        List<Long> deviceIds = routine.getDevices().stream()
+            .map(DevicesCreateRequest::getDeviceId)
+            .toList();
+
+        // 3. 디바이스 정보 조회
+        List<DevicesResponse> devicesInfo = deviceServiceClient.getDeviceDetailsByIds(deviceIds);
+
+        // 4. deviceId → DevicesResponse 맵핑
+        Map<Long, DevicesResponse> deviceMap = devicesInfo.stream()
+            .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
+
+        // 5. 실패 디바이스 리스트
         List<Long> failedDeviceIds = new ArrayList<>();
 
-        // 3. 디바이스별 명령 실행
-        for (DevicesSaveRequest device : routine.getDevices()) {
+        // 6. 디바이스별 명령 실행
+        for (DevicesCreateRequest device : routine.getDevices()) {
             try {
+                DevicesResponse deviceInfo = deviceMap.get(device.getDeviceId());
+
+                if (deviceInfo == null) {
+                    log.error("💥 디바이스 정보 누락: deviceId={}", device.getDeviceId());
+                    failedDeviceIds.add(device.getDeviceId());
+                    continue;
+                }
+
                 CommandExecuteRequest commandRequest = new CommandExecuteRequest(device.getCommands());
 
                 smartThingsClient.executeCommand(
-                    device.getControlId(),
-                    device.getInstalledAppId(),
+                    deviceInfo.getControlId(),
+                    deviceInfo.getInstalledAppId(),
                     commandRequest
                 );
 
@@ -285,13 +294,64 @@ public class RoutineService {
             }
         }
 
-        // 4. 일부 실패 시 예외 던짐
+        // 7. 일부 실패 시 예외 던짐
         if (!failedDeviceIds.isEmpty()) {
             log.warn("⚠️ 일부 디바이스 제어 실패: {}", failedDeviceIds);
             throw new CustomException(ErrorCode.ROUTINE_PARTIAL_FAILURE);
         }
+    }
 
-        log.info("✅ 루틴 실행 성공: routineId={}, gestureId={}", routine.getRoutineId(), gestureId);
+    // 버튼으로 루틴 실행
+    public void executeRoutineById(Long routineId) {
+        // 1. 루틴 조회
+        Routine routine = routineRepository.findById(routineId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND));
+
+        // 2. deviceId 리스트 추출
+        List<Long> deviceIds = routine.getDevices().stream()
+            .map(DevicesCreateRequest::getDeviceId)
+            .toList();
+
+        // 3. 디바이스 정보 조회
+        List<DevicesResponse> devicesInfo = deviceServiceClient.getDeviceDetailsByIds(deviceIds);
+
+        // 4. deviceId → DevicesResponse 맵핑
+        Map<Long, DevicesResponse> deviceMap = devicesInfo.stream()
+            .collect(Collectors.toMap(DevicesResponse::getDeviceId, d -> d));
+
+        // 5. 실패 디바이스 리스트
+        List<Long> failedDeviceIds = new ArrayList<>();
+
+        // 6. 디바이스별 명령 실행
+        for (DevicesCreateRequest device : routine.getDevices()) {
+            try {
+                DevicesResponse deviceInfo = deviceMap.get(device.getDeviceId());
+
+                if (deviceInfo == null) {
+                    log.error("💥 디바이스 정보 누락: deviceId={}", device.getDeviceId());
+                    failedDeviceIds.add(device.getDeviceId());
+                    continue;
+                }
+
+                CommandExecuteRequest commandRequest = new CommandExecuteRequest(device.getCommands());
+
+                smartThingsClient.executeCommand(
+                    deviceInfo.getControlId(),
+                    deviceInfo.getInstalledAppId(),
+                    commandRequest
+                );
+
+            } catch (Exception e) {
+                failedDeviceIds.add(device.getDeviceId());
+                log.error("💥 스마트싱스 제어 실패: deviceId={}, error={}", device.getDeviceId(), e.getMessage());
+            }
+        }
+
+        // 7. 일부 실패 시 예외 던짐
+        if (!failedDeviceIds.isEmpty()) {
+            log.warn("⚠️ 일부 디바이스 제어 실패: {}", failedDeviceIds);
+            throw new CustomException(ErrorCode.ROUTINE_PARTIAL_FAILURE);
+        }
     }
 
     @Transactional

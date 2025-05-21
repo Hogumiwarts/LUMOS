@@ -1,7 +1,11 @@
 package com.hogumiwarts.lumos.presentation.ui.screens.control.speaker
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +32,8 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -43,25 +50,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
+import coil.compose.AsyncImage
+import com.hogumiwarts.domain.model.audio.AudioStatusData
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.presentation.ui.common.AnimatedMobile
+import com.hogumiwarts.lumos.presentation.ui.function.sendOpenLightMessage
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.AudioViewModel
+import kotlinx.coroutines.delay
 
 
 @Composable
-fun MoodPlayerContainer(onSwipeDown: () -> Unit) {
+fun MoodPlayerContainer(deviceId:Long, data: AudioStatusData, onSwipeDown: () -> Unit, viewModel: AudioViewModel = hiltViewModel()) {
 
-    var volumePercent by remember { mutableIntStateOf(40) }
+    var volumePercent by remember { mutableIntStateOf(data.audioVolume) }
     var isDraggingVolume by remember { mutableStateOf(false) }
+
     var dragStartPosition by remember { mutableStateOf(Offset.Zero) }
     var totalVerticalDrag by remember { mutableFloatStateOf(0f) }
+
+    var imageUrl by remember { mutableStateOf(data.audioImg) }
+    var name by remember { mutableStateOf(data.audioName) }
+    var artists by remember { mutableStateOf(data.audioArtist) }
+    val powerState by viewModel.powerState.collectAsState()
+    val volumeState by viewModel.volumeState.collectAsState()
+
 
     // 햅틱 피드백을 위한 현재 뷰 가져오기
     val view = LocalView.current
@@ -73,9 +97,12 @@ fun MoodPlayerContainer(onSwipeDown: () -> Unit) {
     // 한 번에 변경할 볼륨의 양
     val volumeStep = 3
 
+    // 폰에서 세부 설정 클릭시 애니메이션 효과 여부
+    var showAnimation by remember { mutableStateOf(false) }
+
     // 이전 볼륨 값 추적 (변경 여부 확인용)
     var prevVolumePercent by remember { mutableIntStateOf(volumePercent) }
-    var isPlaying by remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(data.activated) }
 
     Box(
         modifier = Modifier
@@ -91,8 +118,12 @@ fun MoodPlayerContainer(onSwipeDown: () -> Unit) {
                         prevVolumePercent = volumePercent
                     },
                     onDragEnd = {
-                        if (totalVerticalDrag < -50f && !isDraggingVolume) {
+                        if (totalVerticalDrag >= 50f && !isDraggingVolume) {
                             onSwipeDown()
+                        }
+                        if (isDraggingVolume) {
+                            Log.d("VolumeControl", "Volume changed to: $volumePercent")
+                            viewModel.sendIntent(AudioIntent.LoadAudioVolume(deviceId,volumePercent))
                         }
                         isDraggingVolume = false
                         totalVerticalDrag = 0f
@@ -140,8 +171,8 @@ fun MoodPlayerContainer(onSwipeDown: () -> Unit) {
     ) {
 
         // 배경
-        Image(
-            painter = painterResource(id = R.drawable.wish),
+        AsyncImage(
+            model = imageUrl,
             contentDescription = null,
             alpha = 0.6f,
             modifier = Modifier.fillMaxSize()
@@ -185,52 +216,62 @@ fun MoodPlayerContainer(onSwipeDown: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Column() {
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
                 Text(
-                    text = "NCT WISH", fontSize = 14.sp,
-                    fontWeight = FontWeight.Light
+                    text = artists, fontSize = 14.sp,
+                    fontWeight = FontWeight.Light,
+                    textAlign = TextAlign.Center
                 )
 
-                Text(text = "WISH", fontSize = 20.sp, color = Color.White)
+                Text(text =name, fontSize = 20.sp, color = Color.White, modifier = Modifier.padding(20.dp,0.dp),textAlign = TextAlign.Center)
             }
 
 
-            if (isPlaying) {
-                // 재생 중이면 일시정지 아이콘 표시
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_pause),
-                    contentDescription = "일시정지",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            isPlaying = !isPlaying
-                        }
-                )
-            } else {
-                // 일시정지 중이면 재생 아이콘 표시
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "재생",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            isPlaying = !isPlaying
-                        }
-                )
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+//                        isPlaying= !isPlaying
+                        viewModel.sendIntent(
+                            AudioIntent.LoadAudioPower(
+                                deviceId = deviceId,
+                                activated = !isPlaying
+                            )
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+
+                if (!isPlaying) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "일시정지",
+                        tint = Color.White,
+                        modifier = Modifier.size(40.dp)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_pause),
+                        contentDescription = "재생",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
             }
 
-
+            val context = LocalContext.current
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = Color(0x20F9F9F9),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+                    showAnimation = true
+                    sendOpenLightMessage(context, deviceId = deviceId, deviceType = "AUDIO")
+                }
             ) {
                 Text(
                     text = "폰에서 세부 제어",
@@ -239,6 +280,41 @@ fun MoodPlayerContainer(onSwipeDown: () -> Unit) {
                     style = TextStyle(fontSize = 14.sp)
                 )
             }
+        }
+        Box(modifier = Modifier.fillMaxSize()){
+            AnimatedVisibility(
+                visible = showAnimation,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                AnimatedMobile()
+            }
+        }
+        // ✅ 2초 후 자동으로 사라지기
+        LaunchedEffect(showAnimation) {
+            if (showAnimation) {
+                delay(2000)
+                showAnimation = false
+            }
+        }
+
+        when(powerState){
+            is AudioPowerState.Error ->{}
+            AudioPowerState.Idle -> {
+
+            }
+            is AudioPowerState.Loaded -> {isPlaying = (powerState as AudioPowerState.Loaded).data.activated}
+            AudioPowerState.Loading -> {}
+        }
+
+        when(volumeState){
+            is AudioVolumeState.Error -> {}
+            AudioVolumeState.Idle -> {}
+            is AudioVolumeState.Loaded -> {
+                volumePercent= (volumeState as AudioVolumeState.Loaded).data.volume
+            }
+            AudioVolumeState.Loading -> {}
         }
     }
 }

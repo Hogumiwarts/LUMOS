@@ -2,6 +2,8 @@ package com.hogumiwarts.lumos.ui.screens.setting
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,10 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
+import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
+import timber.log.Timber
 
 @Composable
-fun SettingScreen() {
+fun SettingScreen(
+    authViewModel: AuthViewModel,
+    navController: NavController
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +49,7 @@ fun SettingScreen() {
             HeaderSection()
 
             // Menu items
-            MenuItems()
+            MenuItems(authViewModel, navController)
         }
     }
 }
@@ -69,7 +73,7 @@ fun HeaderSection() {
                 ),
                 shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
             )
-            .padding(16.dp)
+            .padding(32.dp)
     ) {
 
         Row(
@@ -93,7 +97,7 @@ fun HeaderSection() {
                         color = Color(0xffFFFFFF).copy(0.1f),
                         shape = RoundedCornerShape(20)
                     )
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                    .padding(horizontal = 32.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -114,14 +118,20 @@ fun HeaderSection() {
 }
 
 @Composable
-fun MenuItems() {
+fun MenuItems(authViewModel: AuthViewModel, navController: NavController) {
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(24.dp)
     ) {
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    // TODO:: smartthings 화면 연결
+                }
                 .padding(vertical = 16.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -137,18 +147,61 @@ fun MenuItems() {
             )
         }
 
+
+        Divider()
+
+        // 제스처 테스트 화면
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    navController.navigate("gesture_select")
+                },
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_edit),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "제스처 테스트",
+                fontSize = 18.sp
+            )
+        }
+
         Divider()
 
         // Logout
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(vertical = 16.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    authViewModel.logOut(
+                        onSuccess = { navController.navigate("login") },
+                        onFailure = {
+                            Timber
+                                .tag("auth")
+                                .d("⚠️ 로그아웃 실패")
+                        }
+                    )
+                },
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Image(painter = painterResource(id = R.drawable.ic_edit), contentDescription = null,
-                modifier = Modifier.size(20.dp))
+            Image(
+                painter = painterResource(id = R.drawable.ic_edit), contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Text(
                 text = "로그아웃",
                 fontSize = 18.sp
@@ -158,9 +211,9 @@ fun MenuItems() {
 }
 
 
-@Composable
-@Preview(showBackground = true)
-fun SettingPreview() {
-    SettingScreen()
-
-}
+//@Composable
+//@Preview(showBackground = true)
+//fun SettingPreview() {
+//    SettingScreen()
+//
+//}

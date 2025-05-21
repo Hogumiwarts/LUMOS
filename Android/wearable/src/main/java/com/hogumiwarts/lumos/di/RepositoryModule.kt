@@ -2,9 +2,11 @@ package com.hogumiwarts.lumos.di
 
 import com.hogumiwarts.lumos.data.repostitory.DeviceRepositoryImpl
 import com.hogumiwarts.lumos.data.repostitory.LightRepositoryImpl
+import com.hogumiwarts.lumos.data.repostitory.RoutineRepositoryImpl
 import com.hogumiwarts.lumos.data.repostitory.SwitchRepositoryImpl
 import com.hogumiwarts.lumos.domain.repository.DeviceRepository
 import com.hogumiwarts.lumos.domain.repository.LightRepository
+import com.hogumiwarts.lumos.domain.repository.RoutineRepository
 import com.hogumiwarts.lumos.domain.repository.SwitchRepository
 import dagger.Binds
 import dagger.Module
@@ -34,6 +36,10 @@ abstract class RepositoryModule {
         impl: LightRepositoryImpl
     ): LightRepository
 
-
+    @Binds
+    @Singleton
+    abstract fun bindRoutineRepository(
+        impl: RoutineRepositoryImpl
+    ): RoutineRepository
 
 }

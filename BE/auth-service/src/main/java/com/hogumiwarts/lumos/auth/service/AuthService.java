@@ -3,7 +3,7 @@ package com.hogumiwarts.lumos.auth.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.hogumiwarts.lumos.auth.client.MemberClient;
+import com.hogumiwarts.lumos.auth.client.MemberServiceClient;
 import com.hogumiwarts.lumos.auth.dto.CreateMemberRequest;
 import com.hogumiwarts.lumos.auth.dto.LoginRequest;
 import com.hogumiwarts.lumos.auth.dto.LoginResponse;
@@ -17,7 +17,6 @@ import com.hogumiwarts.lumos.exception.ErrorCode;
 import com.hogumiwarts.lumos.jwt.JwtTokenProvider;
 import com.hogumiwarts.lumos.redis.RedisTokenService;
 
-import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -25,13 +24,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-	private final MemberClient memberClient;
+	private final MemberServiceClient memberServiceClient;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisTokenService redisTokenService;
 
 	public SignupResponse signup(SignupRequest request) {
-		if (memberClient.checkEmailExists(request.getEmail())) {
+		if (memberServiceClient.checkEmailExists(request.getEmail())) {
 			throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
 		}
 
@@ -46,7 +45,7 @@ public class AuthService {
 		createRequest.setPassword(encodedPw);
 		createRequest.setName(request.getName());
 
-		MemberResponse created = memberClient.createMember(createRequest);
+		MemberResponse created = memberServiceClient.createMember(createRequest);
 
 		return new SignupResponse(
 			created.getMemberId(),
@@ -58,7 +57,7 @@ public class AuthService {
 
 	public LoginResponse login(LoginRequest request) {
 		// 1. 사용자 조회 (Feign으로 회원 정보 가져오기)
-		MemberResponse member = memberClient.findByEmail(request.getEmail());
+		MemberResponse member = memberServiceClient.findByEmail(request.getEmail());
 
 		if (member == null) {
 			throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
@@ -118,8 +117,8 @@ public class AuthService {
 		Long memberId = jwtTokenProvider.getMemberIdFromToken(refreshToken);
 
 		// 3. FeignClient 통해 member 존재 여부 확인
-		MemberResponse member = memberClient.getMember(memberId);
-		if (member == null) {
+		// 존재하지 않는 사용자에 대한 Refresh Token 요청 방지
+		if (!memberServiceClient.checkMemberExists(memberId)) {
 			throw new CustomException(ErrorCode.MEMBER_ID_NOT_FOUND);
 		}
 

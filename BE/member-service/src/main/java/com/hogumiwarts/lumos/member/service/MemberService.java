@@ -36,6 +36,13 @@ public class MemberService {
 		return memberRepository.existsByEmail(email);
 	}
 
+	public CreateMemberResponse findByEmail(String email) {
+		Optional<Member> member = memberRepository.findByEmail(email);
+		return member.map(CreateMemberResponse::fromEntity).orElse(null);
+	}
+
+	public Boolean isMemberExists(Long memberId) {return memberRepository.existsById(memberId);}
+
 	public CreateMemberResponse createMember(CreateMemberRequest request) {
 		Member member = new Member();
 		member.setEmail(request.getEmail());
@@ -44,15 +51,5 @@ public class MemberService {
 
 		Member saved = memberRepository.save(member);
 		return CreateMemberResponse.fromEntity(saved);
-	}
-
-	public CreateMemberResponse findByEmail(String email) {
-		Optional<Member> member = memberRepository.findByEmail(email);
-		return member.map(CreateMemberResponse::fromEntity).orElse(null);
-	}
-
-	public CreateMemberResponse findById(Long memberId) {
-		Optional<Member> member = memberRepository.findById(memberId);
-		return member.map(CreateMemberResponse::fromEntity).orElse(null);
 	}
 }

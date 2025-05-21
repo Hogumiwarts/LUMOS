@@ -1,0 +1,270 @@
+services:
+
+  # Spring Cloud Gateway
+  gateway-service:
+    image: itsanisland/lumos-gateway-service:latest
+    container_name: lumos-gateway-service
+    expose:
+      - "8080"
+    env_file:
+      - .env.prod
+    depends_on:
+      - gesture-sensor-service
+      - auth-service
+      - member-service
+      - smartthings-service
+    networks:
+      - app-network
+
+  # 제스처 센서 서비스
+  gesture-sensor-service:
+    image: itsanisland/lumos-gesture-sensor-service:latest
+    container_name: lumos-gesture-sensor-service
+    expose:
+      - "8080"  # 내부 통신용
+    env_file:
+      - .env.prod
+      - ./gesture-sensor-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 인증 서비스
+  auth-service:
+    image: itsanisland/lumos-auth-service:latest
+    container_name: lumos-auth-service
+    expose:
+      - "8080"
+    env_file:
+      - .env.prod
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 회원 서비스
+  member-service:
+    image: itsanisland/lumos-member-service:latest
+    container_name: lumos-member-service
+    expose:
+      - "8080"
+    env_file:
+      - ./member-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 기기 서비스
+  device-service:
+    image: itsanisland/lumos-device-service:latest
+    container_name: lumos-device-service
+    expose:
+      - "8080"
+    env_file:
+      - ./device-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 제스처 서비스
+  gesture-service:
+    image: itsanisland/lumos-gesture-service:latest
+    container_name: lumos-gesture-service
+    expose:
+      - "8080"
+    env_file:
+      - ./gesture-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+  
+  # 루틴 서비스
+  routine-service:
+    image: itsanisland/lumos-routine-service:latest
+    container_name: lumos-routine-service
+    expose:
+      - "8080"
+    env_file:
+      - ./routine-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+
+  # SmartThings 서비스
+  smartthings-service:
+    image: itsanisland/lumos-smartthings-service:latest
+    container_name: lumos-smartthings-service
+    expose:
+      - "3000"
+    env_file:
+      - ./smartthings-service/.env
+    volumes:
+      - ./smartthings-service/data:/app/data
+    networks:
+      - app-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: lumos-postgres
+    env_file:
+      - .env.prod
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+  
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: lumos-redis
+    restart: always
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      - app-network
+  
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: lumos-redis-insight
+    restart: always
+    expose:
+      - "5540"
+    volumes:
+      - redis-insight-data:/data
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lumos-grafana
+    expose:
+      - "3000"
+    env_file:
+      - .env.prod
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+      
+  # Loki
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: lumos-loki
+    expose:
+      - "3100"
+    command: -config.file=/etc/loki/local-config.yaml -log.level=warn
+    networks:
+      - app-network
+
+  # Promtail
+  promtail:
+    image: grafana/promtail:2.9.3
+    container_name: lumos-promtail
+    volumes:
+      - /var/log:/var/log # 시스템 로그 접근
+      - ./promtail:/etc/promtail
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro # 도커 로그 위치
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+  
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: lumos-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    expose:
+      - "9090"
+    networks:
+      - app-network
+
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    container_name: lumos-node-exporter
+    expose:
+      - "9100"
+    networks:
+      - app-network
+    restart: always
+  
+  # cAdvisor
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: lumos-cadvisor
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    command:
+      - "--docker_only=true"
+      - "--housekeeping_interval=10s"
+      - "--store_container_labels=true"
+      - "--allow_dynamic_housekeeping=true"
+    networks:
+      - app-network
+    restart: always
+  
+  # NginX
+  nginx:
+    image: nginx:latest
+    container_name: lumos-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - gateway-service
+      - grafana
+      - certbot
+    networks:
+      - app-network
+
+# Certbot
+  certbot:
+    image: certbot/certbot
+    container_name: lumos-certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  postgres_data:
+  grafana_data:
+  redis_data:
+  redis-insight-data:
+
+networks:
+  app-network:

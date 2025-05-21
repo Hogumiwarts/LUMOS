@@ -3,7 +3,7 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      
+
 member:
   service:
     url: http://member-service:8080

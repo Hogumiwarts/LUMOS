@@ -1,18 +1,15 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.api.Api
-import com.hogumiwarts.data.entity.remote.Response.RoutineData
+import com.hogumiwarts.data.entity.remote.Request.RefreshRequest
 import com.hogumiwarts.data.source.remote.AuthApi
-import com.hogumiwarts.domain.model.RoutineResult
-import com.hogumiwarts.domain.model.Routine
+import com.hogumiwarts.domain.model.routine.RoutineResult
+import com.hogumiwarts.domain.model.routine.Routine
+import com.hogumiwarts.domain.model.routine.RoutineDetailData
 import com.hogumiwarts.domain.repository.RoutineRepository
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
-import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -35,6 +32,9 @@ class RoutineViewModel @Inject constructor(
     // 루틴 목록
     private val _routineList = MutableStateFlow<List<Routine>>(emptyList())
     val routineList: StateFlow<List<Routine>> = _routineList
+
+    private val _routineDetail = MutableStateFlow<RoutineDetailData?>(null)
+    val routineDetail: StateFlow<RoutineDetailData?> = _routineDetail
 
     // 루틴 목록 불러오기
     fun getRoutineList() {
@@ -69,6 +69,15 @@ class RoutineViewModel @Inject constructor(
                     Timber.tag("RoutineViewModel").d("❗ 401 발생 - 토큰 갱신 시도")
                     refreshAndRetry()
                 }
+
+                is RoutineResult.DetailSuccess -> {
+                    Timber.tag("RoutineViewModel").d("📋 루틴 상세 응답: ${result.detail}")
+                    _routineDetail.value = result.detail
+                }
+
+                else -> {
+                    Timber.tag("RoutineViewModel").w("⚠️ 예상치 못한 RoutineResult: $result")
+                }
             }
         }
     }
@@ -77,7 +86,9 @@ class RoutineViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val refreshToken = tokenDataStore.getRefreshToken().first()
-                val response = authApi.refresh("Bearer $refreshToken")
+                Timber.tag("routine").d("🔐 리프레시 토큰: $refreshToken")
+
+                val response = authApi.refresh(RefreshRequest(refreshToken))
                 val newAccessToken = response.data.accessToken
                 val name = tokenDataStore.getUserName().firstOrNull() ?: ""
 
@@ -92,5 +103,6 @@ class RoutineViewModel @Inject constructor(
             }
         }
     }
+
 
 }
