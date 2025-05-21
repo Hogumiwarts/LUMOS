@@ -88,7 +88,7 @@ fun SettingScreen(
             containerColor = Color.White,
             dragHandle = null,
         ) {
-            ControlScreen()
+            MultiRangingScreen()
         }
     }
 }
