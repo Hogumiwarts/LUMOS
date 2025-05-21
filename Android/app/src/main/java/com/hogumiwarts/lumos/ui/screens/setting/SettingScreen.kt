@@ -89,7 +89,6 @@ fun SettingScreen(
             dragHandle = null,
         ) {
             MultiRangingScreen()
-            ControlScreen()
         }
     }
 }
