@@ -1,6 +1,5 @@
 
-![]()
-
+![](https://velog.velcdn.com/images/bmlsj/post/be5d096e-e28b-4dff-ba05-5556ddd94c6f/image.png)
 
 # 💗 **싸피 12기 2학기 자율 프로젝트**
 ## RUMOS
