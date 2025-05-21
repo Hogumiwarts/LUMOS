@@ -157,8 +157,8 @@ class UwbRanging @Inject constructor(private val uwbManager: UwbManager) {
                 sessionKeyInfo = byteArrayOf(0x08, 0x07, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
                 complexChannel = UwbComplexChannel(9, 9),
                 peerDevices = listOf(
-                    UwbDevice(UwbAddress("00:01")),
-//                    UwbDevice(UwbAddress("00:02"))
+//                    UwbDevice(UwbAddress("00:01")),
+                    UwbDevice(UwbAddress("00:02"))
                 ),
                 updateRateType = RangingParameters.RANGING_UPDATE_RATE_FREQUENT,
                 sessionId = 42,
