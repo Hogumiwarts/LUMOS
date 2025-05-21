@@ -372,38 +372,46 @@ fun RealLightScreenContent(
         }
     }
 
+
     when (brightnessState) {
         is LightBrightState.Error -> {}
         LightBrightState.Idle -> {}
         is LightBrightState.Loaded -> {
-            brightness = (brightnessState as LightBrightState.Loaded).data.brightness
+
         }
 
         LightBrightState.Loading -> LoadingComponent()
     }
-    LaunchedEffect(colorState) {
 
+    var hasInteracted by remember { mutableStateOf(false) }
         when (colorState) {
             is LightColorState.Error -> {}
             LightColorState.Idle -> {}
             is LightColorState.Loaded -> {
+                if (!hasInteracted) hasInteracted = true
 
-                isColor = true
-                val data = (colorState as LightColorState.Loaded).data
-                controller.selectByHsv(
-                    (data.hue * 36 / 10).toFloat(),
-                    data.saturation / 100,
-                    1f,
-                    1f,
-                    false
-                )
-
+//                isColor = true
+//                val data = (colorState as LightColorState.Loaded).data
+//                controller.selectByHsv(
+//                    (data.hue * 36 / 10).toFloat(),
+//                    data.saturation / 100,
+//                    1f,
+//                    1f,
+//                    false
+//                )
 
             }
 
-            LightColorState.Loading -> {}
+            LightColorState.Loading -> {
+                if (hasInteracted) {
+                    LoadingComponent()
+
+                }
+
+
+            }
         }
-    }
+
 
     when (temperatureState) {
         is LightTemperatureState.Error -> {}
