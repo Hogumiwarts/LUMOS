@@ -116,16 +116,16 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             }
         }
 
-//        if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
-//            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1001)
-//        }
+        if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1001)
+        }
 
         // 진동 권한 확인 (API 33 이상에서 필요)
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-//            if (checkSelfPermission(Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED) {
-//                requestPermissions(arrayOf(Manifest.permission.VIBRATE), 1002)
-//            }
-//        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.VIBRATE), 1002)
+            }
+        }
 
         // 센서 초기화
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -158,7 +158,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         // CONTINUOUS 모드에서만 자동으로 시작
         if (gestureMode == GestureMode.CONTINUOUS) {
             isMeasuring = true
-//            startIMU()
+            startIMU()
             webSocketViewModel.connectWebSocket(gestureMode)
             Log.d("Gesture", "CONTINUOUS 모드 - 웹소켓 연결 및 센서 수집 시작")
         } else {
