@@ -16,9 +16,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -103,6 +106,9 @@ fun RoutineEditScreen(
 
     val deviceErrorMessage = remember { mutableStateOf<String?>(null) }
 
+    // 네비게이션 바 높이 가져오기
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
     LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
             ?.savedStateHandle
@@ -134,10 +140,6 @@ fun RoutineEditScreen(
             }
 
     }
-
-//    var initialized by remember { mutableStateOf(false) }
-//        initialized = true
-
 
     // 초기 데이터 설정
     LaunchedEffect(Unit) {
@@ -239,7 +241,16 @@ fun RoutineEditScreen(
                             )
                         }
 
-                        DeviceListType.ETC -> TODO()
+                        DeviceListType.ETC -> {
+                            json?.let {
+                                Gson().fromJson(it, CommandDevice::class.java)
+                            } ?: selectedDevice.toCommandDevice(
+                                isOn = true,
+                                brightness = 50,
+                                hue = null,
+                                saturation = null
+                            )
+                        }
                     }
 
                     if (deviceList.any { it.deviceId == commandDevice.deviceId }) {
@@ -580,9 +591,8 @@ fun RoutineEditScreen(
             }
 
 
-
             item {
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
 
         }
@@ -591,7 +601,7 @@ fun RoutineEditScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(bottom = 40.dp, top = 20.dp)
+                .padding(bottom = 40.dp + navBarHeight, top = 20.dp)
         ) {
             PrimaryButton(
                 buttonText = "수정하기",

@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineDetail
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineItem
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -124,6 +126,7 @@ fun RoutineDetailScreen(
     )
 }
 
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 fun RoutineDetailContent(
     routine: RoutineItem,
@@ -189,7 +192,10 @@ fun RoutineDetailContent(
 
                 Text(
                     "수정",
-                    modifier = Modifier.clickable {
+                    modifier = Modifier.clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = null
+                    ) {
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
                             set("editRoutineId", routine.routineId)
                             set("editRoutineName", routine.routineName)
@@ -226,7 +232,10 @@ fun RoutineDetailContent(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     "삭제",
-                    modifier = Modifier.clickable {
+                    modifier = Modifier.clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = null
+                    ) {
                         onRequestDelete()
                     },
                     style = MaterialTheme.typography.bodyMedium.copy(

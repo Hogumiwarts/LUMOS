@@ -100,12 +100,14 @@ fun DeviceRoutineCard(
                 .padding(top = 12.dp, bottom = 18.dp, start = 15.dp), // end 패딩은 없음
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
+            if(showToggle) {
                 VerticalToggle(
                     isOn = isOn,
                     onToggle = { onToggle?.invoke() }
                 )
-
+            }else{
+                Spacer(modifier = Modifier.height(53.dp))
+            }
 
             Column {
                 Text(
@@ -122,17 +124,20 @@ fun DeviceRoutineCard(
 
                 Spacer(modifier = Modifier.height(1.dp))
 
-                Text(
-                    text = cardSubtitle,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontFamily = nanum_square_neo,
-                        color = when {
-                            !isActive -> Color(0xFFB6B6B6)
-                            cardSubtitle == "제스처 없음" -> Color(0xFFE0E0E0)
-                            else -> colorResource(id = R.color.gray_light)
-                        }
+
+                    Text(
+                        text = cardSubtitle,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = nanum_square_neo,
+                            color = when {
+                                !isActive -> Color(0xFFB6B6B6)
+                                cardSubtitle == "제스처 없음" -> Color(0xFFE0E0E0)
+                                else -> colorResource(id = R.color.gray_light)
+                            }
+                        )
                     )
-                )
+
+
             }
         }
     }
@@ -153,7 +158,7 @@ fun DeviceRoutineCardPreview() {
             modifier = Modifier
                 .width(160.dp) // 전체 380dp 중 절반 정도로 설정
                 .aspectRatio(1f), // 정사각형 비율 유지
-            showToggle = true,
+            showToggle = false,
             cardTitle = "거실 조명",
             cardSubtitle = "조명",
             cardIcon = {
