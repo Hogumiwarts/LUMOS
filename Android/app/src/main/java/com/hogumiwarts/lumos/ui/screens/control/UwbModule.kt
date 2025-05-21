@@ -23,4 +23,10 @@ object UwbModule {
     fun provideUwbRanging(uwbManager: UwbManager): UwbRanging {
         return UwbRanging(uwbManager)
     }
+
+    @Provides
+    @Singleton
+    fun provideUwbMultiRanging(uwbManager: UwbManager, uwbRanging: UwbRanging): UwbMultiRanging {
+        return UwbMultiRanging(uwbManager, uwbRanging)
+    }
 }

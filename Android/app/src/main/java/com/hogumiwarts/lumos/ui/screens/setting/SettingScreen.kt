@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.ui.screens.control.ControlScreen
+import com.hogumiwarts.lumos.ui.screens.control.MultiRangingScreen
 import com.hogumiwarts.lumos.ui.viewmodel.AuthViewModel
 import timber.log.Timber
 
@@ -87,7 +88,7 @@ fun SettingScreen(
             containerColor = Color.White,
             dragHandle = null,
         ) {
-            ControlScreen()
+            MultiRangingScreen()
         }
     }
 }

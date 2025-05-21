@@ -3,6 +3,7 @@ package com.hogumiwarts.lumos.ui.screens.control
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.uwb.RangingPosition
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ControlViewModel @Inject constructor(
-    private val uwbRanging: UwbRanging
+    private val uwbRanging: UwbRanging,
+    private val uwbMultiRanging: UwbMultiRanging
 ) : ViewModel() {
 
     // UwbRanging의 상태를 노출
@@ -31,6 +33,15 @@ class ControlViewModel @Inject constructor(
     val sessionReady get() = uwbRanging.sessionReady
 
 
+    // UwbMultiRanging 상태 접근을 위한 속성들
+    val multiRangingActive get() = uwbMultiRanging.rangingActive
+
+    // 멀티 레인징 관련 속성
+    val multiRangingPositions get() = uwbMultiRanging.rangingPositions
+    val multiRanging get() = uwbMultiRanging.ranging
+
+    val pstsKeyHex = uwbMultiRanging.pstsKeyHex
+
     /** 내부 감시 Job */
     private var detectionJob: Job? = null
     // 탐지 상태
@@ -40,9 +51,9 @@ class ControlViewModel @Inject constructor(
     var detectedDeviceName by mutableStateOf<String?>(null)
         private set
 
-    // 멀티
-    val multiRangingPositions = uwbRanging.ranging
-    fun getMultiPosition(addr: String) = uwbRanging.rangingPositions[addr]
+//    // 멀티
+//    val multiRangingPositions = uwbRanging.ranging
+//    fun getMultiPosition(addr: String) = uwbRanging.rangingPositions[addr]
 
     /** ★ 10 초 타임아웃 + 3 초 연속 구간 유지 로직 */
     fun startDetection() {
@@ -106,16 +117,6 @@ class ControlViewModel @Inject constructor(
         return uwbRanging.startSingleRanging()
     }
 
-//    fun startMultiRanging(): Boolean {
-//        return uwbRanging.startMultiDeviceRanging()
-//    }
-//
-//    fun startRanging(): Boolean {
-//        // 이미 활성화된 경우 중복 호출 방지
-//        if (rangingActive) return true
-//        return uwbRanging.startRanging()
-//    }
-
     fun stopRanging() {
         uwbRanging.stopRanging()
     }
@@ -134,25 +135,40 @@ class ControlViewModel @Inject constructor(
         uwbRanging.prepareSession()
     }
 
-    // 멀티
-    fun startMulti() {
-        viewModelScope.launch {
-            uwbRanging.startMultiRanging()
-        }
+    fun generatePstsKey() {
+        uwbMultiRanging.generateNewPstsKey()
     }
 
-    fun stopMulti() {
-        viewModelScope.launch {
-            uwbRanging.stopAllRanging()
-        }
+    // 멀티 레인징 시작
+    fun startMultiRanging(): Boolean {
+        return uwbMultiRanging.startConfigMultiRanging()
     }
+
+    // 멀티 레인징 중지
+    suspend fun stopMultiRanging() {
+        uwbMultiRanging.stopAllRanging()
+    }
+
+    // UI에서 편리하게 접근할 수 있는 헬퍼 메서드
+    fun getMultiDevicePosition(address: String): RangingPosition? {
+        return uwbMultiRanging.rangingPositions[address]
+    }
+
 
     override fun onCleared() {
         super.onCleared()
         detectionJob?.cancel()
+
         // ViewModel이 소멸될 때 레인징을 중지
         if (rangingActive) {
             uwbRanging.stopRanging()
+        }
+
+        // 멀티 레인징 중지
+        if (multiRangingActive) {
+            viewModelScope.launch {
+                uwbMultiRanging.stopAllRanging()
+            }
         }
     }
 }
