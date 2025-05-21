@@ -128,7 +128,8 @@ fun RealLightScreenContent(
             text = lightDevice?.deviceName ?: "",
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(41.dp))
@@ -141,7 +142,8 @@ fun RealLightScreenContent(
             Text(
                 "조명",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
 
             Switch(
@@ -173,7 +175,8 @@ fun RealLightScreenContent(
             Text(
                 text = "밝기",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
 
             Slider(
@@ -200,12 +203,12 @@ fun RealLightScreenContent(
                 Text(
                     text = "0",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
                 Text(
                     text = "100",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
             }
         }
@@ -218,7 +221,8 @@ fun RealLightScreenContent(
             Text(
                 text = "색 온도",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
 
             GradientColorSlider(
@@ -234,12 +238,12 @@ fun RealLightScreenContent(
                 Text(
                     text = "2200K",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
                 Text(
                     text = "6500K",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
             }
         }
@@ -254,7 +258,8 @@ fun RealLightScreenContent(
                 text = "색상 설정",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 18.sp,
-                modifier = Modifier.align(Alignment.Start)
+                modifier = Modifier.align(Alignment.Start),
+                color = Color.Black
             )
 
             val coroutineScope = rememberCoroutineScope()
@@ -314,10 +319,11 @@ fun RealLightScreenContent(
                     .clip(RoundedCornerShape(4.dp))
                     .background(selectedColor)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 selectedColorCode,
-                fontSize = 18.sp
+                fontSize = 14.sp,
+                color = Color.Black
             )
         }
 
@@ -334,22 +340,26 @@ fun RealLightScreenContent(
             Text(
                 "기기 정보",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(13.dp))
 
             Text(
                 "제조사 | ${lightDevice?.manufacturerCode}",
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                color = Color.Black
             )
             Text(
                 "연결방식 | Wi-Fi",
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                color = Color.Black
             )
             Text(
                 "기기 타입 | ${lightDevice?.deviceType}",
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                color = Color.Black
             )
 
         }
