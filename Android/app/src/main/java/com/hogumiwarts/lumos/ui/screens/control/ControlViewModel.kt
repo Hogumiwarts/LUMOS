@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,17 +56,22 @@ class ControlViewModel @Inject constructor(
 //    val multiRangingPositions = uwbRanging.ranging
 //    fun getMultiPosition(addr: String) = uwbRanging.rangingPositions[addr]
 
-    /** ★ 10 초 타임아웃 + 3 초 연속 구간 유지 로직 */
+    /** ★ 30 초 타임아웃 + 3 초 연속 구간 유지 로직 */
     fun startDetection() {
         // 이미 돌고 있던 감시 Job이 있으면 취소
         detectionJob?.cancel()
         detectedDeviceName = null
         isDetecting = true
 
-        val targetAdr = uwbRanging.getControleeAddresses().first()
+        Timber.d("🔍 UWB 디바이스 감지 시작...")
+
+        val targetAdr = "00:02"
+
+        Timber.d("🔍 UWB 디바이스 감지 시작...")
 
         detectionJob = viewModelScope.launch {
-            val overallDeadline = System.currentTimeMillis() + 10_000L // 10초 타임아웃
+            val overallDeadline = System.currentTimeMillis() + 30_000L // 10초 타임아웃
+            Timber.d("⏱️ 감지 타임아웃: 30초 (${overallDeadline}ms까지)")
             var currentRange: String? = null     // 현재 머무는 구간 이름
             var rangeStart = 0L                  // 해당 구간 머문 시각
 
@@ -74,16 +80,16 @@ class ControlViewModel @Inject constructor(
                 val azimuth = uwbRanging.getDevicePosition(targetAdr)?.azimuth?.value ?: 180F
 
                 val range = when (azimuth) {
-                    in -90f..-20f -> "공기청정기"
-                    in -15f..15f -> "조명"
-                    in 20f..90f -> "스피커"
+//                    in -90f..-20f -> "공기청정기"
+                    in -20f..20f -> "조명"
+//                    in 20f..90f -> "스피커"
                     else -> null
                 }
 
                 if (range != null) {
                     if (range == currentRange) {
                         // 같은 구간에서 누적 시간 확인
-                        if (System.currentTimeMillis() - rangeStart >= 3_000L) {
+                        if (System.currentTimeMillis() - rangeStart >= 2_000L) {
                             detectedDeviceName = range      // ✅ 성공
                             break
                         }

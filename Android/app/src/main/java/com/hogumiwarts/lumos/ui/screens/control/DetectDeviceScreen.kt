@@ -222,14 +222,6 @@ fun DetectDeviceScreen(
             Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.height(60.dp))
 
-            Text(
-                text = "${controlViewModel.localAddress}",
-                fontFamily = nanum_square_neo,
-                fontSize = 11.sp,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
@@ -239,8 +231,8 @@ fun DetectDeviceScreen(
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "${controlViewModel.getDevicePosition("00:01")?.azimuth?.value ?: "N/A"} °",
-                style = MaterialTheme.typography.body1.copy(color = Color.White),
+                text = "${controlViewModel.getDevicePosition("00:02")?.azimuth?.value ?: "N/A"} °",
+                style = MaterialTheme.typography.body1.copy(color = Color.DarkGray),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
