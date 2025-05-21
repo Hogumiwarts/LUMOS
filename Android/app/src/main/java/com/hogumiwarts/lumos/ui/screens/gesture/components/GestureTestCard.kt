@@ -78,7 +78,7 @@ fun GestureTestCard(
         modifier = modifier
             .padding(10.dp)
             .fillMaxWidth()
-            .aspectRatio(0.505f)
+            .aspectRatio(0.605f)
             .clip(RoundedCornerShape(cornerRadius))
             .shadow(
                 elevation = 50.dp,
