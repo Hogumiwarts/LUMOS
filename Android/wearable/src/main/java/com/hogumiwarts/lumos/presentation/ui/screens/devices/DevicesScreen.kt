@@ -48,10 +48,8 @@ fun DevicesScreen(
     }
 
 
-
     // 상태 관찰
     val state by viewModel.state.collectAsState()
-
 
 
     // Horologist의 ScalingLazyColumn 스크롤 상태 구성
@@ -62,50 +60,52 @@ fun DevicesScreen(
         ),
     )
 
+    when (state) {
+        DeviceState.Idle -> {
+            // 초기 상태 처리 (필요 없으면 생략 가능)
+        }
 
-        when (state) {
-            DeviceState.Idle -> {
-                // 초기 상태 처리 (필요 없으면 생략 가능)
-            }
+        DeviceState.Loading -> {
+            LoadingDevice() // 로딩 중 UI
+        }
 
-            DeviceState.Loading -> {
-                LoadingDevice() // 로딩 중 UI
-            }
+        is DeviceState.Loaded -> {
+            LoadedDevice(
+                devices = (state as DeviceState.Loaded).data,
+                listState = listState,
+                navController = navController
+            )
+        }
 
-            is DeviceState.Loaded -> {
-                LoadedDevice(
-                    devices = (state as DeviceState.Loaded).data,
-                    listState = listState,
-                    navController = navController
-                )
-            }
-
-            is DeviceState.Error -> {
-                // 에러 UI 표시 또는 Snackbar 등으로 대응
-                // 예시: 에러에 따라 구분해서 메시지 출력
-                when ((state as DeviceState.Error).error) {
-                    CommonError.NetworkError -> {
-                        // 네트워크 에러 UI
-                        LaunchedEffect(Unit) {
-                            errorNetwork.value = true
-                        }
+        is DeviceState.Error -> {
+            // 에러 UI 표시 또는 Snackbar 등으로 대응
+            // 예시: 에러에 따라 구분해서 메시지 출력
+            when ((state as DeviceState.Error).error) {
+                CommonError.NetworkError -> {
+                    // 네트워크 에러 UI
+                    LaunchedEffect(Unit) {
+                        errorNetwork.value = true
                     }
-                    CommonError.UserNotFound -> {
+                }
+
+                CommonError.UserNotFound -> {
 //                        ErrorMessage("사용자를 찾을 수 없습니다.")
-                    }
-                    else -> {
+                }
+
+                else -> {
 //                    errorNetwork.value = true
-                        navController.navigate("login") {
-                            popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
-                        }
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true } // splash를 백스택에서 제거
                     }
                 }
             }
         }
+    }
 
 
-    if (errorNetwork.value){
-        ErrorInternetScreen { errorNetwork.value = false
+    if (errorNetwork.value) {
+        ErrorInternetScreen {
+            errorNetwork.value = false
             viewModel.sendIntent(DeviceIntent.LoadDevice)
         }
     }
@@ -124,7 +124,7 @@ val gradientBrush = Brush.linearGradient(
 )
 
 enum class DeviceType(val type: String) {
-    LIGHT("LIGHT"), SPEAKER("AUDIO"), MINIBIG("SWITCH"), AIR_PURIFIER("AIRPURIFIER");
+    LIGHT("LIGHT"), SPEAKER("AUDIO"), MINIBIG("SWITCH"), AIR_PURIFIER("AIRPURIFIER"), ETC("UNKNOWN");
 
     companion object {
         fun fromId(type: String): DeviceType? = values().find { it.type == type }

@@ -50,85 +50,117 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 fun PermissionsScreen(
     onPermissionsGranted: () -> Unit = {}
 ) {
-
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    // 현재 표시할 권한 화면 상태 (0: 위치, 1: UWB)
-    val currentPermissionScreen = remember { mutableStateOf(0) }
-
-    // 권한 요청 상태 관리
     val context = LocalContext.current
-    val shouldRequestPermissions = remember { mutableStateOf(false) }
+    val permissionsRequested = remember { mutableStateOf(false) }
+    val allPermissionsGranted = remember { mutableStateOf(false) }
 
-    // 위치 권한 요청 런처
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            // 위치 권한이 허용되면 다음 화면으로
-            currentPermissionScreen.value = 1
-        }
-    }
+    // 디버깅용 상태 추가
+    val debugRequestStatus = remember { mutableStateOf("초기화됨") }
 
-    // UWB(필요한 경우) 및 기타 권한 요청 런처
-    val otherPermissionsLauncher = rememberLauncherForActivityResult(
+    // 모든 권한을 한 번에 요청하는 런처
+    val permissionsLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        // 사용자가 모든 권한 설정을 마치면 홈 화면으로 이동
-        onPermissionsGranted()
+    ) { permissionsResult ->
+        // 결과 처리 (디버깅 정보 추가)
+        val resultStr = permissionsResult.entries.joinToString { "${it.key}: ${it.value}" }
+        debugRequestStatus.value = "권한 결과: $resultStr"
+
+        allPermissionsGranted.value = permissionsResult.all { it.value }
+        permissionsRequested.value = true
     }
 
-    // 권한 요청 로직
-    LaunchedEffect(shouldRequestPermissions.value) {
-        if (shouldRequestPermissions.value) {
-            if (currentPermissionScreen.value == 0) {
-                // 위치 권한 요청
-                val hasLocationPermission = ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
+    // 권한 체크 및 요청 함수
+    fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
 
-                if (!hasLocationPermission) {
-                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                } else {
-                    // 이미 권한이 있으면 다음 화면으로
-                    currentPermissionScreen.value = 1
-                }
-            } else {
-                // UWB 및 기타 권한 요청
-                val permissions = mutableListOf<String>()
-
-                // UWB 권한 추가 (API 34 이상에서만 사용 가능)
-                if (android.os.Build.VERSION.SDK_INT >= 34) {
-                    permissions.add("android.permission.UWB_RANGING")
-                }
-
-                // 블루투스 권한 추가 (Android 12 이상)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                    permissions.add(Manifest.permission.BLUETOOTH_SCAN)
-                    permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
-                } else {
-                    permissions.add(Manifest.permission.BLUETOOTH)
-                    permissions.add(Manifest.permission.BLUETOOTH_ADMIN)
-                }
-
-                if (permissions.isNotEmpty()) {
-                    otherPermissionsLauncher.launch(permissions.toTypedArray())
-                } else {
-                    // 요청할 권한이 없으면 완료 처리
-                    onPermissionsGranted()
-                }
-            }
-
-            // 요청 상태 초기화
-            shouldRequestPermissions.value = false
+        // 위치 권한 체크 (COARSE도 추가)
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
+
+        // COARSE 위치 권한 추가 (더 낮은 수준의 권한도 요청)
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+        // UWB 권한 체크 (API 34 이상)
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    "android.permission.UWB_RANGING"
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add("android.permission.UWB_RANGING")
+            }
+        }
+
+        // 블루투스 권한 체크
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // Android 12 이상
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_SCAN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN)
+            }
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT)
+            }
+        } else {
+            // Android 12 미만
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.BLUETOOTH)
+            }
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.BLUETOOTH_ADMIN)
+            }
+        }
+
+        // 디버깅 정보 추가
+        debugRequestStatus.value = "요청 권한: ${permissionsToRequest.joinToString()}"
+
+        if (permissionsToRequest.isNotEmpty()) {
+            // 필요한 권한 요청
+            permissionsLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            // 이미 모든 권한이 허용된 경우
+            allPermissionsGranted.value = true
+            permissionsRequested.value = true
+            debugRequestStatus.value = "이미 모든 권한 있음"
+        }
+    }
+
+    // 화면 첫 로드 시 자동으로 권한 요청 시작
+    LaunchedEffect(Unit) {
+        checkAndRequestPermissions()
     }
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-
         Image(
             painter = painterResource(id = R.drawable.bg_onboardings),
             contentDescription = "권한 페이지 배경",
@@ -158,48 +190,47 @@ fun PermissionsScreen(
                 modifier = Modifier.padding(top = 32.dp, bottom = 32.dp)
             )
 
-            if (currentPermissionScreen.value == 0) {
-                PermissionContent(
-                    iconResId = R.drawable.ic_permission_location,
-                    title = "위치",
-                    description = "기기 간 거리와 방향 파악을 통한 정확한 자동화 제공",
-                    secondTitle = "공간 인식 및 근접 기기 연결",
-                    secondDescription = "UWB를 통한 기기 자동 제어 지원",
-                    secondIconResId = R.drawable.ic_permission_uwb
-                )
-            }
+            // 모든 권한 정보를 한 화면에 표시
+            PermissionContent(
+                iconResId = R.drawable.ic_permission_location,
+                title = "위치",
+                description = "기기 간 거리와 방향 파악을 통한 정확한 자동화 제공",
+                secondTitle = "공간 인식 및 근접 기기 연결",
+                secondDescription = "UWB를 통한 기기 자동 제어 지원",
+                secondIconResId = R.drawable.ic_permission_uwb,
+                thirdtitle = "블루투스",
+                thirdDescription = "기기 연결 및 데이터 교환을 위한 필수 권한"
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 디버깅용 텍스트 추가 (개발 중에만 사용)
+//            Text(
+//                text = debugRequestStatus.value,
+//                fontFamily = nanum_square_neo,
+//                fontSize = 11.sp,
+//                color = Color.White,
+//                textAlign = TextAlign.Center,
+//                modifier = Modifier.padding(vertical = 8.dp)
+//            )
 
             Spacer(modifier = Modifier.weight(1f))
 
             PrimaryButton(
-                buttonText = "시작하기",
+                buttonText = if (!allPermissionsGranted.value) "권한 허용하기" else "시작하기",
                 onClick = {
-                    onPermissionsGranted()
+                    if (!allPermissionsGranted.value) {
+                        // 권한이 아직 허용되지 않았다면 권한 요청 시작/재시도
+                        checkAndRequestPermissions()
+                    } else {
+                        // 모든 권한이 허용되었으면, 다음 화면으로
+                        onPermissionsGranted()
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-
         }
     }
-}
-
-
-@Composable
-fun LocationPermissionContent() {
-    PermissionContent(
-        iconResId = R.drawable.ic_permission_location,
-        title = "위치",
-        description = "기기 간 거리와 방향 파악을 통한 정확한 자동화 제공"
-    )
-}
-
-@Composable
-fun UwbPermissionContent() {
-    PermissionContent(
-        iconResId = R.drawable.ic_permission_uwb,
-        title = "공간 인식 및 근접 기기 연결",  // title로 변경
-        description = "UWB를 통한 기기 자동 제어 지원"  // description으로 변경
-    )
 }
 
 @Composable
@@ -209,7 +240,9 @@ fun PermissionContent(
     description: String? = null,
     secondTitle: String? = null,
     secondDescription: String? = null,
-    secondIconResId: Int = R.drawable.ic_permission_uwb
+    secondIconResId: Int = R.drawable.ic_permission_uwb,
+    thirdtitle: String? = null,
+    thirdDescription: String? = null
 ) {
     Box(
         modifier = Modifier
@@ -292,6 +325,38 @@ fun PermissionContent(
 
                         Text(
                             text = secondDescription,
+                            fontFamily = nanum_square_neo,
+                            fontSize = 12.sp,
+                            color = Color(0xff99A2D6).copy(alpha = 0.8f),
+                            lineHeight = 18.sp
+                        )
+                    }
+                }
+            }
+
+            if (thirdtitle != null && thirdDescription != null) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_permission_uwb),
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = thirdtitle,
+                            fontFamily = nanum_square_neo,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+
+                        Text(
+                            text = thirdDescription,
                             fontFamily = nanum_square_neo,
                             fontSize = 12.sp,
                             color = Color(0xff99A2D6).copy(alpha = 0.8f),
