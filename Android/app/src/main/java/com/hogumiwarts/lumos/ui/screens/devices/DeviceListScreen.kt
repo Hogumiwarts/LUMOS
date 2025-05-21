@@ -145,6 +145,7 @@ fun DeviceListScreen(
                     }
                 }else{
                     DeviceGridSection(
+                        showToggle = false,
                         devices = myDevices,
                         selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
                         onDeviceClick = {

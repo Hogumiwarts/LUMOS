@@ -31,7 +31,8 @@ import com.hogumiwarts.lumos.ui.screens.routine.components.GlowingCard
 fun DeviceGridSection(
     devices: List<MyDevice>,
     selectedDeviceId: Long? = null,
-    onDeviceClick: (MyDevice) -> Unit = {}
+    onDeviceClick: (MyDevice) -> Unit = {},
+    showToggle: Boolean = true
 ) {
 
     LazyVerticalGrid(
@@ -57,7 +58,7 @@ fun DeviceGridSection(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable { onDeviceClick(device) },
-                    showToggle = false,
+                    showToggle = showToggle,
                     cardTitle = device.deviceName,
                     cardSubtitle = if (device.isOn) "켜짐" else "꺼짐",
                     isOn = device.isOn,
