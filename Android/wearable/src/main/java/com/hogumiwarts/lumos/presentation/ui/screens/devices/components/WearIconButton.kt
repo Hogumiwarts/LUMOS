@@ -14,11 +14,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.lumos.R
 import com.hogumiwarts.lumos.presentation.ui.screens.devices.DeviceIntent
 import com.hogumiwarts.lumos.presentation.ui.viewmodel.DeviceViewModel
+import com.hogumiwarts.lumos.presentation.ui.viewmodel.WebSocketViewModel
 
 
 @Composable
 fun WearIconButton(
-    viewModel: DeviceViewModel = hiltViewModel()
+    viewModel: DeviceViewModel = hiltViewModel(),
+    webSocketViewModel: WebSocketViewModel = hiltViewModel()
                    ) {
     val interactionSource = remember { MutableInteractionSource() }
     Image(
@@ -27,9 +29,13 @@ fun WearIconButton(
         modifier = Modifier
             .size(54.dp)
             .clickable(
-                interactionSource=interactionSource,
+                interactionSource = interactionSource,
                 indication = null,
-                onClick = {viewModel.sendIntent(DeviceIntent.Refresh)})
+                onClick = {
+                    viewModel.sendIntent(DeviceIntent.Refresh)
+                    webSocketViewModel.connectWebSocket()
+                }
+            )
             .padding(top = 24.dp)
     )
 }
