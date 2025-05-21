@@ -109,6 +109,7 @@ fun RoutineEditScreen(
     // 네비게이션 바 높이 가져오기
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
+
     LaunchedEffect(navController.currentBackStackEntry) {
         navController.currentBackStackEntry
             ?.savedStateHandle
@@ -121,21 +122,19 @@ fun RoutineEditScreen(
             ?.savedStateHandle
             ?.getLiveData<String>("commandDeviceJson")
             ?.observe(lifecycleOwner) { json ->
+
                 val updatedDevice = Gson().fromJson(json, CommandDevice::class.java)
 
-                val currentList = viewModel.devices.value
-                val existingDevice = currentList.find { it.deviceId == updatedDevice.deviceId }
-
-                if (existingDevice == updatedDevice) {
-                    Timber.d("⚠️ 기존과 동일한 기기 → 반영 생략")
+                val currentDevices = viewModel.devices.value
+                if (currentDevices.any { it.deviceId == updatedDevice.deviceId }) {
+                    println("🔄 기존 기기 업데이트 시작: ${updatedDevice.deviceId}")
+                    viewModel.updateDevice(updatedDevice)
                 } else {
-                    if (viewModel.devices.value.any { it.deviceId == updatedDevice.deviceId }) {
-                        viewModel.updateDevice(updatedDevice)
-                    } else {
-                        viewModel.addDevice(updatedDevice)
-                    }
+                    println("➕ 새 기기 추가 시작: ${updatedDevice.deviceId}")
+                    viewModel.addDevice(updatedDevice)
                 }
 
+                println("✅ 처리 후 기기 목록 (${viewModel.devices.value.size}개): ${viewModel.devices.value.map { it.deviceId }}")
                 navController.previousBackStackEntry?.savedStateHandle?.remove<String>("commandDeviceJson")
             }
 
@@ -151,11 +150,26 @@ fun RoutineEditScreen(
             viewModel.loadInitialDevicesOnce(devices ?: emptyList())
 
             navController.previousBackStackEntry?.savedStateHandle?.remove<List<CommandDevice>>("editDevices")
+        } else {
+            Timber.d("⚠️ 이미 초기화됨, 현재 기기 수: ${viewModel.devices.value.size}")
         }
+
+        val devices = navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<List<CommandDevice>>("editDevices")
+
+        Timber.d("📋 초기 기기 목록 받음: ${devices?.size ?: 0}개")
+
+//        if (!devices.isNullOrEmpty()) {
+//            viewModel.loadInitialDevicesOnce(devices)
+//        }
+
+        navController.previousBackStackEntry?.savedStateHandle?.remove<List<CommandDevice>>("editDevices")
 
         val routineId = navController.previousBackStackEntry
             ?.savedStateHandle
             ?.get<Long>("editRoutineId")
+
         Log.d("routine", "✨✨✨routineid: $routineId")
 
         val routineName = navController.previousBackStackEntry
@@ -198,71 +212,27 @@ fun RoutineEditScreen(
             RoutineDeviceListScreen(
                 viewModel = deviceListViewModel,
                 onSelectComplete = { selectedDevice ->
-                    val json = navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.get<String>("commandDeviceJson")
-
                     val commandDevice = when (selectedDevice.deviceType) {
-                        DeviceListType.LIGHT -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDevice(
-                                isOn = true,
-                                brightness = 50,
-                                hue = null,
-                                saturation = null
-                            )
-                        }
+                        DeviceListType.LIGHT -> selectedDevice.toCommandDevice(true, 50, null, null)
+                        DeviceListType.AIRPURIFIER -> selectedDevice.toCommandDeviceForAirPurifier(
+                            false,
+                            "auto"
+                        )
 
-                        DeviceListType.AIRPURIFIER -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForAirPurifier(
-                                isOn = false,
-                                fanMode = "auto"
-                            )
-                        }
+                        DeviceListType.AUDIO -> selectedDevice.toCommandDeviceForSpeaker(
+                            true,
+                            30,
+                            true
+                        )
 
-                        DeviceListType.AUDIO -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForSpeaker(
-                                isOn = true,
-                                volume = 30,
-                                isPlaying = true
-                            )
-                        }
-
-                        DeviceListType.SWITCH -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDeviceForSwitch(
-                                isOn = true
-                            )
-                        }
-
-                        DeviceListType.ETC -> {
-                            json?.let {
-                                Gson().fromJson(it, CommandDevice::class.java)
-                            } ?: selectedDevice.toCommandDevice(
-                                isOn = true,
-                                brightness = 50,
-                                hue = null,
-                                saturation = null
-                            )
-                        }
+                        DeviceListType.SWITCH -> selectedDevice.toCommandDeviceForSwitch(true)
+                        DeviceListType.ETC -> selectedDevice.toCommandDevice(true, 50, null, null)
                     }
 
                     if (deviceList.any { it.deviceId == commandDevice.deviceId }) {
                         showDuplicateDialog.value = true
                     } else {
                         viewModel.addDevice(commandDevice)
-
-                        // 추가 후 commandDeviceJson 초기화
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.remove<String>("commandDeviceJson")
-
                         isSheetOpen = false
                     }
                 },
@@ -479,12 +449,12 @@ fun RoutineEditScreen(
                 var shouldRemove by remember(device.deviceId) { mutableStateOf(false) }
                 var shouldShowHint by remember(device.deviceId) { mutableStateOf(true) }
                 AnimatedVisibility(
-                    visible = !shouldRemove,
+                    visible = true,
                     exit = shrinkVertically(tween(300)) + fadeOut(tween(300))
                 ) {
                     SwipeableDeviceCardWithHint(
                         deviceId = device.deviceId,
-                        shouldShowHint = shouldShowHint,
+                        shouldShowHint = true,
                         onHintShown = { shouldShowHint = false },
                         onDelete = {
                             shouldRemove = true
@@ -512,6 +482,9 @@ fun RoutineEditScreen(
                                     }
                                 },
                                 onClick = {
+
+                                    viewModel.backupCurrentDevices()
+
                                     val myDevice = MyDevice(
                                         deviceId = device.deviceId,
                                         deviceName = device.deviceName,

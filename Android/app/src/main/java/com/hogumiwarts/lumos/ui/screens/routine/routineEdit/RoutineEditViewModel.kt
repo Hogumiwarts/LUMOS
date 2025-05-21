@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineEdit
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hogumiwarts.data.source.remote.RoutineApi
@@ -49,6 +50,11 @@ class RoutineEditViewModel @Inject constructor(
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: Boolean get() = _isInitialized.value
 
+    fun setInitialized(initialized: Boolean) {
+        _isInitialized.value = initialized
+    }
+
+
     fun setNameBlankError(message: String) {
         _state.value = state.value.copy(nameBlankMessage = message)
     }
@@ -62,9 +68,10 @@ class RoutineEditViewModel @Inject constructor(
     }
 
     fun loadInitialDevicesOnce(initial: List<CommandDevice>) {
-        if (_isInitialized.compareAndSet(expect = false, update = true)) {
+        if (!_isInitialized.value) {
             Timber.d("🔰 초기 기기 로드됨: $initial")
             _devices.value = initial
+            _isInitialized.value = true
         } else {
             Timber.d("⚠️ 이미 초기화된 상태이므로 무시")
         }
@@ -85,6 +92,19 @@ class RoutineEditViewModel @Inject constructor(
     fun deleteDevice(device: CommandDevice) {
         _devices.update { list -> list.filterNot { it.deviceId == device.deviceId } }
     }
+
+    // 초기화 플래그를 수정하는 새로운 메서드
+    fun resetInitializationState() {
+        _isInitialized.value = false
+    }
+
+    // 기기 목록을 완전히 대체하는 메서드
+    fun replaceDevices(devices: List<CommandDevice>) {
+        _devices.value = devices
+        Timber.d("🔄 기기 목록 대체 완료: ${devices.size}개")
+    }
+
+
 
     // api 연동 함수
     fun updateRoutine(
@@ -116,9 +136,11 @@ class RoutineEditViewModel @Inject constructor(
     }
 
     fun addDevice(device: CommandDevice) {
-        val current = _devices.value
-        if (current.none { it.deviceId == device.deviceId }) {
-            _devices.value = current + device
+        _devices.update { currentList ->
+            if (currentList.none { it.deviceId == device.deviceId }) {
+                Log.d("TAG", "addDevice: ${currentList + device}")
+                currentList + device
+            } else currentList
         }
     }
 
@@ -128,9 +150,30 @@ class RoutineEditViewModel @Inject constructor(
             val newList = list.map {
                 if (it.deviceId == updated.deviceId) updated else it
             }
-            _devices.value = newList.toList()
+//            _devices.value = newList.toList()
             Timber.d("📋 업데이트된 기기 리스트: $newList")
             newList
+        }
+    }
+
+    // 임시 기기 목록 백업 - 기기 컨트롤 화면으로 이동 전에 저장
+    private var _tempDevicesList: List<CommandDevice> = emptyList()
+
+
+    fun backupCurrentDevices() {
+        if (_devices.value.isNotEmpty()) {
+            _tempDevicesList = _devices.value.toList()
+            Timber.d("📦 현재 기기 목록 백업: ${_tempDevicesList.size}개")
+        }
+    }
+
+    // 항상 백업을 확인하는 메서드
+    fun checkAndRestoreDevices() {
+        if (_tempDevicesList.isNotEmpty()) {
+            val currentDevices = _devices.value
+            val combinedDevices = (currentDevices + _tempDevicesList).distinctBy { it.deviceId }
+            _devices.value = combinedDevices
+            Timber.d("🔄 기기 목록 확인 및 복원: ${_devices.value.size}개")
         }
     }
 

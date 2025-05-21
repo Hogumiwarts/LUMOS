@@ -52,6 +52,13 @@ fun PreviewLightScreenContent(
 
     val controller = rememberColorPickerController()
 
+    LaunchedEffect(Unit) {
+        val currentEntry = navController.currentBackStackEntry
+        val previousEntry = navController.previousBackStackEntry
+        println("🔍 PreviewLightScreen의 현재 백스택: $currentEntry")
+        println("🔍 PreviewLightScreen의 이전 백스택: $previousEntry")
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()

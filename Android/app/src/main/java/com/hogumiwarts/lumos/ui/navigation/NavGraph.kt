@@ -343,7 +343,7 @@ fun NavGraph(
             "routine_edit/{routineId}",
             arguments = listOf(navArgument("routineId") { type = NavType.LongType })
         ) { navBackStackEntry ->
-            val routineId = navBackStackEntry.arguments?.getString("routineId")?.toLongOrNull()
+            val routineId = navBackStackEntry.arguments?.getLong("routineId")
             val viewModel = hiltViewModel<RoutineEditViewModel>()
             val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
             val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")
@@ -355,20 +355,26 @@ fun NavGraph(
 
             // 초기 상태 로드
             LaunchedEffect(Unit) {
-                val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")
-                editGestureData?.let {
-                    viewModel.setGestureData(it)
-                    savedStateHandle.remove<GestureData>("selectedGesture")
-                }
-
-                viewModel.onRoutineNameChanged(editRoutineName)
-                editRoutineIcon?.let { iconName ->
-                    RoutineIconType.entries.find { it.name == iconName }?.let {
-                        viewModel.selectIcon(it)
+                if (!viewModel.isInitialized) {
+                    val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")
+                    editGestureData?.let {
+                        viewModel.setGestureData(it)
+                        savedStateHandle.remove<GestureData>("selectedGesture")
                     }
+
+                    val editRoutineName = savedStateHandle?.get<String>("editRoutineName") ?: ""
+                    viewModel.onRoutineNameChanged(editRoutineName)
+
+                    val editRoutineIcon = savedStateHandle?.get<String>("editRoutineIcon")
+                    editRoutineIcon?.let { iconName ->
+                        RoutineIconType.entries.find { it.name == iconName }?.let {
+                            viewModel.selectIcon(it)
+                        }
+                    }
+                    val editDevices = savedStateHandle?.get<List<CommandDevice>>("editDevices") ?: emptyList()
+                    viewModel.loadInitialDevices(editDevices)
+                    viewModel.setRoutineId(routineId)
                 }
-                viewModel.loadInitialDevices(editDevices)
-                viewModel.setRoutineId(routineId)
             }
 
             RoutineEditScreen(
