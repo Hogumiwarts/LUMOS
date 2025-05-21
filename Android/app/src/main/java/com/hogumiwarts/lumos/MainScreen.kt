@@ -54,7 +54,6 @@ fun MainScreen(deviceId: Long, deviceType: String) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate("findDeviceScreen")
-
                     },
                     modifier = Modifier
                         .size(72.dp)

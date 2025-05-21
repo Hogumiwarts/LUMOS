@@ -98,6 +98,7 @@ fun RoutineDeviceListScreen(
 
         // 기기 목록
         DeviceGridSection(
+            showToggle = false,
             devices = deviceList,
             selectedDeviceId = selectedDeviceId,
             onDeviceClick = { viewModel.onDeviceClicked(it) }

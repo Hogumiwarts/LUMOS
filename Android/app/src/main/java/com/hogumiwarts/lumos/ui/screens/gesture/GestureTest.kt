@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -85,7 +86,7 @@ fun GestureTest(
     var isCardFocused by remember { mutableStateOf(false) }
 
     // 화면 전체를 제약 조건으로 구성
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+    ConstraintLayout(modifier = Modifier.fillMaxSize().padding()) {
         val (title, card, select, indicator) = createRefs()
 
         // 상단 제목 및 설명 영역
@@ -95,7 +96,7 @@ fun GestureTest(
                 .constrainAs(title) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(parent.top, margin = 90.dp)
+                    top.linkTo(parent.top, margin = 80.dp)
                 },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -209,8 +210,9 @@ fun GestureTest(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .constrainAs(select) {
-                        top.linkTo(card.bottom, margin = 60.dp)
+                        top.linkTo(card.bottom, margin = 30.dp)
                         start.linkTo(parent.start, margin = 30.dp)
+                        bottom.linkTo(parent.bottom, margin = 50.dp)
                         end.linkTo(parent.end, margin = 30.dp)
                         width = Dimension.fillToConstraints
                     }
