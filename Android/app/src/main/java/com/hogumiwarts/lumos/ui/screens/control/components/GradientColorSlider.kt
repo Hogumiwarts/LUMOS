@@ -29,7 +29,7 @@ import com.hogumiwarts.lumos.ui.screens.control.light.LightTemperatureState
 import com.hogumiwarts.lumos.ui.viewmodel.LightViewModel
 
 @Composable
-fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel = hiltViewModel()) {
+fun GradientColorSlider(deviceId: Long, modifier: Modifier = Modifier,viewModel: LightViewModel = hiltViewModel()) {
     // 시작 색상 (F99D9D) 및 끝 색상 (98A7F2) 정의
     val startColor = Color(0xFFF99D9D) // 시작 색상
     val endColor = Color(0xFF98A7F2)   // 끝 색상
@@ -89,7 +89,7 @@ fun GradientColorSlider(modifier: Modifier = Modifier,viewModel: LightViewModel 
 
             },
             onValueChangeFinished = {
-                viewModel.sendIntent(LightIntent.ChangeLightTemperature(9,brightness*(6500-2200)/100+2200.toInt()))
+                viewModel.sendIntent(LightIntent.ChangeLightTemperature(deviceId = deviceId,brightness*(6500-2200)/100+2200.toInt()))
             },
             valueRange = 0f..100f,
             steps = 0,

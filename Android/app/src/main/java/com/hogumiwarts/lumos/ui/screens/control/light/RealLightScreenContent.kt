@@ -222,6 +222,7 @@ fun RealLightScreenContent(
             )
 
             GradientColorSlider(
+                deviceId = deviceId,
                 modifier = Modifier
                     .weight(1f)
             )

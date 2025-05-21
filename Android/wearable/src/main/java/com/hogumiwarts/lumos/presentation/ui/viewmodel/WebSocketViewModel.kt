@@ -125,7 +125,7 @@ class WebSocketViewModel @Inject constructor(
         }
 
         val client = OkHttpClient()
-        val request = Request.Builder().url("ws://lipit.store/ws/gesture").build()
+        val request = Request.Builder().url("ws://192.168.100.191:8000/ws/gesture").build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -241,6 +241,7 @@ class WebSocketViewModel @Inject constructor(
 
     private fun processGesture2Detection() {
         val currentTime = System.currentTimeMillis()
+        Log.d("GestureViewModel", "---- (제스처 2 ")
         if (currentTime - lastGesture2DetectionTime < DEBOUNCE_TIME) {
             Log.d("GestureViewModel", "---- (제스처 2 디바운싱: 무시됨)")
             return
@@ -354,7 +355,7 @@ class WebSocketViewModel @Inject constructor(
      */
 
     private fun executeGestureRoutine(gestureId: String) {
-        Log.d("Routine", "🚀 제스처 $gestureId 루틴 실행 시작")
+        Log.d("결과", "🚀 제스처 $gestureId 루틴 실행 시작")
 
         viewModelScope.launch {
             try {
@@ -362,12 +363,12 @@ class WebSocketViewModel @Inject constructor(
                     is PostRoutineResult.Success -> {
                         if (result.data.success) {
                             provideHapticFeedback(FeedbackPattern.ROUTINE_SUCCESS)
-                            Log.d("Routine", "✅ 루틴 실행 성공")
+                            Log.d("결과", "✅ 루틴 실행 성공")
                             _prediction.value = "루틴 실행 완료"
                             delay(3000)
                             _prediction.value = "예측 없음"
                         } else {
-                            Log.e("Routine", "❌ 루틴 실행 실패")
+                            Log.e("결과", "❌ 루틴 실행 실패")
                             _prediction.value = "루틴 실행 실패"
                             delay(3000)
                             _prediction.value = "예측 없음"
@@ -375,7 +376,7 @@ class WebSocketViewModel @Inject constructor(
                     }
 
                     is PostRoutineResult.Error -> {
-                        Log.e("WebSocket", "❌ 루틴 실행 오류: ${result.error}")
+                        Log.e("결과", "❌ 루틴 실행 오류: ${result.error}")
                         _prediction.value = "루틴 실행 오류"
                         delay(3000)
                         _prediction.value = "예측 없음"

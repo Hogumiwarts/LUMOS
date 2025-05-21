@@ -132,6 +132,7 @@ fun PreviewLightScreenContent(
                 Spacer(modifier = Modifier.height(24.dp))
                 Text("색 온도", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
                 GradientColorSlider(
+                    deviceId= 0,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
@@ -204,7 +205,7 @@ fun PreviewLightScreenContent(
                         selectedDevice.toCommandDevice(
                             isOn = true,
                             brightness = brightness,
-                            hue = hue * 36 / 10,
+                            hue = hue * 10 / 36,
                             saturation = saturation
                         )
                     }
