@@ -27,7 +27,7 @@ fun String.toDeviceListType(): DeviceListType {
 }
 
 
-fun MyDevice.toCommandDevice(
+fun MyDevice.toCommandDeviceForLightOn(
     isOn: Boolean = this.isOn,
     brightness: Int = 50,
     hue: Float? = 0f,
@@ -65,6 +65,29 @@ fun MyDevice.toCommandDevice(
                 ).takeIf { it.values.none { value -> value == null } }
             )
 
+        )
+    )
+
+    return CommandDevice(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType.toString(),
+        deviceImageUrl = "",
+        commands = commands
+    )
+}
+
+fun MyDevice.toCommandDeviceForLightOff(
+    isOn: Boolean = this.isOn
+): CommandDevice {
+    val commands = mutableListOf<CommandData>()
+
+    commands.add(
+        CommandData(
+            component = "main",
+            capability = "switch",
+            command = if (isOn) "on" else "off",
+            arguments = emptyList()
         )
     )
 

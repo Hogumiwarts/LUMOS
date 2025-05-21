@@ -22,7 +22,6 @@ import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hogumiwarts.domain.model.minibig.SwitchDevice
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
 import com.hogumiwarts.lumos.ui.common.MyDevice
 import com.hogumiwarts.lumos.ui.common.PrimaryButton

@@ -65,7 +65,6 @@ import com.google.gson.Gson
 import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDevice
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
