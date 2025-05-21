@@ -106,6 +106,7 @@ fun AirpurifierScreen(
 
     val state by viewModel.state.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
+    val isOn by viewModel.isOn.collectAsState()
 
     val airPurifier = AirPurifierDevice(
         tagNumber = 2,
@@ -232,7 +233,7 @@ fun AirpurifierScreen(
                 )
 
                 Switch(
-                    checked = checked,
+                    checked = isOn,
                     onCheckedChange = {
                         viewModel.sendIntent(AirpurifierIntent.ChangeAirpurifierPower(deviceId, it))
 //                    checked = it
@@ -458,8 +459,9 @@ fun AirpurifierScreen(
         AirpurifierPowerState.Idle -> {}
         is AirpurifierPowerState.Loaded -> {
 
-            checked = (powerState as AirpurifierPowerState.Loaded).data.activated
+//            checked = (powerState as AirpurifierPowerState.Loaded).data.activated
             Log.d("TAG", "AirpurifierScreen: $checked")
+
 
         }
 
