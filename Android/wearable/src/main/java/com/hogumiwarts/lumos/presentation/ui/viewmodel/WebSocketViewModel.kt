@@ -105,6 +105,18 @@ class WebSocketViewModel @Inject constructor(
     private var awaitingSecondGesture = false
     private var secondGestureTimer: Job? = null
 
+    // 하트비트 관리
+    private var heartbeat: WebSocketHeartbeat? = null
+    private var lastPongTime: Long = 0
+    private val HEARTBEAT_TIMEOUT = 30_000L // 30초 타임아웃
+
+    // 하트비트 타임아웃 체크
+    private var heartbeatCheckJob: Job? = null
+
+
+    init {
+        connectWebSocket()
+    }
 
     fun connectWebSocket(mode: GestureMode = GestureMode.CONTINUOUS) {
 
@@ -131,10 +143,24 @@ class WebSocketViewModel @Inject constructor(
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d("WebSocket", "✅ WebSocket 연결 성공 - 모드: $currentMode")
                 isConnecting = false
+
+                // 하트비트 시작
+                startHeartbeat(webSocket)
+
+                // 하트비트 타임아웃 체크 시작
+                startHeartbeatCheck()
+
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("WebSocket", "📩 받은 메시지: $text (모드: $currentMode)")
+                // 하트비트 응답 처리
+                if (text == "PONG") {
+                    lastPongTime = System.currentTimeMillis()
+                    Log.d("WebSocket", "💓 PONG 응답 수신 - 타임스탬프: $lastPongTime")
+                    return
+                }
+
                 if (text == "1" || text == "2" || text == "3" || text == "4") {
                     _test1.value = true
                 }
@@ -186,6 +212,7 @@ class WebSocketViewModel @Inject constructor(
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e("WebSocket", "❌ 연결 실패: ${t.message}")
                 isConnecting = false
+                stopHeartbeat()
 
                 // 재연결 시도
                 viewModelScope.launch {
@@ -197,9 +224,75 @@ class WebSocketViewModel @Inject constructor(
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 Log.d("WebSocket", "🔒 WebSocket 연결 종료: $code, $reason")
                 isConnecting = false
+                stopHeartbeat()
+
+                // 재연결 시도 (필요한 경우)
+                if (reason != "정상 종료") {
+                    viewModelScope.launch {
+                        delay(5000)
+                        connectWebSocket(currentMode)
+                    }
+                }
             }
         })
     }
+
+    /**
+     * 하트비트 시작
+     */
+    private fun startHeartbeat(webSocket: WebSocket) {
+        heartbeat?.stop()
+        lastPongTime = System.currentTimeMillis() // 초기화
+
+        heartbeat = WebSocketHeartbeat(
+            webSocket = webSocket,
+            pingMessage = "PING",
+            intervalMillis = 10_000L
+        )
+        heartbeat?.start()
+    }
+
+    /**
+     * 하트비트 타임아웃 체크 시작
+     */
+    private fun startHeartbeatCheck() {
+        heartbeatCheckJob?.cancel()
+        heartbeatCheckJob = viewModelScope.launch {
+            while (true) {
+                delay(5_000) // 5초마다 체크
+
+                val currentTime = System.currentTimeMillis()
+                val timeSinceLastPong = currentTime - lastPongTime
+
+                // 타임아웃 체크
+                if (timeSinceLastPong > HEARTBEAT_TIMEOUT) {
+                    Log.w("WebSocket", "⚠️ 하트비트 타임아웃: ${timeSinceLastPong}ms")
+                    webSocket?.close(1001, "하트비트 타임아웃")
+
+                    // 웹소켓 재연결
+                    stopHeartbeat()
+                    webSocket = null
+                    isConnecting = false
+
+                    // 재연결
+                    delay(3000)
+                    connectWebSocket(currentMode)
+                    break
+                }
+            }
+        }
+    }
+
+    /**
+     * 하트비트 중지
+     */
+    private fun stopHeartbeat() {
+        heartbeat?.stop()
+        heartbeat = null
+        heartbeatCheckJob?.cancel()
+        heartbeatCheckJob = null
+    }
+
 
     /**
      * CONTINUOUS 모드에서 제스처 처리
@@ -463,6 +556,7 @@ class WebSocketViewModel @Inject constructor(
 
 
     fun disconnectWebSocket() {
+        stopHeartbeat()
         webSocket?.close(1000, "종료")
         webSocket = null
         isConnecting = false
