@@ -100,12 +100,12 @@ fun DeviceRoutineCard(
                 .padding(top = 12.dp, bottom = 18.dp, start = 15.dp), // end 패딩은 없음
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if(showToggle) {
+            if (showToggle) {
                 VerticalToggle(
                     isOn = isOn,
                     onToggle = { onToggle?.invoke() }
                 )
-            }else{
+            } else {
                 Spacer(modifier = Modifier.height(53.dp))
             }
 
@@ -125,17 +125,17 @@ fun DeviceRoutineCard(
                 Spacer(modifier = Modifier.height(1.dp))
 
 
-                    Text(
-                        text = cardSubtitle,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontFamily = nanum_square_neo,
-                            color = when {
-                                !isActive -> Color(0xFFB6B6B6)
-                                cardSubtitle == "제스처 없음" -> Color(0xFFE0E0E0)
-                                else -> colorResource(id = R.color.gray_light)
-                            }
-                        )
+                Text(
+                    text = cardSubtitle,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = nanum_square_neo,
+                        color = when {
+                            !isActive -> Color(0xFFB6B6B6)
+                            cardSubtitle == "제스처 없음" -> Color(0xFFE0E0E0)
+                            else -> colorResource(id = R.color.gray_light)
+                        }
                     )
+                )
 
 
             }

@@ -346,12 +346,6 @@ fun NavGraph(
             val routineId = navBackStackEntry.arguments?.getLong("routineId")
             val viewModel = hiltViewModel<RoutineEditViewModel>()
             val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
-            val editGestureData = savedStateHandle?.get<GestureData>("selectedGesture")
-
-            val editRoutineName = savedStateHandle?.get<String>("editRoutineName") ?: ""
-            val editRoutineIcon = savedStateHandle?.get<String>("editRoutineIcon")
-            val editDevices =
-                savedStateHandle?.get<List<CommandDevice>>("editDevices") ?: emptyList()
 
             // 초기 상태 로드
             LaunchedEffect(Unit) {

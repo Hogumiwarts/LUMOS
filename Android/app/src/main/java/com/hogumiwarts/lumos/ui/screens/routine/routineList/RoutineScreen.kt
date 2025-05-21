@@ -1,9 +1,12 @@
 package com.hogumiwarts.lumos.ui.screens.routine.routineList
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,9 +53,12 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hogumiwarts.domain.model.routine.Routine
+import com.hogumiwarts.lumos.ui.common.ConfirmCancelDialog
 import com.hogumiwarts.lumos.ui.screens.routine.components.RoutineIconType
+import com.hogumiwarts.lumos.ui.screens.routine.routineDetail.RoutineDetailViewModel
 import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -61,7 +67,8 @@ fun RoutineScreen(
     onBackClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
     onRoutineClick: (Routine) -> Unit = {},
-    viewModel: RoutineViewModel = hiltViewModel()
+    viewModel: RoutineViewModel = hiltViewModel(),
+    routineDetailViewModel: RoutineDetailViewModel = hiltViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -70,7 +77,9 @@ fun RoutineScreen(
     val (selectedRoutine, setSelectedRoutine) = remember { mutableStateOf<Routine?>(null) }
     var isSheetVisible by remember { mutableStateOf(false) }
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
     val routineList by viewModel.routineList.collectAsState()
+    val context = LocalContext.current
 
     // 루틴 불러오기 한 번 실행
     LaunchedEffect(Unit) {
@@ -143,6 +152,28 @@ fun RoutineScreen(
         }
     }
 
+    // 삭제 확인 다이얼로그
+    if (showDeleteDialog) {
+        ConfirmCancelDialog(
+            showDialog = showDeleteDialog,
+            titleText = "정말 삭제할까요?",
+            bodyText = "루틴을 삭제하면 설정된 기기 동작도 모두 사라져요. 그래도 삭제하시겠어요?",
+            onConfirm = {
+                showDeleteDialog = false
+                selectedRoutine?.routineId?.let {
+                    routineDetailViewModel.deleteRoutine(it)
+                    viewModel.getRoutineList()
+                    isSheetVisible = false
+                } ?: run {
+                    Toast.makeText(context, "삭제할 루틴 ID가 유효하지 않아요!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onCancel = {
+                showDeleteDialog = false
+            }
+        )
+    }
+
     // 바텀 시트 설정
     if (isSheetVisible && selectedRoutine != null) {
         ModalBottomSheet(
@@ -172,7 +203,13 @@ fun RoutineScreen(
                             fontWeight = FontWeight(700),
                             color = Color(0xFF111322),
                             textAlign = TextAlign.Center,
-                        )
+                        ),
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            onRoutineClick(selectedRoutine)
+                        }
                     )
                 }
 
@@ -198,7 +235,13 @@ fun RoutineScreen(
                             fontWeight = FontWeight(700),
                             color = Color(0xFF111322),
                             textAlign = TextAlign.Center,
-                        )
+                        ),
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            showDeleteDialog = true
+                        }
                     )
                 }
 
