@@ -47,30 +47,45 @@ public class AirPurifierService {
 
     }
 
-    // 공기 청정기 fanmode
+    // 공기 청정기 fanMode 업데이트
     public AirPurifierFanModeResponse updateAirPurifierFanMode(Long deviceId, FanModeControlRequest request) {
 
+        // 1. 명령 전송
         CommandRequest command = DeviceCommandUtil.buildAirPurifierFanModeCommand(request.getFanMode());
         externalDeviceService.executeCommand(deviceId, command, DeviceStatusResponse.class);
 
-        // 2. SmartThings 상태 조회
-        JsonNode raw = externalDeviceService.fetchDeviceStatus(deviceId);
+        // 2. 상태 반영까지 polling (최대 5회, 1초 간격)
+        String expectedMode = request.getFanMode().getMode().toLowerCase();
+        String actualMode = null;
+        int maxRetries = 5;
+        int delayMillis = 1000;
 
-        // Status 파싱
-        JsonNode main = raw.path("status").path("components").path("main");
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                Thread.sleep(delayMillis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
 
-        // 팬 속도
-        String fanMode = AirPurifierUtil.parseFanMode(main);
-        fanMode = capitalizeFirstLetter(fanMode);
+            JsonNode raw = externalDeviceService.fetchDeviceStatus(deviceId);
+            JsonNode main = raw.path("status").path("components").path("main");
+            actualMode = AirPurifierUtil.parseFanMode(main);
 
-        boolean success = request.getFanMode().getMode().equals(fanMode);
-        log.info("Fan mode changed to {}, {}", fanMode, success);
+            if (actualMode != null && expectedMode.equals(actualMode.toLowerCase())) {
+                break; // 원하는 상태로 변경 완료
+            }
+        }
+
+        boolean success = expectedMode.equals(actualMode != null ? actualMode.toLowerCase() : null);
+        String displayFanMode = actualMode != null ? capitalizeFirstLetter(actualMode) : "Unknown";
+
+        log.info("Fan mode changed to {}, success: {}", displayFanMode, success);
 
         return AirPurifierFanModeResponse.builder()
-                .fanMode(fanMode)
-                .success(success)
-                .build();
-
+            .fanMode(displayFanMode)
+            .success(success)
+            .build();
     }
 
     private String capitalizeFirstLetter(String input) {
