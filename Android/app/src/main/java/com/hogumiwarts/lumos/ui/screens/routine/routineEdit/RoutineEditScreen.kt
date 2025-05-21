@@ -61,8 +61,8 @@ import com.hogumiwarts.domain.model.GestureData
 import com.hogumiwarts.domain.model.routine.CommandDevice
 import com.hogumiwarts.lumos.DataStore.TokenDataStore
 import com.hogumiwarts.lumos.R
-import com.hogumiwarts.lumos.mapper.toCommandDevice
-import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifier
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForAirPurifierOn
+import com.hogumiwarts.lumos.mapper.toCommandDeviceForLightOn
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSpeaker
 import com.hogumiwarts.lumos.mapper.toCommandDeviceForSwitch
 import com.hogumiwarts.lumos.ui.common.MyDevice
@@ -213,8 +213,8 @@ fun RoutineEditScreen(
                 viewModel = deviceListViewModel,
                 onSelectComplete = { selectedDevice ->
                     val commandDevice = when (selectedDevice.deviceType) {
-                        DeviceListType.LIGHT -> selectedDevice.toCommandDevice(true, 50, null, null)
-                        DeviceListType.AIRPURIFIER -> selectedDevice.toCommandDeviceForAirPurifier(
+                        DeviceListType.LIGHT -> selectedDevice.toCommandDeviceForLightOn(true, 50, null, null)
+                        DeviceListType.AIRPURIFIER -> selectedDevice.toCommandDeviceForAirPurifierOn(
                             false,
                             "auto"
                         )
@@ -226,7 +226,7 @@ fun RoutineEditScreen(
                         )
 
                         DeviceListType.SWITCH -> selectedDevice.toCommandDeviceForSwitch(true)
-                        DeviceListType.ETC -> selectedDevice.toCommandDevice(true, 50, null, null)
+                        DeviceListType.ETC -> selectedDevice.toCommandDeviceForLightOn(true, 50, null, null)
                     }
 
                     if (deviceList.any { it.deviceId == commandDevice.deviceId }) {

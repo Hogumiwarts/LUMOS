@@ -27,7 +27,7 @@ fun String.toDeviceListType(): DeviceListType {
 }
 
 
-fun MyDevice.toCommandDevice(
+fun MyDevice.toCommandDeviceForLightOn(
     isOn: Boolean = this.isOn,
     brightness: Int = 50,
     hue: Float? = 0f,
@@ -77,7 +77,30 @@ fun MyDevice.toCommandDevice(
     )
 }
 
-fun MyDevice.toCommandDeviceForAirPurifier(
+fun MyDevice.toCommandDeviceForLightOff(
+    isOn: Boolean = this.isOn
+): CommandDevice {
+    val commands = mutableListOf<CommandData>()
+
+    commands.add(
+        CommandData(
+            component = "main",
+            capability = "switch",
+            command = if (isOn) "on" else "off",
+            arguments = emptyList()
+        )
+    )
+
+    return CommandDevice(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType.toString(),
+        deviceImageUrl = "",
+        commands = commands
+    )
+}
+
+fun MyDevice.toCommandDeviceForAirPurifierOn(
     isOn: Boolean,
     fanMode: String
 ): CommandDevice {
@@ -93,6 +116,27 @@ fun MyDevice.toCommandDeviceForAirPurifier(
             capability = "airConditionerFanMode",
             command = "setFanMode",
             arguments = listOf(fanMode)
+        )
+    )
+
+    return CommandDevice(
+        deviceId = deviceId,
+        deviceName = deviceName,
+        deviceType = deviceType.toString(),
+        deviceImageUrl = "",
+        commands = commands
+    )
+}
+
+fun MyDevice.toCommandDeviceForAirPurifierOff(
+    isOn: Boolean,
+): CommandDevice {
+    val commands = listOf(
+        CommandData(
+            component = "main",
+            capability = "switch",
+            command = if (isOn) "on" else "off",
+            arguments = emptyList()
         )
     )
 

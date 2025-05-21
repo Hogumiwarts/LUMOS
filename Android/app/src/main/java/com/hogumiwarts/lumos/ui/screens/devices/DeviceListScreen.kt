@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -191,9 +192,12 @@ fun DeviceListScreen(
 
                                 DeviceListType.ETC -> {} // 이 부분은 필터링으로 실행되지 않지만 안전을 위해 유지
                             }
+//                        viewModel.onDeviceClicked(it)
                         }
                     )
                 }
+
+
             }
         }
     }

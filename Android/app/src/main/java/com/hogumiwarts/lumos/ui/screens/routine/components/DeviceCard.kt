@@ -1,5 +1,6 @@
 package com.hogumiwarts.lumos.ui.screens.routine.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -207,6 +208,7 @@ fun getKoreanDescription(command: CommandData): String {
 }
 
 fun getColorNameFromHue(hue: Int): String {
+    Log.d("TAG", "getColorNameFromHue: $hue")
     return when (hue * 10 / 36) {
         in 0..15, in 331..360 -> "빨간색"
         in 16..45 -> "주황색"
