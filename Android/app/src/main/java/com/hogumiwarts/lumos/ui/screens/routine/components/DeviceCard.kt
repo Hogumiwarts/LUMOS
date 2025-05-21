@@ -207,7 +207,7 @@ fun getKoreanDescription(command: CommandData): String {
 }
 
 fun getColorNameFromHue(hue: Int): String {
-    return when (hue) {
+    return when (hue * 10 / 36) {
         in 0..15, in 331..360 -> "빨간색"
         in 16..45 -> "주황색"
         in 46..65 -> "노란색"
@@ -215,6 +215,6 @@ fun getColorNameFromHue(hue: Int): String {
         in 171..250 -> "파란색"
         in 251..290 -> "남색"
         in 291..330 -> "보라색"
-        else -> "색상 미지정"
+        else -> "색상 판별 불가"
     }
 }
