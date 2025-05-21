@@ -1,5 +1,6 @@
 
-![](https://velog.velcdn.com/images/bmlsj/post/be5d096e-e28b-4dff-ba05-5556ddd94c6f/image.png)
+![]()
+
 
 # 💗 **싸피 12기 2학기 자율 프로젝트**
 ## RUMOS
@@ -147,9 +148,9 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 <br>
 
 ## 📌산출물 
-- [API 명세서 및 Swagger]()
+- [API 명세서 및 Swagger](docs/API.md)
 - [ERD 다이어그램](docs/Lumos-ERD.png)
-- [시스템 아키텍처]()
+- [시스템 아키텍처](docs/architecture.png)
 - [시연 영상](https://www.youtube.com/watch?v=rohFAwGDQHM)
 - [중간 발표 PPT]()
 - [최종 발표 PPT]()
