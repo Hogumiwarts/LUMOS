@@ -125,7 +125,7 @@ class WebSocketViewModel @Inject constructor(
         }
 
         val client = OkHttpClient()
-        val request = Request.Builder().url(BuildConfig.IP_ADDRESS).build()
+        val request = Request.Builder().url("ws://$ip:8000/ws/gesture").build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -157,6 +157,11 @@ class WebSocketViewModel @Inject constructor(
                     label.toInt()
                 } catch (e: NumberFormatException) {
                     -1
+                }
+
+                // 유효한 제스처인 경우 진동 피드백 추가 (1, 2, 3번 제스처)
+                if (gestureId in 1..3) {
+                    provideHapticFeedback(FeedbackPattern.GESTURE_ACTION)
                 }
 
                 Log.d("Routine", "파싱된 라벨: '$label', 제스처 ID: $gestureId, 모드: $currentMode")
