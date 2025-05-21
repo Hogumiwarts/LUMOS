@@ -171,7 +171,7 @@ class MainActivity : ComponentActivity() {
 //            Toast.makeText(this, "필요한 모든 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
 
         } else {
-//            checkAndRequestPermissions()
+            checkAndRequestPermissions()
 //            Toast.makeText(this, "앱 기능을 사용하려면 모든 권한이 필요합니다.", Toast.LENGTH_LONG).show()
         }
     }

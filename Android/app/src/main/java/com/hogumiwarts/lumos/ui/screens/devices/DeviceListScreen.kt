@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -59,7 +60,6 @@ fun DeviceListScreen(
     val context = LocalContext.current
 
     val deviceList by viewModel.deviceList.collectAsState()
-
 
 
     // 화면이 다시 Resume되면 DB 저장 목록을 불러옴
@@ -118,59 +118,82 @@ fun DeviceListScreen(
                     context
                 )
             } else {
-                val myDevices = deviceList.map { it }
-                if (deviceList.isEmpty()){
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .background(Color.White),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(
+                val filteredDevices = deviceList.filter { it.deviceType != DeviceListType.ETC }
+
+                if (filteredDevices.isEmpty()) {
+                    // 필터링 후 기기가 없는 경우
+                    if (deviceList.isNotEmpty()) {
+                        // 원래 기기가 있었지만 모두 ETC 타입이었던 경우
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(300.dp)
-                                .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
-                            contentAlignment = Alignment.Center
+                                .background(Color.White),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "기기 상태를 불러오는 중이에요...☁️",
+                                text = "제어 가능한 기기가 없습니다",
                                 fontSize = 12.sp,
                                 fontFamily = nanum_square_neo,
                                 color = Color.Gray
                             )
                         }
+                    } else {
+                        // 기존 로딩 표시
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .background(Color.White),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(300.dp)
+                                    .background(SkeletonComponent(), RoundedCornerShape(16.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "기기 상태를 불러오는 중이에요...☁️",
+                                    fontSize = 12.sp,
+                                    fontFamily = nanum_square_neo,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
                     }
-                }else{
+                } else {
+                    // 필터링된 기기 목록 표시
                     DeviceGridSection(
                         showToggle = false,
-                        devices = myDevices,
-                        selectedDeviceId = viewModel.getSelectedDevice(myDevices)?.deviceId,
+                        devices = filteredDevices,
+                        selectedDeviceId = viewModel.getSelectedDevice(filteredDevices)?.deviceId,
                         onDeviceClick = {
-                            when(it.deviceType){
-
+                            when (it.deviceType) {
                                 DeviceListType.AIRPURIFIER -> navController.navigate("AIRPURIFIER/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.LIGHT -> navController.navigate("LIGHT/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.AUDIO -> navController.navigate("AUDIO/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
+
                                 DeviceListType.SWITCH -> navController.navigate("SWITCH/${it.deviceId}") {
                                     popUpTo("splash") { inclusive = true }
                                 }
-                                DeviceListType.ETC -> {}
+
+                                DeviceListType.ETC -> {} // 이 부분은 필터링으로 실행되지 않지만 안전을 위해 유지
                             }
-//                        viewModel.onDeviceClicked(it)
                         }
                     )
                 }
-
-
             }
         }
     }
@@ -221,12 +244,15 @@ fun NotLinkedScreen(onClickLink: () -> Unit, viewModel: DeviceListViewModel, con
 
             Box(
                 modifier = Modifier
-                    .background(color = Color(0x1A1A1C3A), shape = RoundedCornerShape(size = 10.dp))
-                    .padding(horizontal = 8.dp, vertical = 5.dp)
+                    .background(
+                        color = Color(0x1A1A1C3A), shape = RoundedCornerShape(size = 10.dp)
+                    )
+                    .clip(RoundedCornerShape(size = 10.dp))
                     .clickable {
                         // smartthings 계정 연동 이동
                         viewModel.requestAuthAndOpen(context = context)
                     }
+                    .padding(horizontal = 8.dp, vertical = 5.dp)
             ) {
                 Text(
                     text = "계정 연동하고 기기 불러오기",
