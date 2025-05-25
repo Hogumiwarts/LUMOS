@@ -70,6 +70,8 @@ fun RealLightScreenContent(
         viewModel.sendIntent(LightIntent.LoadLightStatus(deviceId.toLong()))
     }
 
+    var isInitialColorLoad by remember { mutableStateOf(true) }
+
     val state by viewModel.state.collectAsState()
     val powerState by viewModel.powerState.collectAsState()
     val brightnessState by viewModel.brightnessState.collectAsState()
@@ -101,6 +103,8 @@ fun RealLightScreenContent(
                 )
                 lightDevice = data
 
+                // ✅ 초기 로딩 이후 서버 전송 가능하게 설정
+                isInitialColorLoad = true
             }
 
             is LightStatusState.Error -> {}
@@ -114,183 +118,178 @@ fun RealLightScreenContent(
         .background(Color.White)){
 
         Spacer(modifier = Modifier.height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding()))
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-
-        Text(
-            text = lightDevice?.deviceName ?: "",
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(41.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "조명",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
-            )
-
-            Switch(
-                checked = checked,
-                onCheckedChange = {
-                    viewModel.sendIntent(LightIntent.ChangeLightPower(deviceId.toLong(), it))
-                },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = Color(0xff3E4784),
-                    uncheckedThumbColor = Color.White,
-                    uncheckedTrackColor = Color(0xFFB0B0B0)
-                )
-            )
-        }
-
-        Image(
-            painter = painterResource(id = R.drawable.ic_light),
-            contentDescription = null,
-            modifier = Modifier.size(200.dp)
-        )
-
-        Spacer(modifier = Modifier.height(17.dp))
-
-        // 밝기
         Column(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = "밝기",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
-            )
+            modifier = Modifier
+                .weight(1f)
+                .background(Color.White)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
 
-            Slider(
-                value = brightness.toFloat(),
-                onValueChange = {
-                    brightness = it.toInt()
-                },
-                onValueChangeFinished = {
-                    viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
-                },
-                valueRange = 0f..100f,
-                steps = 0,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color(0xff3E4784),
-                    activeTrackColor = Color(0xff3E4784),
-                    inactiveTrackColor = Color(0xffB9C0D4)
-                ),
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "0",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "100",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(17.dp))
-        // 색온도
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = "색 온도",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
-            )
-
-            GradientColorSlider(
-                deviceId = deviceId,
-                modifier = Modifier
-                    .weight(1f)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "2200K",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "6500K",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(41.dp))
-        // 색상 설정
-        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
         ) {
+
             Text(
-                text = "색상 설정",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp,
-                modifier = Modifier.align(Alignment.Start)
+                text = lightDevice?.deviceName ?: "",
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                textAlign = TextAlign.Center
             )
 
-            val coroutineScope = rememberCoroutineScope()
-            var debounceJob by remember { mutableStateOf<Job?>(null) }
+            Spacer(modifier = Modifier.height(41.dp))
 
-            HsvColorPicker(
-                modifier = Modifier
-                    .height(200.dp)
-                    .width(200.dp)
-                    .padding(10.dp),
-                controller = controller,
-                onColorChanged = { colorEnvelope: ColorEnvelope ->
-                    selectedColorCode = "#" + colorEnvelope.hexCode.substring(2)
-                    selectedColor = colorEnvelope.color
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "조명",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
 
-                    // Color -> HSV 변환
-                    val hsv = FloatArray(3)
-//                    ColorUtils.colorToHSL(colorEnvelope.color.toArgb(), hsv)
-                    android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(), hsv)
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        viewModel.sendIntent(LightIntent.ChangeLightPower(deviceId.toLong(), it))
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Color(0xff3E4784),
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Color(0xFFB0B0B0)
+                    )
+                )
+            }
 
+            Image(
+                painter = painterResource(id = R.drawable.ic_light),
+                contentDescription = null,
+                modifier = Modifier.size(200.dp)
+            )
 
-                    val hue = hsv[0]
-                    val saturation = hsv[1]
-                    val saturation1 = hsv[2]
+            Spacer(modifier = Modifier.height(17.dp))
 
-                    if (isColor == true) {
+            // 밝기
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "밝기",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
 
-                    } else {
+                Slider(
+                    value = brightness.toFloat(),
+                    onValueChange = {
+                        brightness = it.toInt()
+                    },
+                    onValueChangeFinished = {
+                        viewModel.sendIntent(LightIntent.ChangeLightBright(deviceId, brightness))
+                    },
+                    valueRange = 0f..100f,
+                    steps = 0,
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xff3E4784),
+                        activeTrackColor = Color(0xff3E4784),
+                        inactiveTrackColor = Color(0xffB9C0D4)
+                    ),
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "0",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = "100",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(17.dp))
+            // 색온도
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "색 온도",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
+
+                GradientColorSlider(
+                    deviceId = deviceId,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "2200K",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = "6500K",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(41.dp))
+            // 색상 설정
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "색상 설정",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+
+                val coroutineScope = rememberCoroutineScope()
+                var debounceJob by remember { mutableStateOf<Job?>(null) }
+
+                HsvColorPicker(
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(200.dp)
+                        .padding(10.dp),
+                    controller = controller,
+                    onColorChanged = { colorEnvelope: ColorEnvelope ->
+                        if (isInitialColorLoad) {
+                            // ✅ 최초 설정 시 서버 호출 막기
+                            isInitialColorLoad = false
+                            return@HsvColorPicker
+                        }
+
+                        selectedColorCode = "#" + colorEnvelope.hexCode.substring(2)
+                        selectedColor = colorEnvelope.color
+
+                        val hsv = FloatArray(3)
+                        android.graphics.Color.colorToHSV(colorEnvelope.color.toArgb(), hsv)
+
+                        val hue = hsv[0]
+                        val saturation = hsv[1]
+
                         debounceJob?.cancel()
                         debounceJob = coroutineScope.launch {
                             delay(300)
-                            Log.d(
-                                "ColorPicker",
-                                "Hue: $hue, Saturation: $saturation, saturation1: $saturation1"
-                            )
-                            Log.d("ColorPicker", "Hue: $selectedColorCode")
+                            Log.d("ColorPicker", "Hue: $hue, Saturation: $saturation")
                             viewModel.sendIntent(
                                 LightIntent.ChangeLightColor(
                                     deviceId,
@@ -300,63 +299,60 @@ fun RealLightScreenContent(
                             )
                         }
                     }
+                )
+            }
 
-                    isColor = false
-                }
-            )
+
+            Row() {
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(selectedColor)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    selectedColorCode,
+                    fontSize = 18.sp
+                )
+            }
+
+
+            Spacer(modifier = Modifier.height(17.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(17.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+
+                Text(
+                    "기기 정보",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(13.dp))
+
+                Text(
+                    "제조사 | ${lightDevice?.manufacturerCode}",
+                    fontSize = 12.sp
+                )
+                Text(
+                    "연결방식 | Wi-Fi",
+                    fontSize = 12.sp
+                )
+                Text(
+                    "기기 타입 | ${lightDevice?.deviceType}",
+                    fontSize = 12.sp
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(100.dp))
         }
-
-
-        Row() {
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(selectedColor)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                selectedColorCode,
-                fontSize = 18.sp
-            )
-        }
-
-
-        Spacer(modifier = Modifier.height(17.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(17.dp))
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.Start
-        ) {
-
-            Text(
-                "기기 정보",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 18.sp
-            )
-
-            Spacer(modifier = Modifier.height(13.dp))
-
-            Text(
-                "제조사 | ${lightDevice?.manufacturerCode}",
-                fontSize = 12.sp
-            )
-            Text(
-                "연결방식 | Wi-Fi",
-                fontSize = 12.sp
-            )
-            Text(
-                "기기 타입 | ${lightDevice?.deviceType}",
-                fontSize = 12.sp
-            )
-
-        }
-
-        Spacer(modifier = Modifier.height(100.dp))
     }
-}
 
     when (powerState) {
         is ControlState.Error -> {}
@@ -385,11 +381,11 @@ fun RealLightScreenContent(
     }
 
     var hasInteracted by remember { mutableStateOf(false) }
-        when (colorState) {
-            is LightColorState.Error -> {}
-            LightColorState.Idle -> {}
-            is LightColorState.Loaded -> {
-                if (!hasInteracted) hasInteracted = true
+    when (colorState) {
+        is LightColorState.Error -> {}
+        LightColorState.Idle -> {}
+        is LightColorState.Loaded -> {
+            if (!hasInteracted) hasInteracted = true
 
 //                isColor = true
 //                val data = (colorState as LightColorState.Loaded).data
@@ -401,17 +397,17 @@ fun RealLightScreenContent(
 //                    false
 //                )
 
-            }
-
-            LightColorState.Loading -> {
-                if (hasInteracted) {
-                    LoadingComponent()
-
-                }
-
-
-            }
         }
+
+        LightColorState.Loading -> {
+            if (hasInteracted) {
+                LoadingComponent()
+
+            }
+
+
+        }
+    }
 
 
     when (temperatureState) {

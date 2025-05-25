@@ -12,19 +12,25 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hogumiwarts.lumos.ui.navigation.BottomNavItem
 import com.hogumiwarts.lumos.ui.navigation.BottomNavigation
 import com.hogumiwarts.lumos.ui.navigation.NavGraph
+import com.hogumiwarts.lumos.ui.screens.control.ControlViewModel
 
 @Composable
-fun MainScreen(deviceId: Long, deviceType: String) {
+fun MainScreen(
+    deviceId: Long, deviceType: String,
+    controlViewModel: ControlViewModel = hiltViewModel(),
+) {
     val navController = rememberNavController()
 
     // 현재 백스택 엔트리 가져오기
@@ -41,6 +47,10 @@ fun MainScreen(deviceId: Long, deviceType: String) {
 
     // 네비게이션 바를 표시할 화면인지 확인
     val isNavOn = currentDestination?.route in mainScreens
+
+    LaunchedEffect(Unit) {
+        controlViewModel.prepareSession()
+    }
 
     @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
     Scaffold(
@@ -77,9 +87,10 @@ fun MainScreen(deviceId: Long, deviceType: String) {
 
     ) { innerPadding ->
         NavGraph(
-            deviceId= deviceId, deviceType= deviceType,
+            deviceId = deviceId, deviceType = deviceType,
             navController = navController,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            controlViewModel = controlViewModel
         )
     }
 }

@@ -43,6 +43,7 @@ import com.hogumiwarts.lumos.ui.screens.auth.onboarding.PermissionsScreen
 import com.hogumiwarts.lumos.ui.screens.auth.onboarding.WelcomeScreen
 import com.hogumiwarts.lumos.ui.screens.auth.signup.SignupScreen
 import com.hogumiwarts.lumos.ui.screens.control.AirpurifierScreen
+import com.hogumiwarts.lumos.ui.screens.control.ControlViewModel
 import com.hogumiwarts.lumos.ui.screens.control.DetectDeviceScreen
 import com.hogumiwarts.lumos.ui.screens.control.audio.SpeakerScreen
 import com.hogumiwarts.lumos.ui.screens.control.SwitchScreen
@@ -58,7 +59,8 @@ import kotlinx.coroutines.delay
 fun NavGraph(
     deviceId: Long, deviceType: String,
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    controlViewModel: ControlViewModel
 ) {
     // 화면 순서 정의 (바텀 네비게이션 순서와 일치)
     val screens = listOf(
@@ -216,10 +218,9 @@ fun NavGraph(
                     BottomNavItem.Home -> {
                         HomeScreen(
                             tokenDataStore = tokenDataStore,
-                            navController = navController
+                            navController = navController,
+                            controlViewModel = controlViewModel
                         )
-//                            LightScreen()
-//                            GestureScreen()
                     }
 
                     BottomNavItem.Info -> {
@@ -268,7 +269,10 @@ fun NavGraph(
             },
         ) {
 //                FindDeviceScreen(navController = navController)
-            DetectDeviceScreen(navController = navController)
+            DetectDeviceScreen(
+                navController = navController,
+                controlViewModel = controlViewModel
+            )
         }
 
         // Auth
@@ -365,7 +369,8 @@ fun NavGraph(
                             viewModel.selectIcon(it)
                         }
                     }
-                    val editDevices = savedStateHandle?.get<List<CommandDevice>>("editDevices") ?: emptyList()
+                    val editDevices =
+                        savedStateHandle?.get<List<CommandDevice>>("editDevices") ?: emptyList()
                     viewModel.loadInitialDevices(editDevices)
                     viewModel.setRoutineId(routineId)
                 }
