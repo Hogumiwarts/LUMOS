@@ -72,7 +72,7 @@ import com.hogumiwarts.lumos.ui.theme.nanum_square_neo
 @Composable
 fun DetectDeviceScreen(
     navController: NavHostController,
-    controlViewModel: ControlViewModel = hiltViewModel()
+    controlViewModel: ControlViewModel
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.wave))
     val progress by animateLottieCompositionAsState(
@@ -119,12 +119,14 @@ fun DetectDeviceScreen(
         if (controlViewModel.detectedDeviceName != null) {
             showSheet = true
             controlViewModel.cancelDetection()
+            controlViewModel.stopRanging()
         }
     }
 
     BackHandler {
         controlViewModel.cancelDetection()
         navController.popBackStack()
+        controlViewModel.stopRanging()
     }
 
 
@@ -289,9 +291,9 @@ fun DetectDeviceScreen(
                     .statusBarsPadding()
             ) {
                 when (controlViewModel.detectedDeviceName) {
-                    "공기청정기" -> AirpurifierScreen(deviceId = 7)
-                    "조명" -> RealLightScreenContent(deviceId = 9)
-                    "스피커" -> SpeakerScreen(deviceId = 6)
+                    "스위치" -> SwitchScreen(deviceId = 31)
+                    "조명" -> RealLightScreenContent(deviceId = 18)
+                    "스피커" -> SpeakerScreen(deviceId = 19)
                 }
             }
         }

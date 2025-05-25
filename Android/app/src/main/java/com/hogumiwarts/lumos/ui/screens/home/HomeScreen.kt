@@ -83,7 +83,7 @@ import timber.log.Timber
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     deviceViewModel: DeviceListViewModel = hiltViewModel(),
-    controlViewModel: ControlViewModel = hiltViewModel(),
+    controlViewModel: ControlViewModel,
 
     authViewModel: AuthViewModel = hiltViewModel(),
     tokenDataStore: TokenDataStore,
@@ -111,7 +111,7 @@ fun HomeScreen(
         Log.d("TAG", "HomeScreen: 호출")
 
         deviceViewModel.getJwt()
-        controlViewModel.prepareSession()
+//        controlViewModel.prepareSession()
         deviceViewModel.checkAccountLinked()
 
 

@@ -374,6 +374,6 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     LUMOSTheme {
         val navController = rememberNavController()
-        NavGraph(1, "", navController = navController)
+//        NavGraph(1, "", navController = navController)
     }
 }

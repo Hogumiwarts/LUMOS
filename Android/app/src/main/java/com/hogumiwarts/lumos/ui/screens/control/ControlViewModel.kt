@@ -80,9 +80,9 @@ class ControlViewModel @Inject constructor(
                 val azimuth = uwbRanging.getDevicePosition(targetAdr)?.azimuth?.value ?: 180F
 
                 val range = when (azimuth) {
-//                    in -90f..-20f -> "공기청정기"
-                    in -20f..20f -> "조명"
-//                    in 20f..90f -> "스피커"
+//                    in -20f..20f -> "조명"
+                    in -90f..-20f -> "스위치"
+                    in 20f..90f -> "조명"
                     else -> null
                 }
 
@@ -125,6 +125,8 @@ class ControlViewModel @Inject constructor(
 
     fun stopRanging() {
         uwbRanging.stopRanging()
+        detectionJob?.cancel()
+        isDetecting = false
     }
 
     fun cleanupSession() {

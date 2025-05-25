@@ -37,7 +37,7 @@ import java.util.Locale
 
 @Composable
 fun ControlScreen(
-//    navController: NavController,
+    navController: NavController,
     bleViewModel: BleScannerViewModel = hiltViewModel(),
     controlViewModel: ControlViewModel = hiltViewModel()
 ) {
