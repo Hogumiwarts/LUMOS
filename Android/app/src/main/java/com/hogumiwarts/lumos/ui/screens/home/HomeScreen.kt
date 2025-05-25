@@ -97,6 +97,11 @@ fun HomeScreen(
 
     val isLinked by deviceViewModel.isLinked.collectAsState()
     val deviceList by deviceViewModel.deviceList.collectAsState()
+    val filteredDevices = deviceList
+        .filter { it.deviceType != DeviceListType.ETC }
+        .sortedBy { device ->
+            if (device.deviceType == DeviceListType.AUDIO) 1 else 0
+        }
 
     val HomeState by homeViewModel.collectAsState()
 
@@ -267,7 +272,7 @@ fun HomeScreen(
                         )
                     }
 
-                    deviceList.isEmpty() -> {
+                    filteredDevices.isEmpty() -> {
                         // 로딩 중일 때 보여줄 UI
                         Column(
                             modifier = Modifier
@@ -295,7 +300,7 @@ fun HomeScreen(
                     }
 
                     else -> {
-                        val myDevices = deviceList.map { it }
+                        val myDevices = filteredDevices.map { it }
                         DeviceGridHomeSection(
                             devices = myDevices,
                             selectedDeviceId = deviceViewModel.getSelectedDevice(myDevices)?.deviceId,

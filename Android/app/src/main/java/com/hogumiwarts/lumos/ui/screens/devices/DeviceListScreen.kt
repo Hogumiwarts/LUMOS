@@ -119,7 +119,13 @@ fun DeviceListScreen(
                     context
                 )
             } else {
-                val filteredDevices = deviceList.filter { it.deviceType != DeviceListType.ETC }
+//                val filteredDevices = deviceList.filter { it.deviceType != DeviceListType.ETC }
+
+                val filteredDevices = deviceList
+                    .filter { it.deviceType != DeviceListType.ETC }
+                    .sortedBy { device ->
+                        if (device.deviceType == DeviceListType.AUDIO) 1 else 0
+                    }
 
                 if (filteredDevices.isEmpty()) {
                     // 필터링 후 기기가 없는 경우
