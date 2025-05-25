@@ -41,7 +41,8 @@ fun DeviceGridSection(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(top = 14.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // 2개씩 묶어서 Row로 배치
