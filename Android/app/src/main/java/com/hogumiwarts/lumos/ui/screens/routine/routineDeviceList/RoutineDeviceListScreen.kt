@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -95,16 +96,27 @@ fun RoutineDeviceListScreen(
 
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // 기기 목록
-        DeviceGridSection(
-            showToggle = false,
-            devices = deviceList,
-            selectedDeviceId = selectedDeviceId,
-            onDeviceClick = { viewModel.onDeviceClicked(it) }
-        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 14.dp)
+        ) {
+            item {
+                // 기기 목록 - LazyGrid 대신 일반 그리드 레이아웃 사용
+                DeviceGridSection(
+                    showToggle = false,
+                    devices = deviceList,
+                    selectedDeviceId = selectedDeviceId,
+                    onDeviceClick = { viewModel.onDeviceClicked(it) }
+                )
+            }
 
-        Spacer(modifier = Modifier.height(125.dp))
+            item { Spacer(modifier = Modifier.height(125.dp)) }
+        }
+
 
         // 선택 버튼
         PrimaryButton(
@@ -116,7 +128,6 @@ fun RoutineDeviceListScreen(
                         showDuplicateDialog.value = true  // 다시 켬
                         return@let
                     }
-
 
                     navController.currentBackStackEntry?.savedStateHandle?.set(
                         "selectedDevice",
