@@ -112,6 +112,10 @@ class ControlViewModel @Inject constructor(
         isDetecting = false
     }
 
+    fun exitDetectScreen() {
+        detectedDeviceName = null
+    }
+
 
     fun getDevicePosition(address: String) = uwbRanging.getDevicePosition(address)
 
@@ -125,8 +129,6 @@ class ControlViewModel @Inject constructor(
 
     fun stopRanging() {
         uwbRanging.stopRanging()
-        detectionJob?.cancel()
-        isDetecting = false
     }
 
     fun cleanupSession() {
