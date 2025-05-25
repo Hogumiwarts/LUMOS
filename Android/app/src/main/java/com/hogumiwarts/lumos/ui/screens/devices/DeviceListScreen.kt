@@ -106,7 +106,7 @@ fun DeviceListScreen(
 
         Box(
             modifier = Modifier
-                .padding(horizontal = 28.dp)
+                .padding(horizontal = 28.dp, vertical = 12.dp)
         ) {
 
             if (!isLinked) {
