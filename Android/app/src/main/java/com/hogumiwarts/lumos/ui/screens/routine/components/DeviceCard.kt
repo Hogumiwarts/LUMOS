@@ -209,7 +209,7 @@ fun getKoreanDescription(command: CommandData): String {
 
 fun getColorNameFromHue(hue: Int): String {
     Log.d("TAG", "getColorNameFromHue: $hue")
-    return when (hue * 10 / 36) {
+    return when (hue * 36 / 10) {
         in 0..15, in 331..360 -> "빨간색"
         in 16..45 -> "주황색"
         in 46..65 -> "노란색"

@@ -213,7 +213,7 @@ fun PreviewLightScreenContent(
                         selectedDevice.toCommandDeviceForLightOn(
                             isOn = true,
                             brightness = brightness,
-                            hue = hue * 36 / 10,
+                            hue = hue * 10 / 36,
                             saturation = saturation
                         )
                     }
