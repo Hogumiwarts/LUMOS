@@ -119,14 +119,14 @@ fun DetectDeviceScreen(
         if (controlViewModel.detectedDeviceName != null) {
             showSheet = true
             controlViewModel.cancelDetection()
-            controlViewModel.stopRanging()
         }
     }
 
     BackHandler {
         controlViewModel.cancelDetection()
         navController.popBackStack()
-        controlViewModel.stopRanging()
+        showSheet = false
+        controlViewModel.exitDetectScreen()
     }
 
 
@@ -169,6 +169,9 @@ fun DetectDeviceScreen(
                         onClick = {
                             // 뒤로 가기
                             navController.popBackStack()
+                            controlViewModel.cancelDetection()
+                            showSheet = false
+                            controlViewModel.exitDetectScreen()
                         }
                     ),
                     tint = Color.White
@@ -291,8 +294,8 @@ fun DetectDeviceScreen(
                     .statusBarsPadding()
             ) {
                 when (controlViewModel.detectedDeviceName) {
-                    "스위치" -> SwitchScreen(deviceId = 31)
-                    "조명" -> RealLightScreenContent(deviceId = 18)
+                    "스위치" -> SwitchScreen(deviceId = 41)
+                    "조명" -> RealLightScreenContent(deviceId = 42)
                     "스피커" -> SpeakerScreen(deviceId = 19)
                 }
             }
