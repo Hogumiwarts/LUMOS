@@ -193,7 +193,7 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 - 제스처 인식 성공 시 진동 피드백으로 즉각적인 사용자 응답
 
 
-<img src="docs/gif/gesture.gif" width="200" />
+<img src="https://velog.velcdn.com/images/bmlsj/post/06ce946e-8c6a-413b-a188-2211b40e03b0/image.png" width="200" />
 
 
 <br>
@@ -251,18 +251,33 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 - SmartThings 연동 기기의 전원 상태, 밝기, 팬 속도 등 실시간 확인 가능
 - 제공 하는 기기 목록: 스마트 조명, 공기 청정기, 스피커, 미니빅 스위치
 
-1) 워치 로그인
+1) **워치 로그인**
 <img width=300 src="https://velog.velcdn.com/images/bmlsj/post/6355b28b-b2d8-48e8-abbf-288817b4723a/image.png" />
 
-2) 워치 기기목록 리스트
+2) **워치 기기목록 리스트**
 <img width=300 src="https://velog.velcdn.com/images/bmlsj/post/a29205eb-5484-4522-953d-af62b4e5ba8d/image.png" />
 
-3) 휴대폰 제어
+3) **휴대폰 제어**
 
 <img src="docs/gif/audio_control.gif" width="200" />
 <img src="docs/gif/light_control_fast.gif" width="250" />
 
-### 4. 루틴 생성/수정/삭제
+### 4. 제스처 테스트 화면
+
+1. 폰 앱 ▶︎ “제스처 테스트” 버튼 탭
+2. 워치 화면 ▶︎ 제스처 인식 가이드 확인
+3. 제스처 수행 ▶︎ 폰 화면에서 결과 확인
+
+- 휴대폰 화면
+<img src="docs/gif/gesture.gif" width="250" />
+
+
+- 워치 테스트 화면
+<img src="https://velog.velcdn.com/images/bmlsj/post/98e4aae9-c446-49f7-8566-8e117e7f54e0/image.png" width="250" />
+
+
+
+### 5. 루틴 생성/수정/삭제
 - 제스처로 실행할 수 있는 루틴의 생성, 수정, 삭제 기능 제공
 - 루틴을 통해 여러 IoT 기기를 한 번에 제어할 수 있는 통합 제어 흐름 지원
 
