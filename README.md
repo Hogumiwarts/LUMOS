@@ -167,7 +167,7 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 - 동일 기종 기기가 여러 대 있을 경우에도 정확한 대상 지정 가능
 - 리스트 탐색 없이 직관적 공간 제어 구현
 
-![readme_image](/uploads/f125661fc2a2132dc737a436bf2d7b2d/readme_image.png)
+<img src="docs/gif/uwb.gif" width="200" />
 
 
 ### 2. 워치를 활용한 스마트 싱스 기기 제어 
@@ -193,9 +193,10 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 - 제스처 인식 성공 시 진동 피드백으로 즉각적인 사용자 응답
 
 
-<img src="docs/gif/gesture.gif" width="300" />
+<img src="docs/gif/gesture.gif" width="200" />
 
 
+<br>
 <br>
 
 ## 📌 제스처 인식 방법
@@ -233,13 +234,16 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
   → 제스처 설정, 루틴 예시, 기기 연동 방법 등 안내
 - 앱 접근 권한 요청(블루투스, 위치 등) 및 사용 목적 설명 포함
 
-
+<img src="docs/gif/login.gif" width="250" />
+<img src="docs/gif/onboarding.gif" width="200" />
 
 
 ### 2. 스마트싱스(SmartThings) 연동을 통한 통합 제어
 - 삼성 SmartThings 계정 연동을 통해 보유 중인 IoT 기기 자동 인식
 - 스마트폰과 워치 모두에서 동일한 기기 목록 및 기기 상태를 실시간으로 확인 및 제어 가능
 - 앱 하나로 다양한 디바이스를 통합 관리 가능
+
+<img src="docs/gif/smartthings.gif" width="200" />
 
 ### 3. 기기 상태 확인 및 기기 제어 
 - 갤럭시 스마트폰과 워치에서 SmartThings 기기의 기본 기능(전원, 밝기 등) 제어 가능
@@ -252,6 +256,22 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 
 2) 워치 기기목록 리스트
 <img width=300 src="https://velog.velcdn.com/images/bmlsj/post/a29205eb-5484-4522-953d-af62b4e5ba8d/image.png" />
+
+3) 휴대폰 제어
+
+<img src="docs/gif/audio_control.gif" width="200" />
+<img src="docs/gif/light_control_fast.gif" width="250" />
+
+### 4. 루틴 생성/수정/삭제
+- 제스처로 실행할 수 있는 루틴의 생성, 수정, 삭제 기능 제공
+- 루틴을 통해 여러 IoT 기기를 한 번에 제어할 수 있는 통합 제어 흐름 지원
+
+| 루틴 생성 |  루틴 수정 | 루틴 삭제 |
+|---|---|---|
+| <img src="docs/gif/routine_create.gif" width="250" /> | <img src="docs/gif/routine_update.gif" width="250" /> | <img src="docs/gif/routine_delete.gif" width="200" /> |
+
+
+
 
 
 <br>
