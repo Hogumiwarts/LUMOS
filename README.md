@@ -172,7 +172,19 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 
 ### 2. 워치를 활용한 스마트 싱스 기기 제어 
 
+- 조명 제어
+
 <img width=600 src="https://velog.velcdn.com/images/bmlsj/post/184e3836-94f4-4761-93c2-e0fa3ebcc711/image.png"/>
+
+- 공기 청정기 제어
+
+<img width=300 src="https://velog.velcdn.com/images/bmlsj/post/363c5be3-4076-4fd8-a83b-14793ad64a75/image.png" />
+
+- 스피커 제어
+
+<img width=300 src="https://velog.velcdn.com/images/bmlsj/post/1904b0b5-8425-4fd7-abc6-413e933228ec/image.png" />
+
+
 
 ### 3. 자체 제스처를 통한 스마트홈 루틴 제어
 
@@ -180,8 +192,8 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 - 조명, 스피커, 스위치 등 다중 제어 조건을 하나의 제스처로 처리
 - 제스처 인식 성공 시 진동 피드백으로 즉각적인 사용자 응답
 
-![image](/uploads/8da01827a07fb191704506967e1bc618/image.png)
 
+<img src="docs/gif/gesture.gif" width="300" />
 
 
 <br>
@@ -221,6 +233,9 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
   → 제스처 설정, 루틴 예시, 기기 연동 방법 등 안내
 - 앱 접근 권한 요청(블루투스, 위치 등) 및 사용 목적 설명 포함
 
+
+
+
 ### 2. 스마트싱스(SmartThings) 연동을 통한 통합 제어
 - 삼성 SmartThings 계정 연동을 통해 보유 중인 IoT 기기 자동 인식
 - 스마트폰과 워치 모두에서 동일한 기기 목록 및 기기 상태를 실시간으로 확인 및 제어 가능
@@ -232,6 +247,11 @@ RUMOS는 이러한 불편을 해결하기 위해 시작되었습니다.
 - SmartThings 연동 기기의 전원 상태, 밝기, 팬 속도 등 실시간 확인 가능
 - 제공 하는 기기 목록: 스마트 조명, 공기 청정기, 스피커, 미니빅 스위치
 
+1) 워치 로그인
+<img width=300 src="https://velog.velcdn.com/images/bmlsj/post/6355b28b-b2d8-48e8-abbf-288817b4723a/image.png" />
+
+2) 워치 기기목록 리스트
+<img width=300 src="https://velog.velcdn.com/images/bmlsj/post/a29205eb-5484-4522-953d-af62b4e5ba8d/image.png" />
 
 
 <br>
