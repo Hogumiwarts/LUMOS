@@ -28,14 +28,16 @@
 ## 📌팀원 소개
 ### D103 - 호구미와트
 
-| 이름    | 역할  |  파트 |
-| ------ | ------ |  ---|
-| **장홍준**  | 팀장 |  Android, UWB |   
-| **이상혁** | 팀원 |  Android, WearOS |      
-| **서정후** |  팀원 |  Android |     
-| **서미지** | 팀원 |  백엔드, 인프라, 제스처 |  
-| **이사랑** | 팀원 | 백엔드, 제스처  |  
- | **이승지** | 팀원 | 백엔드, 제스처 |  
+
+| <div align="center" style="display: flex; align-items: center; justify-content: center; height: 100px;">장홍준</div> |  <div align="center" style="display: flex; align-items: center; justify-content: center; height: 100px;">서정후</div> | <div align="center" style="display: flex; align-items: center; justify-content: center; height: 100px;">이상혁</div> |
+|:---------:|:---------:|:---------:|
+| [<img src="https://avatars.githubusercontent.com/ajang369" height=200 width=200> <br/> @ajang369](https://github.com/ajang369) | [<img src="https://avatars.githubusercontent.com/bluemango0312" height=200 width=200> <br/> @bluemango0312](https://github.com/bluemango0312)  | [<img src="https://avatars.githubusercontent.com/hyuksanglee" height=200 width=200> <br/> @hyuksanglee](https://github.com/hyuksanglee) |
+| 팀장, Android, UWB | Android | Android, WearOS | 
+
+| <div align="center" style="display: flex; align-items: center; justify-content: center; height: 100px;">서미지</div> | <div align="center" style="display: flex; align-items: center; justify-content: center; height: 100px;">이사랑</div> | <div align="center" style="display: flex; align-items: center; justify-content: center; height: 100px;">이승지</div> |
+|:--------:|:---------:|:---------:|
+| [<img src="https://avatars.githubusercontent.com/itsanisland" height=200 width=200> <br/> @itsanisland](https://github.com/itsanisland) | [<img src="https://avatars.githubusercontent.com/ipcp365" height=200 width=200> <br/> @ipcp365](https://github.com/ipcp365) | [<img src="https://avatars.githubusercontent.com/bmlsj" height=200 width=200> <br/> @bmlsj](https://github.com/bmlsj) |
+| BE, Infra, 제스처 AI | BE, 제스처 AI | BE, 제스처 AI |
 
 <br>
 
