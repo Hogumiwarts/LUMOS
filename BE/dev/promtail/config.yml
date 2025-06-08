@@ -1,0 +1,43 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+
+    pipeline_stages:
+      # Node.js: lumos-smartthings-service → 멀티라인 처리 안 함
+      - match:
+          selector: '{container="lumos-smartthings-service"}'
+          stages:
+            - docker: {}
+
+      # Spring: 그 외 lumos-xxx-service 컨테이너는 멀티라인 적용
+      - match:
+          selector: '{container=~"lumos-.*"}'
+          stages:
+            - multiline:
+                firstline: '^\d{4}-\d{2}-\d{2}'
+                max_wait_time: 3s
+            - docker: {}
+
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        regex: lumos-loki
+        action: drop
+
+      - source_labels: [ '__meta_docker_container_name' ]
+        regex: '/(.*)'
+        target_label: container
+
+      - source_labels: [ '__meta_docker_container_log_stream' ]
+        target_label: stream

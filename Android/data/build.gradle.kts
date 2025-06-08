@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,6 +8,14 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
 }
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+
+val smartBaseUrl = localProperties["SMART_BASE_URL"] as String
+val baseUrl = localProperties["BASE_URL"] as String
+val deviceBaseUrl = localProperties["DEVICE_BASE_URL"] as String
 
 android {
     namespace = "com.hogumiwarts.data"
@@ -16,6 +26,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField("String", "AUTH_BASE_URL", "\"${rootProject.extra["AUTH_BASE_URL"]}\"")
+        buildConfigField("String", "SMART_BASE_URL", "\"$smartBaseUrl\"")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "DEVICE_BASE_URL", "\"$deviceBaseUrl\"")
     }
 
     buildTypes {
@@ -33,6 +48,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -72,6 +90,9 @@ dependencies {
     // Logging
     implementation(libs.timber)
 
+    // DataStore
+    implementation(libs.datastore.preferences)
+
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -81,4 +102,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
 }

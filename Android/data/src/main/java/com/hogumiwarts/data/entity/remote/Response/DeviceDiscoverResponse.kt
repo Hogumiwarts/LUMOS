@@ -1,0 +1,9 @@
+package com.hogumiwarts.data.entity.remote.Response
+
+import com.hogumiwarts.domain.model.DeviceResult
+
+data class DeviceDiscoverResponse(
+    val status: Int,
+    val message: String,
+    val data: List<DeviceResult>
+)

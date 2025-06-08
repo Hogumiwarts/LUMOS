@@ -1,0 +1,46 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+        - id: member-service
+          uri: http://member-service:8080
+          predicates:
+            - Path=/member/**
+          filters:
+            - StripPrefix=1
+        - id: device-service
+          uri: http://device-service:8080
+          predicates:
+            - Path=/device/**
+          filters:
+            - StripPrefix=1
+        - id: gesture-service
+          uri: http://gesture-service:8080
+          predicates:
+            - Path=/gesture/**
+          filters:
+            - StripPrefix=1
+        - id: gesture-sensor-service
+          uri: http://gesture-sensor-service:8080
+          predicates:
+            - Path=/gesture-sensor/**
+          filters:
+            - StripPrefix=1
+        - id: routine-service
+          uri: http://routine-service:8080
+          predicates:
+            - Path=/routine/**    # prefix로 구분
+          filters:
+            - StripPrefix=1
+        - id: smartthings-service
+          uri: http://smartthings-service:3000
+          predicates:
+            - Path=/smart/**
+          filters:
+            - StripPrefix=1

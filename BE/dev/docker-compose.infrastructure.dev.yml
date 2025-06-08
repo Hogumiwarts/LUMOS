@@ -1,0 +1,164 @@
+services:
+
+  # PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: lumos-postgres
+    env_file:
+      - .env.dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+  
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: lumos-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      - app-network
+  
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: lumos-redis-insight
+    restart: always
+    expose:
+      - "5540"
+    volumes:
+      - redis-insight-data:/data
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lumos-grafana
+    expose:
+      - "3000"
+    env_file:
+      - .env.dev
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+  
+  # Loki
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: lumos-loki
+    expose:
+      - "3100"
+    command: -config.file=/etc/loki/local-config.yaml -log.level=warn
+    networks:
+      - app-network
+
+  # Promtail
+  promtail:
+    image: grafana/promtail:2.9.3
+    container_name: lumos-promtail
+    volumes:
+      - /var/log:/var/log # 시스템 로그 접근
+      - ./promtail:/etc/promtail
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro # 도커 로그 위치
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+  
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: lumos-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    expose:
+      - "9090"
+    networks:
+      - app-network
+
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    container_name: lumos-node-exporter
+    expose:
+      - "9100"
+    networks:
+      - app-network
+    restart: always
+  
+  # cAdvisor
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: lumos-cadvisor
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    command:
+      - "--docker_only=true"
+      - "--housekeeping_interval=10s"
+      - "--store_container_labels=true"
+      - "--allow_dynamic_housekeeping=true"
+    networks:
+      - app-network
+    restart: always
+
+  # Kafka
+  zookeeper-0:
+    image: bitnami/zookeeper:3.9.2
+    container_name: lumos-zookeeper-0
+    expose:
+      - "2181"
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
+
+  kafka-0:
+    image: bitnami/kafka:3.7.0
+    container_name: lumos-kafka-0
+    expose:
+      - "9094"
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: lumos-kafka-ui
+    depends_on:
+      - kafka-0
+    expose:
+      - "8080"
+    env_file:
+      - .env.dev
+    networks:
+      - app-network
+      
+volumes:
+  postgres_data:
+  grafana_data:
+  redis_data:
+  redis-insight-data:
+  zookeeper_data:
+  kafka_data:
+  
+networks:
+  app-network:
+    external: true

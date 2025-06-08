@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: gesture-sensor-service
+
+  jackson:
+    time-zone: ${TZ}
+
+  messages:
+    basename: ValidationMessages
+    encoding: UTF-8
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: false
+        jdbc:
+          time_zone: ${TZ}
+    show-sql: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 86400000
+  refresh-token-expiration: 604800000
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  enable-spring-security: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region: ${AWS_REGION}
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    cloudfront:
+      url: ${CLOUDFRONT_DOMAIN}
+
+gesture-classification:
+  server:
+      url: ${GESTURE_CLASSIFICATION_SERVER_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus  # Prometheus endpoint 포함
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: gesture-sensor-service
+    enable:
+      hikari: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true

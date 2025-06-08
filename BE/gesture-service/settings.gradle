@@ -1,0 +1,10 @@
+rootProject.name = 'gesture'
+
+include(":common-core")
+project(":common-core").projectDir = file("../common-lib/common-core")
+
+include(":common-security")
+project(":common-security").projectDir = file("../common-lib/common-security")
+
+include(":common-redis")
+project(":common-redis").projectDir = file("../common-lib/common-redis")
